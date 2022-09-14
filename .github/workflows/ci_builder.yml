@@ -1,36 +1,25 @@
-name: Build, generate, and deploy notebook HTML
-
-#  Only run this when the master branch changes
+name: Deploy_HTML
+# Only trigger, when the validation workflow succeeded
 on:
-  push:
+  workflow_run:
+    workflows: ["ci_validation"]
     branches:
-    - main
-    # If your git repository has the Jupyter Book within some-subfolder next to
-    # unrelated files, you can make this run only if a file within that specific
-    # folder has been modified.
-    #
-    # paths:
-    # - some-subfolder/**
-    paths:
-      - 'notebooks/**.ipynb'
+      - main
+    types:
+     - completed
+   # paths:
+   #   - 'notebooks/**.ipynb'
   workflow_call:
 
 permissions: write-all
 
-env: 
-  WEBBPSF_PATH: $HOME/data/webbpsf-data
-  PYSYN_CDBS: $PWD/grp/redcat/trds/
+
 
 # This job installs dependencies, builds the book, and pushes it to `gh-pages`
 jobs:       
   deploy-book:
     runs-on: ubuntu-latest
     steps:
-    - name: Free up disk space
-      run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
     - uses: actions/checkout@v2
     - name: Set up Python 3.8.12
       uses: actions/setup-python@v2 ## needed for caching
@@ -41,17 +30,16 @@ jobs:
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin >> $GITHUB_PATH
+
     - name: Install Python dependencies
       run: |
         sudo apt-get install python3-pip
-        pip install -r requirements.txt
+        pip install -r CIenvironment.yml
         #        pip install git+git://github.com/executablebookproject/cli.git
         pip install ghp-import
         pip install jupyter-book
         pip install myst-nb
         pip install nbval
-        ## test to bypass the jupyter-book lower version
-        pip install jsonschema==4.6.0
         PATH="${PATH}:${HOME}/.local/bin"
         
     #- name: nbval validation step
@@ -64,11 +52,7 @@ jobs:
     - name: Build book HTML 
       run: |
         jupyter-book build .
-    #- name: Execute JDAVIZ placeholder substitution
-    #  run: |
-    #    cp jdaviz_placeholder_new.png _build/html                                                                                                                 
-    #    ./placeholder.sh
-
+        
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
       uses: peaceiris/actions-gh-pages@v3.6.1
