@@ -1,0 +1,72 @@
+## Workflow to run when there is a direct push to the main branch, or a PR is submitted.  
+## The workflow runs three workflows - Valdation, Execution, and HTML Deployment.
+## The jobs are dependent on the previous succeding - if valdiation fails, the rest will, if 
+## execution fails, html deployment will not run.
+## Each job runs on its own runner with an independent environment, with the exception of the 
+## HTML generation, which occurs on a single runner using the global environment.
+
+name: MatrixTest
+on: 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'notebooks/**.ipynb'
+      - '*.yml'
+env:
+  ARCH_ON_CI: "normal"
+
+jobs:
+  gather-notebooks:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v2
+    ## routine to gather only the changed notebook files and supply them to the matrix
+    - name: changed-files
+      id: get-changed-files
+      uses: tj-actions/changed-files@v18.4
+      with:
+        separator: ","
+        files: |
+          **/*.ipynb
+    ## convert the list of files to an array and push them into the matrix as a json object      
+    - name: set-matrix
+      id: set-matrix
+      run: |
+        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
+        echo "{$array}"
+        echo "::set-output name=matrix::$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")"
+   
+  notebook-execution:
+    needs: gather-notebooks
+    runs-on: ubuntu-latest
+    strategy:
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v2   
+      - name: Set up Python 3.8.12
+        uses: actions/setup-python@v2 ## needed for caching
+        with:
+          python-version: 3.8.12
+          cache: 'pip'
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          ## Install the local requirements file
+          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
+      - name: Execute notebooks
+        run: |
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+      - name: Validate notebooks 
+        run: |
+         pytest --nbval "${{ matrix.notebooks }}" 
