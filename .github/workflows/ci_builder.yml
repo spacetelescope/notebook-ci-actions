@@ -1,31 +1,13 @@
-name: Build, generate, and deploy notebook HTML
-
-#  Only run this when the master branch changes
 on:
-  push:
-    branches:
-    - main
-    # If your git repository has the Jupyter Book within some-subfolder next to
-    # unrelated files, you can make this run only if a file within that specific
-    # folder has been modified.
-    #
-    # paths:
-    # - some-subfolder/**
-    paths:
-      - 'notebooks/**.ipynb'
   workflow_call:
-
-permissions: write-all
-
-env: 
-  WEBBPSF_PATH: $HOME/data/webbpsf-data
-  PYSYN_CDBS: $PWD/grp/redcat/trds/
-
-# This job installs dependencies, builds the book, and pushes it to `gh-pages`
-jobs:       
+ 
+jobs:
   deploy-book:
+    ## Only run if the PR is closed and merged
+    if: github.event.pull_request.merged == true
+    #if: (!(github.event.action == 'closed' && github.event.pull_request.merged != true ))
     runs-on: ubuntu-latest
-    steps:
+    steps:  
     - name: Free up disk space
       run: |
           sudo rm -rf /usr/share/dotnet
@@ -44,30 +26,18 @@ jobs:
     - name: Install Python dependencies
       run: |
         sudo apt-get install python3-pip
+        ## Install the global requirements file - needed for jupyter-book
         pip install -r requirements.txt
-        #        pip install git+git://github.com/executablebookproject/cli.git
         pip install ghp-import
         pip install jupyter-book
         pip install myst-nb
         pip install nbval
-        ## test to bypass the jupyter-book lower version
+        ## work-around to bypass the jupyter-book lower version
         pip install jsonschema==4.6.0
         PATH="${PATH}:${HOME}/.local/bin"
-        
-    #- name: nbval validation step
-    #  run: |
-    #    python -m pytest --nbval --durations 10
-    #    
-    #    #- name: Build book TOC file 
-    #    #run: |
-    #    #jupyter-book toc from-project ./notebooks
     - name: Build book HTML 
       run: |
         jupyter-book build .
-    #- name: Execute JDAVIZ placeholder substitution
-    #  run: |
-    #    cp jdaviz_placeholder_new.png _build/html                                                                                                                 
-    #    ./placeholder.sh
 
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
