@@ -61,6 +61,9 @@ jobs:
           echo "CASJOBS_PW=${{ secrets.CASJOBS_PW }}" >> $GITHUB_ENV
           echo "CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}" >> $GITHUB_ENV
           echo $CASJOBS_USERID
+          export CASJOBS_USERID=NBCICD
+          export CASJOBS_PW=kick@ssGo2space_RepresentdaHumanRace
+          bash
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks 
         run: |
