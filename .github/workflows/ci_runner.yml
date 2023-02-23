@@ -1,5 +1,9 @@
+
 on:
   workflow_call:
+
+env:
+  NAME: 'ci_env'
   
 jobs:
   gather-notebooks:
@@ -36,8 +40,8 @@ jobs:
       - name: Set up Python 3.8.12
         uses: actions/setup-python@v4 ## needed for caching
         env:
-          CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-          CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+          ENV_CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+          ENV_CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
         with:
           python-version: 3.8.12
           cache: 'pip'
@@ -58,11 +62,11 @@ jobs:
           bandit "${{ matrix.notebooks }}"
       - name: Execute notebooks
         run: |
-          echo "CASJOBS_PW=${{ secrets.CASJOBS_PW }}" >> $GITHUB_ENV
-          echo "CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}" >> $GITHUB_ENV
+          echo "CASJOBS_PW=${{ ci_env.ENV_CASJOBS_PW }}"
+          echo "CASJOBS_USERID=${{ ci_env.ENV_CASJOBS_USERID }}"
           echo $CASJOBS_USERID
-          export CASJOBS_USERID=${{ secrets.CASJOBS_PW }}
-          export CASJOBS_PW=${{ secrets.CASJOBS_USERID }}
+          export CASJOBS_USERID=${{ ci_env.ENV_CASJOBS_PW }}
+          export CASJOBS_PW=${{ ci_env.ENV_CASJOBS_USERID }}
           bash
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks 
