@@ -13,6 +13,7 @@ jobs:
       id: get-changed-files
       uses: tj-actions/changed-files@v35
       with:
+        fetch_depth: 60000
         separator: ","
         files: |
           **/*.ipynb
