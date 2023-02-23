@@ -11,9 +11,8 @@ jobs:
     ## routine to gather only the changed notebook files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
-      uses: tj-actions/changed-files@v35
+      uses: tj-actions/changed-files@v22
       with:
-        fetch_depth: 60000
         separator: ","
         files: |
           **/*.ipynb
