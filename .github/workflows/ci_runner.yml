@@ -55,9 +55,11 @@ jobs:
           bandit "${{ matrix.notebooks }}"
       - name: Execute notebooks
         env:
-          CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-          CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+          CI_CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+          CI_CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
         run: |
+          export CASJOBS_PW=$CI_CASJOBS_PW
+          export CASJOBS_USERID=$CI_CASJOBS_USERID
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks 
         run: |
