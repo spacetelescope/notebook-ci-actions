@@ -47,8 +47,9 @@ jobs:
           
       - name: Execute notebooks
         run: |
-          echo "CASJOBS_USERID=${CASJOBS_USERID}" >> $GITHUB_ENV
-          echo "CASJOBS_PW=${CASJOBS_PW}" >> $GITHUB_ENV
+          echo "export CASJOBS_USERID=${CASJOBS_USERID}" >> $GITHUB_ENV
+          echo "export CASJOBS_PW=${CASJOBS_PW}" >> $GITHUB_ENV
+          bash
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: | 
