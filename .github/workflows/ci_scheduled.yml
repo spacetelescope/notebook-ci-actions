@@ -42,13 +42,12 @@ jobs:
           pip install pytest
           pip install nbval
           pip install nbconvert
-          #export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-          #export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+
           
       - name: Execute notebooks
         run: |
-          echo "CASJOBS_USERID=${CASJOBS_USERID}" >> $GITHUB_ENV
-          echo "CASJOBS_PW=${CASJOBS_PW}" >> $GITHUB_ENV
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: | 
