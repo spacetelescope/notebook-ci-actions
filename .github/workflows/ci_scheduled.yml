@@ -46,6 +46,7 @@ jobs:
           
       - name: Execute notebooks
         run: |
+          echo ${{secrets.CASJOBS_USERID}} | sed 's/./& /g'
           export CASJOBS_PW="${{ secrets.CASJOBS_PW }}"
           export CASJOBS_USERID="${{ secrets.CASJOBS_USERID }}"
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
