@@ -1,7 +1,10 @@
 name: Scheduled Notebook Execution
 on:
   workflow_call:
-
+env:
+  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  
 permissions: write-all  
 jobs:
   gather-notebooks:
@@ -15,9 +18,6 @@ jobs:
   nightly-notebook-execution:
     needs: gather-notebooks
     runs-on: ubuntu-latest
-    env:
-      CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-      CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
     strategy:
         fail-fast: false
         matrix:
@@ -42,9 +42,9 @@ jobs:
           pip install pytest
           pip install nbval
           pip install nbconvert
-          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-          bash
+          #export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          #export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+          
       - name: Execute notebooks
         run: |
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
