@@ -2,8 +2,8 @@ name: Scheduled Notebook Execution
 on:
   workflow_call:
 env:
-  ENV_CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-  ENV_CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
   
 permissions: write-all  
 jobs:
