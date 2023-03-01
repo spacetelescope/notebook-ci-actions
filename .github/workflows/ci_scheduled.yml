@@ -49,9 +49,6 @@ jobs:
           CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
           CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
         run: |
-          echo $ENV_CASJOBS_USERID | sed 's/./& /g'
-          export CASJOBS_PW=$ENV_CASJOBS_USERID
-          export CASJOBS_USERID=$ENV_CASJOBS_USERID
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: | 
