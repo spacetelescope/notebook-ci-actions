@@ -42,12 +42,10 @@ jobs:
           pip install pytest
           pip install nbval
           pip install nbconvert
-
-          
-      - name: Execute notebooks
-        env:
           CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
           CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+          
+      - name: Execute notebooks
         run: |
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
