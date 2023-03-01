@@ -32,6 +32,8 @@ jobs:
         with:
           python-version: 3.8.12
           cache: 'pip'
+          CI_CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+          CI_CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
