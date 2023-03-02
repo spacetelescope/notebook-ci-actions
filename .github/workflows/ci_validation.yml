@@ -1,72 +1,91 @@
-## Workflow to run when there is a direct push to the main branch, or a PR is submitted.  
-## The workflow runs three workflows - Valdation, Execution, and HTML Deployment.
-## The jobs are dependent on the previous succeding - if valdiation fails, the rest will, if 
-## execution fails, html deployment will not run.
-## Each job runs on its own runner with an independent environment, with the exception of the 
-## HTML generation, which occurs on a single runner using the global environment.
+name: ci_validation 
 
-name: MatrixTest
-on: 
-  pull_request:
+on:
+  push:
     branches:
-      - main
+    - main
     paths:
       - 'notebooks/**.ipynb'
-      - '*.yml'
-env:
-  ARCH_ON_CI: "normal"
+  workflow_call:
 
+permissions: write-all
+
+env: 
+  WEBBPSF_PATH: $HOME/data/webbpsf-data
 jobs:
-  gather-notebooks:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-    - uses: actions/checkout@v2
-    ## routine to gather only the changed notebook files and supply them to the matrix
-    - name: changed-files
-      id: get-changed-files
-      uses: tj-actions/changed-files@v18.4
-      with:
-        separator: ","
-        files: |
-          **/*.ipynb
-    ## convert the list of files to an array and push them into the matrix as a json object      
-    - name: set-matrix
-      id: set-matrix
-      run: |
-        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
-        echo "{$array}"
-        echo "::set-output name=matrix::$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")"
-   
-  notebook-execution:
-    needs: gather-notebooks
+  build-linux:
     runs-on: ubuntu-latest
     strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+      max-parallel: 5
+
     steps:
-      - uses: actions/checkout@v2   
-      - name: Set up Python 3.8.12
-        uses: actions/setup-python@v2 ## needed for caching
-        with:
-          python-version: 3.8.12
-          cache: 'pip'
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          ## Install the local requirements file
-          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
-          pip install pytest
-          pip install nbval
-          pip install nbconvert
-      - name: Execute notebooks
-        run: |
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
-      - name: Validate notebooks 
-        run: |
-         pytest --nbval "${{ matrix.notebooks }}" 
+    #- name: cuda-toolkit-fork
+      # You may pin to the exact commit or the version.
+      # uses: unimonkiez/cuda-toolkit@2ab6b684c3cfd2bb40392d66847758dd59cf19bb
+      #uses: unimonkiez/cuda-toolkit@v0.2.5
+      #with:
+        # Cuda version
+      #  cuda: 11.2.2
+        # Only installs specified subpackages, must be in the form of a JSON array. For example, if you only want to install nvcc and visual studio integration: ["nvcc", "visual_studio_integration"] double quotes required! Note that if you want to use this on Linux, 'network' method MUST be used.
+        #sub-packages: []
+        # Installation method, can be either 'local' or 'network'. 'local' downloads the entire installer with all packages and runs that (you can still only install certain packages with sub-packages on Windows). 'network' downloads a smaller executable which only downloads necessary packages which you can define in subPackages
+        #method: # optional, default is local
+        # (Linux and 'local' method only) override arguments for the linux .run installer. For example if you don't want samples use ["--toolkit"] double quotes required!
+        #linux-local-args: # optional, default is ["--toolkit", "--samples"]
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8.12
+      uses: actions/setup-python@v2 ## needed for caching
+      with:
+        python-version: 3.8.12
+        cache: 'pip'
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        #conda env update --file CIenvironment.yml --name base
+        pip install -r CIenvironment.yml
+        pip install pytest
+        pip install nbval
+        pip install bandit
+        pip install nbconvert
+        pip install -I jinja2==3.0.3
+        sudo apt install nvidia-cuda-toolkit
+      
+    - name: Gather changed notebooks
+      id: changed-files
+      uses: tj-actions/changed-files@v18.4
+      with:
+        files: |
+          **/*.ipynb
+    - name: Security testing with Bandit
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was updated, validating notebook"
+          run: | 
+            bandit $file
+        done
+          
+    #- name: Validating with NBVAL
+    #  run: |
+    #    for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+    #      echo "$file was updated, validating notebook"
+    #      run: | 
+    #        pytest --nbval $file
+    #    done
+        
+    - name: Executing changed notebooks
+      run: |
+        for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+          echo "$file was updated, executing notebook"
+          run: | 
+            jupyter nbconvert --template classic --to html --execute $file
+        done
+        
+#    - name: Execute notebooks
+#      run: |
+#        find . -name '*.ipynb' -type f -execdir jupyter nbconvert --template classic --to html --execute {} \; 
+#    - name: Test with pytest
+#      run: |
+#        pytest --nbval

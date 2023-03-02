@@ -1,0 +1,51 @@
+name: Scheduled Notebook Execution
+on:
+  workflow_call:
+env:
+  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  
+permissions: write-all  
+jobs:
+  gather-notebooks:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-matrix
+        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+  scheduled-notebook-execution:
+    needs: gather-notebooks
+    runs-on: ubuntu-latest
+    strategy:
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v3
+      #- run: | 
+      #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8.12
+        uses: actions/setup-python@v4 ## needed for caching
+        with:
+          python-version: 3.8.12
+          cache: 'pip'
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
+          
+      - name: Execute notebooks
+        run: |
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+      - name: Validate notebooks
+        run: | 
+          pytest --nbval "${{ matrix.notebooks }}"
