@@ -2,8 +2,8 @@ name: Scheduled Notebook Execution
 on:
   workflow_call:
 env:
-  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  WEBBPSF_PATH: $HOME/data/webbpsf-data
+  PYSYN_CDBS: $PWD/grp/redcat/trds/
   
 permissions: write-all  
 jobs:
