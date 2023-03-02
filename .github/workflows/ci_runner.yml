@@ -38,8 +38,6 @@ jobs:
         with:
           python-version: 3.8.12
           cache: 'pip'
-          CI_CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-          CI_CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
@@ -57,8 +55,8 @@ jobs:
           bandit "${{ matrix.notebooks }}"
       - name: Execute notebooks
         run: |
-          export CASJOBS_PW=$CI_CASJOBS_PW
-          export CASJOBS_USERID=$CI_CASJOBS_USERID
+          export CASJOBS_PW="$CI_CASJOBS_PW"
+          export CASJOBS_USERID="$CI_CASJOBS_USERID"
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks 
         run: |
