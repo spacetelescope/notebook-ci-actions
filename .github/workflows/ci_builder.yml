@@ -1,6 +1,8 @@
 on:
   workflow_call:
- 
+env: 
+  WEBBPSF_PATH: $PWD/data/webbpsf-data
+  PYSYN_CDBS: $PWD/grp/redcat/trds/
 jobs:
   deploy-book:
     ## Only run if the PR is closed and merged
