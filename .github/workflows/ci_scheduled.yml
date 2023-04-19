@@ -49,9 +49,6 @@ jobs:
           echo $CASJOBS_USERID
           echo $CASJOBS_PW
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
-          env:
-            CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-            CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       - name: Validate notebooks
         run: | 
           pytest --nbval "${{ matrix.notebooks }}"
