@@ -51,8 +51,6 @@ jobs:
           
       - name: Execute notebooks
         run: |
-          echo $CASJOBS_USERID
-          echo $CASJOBS_PW
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: |
