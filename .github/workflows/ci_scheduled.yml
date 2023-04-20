@@ -1,11 +1,11 @@
 name: Scheduled Notebook Execution
 on:
   workflow_call:
-#       secrets:
-#         CASJOBS_USERID:
-#           description: 'CASJOBS user ID'
-#         CASJOBS_PW:
-#           description: 'CASJOBS password'
+      secrets:
+        CASJOBS_USERID:
+          description: 'CASJOBS user ID'
+        CASJOBS_PW:
+          description: 'CASJOBS password'
 env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
@@ -50,16 +50,10 @@ jobs:
           pip install nbconvert
           
       - name: Execute notebooks
-#         env:
-#           CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-#           CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
         run: |
           echo $CASJOBS_USERID
           echo $CASJOBS_PW
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
-#         env:
-#           CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-#           CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
         run: |
           pytest --nbval "${{ matrix.notebooks }}"
