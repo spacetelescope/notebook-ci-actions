@@ -1,11 +1,11 @@
 name: Scheduled Notebook Execution
 on:
   workflow_call:
-      secrets:
-        CASJOBS_USERID:
-          description: 'CASJOBS user ID'
-        CASJOBS_PW:
-          description: 'CASJOBS password'
+#       secrets:
+#         CASJOBS_USERID:
+#           description: 'CASJOBS user ID'
+#         CASJOBS_PW:
+#           description: 'CASJOBS password'
 env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
