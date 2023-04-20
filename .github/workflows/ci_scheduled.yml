@@ -18,7 +18,6 @@ jobs:
   scheduled-notebook-execution:
     needs: gather-notebooks
     runs-on: ubuntu-latest
-    secrets: inherit
     strategy:
         fail-fast: false
         matrix:
