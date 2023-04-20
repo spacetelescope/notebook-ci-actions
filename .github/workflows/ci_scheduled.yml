@@ -62,6 +62,4 @@ jobs:
           CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
           CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
         run: |
-          echo $CASJOBS_USERID
-          echo $CASJOBS_PW
           pytest --nbval "${{ matrix.notebooks }}"
