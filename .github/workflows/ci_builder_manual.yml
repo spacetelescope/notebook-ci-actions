@@ -1,5 +1,15 @@
 on:
   workflow_call:
+      secrets:
+        CASJOBS_USERID:
+          description: 'CASJOBS user ID'
+          required: false
+        CASJOBS_PW:
+          description: 'CASJOBS password'
+          required: false
+env:
+  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
  
 jobs:
   deploy-book:
