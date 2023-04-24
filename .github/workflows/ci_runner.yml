@@ -1,5 +1,12 @@
 on:
   workflow_call:
+      secrets:
+        CASJOBS_USERID:
+          description: 'CASJOBS user ID'
+          required: false
+        CASJOBS_PW:
+          description: 'CASJOBS password'
+          required: false
   
 jobs:
   gather-notebooks:
