@@ -43,9 +43,6 @@ jobs:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: $ {{ github.head_ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Set up Python 3.8.12
         uses: actions/setup-python@v4 ## needed for caching
         with:
@@ -58,7 +55,8 @@ jobs:
       - name: Install dependencies
         run: |
           ## Install the local requirements file
-          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          pip install -r $(dirname ${{ matrix.notebooks }}/requirements.txt
           pip install pytest
           pip install nbval
           pip install nbconvert
