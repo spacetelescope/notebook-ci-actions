@@ -56,7 +56,7 @@ jobs:
         run: |
           ## Install the local requirements file
           #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
-          pip install -r $(dirname ${{ matrix.notebooks }}/requirements.txt
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
           pip install nbconvert
