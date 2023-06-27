@@ -57,8 +57,8 @@ jobs:
           ## Install the local requirements file
           echo DEBUG ---
           pwd ## print working directory
-          REQUIREMENTS_PATH = $(dirname ${{ matrix.notebooks }})/requirements.txt
-          echo "Path to req's: ${REQUIREMENTS_PATH}"
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
           echo ---
           #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
           pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
