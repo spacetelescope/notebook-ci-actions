@@ -155,7 +155,7 @@ for item in enumerate(warns):
         lines_to_ignore.append(line_num)
 if len(lines_to_ignore) > 0:
     warns = [i for j, i in enumerate(warns) if j not in lines_to_ignore]
-
+print("IT GOT HERE!")
 # if there are none, QUIT while we're ahead
 if not warns:
     print(f"{nb_file} is clean!")
