@@ -55,4 +55,4 @@ jobs:
           pip install pytz
       - name: Run PEP8 style check
         run: |
-          python .github/helpers/pep8_nb_style_checker.py -f ${{ matrix.notebooks }}
+          python dulude/notebook-ci-actions/.github/helpers/pep8_nb_style_checker.py@main -f ${{ matrix.notebooks }}
