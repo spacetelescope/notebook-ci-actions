@@ -53,6 +53,7 @@ jobs:
           pip install flake8
           pip install numpy
           pip install pytz
+          pip install git+https://github.com/dulude/pep8_notebook_check.git
       - name: Run PEP8 style check
         run: |
-          python .github/helpers/pep8_nb_style_checker.py -f ${{ matrix.notebooks }}
+          python pep8_nb_style_checker.py -f ${{ matrix.notebooks }}
