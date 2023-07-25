@@ -60,6 +60,10 @@ jobs:
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          fi
           #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
           pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
