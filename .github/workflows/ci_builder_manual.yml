@@ -32,7 +32,6 @@ jobs:
         echo $CONDA/bin >> $GITHUB_PATH
     - name: Install Python dependencies
       run: |
-        export PYDEVD_DISABLE_FILE_VALIDATION=1 
         sudo apt-get install python3-pip
         ## Install the global requirements file - needed for jupyter-book
         pip install -r requirements.txt
@@ -45,6 +44,7 @@ jobs:
         PATH="${PATH}:${HOME}/.local/bin"
     - name: Build book HTML 
       run: |
+        export PYDEVD_DISABLE_FILE_VALIDATION=1 
         jupyter-book build .
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
