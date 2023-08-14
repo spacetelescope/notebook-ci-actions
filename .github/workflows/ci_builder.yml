@@ -12,41 +12,34 @@ env:
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
  
 jobs:
-  deploy-book:
-    ## Only run if the PR is closed and merged
-    if: github.event.pull_request.merged == true
-    #if: (!(github.event.action == 'closed' && github.event.pull_request.merged != true ))
+  generate_html:
     runs-on: ubuntu-latest
-    steps:  
-    - name: Free up disk space
-      run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.8.12
-      uses: actions/setup-python@v2 ## needed for caching
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.8.12
-        cache: 'pip'
-    - name: Add conda to system path
+        python-version: '3.x'
+        
+    - name: Install dependencies
       run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin >> $GITHUB_PATH
-    - name: Install Python dependencies
-      run: |
-        sudo apt-get install python3-pip
-        ## Install the global requirements file - needed for jupyter-book
-        pip install -r requirements.txt
         pip install ghp-import
         pip install jupyter-book
         pip install myst-nb
+        pip install astroid
         pip install nbval
-        ## work-around to bypass the jupyter-book lower version
+        #pip install bs4
+        #pip install lxml
+        ## test to bypass the jupyter-book lower version
         pip install jsonschema==4.6.0
         PATH="${PATH}:${HOME}/.local/bin"
-    - name: Build book HTML 
+
+    - name: Build HTML
       run: |
+        git fetch
+        git checkout origin/gh-storage -- notebooks/
         jupyter-book build .
 
     # Push the book's HTML to github-pages
