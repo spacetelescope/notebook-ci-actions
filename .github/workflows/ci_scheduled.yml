@@ -45,8 +45,14 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          #pip install -r requirements.txt
-          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
+          echo ---
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          fi
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
           pip install nbconvert
