@@ -40,8 +40,14 @@ jobs:
       run: |
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         python -m pip install --upgrade pip
-        pip install -r pre-requirements.txt
-        pip install -r requirements.txt
+        echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+        ls $(dirname ${{ matrix.notebooks }})
+        echo ---
+        if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+        fi
+        pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
         pip install pytest
         pip install nbval
         pip install nbconvert
@@ -99,10 +105,6 @@ jobs:
         git checkout origin/gh-storage -- notebooks/
         jupyter-book build .
         
-    #- name: Execute JDAVIZ placeholder substitution
-    #  run: |
-    #    cp jdaviz_placeholder_new.png _build/html                                                                                                                 
-    #    ./placeholder.sh
 
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
