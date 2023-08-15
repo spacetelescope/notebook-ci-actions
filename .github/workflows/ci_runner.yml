@@ -73,6 +73,9 @@ jobs:
       - name: Security testing with Bandit
         run: | 
           bandit "${{ matrix.notebooks }}"
+      - name: Validate notebooks 
+        run: |
+         pytest --nbval "${{ matrix.notebooks }}" 
       - name: Execute notebooks
         run: |
           export CASJOBS_PW="$CI_CASJOBS_PW"
@@ -83,9 +86,6 @@ jobs:
             fi
           fi
           #jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
-      - name: Validate notebooks 
-        run: |
-         pytest --nbval "${{ matrix.notebooks }}" 
       - name: Archive executed notebooks
         run: |
             git status
