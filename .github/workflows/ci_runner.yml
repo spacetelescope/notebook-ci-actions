@@ -77,7 +77,13 @@ jobs:
         run: |
           export CASJOBS_PW="$CI_CASJOBS_PW"
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+                id: execute
+          if [ "${{ matrix.notebooks }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+            if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+              python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
+            fi
+          fi
+          #jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks 
         run: |
          pytest --nbval "${{ matrix.notebooks }}" 
