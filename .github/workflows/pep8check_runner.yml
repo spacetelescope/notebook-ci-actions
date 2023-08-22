@@ -56,7 +56,8 @@ jobs:
       - name: Check-out notebook-ci-actions repository
         uses: actions/checkout@v2
         with:
-          repository: dulude/notebook-ci-actions@SPB-1438
+          repository: dulude/notebook-ci-actions
+          ref: SPB-1438
           path: notebook-ci-actions
       - name: Run PEP8 style check
         run: |
