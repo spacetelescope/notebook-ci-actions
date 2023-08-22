@@ -56,7 +56,7 @@ jobs:
       - name: Check-out notebook-ci-actions repository
         uses: actions/checkout@v3
         with:
-          repository: dulude/notebook-ci-actions
+          repository: spacetelescope/notebook-ci-actions
           path: temp_pep8checker
       - name: Run PEP8 style check
         run: |
