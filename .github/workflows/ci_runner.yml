@@ -81,7 +81,7 @@ jobs:
         run: |
           export CASJOBS_PW="$CI_CASJOBS_PW"
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+          jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}
           
       - name: Archive executed notebooks
         run: |
