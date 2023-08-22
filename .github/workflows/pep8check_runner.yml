@@ -58,7 +58,7 @@ jobs:
         with:
           repository: dulude/notebook-ci-actions
           ref: SPB-1438
-          path: blarg
+          path: temp_pep8checker
       - name: Run PEP8 style check
         run: |
-          python blarg/.github/helpers/pep8_nb_style_checker.py ${{ matrix.notebooks }}
+          python temp_pep8checker/.github/helpers/pep8_nb_style_checker.py ${{ matrix.notebooks }}
