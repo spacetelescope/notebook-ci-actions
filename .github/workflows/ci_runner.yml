@@ -81,12 +81,8 @@ jobs:
         run: |
           export CASJOBS_PW="$CI_CASJOBS_PW"
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          if [ "${{ matrix.notebooks }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-            if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
-              python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
-            fi
-          fi
-          #jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+          
       - name: Archive executed notebooks
         run: |
             git status
