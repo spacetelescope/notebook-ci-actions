@@ -53,7 +53,11 @@ jobs:
           pip install flake8
           pip install numpy
           pip install pytz
-          pip install -v git+https://github.com/dulude/pep8_notebook_check.git
+      - name: Check-out notebook-ci-actions repository
+        uses: actions/checkout@v2
+        with:
+          repository: dulude/notebook-ci-actions@SPB-1438
+          path: notebook-ci-actions
       - name: Run PEP8 style check
         run: |
-          python pep8_nb_style_checker.py -f ${{ matrix.notebooks }}
+          python notebook_ci_actions/.github/helpers/pep8_nb_style_checker.py ${{ matrix.notebooks }}
