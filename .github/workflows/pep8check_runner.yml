@@ -54,11 +54,11 @@ jobs:
           pip install numpy
           pip install pytz
       - name: Check-out notebook-ci-actions repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: dulude/notebook-ci-actions
           ref: SPB-1438
-          path: notebook-ci-actions
+          path: blarg
       - name: Run PEP8 style check
         run: |
-          python notebook_ci_actions/.github/helpers/pep8_nb_style_checker.py ${{ matrix.notebooks }}
+          python blarg/.github/helpers/pep8_nb_style_checker.py ${{ matrix.notebooks }}
