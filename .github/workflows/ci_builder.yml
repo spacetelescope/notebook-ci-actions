@@ -11,8 +11,6 @@ env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
   
-permissions:
-  contents: write
  
 jobs:
   deploy-book:
@@ -20,6 +18,8 @@ jobs:
     if: github.event.pull_request.merged == true
     #if: (!(github.event.action == 'closed' && github.event.pull_request.merged != true ))
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:  
     - name: Free up disk space
       run: |
