@@ -7,6 +7,9 @@ on:
         CASJOBS_PW:
           description: 'CASJOBS password'
           required: false
+
+permissions: write-all
+
 env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
