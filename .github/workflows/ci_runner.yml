@@ -90,25 +90,23 @@ jobs:
           
       - name: Archive executed notebooks
         run: |
-            git status
-            git config pull.rebase false
-            git config --global user.name "GitHub Actions"
-            git config --global user.email "actions@github.com"
-            git checkout -b gh-storage
-            git add "${{ matrix.notebooks }}"
-            git status
-            git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
-            ATTEMPTS_LEFT=3
-            until [ $ATTEMPTS_LEFT -lt 1 ]
-            do
-              git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-              git push origin gh-storage 2>&1 | tee output.log
-              if grep -q "Updates were rejected because the remote contains work" output.log; then
-                echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-                let "ATTEMPTS_LEFT--"
-                sleep 5
-              else
-                break
-              fi
-            done
+          git config pull.rebase false
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout -b gh-storage
+          git add ${{ matrix.notebooks }}
+          git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
+          ATTEMPTS_LEFT=3
+          until [ $ATTEMPTS_LEFT -lt 1 ]
+          do
+            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
+            git push origin gh-storage 2>&1 | tee output.log
+            if grep -q "Updates were rejected because the remote contains work" output.log; then
+              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
+              let "ATTEMPTS_LEFT--"
+              sleep 5
+            else
+              break
+            fi
+          done
           
