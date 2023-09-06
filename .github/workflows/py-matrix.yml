@@ -2,6 +2,7 @@ name: Matrix Python Notebook Execution
 permissions:
   id-token: write
   
+  
 on:
   workflow_call:
     inputs:
@@ -19,7 +20,7 @@ env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
   
-permissions: write-all  
+ 
 jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
