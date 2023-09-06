@@ -1,4 +1,7 @@
 name: Matrix Python Notebook Execution
+permissions:
+  id-token: write
+  
 on:
   workflow_call:
     inputs:
