@@ -54,7 +54,6 @@ def script_style_checker(py_file):
     # Ignore lines with PEP 8 codes on ignore list
     codes_to_ignore = ["E261", # At least two spaces before inline comment
                        "E501", # line too long
-                       "F821", # undefined name
                        "W291", # Trailing whitespace
                        "W293"] # Blank line contains whitespace
     lines_to_ignore = []
