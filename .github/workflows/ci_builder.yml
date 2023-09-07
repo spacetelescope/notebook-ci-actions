@@ -8,7 +8,9 @@ on:
           description: 'CASJOBS password'
           required: false
 
-permissions: write-all
+#permissions: write-all
+permissions:
+  id-token: write
 
 env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
