@@ -46,6 +46,13 @@ jobs:
       - name: Install dependencies
         run: |
           #pip install -r requirements.txt
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          fi
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r "${{ matrix.notebooks }}")/pre-requirements.txt
+          fi
           pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
           pip install pytest
           pip install nbval
