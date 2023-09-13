@@ -81,11 +81,6 @@ jobs:
         run: | 
           bandit "${{ matrix.notebooks }}"
           
-      - name: Clear outputs
-        id: clear
-        run: |
-          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-          
       - name: Execute notebooks
         id: execute
         run: |
@@ -95,6 +90,7 @@ jobs:
           
       - name: Validate notebooks 
         run: |
+         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
          pytest --nbval "${{ matrix.notebooks }}" 
          
       - name: Archive executed notebooks
