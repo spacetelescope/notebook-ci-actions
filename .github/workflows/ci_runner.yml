@@ -49,6 +49,8 @@ jobs:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Python 3.8.12
         uses: actions/setup-python@v4 ## needed for caching
         with:
