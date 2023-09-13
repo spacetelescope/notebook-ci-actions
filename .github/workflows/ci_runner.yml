@@ -76,13 +76,16 @@ jobs:
           pip install nbval
           pip install nbconvert
           pip install bandit
+          
       - name: Security testing with Bandit
         run: | 
           bandit "${{ matrix.notebooks }}"
-      - name: Validate notebooks 
+          
+      - name: Clear outputs
+        id: clear
         run: |
-         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-         pytest --nbval "${{ matrix.notebooks }}" 
+          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
+          
       - name: Execute notebooks
         id: execute
         run: |
@@ -90,6 +93,10 @@ jobs:
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
           jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}
           
+      - name: Validate notebooks 
+        run: |
+         pytest --nbval "${{ matrix.notebooks }}" 
+         
       - name: Archive executed notebooks
         run: |
           git config pull.rebase false
