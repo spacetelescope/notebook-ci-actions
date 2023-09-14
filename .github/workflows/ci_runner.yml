@@ -1,15 +1,15 @@
 on:
   workflow_call:
-      secrets:
-        CASJOBS_USERID:
-          description: 'CASJOBS user ID'
-          required: false
-        CASJOBS_PW:
-          description: 'CASJOBS password'
-          required: false
-env:
-  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  #    secrets:
+  ##      CASJOBS_USERID:
+  #        description: 'CASJOBS user ID'
+  #        required: false
+  #      CASJOBS_PW:
+  #        description: 'CASJOBS password'
+  #        required: false
+#env:
+#  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+#  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
   
 #permissions:
 #  id-token: write
@@ -88,8 +88,8 @@ jobs:
       - name: Execute notebooks
         id: execute
         run: |
-          export CASJOBS_PW="$CI_CASJOBS_PW"
-          export CASJOBS_USERID="$CI_CASJOBS_USERID"
+          #export CASJOBS_PW="$CI_CASJOBS_PW"
+          #export CASJOBS_USERID="$CI_CASJOBS_USERID"
           jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}
           
       - name: Validate notebooks 
@@ -107,7 +107,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          #github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-storage
 
 #        run: |
