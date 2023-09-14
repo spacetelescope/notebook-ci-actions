@@ -11,11 +11,11 @@ env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
   
-permissions:
-  id-token: write
-  contents: write
-  issues: write
-  pull-requests: write
+#permissions:
+#  id-token: write
+##  contents: write
+#  issues: write
+#  pull-requests: write
   
 jobs:
   gather-notebooks:
@@ -97,23 +97,34 @@ jobs:
          
       - name: Archive executed notebooks
         run: |
-          git config pull.rebase false
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git checkout -b gh-storage
           git add ${{ matrix.notebooks }}
-          git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
-          ATTEMPTS_LEFT=3
-          until [ $ATTEMPTS_LEFT -lt 1 ]
-          do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage 2>&1 | tee output.log
-            if grep -q "Updates were rejected because the remote contains work" output.log; then
-              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-              let "ATTEMPTS_LEFT--"
-              sleep 5
-            else
-              break
-            fi
-          done
+          git commit -a -m "Add changes"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-storage
+#        run: |
+#          git config pull.rebase false
+#          git config --global user.name "GitHub Actions"
+#          git config --global user.email "actions@github.com"
+#          git checkout -b gh-storage
+#          git add ${{ matrix.notebooks }}
+#          git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
+#          ATTEMPTS_LEFT=3
+#          until [ $ATTEMPTS_LEFT -lt 1 ]
+#          do
+#            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
+#            git push origin gh-storage 2>&1 | tee output.log
+#            if grep -q "Updates were rejected because the remote contains work" output.log; then
+#              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
+#              let "ATTEMPTS_LEFT--"
+##              sleep 5
+ #           else
+ #             break
+ #           fi
+ #         done
           
