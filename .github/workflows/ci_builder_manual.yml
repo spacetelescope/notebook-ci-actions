@@ -1,12 +1,17 @@
 on:
   workflow_call:
-      secrets:
-        CASJOBS_USERID:
-          description: 'CASJOBS user ID'
-          required: false
-        CASJOBS_PW:
-          description: 'CASJOBS password'
-          required: false
+    inputs:  
+      python-version:
+        required: true
+        type: string
+    secrets:
+      CASJOBS_USERID:
+        description: 'CASJOBS user ID'
+        required: false
+      CASJOBS_PW:
+        description: 'CASJOBS password'
+        required: false
+        
 env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
@@ -18,10 +23,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up Python
+    - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: ${{ inputs.python-version }}
         
     - name: Install dependencies
       run: |
