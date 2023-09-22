@@ -1,21 +1,20 @@
 on:
   workflow_call:
-  #    secrets:
-  ##      CASJOBS_USERID:
-  #        description: 'CASJOBS user ID'
-  #        required: false
-  #      CASJOBS_PW:
-  #        description: 'CASJOBS password'
-  #        required: false
-#env:
-#  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-#  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
-  
-#permissions:
-#  id-token: write
-##  contents: write
-#  issues: write
-#  pull-requests: write
+    inputs:  
+      python-version:
+        required: true
+        type: string
+    secrets:
+      CASJOBS_USERID:
+        description: 'CASJOBS user ID'
+        required: false
+      CASJOBS_PW:
+        description: 'CASJOBS password'
+        required: false
+
+permissions:
+  id-token: write
+
   
 jobs:
   gather-notebooks:
@@ -53,10 +52,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up Python 3.8.12
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v4 ## needed for caching
         with:
-          python-version: 3.8.12
+          python-version: ${{ inputs.python-version }}
           cache: 'pip'
       - name: Add conda to system path
         run: |
