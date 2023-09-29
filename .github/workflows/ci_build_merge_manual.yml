@@ -57,6 +57,9 @@ jobs:
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         python -m pip install --upgrade pip
+        pip install pytest
+        pip install nbval
+        pip install nbconvert
         echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
         ls $(dirname ${{ matrix.notebook }})
         echo ---
@@ -72,9 +75,7 @@ jobs:
           pip install -r pre-requirements.txt
         fi
         pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
-        pip install pytest
-        pip install nbval
-        pip install nbconvert
+
 
     - name: Execute notebook
       id: execute
