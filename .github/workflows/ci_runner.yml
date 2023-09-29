@@ -69,8 +69,8 @@ jobs:
           fi
           if [ -f pre-requirements.txt ]; then
             pip install -r pre-requirements.txt
+            echo Found Pre-Reqs
           fi
-          #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
           pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
