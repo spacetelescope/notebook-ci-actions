@@ -62,6 +62,9 @@ jobs:
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
+          if [ -f pre-requirements.txt ]; then
+            pip install -r pre-requirements.txt
+          fi
           pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
