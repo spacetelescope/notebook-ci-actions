@@ -55,14 +55,14 @@ jobs:
           export PYDEVD_DISABLE_FILE_VALIDATION=1
           export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
           python -m pip install --upgrade pip
-          echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
-          ls $(dirname ${{ matrix.notebook }})
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
           echo ---
-          if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
-            chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-            ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
-          pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
           pip install nbconvert
