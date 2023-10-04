@@ -106,40 +106,20 @@ jobs:
       - name: Archive executed notebooks
         run: |
           git config pull.rebase false
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-      
-          # Check if branch exists and checkout or create
-          git show-ref --verify --quiet refs/heads/gh-storage
-          if [ $? -ne 0 ]; then
-              git checkout -b gh-storage
-          else
-              git checkout gh-storage
-          fi
-      
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout -b gh-storage
           git add ${{ matrix.notebooks }}
-      
-          if [[ $(git status --porcelain) ]]; then
-              git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
-          else
-              echo "No changes to commit"
-              exit 0
-          fi
-      
+          git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
           ATTEMPTS_LEFT=3
-          SLEEP_TIME=5
           until [ $ATTEMPTS_LEFT -lt 1 ]
           do
-            # Fetch and reset instead of pulling
-            git fetch origin gh-storage
-            git reset --hard origin/gh-storage
+            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
             git push origin gh-storage 2>&1 | tee output.log
-            
             if grep -q "Updates were rejected because the remote contains work" output.log; then
               echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
               let "ATTEMPTS_LEFT--"
-              sleep $SLEEP_TIME
-              SLEEP_TIME=$(($SLEEP_TIME * 2))
+              sleep 5
             else
               break
             fi
