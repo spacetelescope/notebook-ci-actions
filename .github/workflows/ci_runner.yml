@@ -97,7 +97,9 @@ jobs:
           git config --global user.email "actions@github.com"
       
           # Fetch the latest state of gh-storage
-          git fetch origin gh-storage
+          git checkout main
+          git fetch origin
+          git checkout gh-storage
       
           # Check if the file exists in gh-storage branch
           if git ls-tree gh-storage -- "${{ matrix.notebooks }}" > /dev/null; then
