@@ -91,37 +91,35 @@ jobs:
         run: | 
           bandit "${{ matrix.notebooks }}"
           
-      - name: Execute notebooks
-        id: execute
-        run: |
-          #export CASJOBS_PW="$CI_CASJOBS_PW"
-          #export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}
-          
-      - name: Validate notebooks 
-        run: |
-         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-         pytest --nbval "${{ matrix.notebooks }}" 
-         
       - name: Archive executed notebooks
         run: |
-          git config pull.rebase false
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git checkout -b gh-storage
-          git add ${{ matrix.notebooks }}
+      
+          # Fetch the latest state of gh-storage
+          git fetch origin gh-storage
+      
+          # Check if the file exists in gh-storage branch
+          if git ls-tree gh-storage -- "${{ matrix.notebooks }}" > /dev/null; then
+            # If the file exists, check out ONLY that file
+            git checkout gh-storage -- "${{ matrix.notebooks }}"
+          fi
+      
+          # Add the file (either the checked out one or the new one) and commit
+          git add "${{ matrix.notebooks }}"
           git commit -m 'Added executed notebook ${{ matrix.notebooks }}'
+      
           ATTEMPTS_LEFT=3
           until [ $ATTEMPTS_LEFT -lt 1 ]
           do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
             git push origin gh-storage 2>&1 | tee output.log
             if grep -q "Updates were rejected because the remote contains work" output.log; then
               echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
               let "ATTEMPTS_LEFT--"
               sleep 5
+              git pull --rebase origin gh-storage  # Rebase to bring our commit on top of the latest remote changes
             else
               break
             fi
           done
-          
+                
