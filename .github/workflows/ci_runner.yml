@@ -116,37 +116,12 @@ jobs:
               git checkout -b gh-storage
           fi
       
-          # Apply stashed changes to the gh-storage branch
+          # Apply stashed changes to the gh-storage branch, even if conflicts arise
           git stash apply
       
-          # Check for merge conflicts
-          if git diff --name-only --diff-filter=U | grep '\.ipynb'; then
-              # Prioritize stashed changes and overwrite the conflicted files
-              git checkout --theirs ${{ matrix.notebooks }}
-              git add ${{ matrix.notebooks }}
-          fi
+          # If there are conflicts, we will forcefully add and commit the changes
+          git add ${{ matrix.notebooks }}
+          git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
       
-          MAX_TRIES=5
-          CURRENT_TRY=1
-          while [[ $CURRENT_TRY -lt $MAX_TRIES ]]; do
-            # Rebase to the latest version if the branch existed remotely
-            if git show-ref --quiet refs/remotes/origin/gh-storage; then
-                git pull --rebase origin gh-storage
-            fi
-      
-            # Add the updated notebook
-            git add ${{ matrix.notebooks }}
-      
-            # Commit with a unique message (using the PR number as an example)
-            git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
-      
-            # Try to push, break out of the loop if successful
-            if git push origin gh-storage; then
-              break
-            fi
-      
-            # If push failed, sleep for a randomized duration (between 5 to 10 seconds)
-            sleep $(( ( RANDOM % 5 ) + 5 ))
-      
-            CURRENT_TRY=$(( CURRENT_TRY + 1 ))
-          done
+          # Force push to the gh-storage branch. This will overwrite any conflicting changes on the remote branch.
+          git push -f origin gh-storage
