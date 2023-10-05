@@ -33,6 +33,7 @@ jobs:
         separator: ","
         files: |
           **/*.ipynb
+          notebooks/**/requirements.txt
     ## convert the list of files to an array and push them into the matrix as a json object      
     - name: set-matrix
       id: set-matrix
@@ -66,9 +67,7 @@ jobs:
           echo $CONDA/bin >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          ## Install the local requirements file
-          echo DEBUG ---
-          pwd ## print working directory
+          ## Install the req's file IF its a req's file being modified
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -92,12 +91,27 @@ jobs:
           
       - name: Security testing with Bandit
         run: | 
-          bandit "${{ matrix.notebooks }}"
+          if [[ "${{ github.event.pull_request.head.ref }}" == *"/requirements.txt" ]]; then
+            DIRNAME=$(dirname "${{ matrix.notebooks }}")
+            for notebook in $find notebooks -name '*.ipynb'); do
+              bandit $notebook
+            done
+          else
+            bandit ${{ matrix.notebooks }}
+          fi
           
       - name: Validate notebooks 
         run: |
-         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-         pytest --nbval "${{ matrix.notebooks }}" 
+          if [[ "${{ github.event.pull_request.head.ref }}" == *"/requirements.txt" ]]; then
+            DIRNAME=$(dirname "${{ matrix.notebooks }}")
+            for notebook in $find notebooks -name '*.ipynb'); do
+              jupyter nbconvert --clear-output --inplace  $notebook
+              pytest --nbval $notebook
+            done
+          else
+             jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
+             pytest --nbval "${{ matrix.notebooks }}" 
+          fi
          
       - name: Execute notebooks
         id: execute
