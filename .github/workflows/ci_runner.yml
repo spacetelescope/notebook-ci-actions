@@ -110,14 +110,20 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          
+      
+          # Stash changes after notebook execution
+          git stash
+      
           # Create or switch to the branch depending on its existence
           if git show-ref --quiet refs/remotes/origin/gh-storage; then
               git checkout -B gh-storage origin/gh-storage
           else
               git checkout -b gh-storage
           fi
-  
+      
+          # Apply stashed changes to the gh-storage branch
+          git stash apply
+      
           MAX_TRIES=5
           CURRENT_TRY=1
           while [[ $CURRENT_TRY -lt $MAX_TRIES ]]; do
@@ -125,20 +131,20 @@ jobs:
             if git show-ref --quiet refs/remotes/origin/gh-storage; then
                 git pull --rebase origin gh-storage
             fi
-  
+      
             # Add the updated notebook
             git add *.ipynb
-            
+      
             # Commit with a unique message (using the PR number as an example)
             git commit -m "Execute Jupyter notebook for PR #$GITHUB_RUN_ID"
-            
+      
             # Try to push, break out of the loop if successful
             if git push origin gh-storage; then
               break
             fi
-            
-              # If push failed, sleep for a randomized duration (between 5 to 10 seconds)
-              sleep $(( ( RANDOM % 5 ) + 5 ))
-              
-              CURRENT_TRY=$(( CURRENT_TRY + 1 ))
-            done
+      
+            # If push failed, sleep for a randomized duration (between 5 to 10 seconds)
+            sleep $(( ( RANDOM % 5 ) + 5 ))
+      
+            CURRENT_TRY=$(( CURRENT_TRY + 1 ))
+          done
