@@ -117,7 +117,7 @@ jobs:
           git checkout -f gh-storage
           
           # Add and commit the changes
-          git add ${{ matrix.notebooks }}
+          git add "${{ matrix.notebooks }}"
           git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
           
           # Force push to overwrite the gh-storage branch.
