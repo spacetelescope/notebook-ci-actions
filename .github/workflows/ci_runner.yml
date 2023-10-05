@@ -125,7 +125,7 @@ jobs:
           git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
 
           MAX_RETRIES=5
-          RETRY)_DELAY=10s
+          RETRY_DELAY=10s
           for i in $(seq 1 $MAX_RETRIES); do
             git push origin gh-storage --force && break || {
               echo "Push $i failed... waiting $RETRY_DELAY"
