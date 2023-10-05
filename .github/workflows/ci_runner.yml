@@ -133,10 +133,10 @@ jobs:
             fi
       
             # Add the updated notebook
-            git add *.ipynb
+            git add "${{ matrix.notebooks }}"
       
-            # Commit with a unique message (using the PR number as an example)
-            git commit -m "Execute Jupyter notebook for PR #$GITHUB_RUN_ID"
+            # Commit with a unique message
+            git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
       
             # Try to push, break out of the loop if successful
             if git push origin gh-storage; then
