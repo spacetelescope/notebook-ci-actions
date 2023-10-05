@@ -105,30 +105,32 @@ jobs:
          
       - name: Archive executed notebooks
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-      
-          # Fetch the latest state of gh-storage
-          git fetch origin
-
-              # Add the modified notebook to the index
-          git add "${{ matrix.notebooks }}"
-      
-          # Create a tree object
-          TREE=$(git write-tree)
-      
-          # Create a commit object with the current HEAD of gh-storage as its parent
-          if git show-ref --quiet refs/remotes/origin/gh-storage; then
-            PARENT_COMMIT=$(git rev-parse refs/remotes/origin/gh-storage)
-            COMMIT=$(echo 'Added executed notebook ${{ matrix.notebooks }}' | git commit-tree $TREE -p $PARENT_COMMIT)
-          else
-            # If gh-storage does not exist, we're creating the first commit in the branch
-            COMMIT=$(echo 'Added executed notebook ${{ matrix.notebooks }}' | git commit-tree $TREE)
-          fi
-      
-          # Update gh-storage to point to the new commit
-          git update-ref refs/heads/gh-storage $COMMIT
-      
-          # Push the changes
-          git push origin gh-storage
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          MAX_TRIES=5
+          CURRENT_TRY=1
+          while [[ $CURRENT_TRY -lt $MAX_TRIES ]]; do
+            # Check out the gh-storage branch
+            git checkout gh-storage
+            
+            # Rebase to latest version
+            git pull --rebase origin gh-storage
+            
+            # Add the updated notebook
+            git add *.ipynb
+            
+            # Commit with a unique message (using the PR number as an example)
+            git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
+            
+            # Try to push, break out of the loop if successful
+            if git push origin gh-storage; then
+              break
+            fi
+            
+            # If push failed, sleep for a randomized duration (between 5 to 10 seconds)
+            sleep $(( ( RANDOM % 5 ) + 5 ))
+            
+            CURRENT_TRY=$(( CURRENT_TRY + 1 ))
+          done
                 
