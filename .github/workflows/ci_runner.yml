@@ -123,6 +123,6 @@ jobs:
       - name: Commit and push modifications to target branch
         run: |
           git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-          git push origin gh-storage
+          git push origin gh-storage --force
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
