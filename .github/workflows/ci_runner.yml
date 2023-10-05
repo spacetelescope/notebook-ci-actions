@@ -93,21 +93,21 @@ jobs:
       - name: Security testing with Bandit
         run: | 
           bandit "${{ matrix.notebooks }}"
-
-      - name: Execute notebooks
-        id: execute
-        run: |
-          #export CASJOBS_PW="$CI_CASJOBS_PW"
-          #export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
-          fi
           
       - name: Validate notebooks 
         run: |
          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
          pytest --nbval "${{ matrix.notebooks }}" 
          
+      - name: Execute notebooks
+        id: execute
+        run: |
+          #export CASJOBS_PW="$CI_CASJOBS_PW"
+          #export CASJOBS_USERID="$CI_CASJOBS_USERID"
+          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+            python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
+          fi
+          
       - name: Commit and push executed notebook to gh-storage branch
         run: |
           git config --local user.email "action@github.com"
