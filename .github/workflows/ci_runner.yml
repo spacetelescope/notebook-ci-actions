@@ -112,19 +112,16 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-      
-          # Stash changes after notebook execution
-          git stash
-    
-          git checkout -B gh-storage origin/gh-storage
           
-          # Reset to our stashed changes, effectively discarding the conflicted changes from origin/gh-storage
-          git reset --hard HEAD
-          git stash apply
-      
+          git fetch origin gh-storage
+          git checkout gh-storage
+          
+          # Reset to the current state of gh-storage, discarding any local changes
+          git reset --hard origin/gh-storage
+          
           # Add and commit the changes
           git add ${{ matrix.notebooks }}
           git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
-      
-          # Force push to the gh-storage branch.
+          
+          # Force push to overwrite the gh-storage branch.
           git push -f origin gh-storage
