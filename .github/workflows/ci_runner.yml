@@ -110,7 +110,7 @@ jobs:
           
       - name: Commit modified file on current branch
         run: |
-          git config user.name 'GitHub Action'
+          git config user.name 'CI Bot'
           git config user.email 'action@github.com'
           git add ${{ matrix.notebooks }}
           git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
