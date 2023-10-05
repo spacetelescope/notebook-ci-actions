@@ -116,12 +116,18 @@ jobs:
               git checkout -b gh-storage
           fi
       
-          # Apply stashed changes to the gh-storage branch, even if conflicts arise
+          # Apply stashed changes, accepting our changes in case of any conflict
           git stash apply
       
-          # If there are conflicts, we will forcefully add and commit the changes
+          # If there are merge conflicts, forcefully accept our version
+          if git diff --name-only --diff-filter=U | grep '\.ipynb'; then
+              git checkout --ours -- *.ipynb
+              git add ${{ matrix.notebooks }}
+          fi
+
           git add ${{ matrix.notebooks }}
+          # Commit the changes
           git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
       
-          # Force push to the gh-storage branch. This will overwrite any conflicting changes on the remote branch.
+          # Force push to the gh-storage branch.
           git push -f origin gh-storage
