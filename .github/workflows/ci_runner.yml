@@ -114,7 +114,10 @@ jobs:
             git config pull.rebase false
             git config --global user.name "GitHub Actions"
             git config --global user.email "actions@github.com"
+
+            git stash
             git checkout -B gh-storage origin/gh-storage
+            git stash apply
             git add ${{ matrix.notebook }}
             git commit -m 'Added executed notebook ${{ matrix.notebook }}'
             ATTEMPTS_LEFT=3
