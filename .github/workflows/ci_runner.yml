@@ -114,10 +114,7 @@ jobs:
           git config --local user.name "GitHub Action"
           
           git fetch origin gh-storage
-          git checkout gh-storage
-          
-          # Reset to the current state of gh-storage, discarding any local changes
-          git reset --hard origin/gh-storage
+          git checkout -f gh-storage
           
           # Add and commit the changes
           git add ${{ matrix.notebooks }}
