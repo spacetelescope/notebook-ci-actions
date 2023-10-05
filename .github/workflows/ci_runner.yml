@@ -116,7 +116,7 @@ jobs:
           git stash
           
           git fetch origin gh-storage
-          git checkout -f gh-storage
+          git checkout -B gh-storage origin/gh-storage
 
           git stash apply
           
