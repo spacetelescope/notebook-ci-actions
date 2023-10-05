@@ -99,9 +99,16 @@ jobs:
         run: |
           #export CASJOBS_PW="$CI_CASJOBS_PW"
           #export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}
+          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
+            python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
+          fi
           
       - name: Validate notebooks 
+        run: |
+         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
+         pytest --nbval "${{ matrix.notebooks }}" 
+         
+      - name: Commit and push executed notebook to gh-storage branch
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
@@ -116,17 +123,12 @@ jobs:
               git checkout -b gh-storage
           fi
       
-          # Apply stashed changes, accepting our changes in case of any conflict
+          # Reset to our stashed changes, effectively discarding the conflicted changes from origin/gh-storage
+          git reset --hard HEAD
           git stash apply
       
-          # If there are merge conflicts, forcefully accept our version
-          if git diff --name-only --diff-filter=U | grep '\.ipynb'; then
-              git checkout --ours -- *.ipynb
-              git add ${{ matrix.notebooks }}
-          fi
-
+          # Add and commit the changes
           git add ${{ matrix.notebooks }}
-          # Commit the changes
           git commit -m "Execute Jupyter notebook for ${{ matrix.notebooks }}"
       
           # Force push to the gh-storage branch.
