@@ -110,27 +110,10 @@ jobs:
           
       - name: Commit and push executed notebook to gh-storage branch
         run: |
-          if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-            git config pull.rebase false
-            git config --global user.name "GitHub Actions"
-            git config --global user.email "actions@github.com"
-
-            git stash
-            git checkout -B gh-storage origin/gh-storage
-            git stash apply
-            git add ${{ matrix.notebook }}
-            git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-            ATTEMPTS_LEFT=3
-            until [ $ATTEMPTS_LEFT -lt 1 ]
-            do
-              git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-              git push origin gh-storage 2>&1 | tee output.log
-              if grep -q "Updates were rejected because the remote contains work" output.log; then
-                echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-                let "ATTEMPTS_LEFT--"
-                sleep 5
-              else
-                break
-              fi
-            done
-          fi
+          git config user.name 'GitHub Action'
+          git config user.email 'action@github.com'
+          git add ${{ matrix.notebooks }}
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+          git push --force origin HEAD:gh-storage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
