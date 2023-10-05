@@ -115,14 +115,9 @@ jobs:
       
           # Stash changes after notebook execution
           git stash
-      
-          # Create or switch to the branch depending on its existence
-          if git show-ref --quiet refs/remotes/origin/gh-storage; then
-              git checkout -B gh-storage origin/gh-storage
-          else
-              git checkout -b gh-storage
-          fi
-      
+    
+          git checkout -B gh-storage origin/gh-storage
+          
           # Reset to our stashed changes, effectively discarding the conflicted changes from origin/gh-storage
           git reset --hard HEAD
           git stash apply
