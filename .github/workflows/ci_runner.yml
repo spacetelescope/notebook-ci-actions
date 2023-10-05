@@ -108,12 +108,21 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
           
-      - name: Commit and push executed notebook to gh-storage branch
+      - name: Commit modified file on current branch
         run: |
           git config user.name 'GitHub Action'
           git config user.email 'action@github.com'
           git add ${{ matrix.notebooks }}
           git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-          git push --force origin HEAD:gh-storage
+
+      - name: Checkout only the file to the target branch
+        run: |
+          git checkout gh-storage
+          git checkout @{-1} ${{ matrix.notebooks }}
+
+      - name: Commit and push modifications to target branch
+        run: |
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+          git push origin gh-storage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
