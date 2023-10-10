@@ -14,7 +14,7 @@ jobs:
       - name: Web Accessibility Evaluation
         uses: a11ywatch/github-actions@v2.1.6
         with:
-          WEBSITE_URL:  ${{ vars.target_url }}
+          WEBSITE_URL: ${{ vars.target_url }}
           SITE_WIDE: true
           SUBDOMAINS: true
           SITEMAP: true
