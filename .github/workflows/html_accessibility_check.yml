@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Web Accessibility Evaluation on ${{ inputs.target_url }}
+      - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         uses: a11ywatch/github-actions@v2.1.6
         with:
           WEBSITE_URL: ${{ inputs.target_url }}
