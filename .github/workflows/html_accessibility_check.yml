@@ -1,0 +1,24 @@
+name: HTML Accessibility Check
+
+on:
+  workflow_call:
+    inputs:
+      target_url:
+        required: true
+        type: string
+jobs:
+  a11yWatchRun:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
+        uses: a11ywatch/github-actions@v2.1.6
+        with:
+          WEBSITE_URL: ${{ inputs.target_url }}
+          SITE_WIDE: true
+          SUBDOMAINS: true
+          SITEMAP: true
+          UPGRADE: true
+          LIST: true
+          EXTERNAL: false
+          UPLOAD: true
