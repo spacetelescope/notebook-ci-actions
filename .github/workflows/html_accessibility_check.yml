@@ -19,3 +19,4 @@ jobs:
           LIST: true
           EXTERNAL: false
           UPLOAD: true
+          FAIL_TOTAL_COUNT: 1
