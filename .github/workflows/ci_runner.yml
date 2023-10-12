@@ -116,8 +116,8 @@ jobs:
       - name: Execute notebooks
         id: execute
         run: |
-          #export CASJOBS_PW="$CI_CASJOBS_PW"
-          #export CASJOBS_USERID="$CI_CASJOBS_USERID"
+          export CASJOBS_PW=secrets.casjobs_userid
+          export CASJOBS_USERID=secrets.casjobs_pw
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
