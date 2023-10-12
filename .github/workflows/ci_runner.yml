@@ -4,12 +4,13 @@ on:
       python-version:
         required: true
         type: string
-    secrets:
-      CASJOBS_USERID:
+      casjobs-id:
         description: 'CASJOBS user ID'
+        type: string
         required: false
-      CASJOBS_PW:
+      casjobs-pw:
         description: 'CASJOBS password'
+        type: string
         required: false
 
 #permissions:
@@ -116,8 +117,8 @@ jobs:
       - name: Execute notebooks
         id: execute
         run: |
-          export CASJOBS_PW=secrets.casjobs_userid
-          export CASJOBS_USERID=secrets.casjobs_pw
+          export CASJOBS_PW=${{ inputs.casjobs-pw }}
+          export CASJOBS_USERID=${{ inputs.casjobs-id }}
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
