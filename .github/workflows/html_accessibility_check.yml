@@ -7,7 +7,7 @@ jobs:
   a11yWatchRun:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.1
       - name: Web Accessibility Evaluation of https://spacetelescope.github.io/${{ github.event.repository.name }}/
         uses: a11ywatch/github-actions@v2.1.6
         with:
