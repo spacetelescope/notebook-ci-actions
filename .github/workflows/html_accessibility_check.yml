@@ -11,7 +11,7 @@ jobs:
       - name: Web Accessibility Evaluation of https://spacetelescope.github.io/${{ github.event.repository.name }}/
         uses: a11ywatch/github-actions@v2.1.8
         with:
-          WEBSITE_URL: https://spacetelescope.github.io/${{ github.event.repository.name }}/
+          WEBSITE_URL: https://spacetelescope.github.io/${{ github.event.repository.name }}/notebooks/
           SITE_WIDE: true
           SUBDOMAINS: true
           SITEMAP: true
