@@ -2,16 +2,23 @@ name: HTML Accessibility Check
 
 on:
   workflow_call:
+    inputs:
+      target_url:
+        default: https://spacetelescope.github.io/${{ github.event.repository.name }}
+        description: "URL to scan"
+        required: false
+        type: 'string'
+        
 
 jobs:
   a11yWatchRun:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.1
-      - name: Web Accessibility Evaluation of https://spacetelescope.github.io/${{ github.event.repository.name }}/
+      - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         uses: a11ywatch/github-actions@v2.1.8
         with:
-          WEBSITE_URL: https://spacetelescope.github.io/${{ github.event.repository.name }}/
+          WEBSITE_URL: ${{ inputs.target_url }}
           SITE_WIDE: true
           SUBDOMAINS: true
           SITEMAP: true
@@ -19,4 +26,4 @@ jobs:
           LIST: true
           EXTERNAL: false
           UPLOAD: true
-          FAIL_TOTAL_COUNT: 1
+          FAIL_ERRORS_COUNT: 1
