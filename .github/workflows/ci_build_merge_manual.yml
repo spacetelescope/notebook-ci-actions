@@ -87,19 +87,15 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
+
     - name: Commit modified file on current branch
       run: |
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
         git add ${{ matrix.notebook }}
         git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-  
-    - name: Checkout only the file to the target branch
-      run: |
-        git fetch origin gh-storage
-        git checkout gh-storage
-        git checkout @{-1} ${{ matrix.notebook }}
-  
+        echo "COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
     - name: Commit and push modifications to target branch with retries
       run: |
         MAX_RETRIES=3
@@ -107,18 +103,12 @@ jobs:
 
         until [ $RETRY_COUNT -eq $MAX_RETRIES ]
         do
-          # Detach HEAD to allow fetch into gh-storage
-          git checkout --detach
-
-          # Fetch the latest state of the gh-storage branch
-          git fetch origin gh-storage:gh-storage
-
-          # Checkout the updated gh-storage branch
+          # Make sure gh-storage is up-to-date with origin
+          git fetch origin gh-storage
           git checkout gh-storage
 
-          # Reapply the change
-          git checkout @{-1} ${{ matrix.notebook }}
-          git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+          # Apply the change from the last commit on the previous branch (stored in COMMIT_SHA)
+          git cherry-pick $COMMIT_SHA
 
           # Try pushing
           git push origin gh-storage
