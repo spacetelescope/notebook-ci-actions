@@ -105,9 +105,10 @@ jobs:
         do
           # Make sure gh-storage is up-to-date with origin
           git fetch origin gh-storage
+          git checkout gh-storage
 
-          # Directly checkout and reset to the latest state from the remote
-          git checkout -B gh-storage origin/gh-storage
+          # Reset to the latest version on origin
+          git reset --hard origin/gh-storage
 
           # Checkout the specific notebook from our previously saved commit
           git checkout $COMMIT_SHA -- ${{ matrix.notebook }}
@@ -125,7 +126,7 @@ jobs:
           else
             echo "Force push failed. Retrying..."
             RETRY_COUNT=$((RETRY_COUNT + 1))
-            sleep 10  # increased the sleep time to give any other competing pushes time to finish
+            sleep 5
           fi
         done
 
