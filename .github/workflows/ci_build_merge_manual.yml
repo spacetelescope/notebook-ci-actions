@@ -136,7 +136,7 @@ jobs:
           done
 
   generate_html:
-    needs: execute_notebooks
+    needs: merge-notebooks
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
