@@ -87,34 +87,24 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
-    - name: Archive executed notebooks
+    - name: Commit modified file on current branch
       run: |
-        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          git config pull.rebase false
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout -b gh-storage
-          git add ${{ matrix.notebook }}
-          git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-          ATTEMPTS_LEFT=3
-          while [ $ATTEMPTS_LEFT -gt 0 ]
-          do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage
-            PUSH_EXIT_CODE=$?
-            if [ $PUSH_EXIT_CODE -ne 0 ]; then
-              echo "Push failed with exit code $PUSH_EXIT_CODE. Remaining attempts: $ATTEMPTS_LEFT"
-              let "ATTEMPTS_LEFT=ATTEMPTS_LEFT-1"
-              sleep $((RANDOM % 10 + 5))  # Random sleep between 5 to 15 seconds to spread out the retries
-            else
-              break
-            fi
-          done
-          if [ $ATTEMPTS_LEFT -eq 0 ]; then
-            echo "Failed to push after multiple attempts."
-            exit 1
-          fi
-        fi
+        git config user.name 'CI Bot'
+        git config user.email 'action@github.com'
+        git add ${{ matrix.notebooks }}
+        git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+  
+    - name: Checkout only the file to the target branch
+      run: |
+        git checkout gh-storage
+        git checkout @{-1} ${{ matrix.notebooks }}
+  
+    - name: Commit and push modifications to target branch
+      run: |
+        git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+        git push origin gh-storage --force
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   generate_html:
     needs: execute_notebooks
     runs-on: ubuntu-latest
