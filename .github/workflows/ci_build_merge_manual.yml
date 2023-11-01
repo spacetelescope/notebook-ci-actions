@@ -107,7 +107,16 @@ jobs:
           git fetch origin gh-storage
     
           # Rebase your changes onto the latest state
-          git rebase origin/gh-storage
+          git rebase origin/gh-storage || {
+    
+            # If there's a rebase conflict, resolve it by preferring our changes
+            echo "Rebase conflict detected. Overwriting with our changes..."
+            git checkout --ours -- ${{ matrix.notebook }}
+            git add ${{ matrix.notebook }}
+    
+            # Continue the rebase
+            git rebase --continue
+          }
     
           # Try pushing
           git push origin gh-storage
@@ -127,7 +136,6 @@ jobs:
         exit 1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
 
   generate_html:
