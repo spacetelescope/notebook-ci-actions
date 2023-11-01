@@ -87,14 +87,13 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
-
+        
     - name: Commit modified file on current branch
       run: |
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
         git add ${{ matrix.notebook }}
-        # Check if there are changes staged
-        git diff --cached --exit-code || git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+        git commit --allow-empty -m "Storing executed notebook ${{ matrix.notebook }}"
 
 
     - name: Commit and push modifications to target branch with retries
