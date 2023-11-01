@@ -107,8 +107,13 @@ jobs:
 
         until [ $RETRY_COUNT -eq $MAX_RETRIES ]
         do
-          # Reset the branch to the latest remote state
+          # Detach HEAD to allow fetch into gh-storage
+          git checkout --detach
+
+          # Fetch the latest state of the gh-storage branch
           git fetch origin gh-storage:gh-storage
+
+          # Checkout the updated gh-storage branch
           git checkout gh-storage
 
           # Reapply the change
@@ -133,6 +138,7 @@ jobs:
         exit 1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   generate_html:
     needs: execute_notebooks
