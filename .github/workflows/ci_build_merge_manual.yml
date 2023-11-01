@@ -94,24 +94,44 @@ jobs:
           git config pull.rebase false
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git checkout -b gh-storage
+    
+          UNIQUE_BRANCH="storage-${{ github.run_id }}-${{ matrix.notebook//\//_ }}"
+          git checkout -b $UNIQUE_BRANCH
           git add ${{ matrix.notebook }}
-          git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-          ATTEMPTS_LEFT=3
-          until [ $ATTEMPTS_LEFT -lt 1 ]
-          do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage 2>&1 | tee output.log
-            if grep -q "Updates were rejected because the remote contains work" output.log; then
-              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-              let "ATTEMPTS_LEFT--"
-              sleep 5
-            else
-              break
-            fi
-          done
+          git commit -m "Added executed notebook ${{ matrix.notebook }}"
+    
+          git push origin $UNIQUE_BRANCH
         fi
-
+        
+  merge-notebooks:
+    needs: [execute_notebooks]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+  
+      - name: Set up Git for merging
+        run: |
+          git config pull.rebase false
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout gh-storage
+  
+      - name: Merge unique branches
+        run: |
+          for branch in $(git branch -r | grep 'storage-' | sed 's/origin\///'); do
+            git pull origin $branch --allow-unrelated-histories -s recursive -X theirs
+          done
+  
+      - name: Push merged changes to gh-storage
+        run: |
+          git push origin gh-storage --force
+  
+      - name: Delete unique branches
+        run: |
+          for branch in $(git branch -r | grep 'storage-' | sed 's/origin\///'); do
+            git push origin --delete $branch
+          done
 
   generate_html:
     needs: execute_notebooks
