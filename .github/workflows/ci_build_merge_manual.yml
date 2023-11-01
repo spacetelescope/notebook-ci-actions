@@ -100,17 +100,12 @@ jobs:
           while [ $ATTEMPTS_LEFT -gt 0 ]
           do
             git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage 2>&1 | tee output.log
+            git push origin gh-storage
             PUSH_EXIT_CODE=$?
             if [ $PUSH_EXIT_CODE -ne 0 ]; then
-              if grep -q "Updates were rejected because the remote contains work" output.log || grep -q "[rejected]" output.log; then
-                echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-                let "ATTEMPTS_LEFT=ATTEMPTS_LEFT-1"
-                sleep $((RANDOM % 10 + 5))  # Random sleep between 5 to 15 seconds
-              else
-                echo "Push failed for an unknown reason. Exiting."
-                exit 1
-              fi
+              echo "Push failed with exit code $PUSH_EXIT_CODE. Remaining attempts: $ATTEMPTS_LEFT"
+              let "ATTEMPTS_LEFT=ATTEMPTS_LEFT-1"
+              sleep $((RANDOM % 10 + 5))  # Random sleep between 5 to 15 seconds to spread out the retries
             else
               break
             fi
