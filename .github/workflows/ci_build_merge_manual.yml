@@ -88,52 +88,29 @@ jobs:
           fi
         fi
         
-    - name: Commit modified file on current branch
+    - name: Archive executed notebooks
       run: |
-        git config user.name 'CI Bot'
-        git config user.email 'action@github.com'
-        git add ${{ matrix.notebook }}
-        git commit --allow-empty -m "Storing executed notebook ${{ matrix.notebook }}"
-
-
-    - name: Commit and push modifications to target branch with retries
-      run: |
-        MAX_RETRIES=3
-        RETRY_COUNT=0
-
-        until [ $RETRY_COUNT -eq $MAX_RETRIES ]
-        do
-          # Make sure gh-storage is up-to-date with origin
-          git fetch origin gh-storage
-          git checkout gh-storage
-
-          # Reset to the latest version on origin
-          git reset --hard origin/gh-storage
-
-          # Checkout the specific notebook from our previously saved commit
-          git checkout $COMMIT_SHA -- ${{ matrix.notebook }}
-
-          # Commit the change
-          git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-
-          # Try forcefully pushing
-          git push -f origin gh-storage
-          
-          # Check the exit status of the push command
-          if [ $? -eq 0 ]; then
-            echo "Push successful!"
-            exit 0
-          else
-            echo "Force push failed. Retrying..."
-            RETRY_COUNT=$((RETRY_COUNT + 1))
-            sleep 5
-          fi
-        done
-
-        echo "Failed to push after $MAX_RETRIES attempts."
-        exit 1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+          git config pull.rebase false
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout -b gh-storage
+          git add ${{ matrix.notebook }}
+          git commit -m 'Added executed notebook ${{ matrix.notebook }}'
+          ATTEMPTS_LEFT=3
+          until [ $ATTEMPTS_LEFT -lt 1 ]
+          do
+            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
+            git push origin gh-storage 2>&1 | tee output.log
+            if grep -q "Updates were rejected because the remote contains work" output.log; then
+              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
+              let "ATTEMPTS_LEFT--"
+              sleep 5
+            else
+              break
+            fi
+          done
+        fi
 
 
   generate_html:
