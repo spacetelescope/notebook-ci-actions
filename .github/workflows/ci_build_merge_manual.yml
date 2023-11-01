@@ -116,15 +116,15 @@ jobs:
           # Commit the change
           git commit -m "Storing executed notebook ${{ matrix.notebook }}"
 
-          # Try pushing
-          git push origin gh-storage
+          # Try forcefully pushing
+          git push -f origin gh-storage
           
           # Check the exit status of the push command
           if [ $? -eq 0 ]; then
             echo "Push successful!"
             exit 0
           else
-            echo "Push failed. Retrying..."
+            echo "Force push failed. Retrying..."
             RETRY_COUNT=$((RETRY_COUNT + 1))
             sleep 5
           fi
@@ -134,6 +134,7 @@ jobs:
         exit 1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   generate_html:
     needs: execute_notebooks
