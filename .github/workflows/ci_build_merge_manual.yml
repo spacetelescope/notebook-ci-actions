@@ -107,8 +107,14 @@ jobs:
           git fetch origin gh-storage
           git checkout gh-storage
 
-          # Apply the change from the last commit on the previous branch (stored in COMMIT_SHA)
-          git cherry-pick $COMMIT_SHA
+          # Reset to the latest version on origin
+          git reset --hard origin/gh-storage
+
+          # Checkout the specific notebook from our previously saved commit
+          git checkout $COMMIT_SHA -- ${{ matrix.notebook }}
+
+          # Commit the change
+          git commit -m "Storing executed notebook ${{ matrix.notebook }}"
 
           # Try pushing
           git push origin gh-storage
@@ -128,7 +134,6 @@ jobs:
         exit 1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
   generate_html:
     needs: execute_notebooks
