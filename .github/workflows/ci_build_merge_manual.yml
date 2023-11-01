@@ -100,42 +100,41 @@ jobs:
       run: |
         MAX_RETRIES=3
         RETRY_COUNT=0
-    
+
         until [ $RETRY_COUNT -eq $MAX_RETRIES ]
         do
-          # Fetch the latest state of the gh-storage branch
+          # Make sure gh-storage is up-to-date with origin
           git fetch origin gh-storage
-    
-          # Rebase your changes onto the latest state
-          git rebase origin/gh-storage || {
-    
-            # If there's a rebase conflict, resolve it by preferring our changes
-            echo "Rebase conflict detected. Overwriting with our changes..."
-            git checkout --ours -- ${{ matrix.notebook }}
-            git add ${{ matrix.notebook }}
-    
-            # Continue the rebase
-            git rebase --continue
-          }
-    
-          # Try pushing
-          git push origin gh-storage
-              
+
+          # Directly checkout and reset to the latest state from the remote
+          git checkout -B gh-storage origin/gh-storage
+
+          # Checkout the specific notebook from our previously saved commit
+          git checkout $COMMIT_SHA -- ${{ matrix.notebook }}
+
+          # Commit the change
+          git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+
+          # Try forcefully pushing
+          git push -f origin gh-storage
+          
           # Check the exit status of the push command
           if [ $? -eq 0 ]; then
             echo "Push successful!"
             exit 0
           else
-            echo "Push failed. Retrying..."
+            echo "Force push failed. Retrying..."
             RETRY_COUNT=$((RETRY_COUNT + 1))
-            sleep 5
+            sleep 10  # increased the sleep time to give any other competing pushes time to finish
           fi
         done
-    
+
         echo "Failed to push after $MAX_RETRIES attempts."
         exit 1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
   generate_html:
     needs: execute_notebooks
     runs-on: ubuntu-latest
