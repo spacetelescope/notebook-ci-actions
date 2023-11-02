@@ -79,70 +79,62 @@ jobs:
 
     - name: Execute notebook
       id: execute
-      continue-on-error: true 
       run: |
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
+        NOTEBOOK="${{ matrix.notebook }}"
+        if [ "$NOTEBOOK" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+          if jupyter nbconvert --to notebook --execute --inplace "$NOTEBOOK"; then
+            echo "Notebook executed successfully: $NOTEBOOK"
+          else
+            echo "Notebook execution failed, inserting failure message: $NOTEBOOK"
+            python .github/scripts/insert_failure_message.py "$NOTEBOOK"
           fi
-        fi
-        
-  archive_notebooks:
-    needs: execute_notebooks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Archive executed notebooks
-        run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          UNIQUE_BRANCH="storage-${{ github.run_id }}-${{ matrix.notebook }}"
-          SANITIZED_BRANCH=$(echo $UNIQUE_BRANCH | sed 's/\//_/g')
-          git checkout -b $SANITIZED_BRANCH
-          git add ${{ matrix.notebook }}
-          git commit -m "Added executed notebook ${{ matrix.notebook }}"
-          git push origin $SANITIZED_BRANCH
+          UNIQUE_BRANCH="storage-${{ github.run_id }}-$(echo "$NOTEBOOK" | sed 's/\//_/g')"
+          git checkout -b "$UNIQUE_BRANCH"
+          git add "$NOTEBOOK"
+          git commit -m "Added executed notebook $NOTEBOOK"
+          git push origin "$UNIQUE_BRANCH"
+        fi
 
   replace_in_storage:
-    needs: archive_notebooks
+    needs: execute_notebooks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout gh-storage branch
         uses: actions/checkout@v2
         with:
           ref: gh-storage
-
+  
       - name: Set up Git config
         run: |
           git config pull.rebase false
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-
+  
       - name: Replace files with the executed notebooks
         run: |
           git fetch --all
           for branch in $(git branch -r | grep 'storage-' | sed 's/origin\///'); do
             echo "Replacing files in gh-storage with the ones from $branch"
             git fetch origin $branch
-            git checkout "origin/$branch" ${{ matrix.notebook }}
+            git checkout "origin/$branch" "${{ matrix.notebook }}"
             git commit -am "Replaced executed notebook ${{ matrix.notebook }} from $branch" || echo "No changes to commit for ${{ matrix.notebook }}"
           done
-
+  
       - name: Push changes to gh-storage
         run: |
           git push origin gh-storage --force
-
+  
       - name: Delete unique branches
         run: |
           git fetch --prune
           for branch in $(git branch -r | grep 'storage-' | sed 's/origin\///'); do
             git push origin --delete $branch
           done
-
+          
   generate_html:
     runs-on: ubuntu-latest
     needs: replace_in_storage
