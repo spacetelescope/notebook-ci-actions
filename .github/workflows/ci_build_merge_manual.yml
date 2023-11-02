@@ -84,15 +84,7 @@ jobs:
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          # Execute the notebook and capture the output
-          NB_OUTPUT=$(jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }} 2>&1)
-          NB_EXIT_CODE=$?
-          echo "$NB_OUTPUT"
-          
-          # Check if there were any errors
-          if [ $NB_EXIT_CODE -ne 0 ]; then
-            echo "Error executing notebook: ${{ matrix.notebook }}"
-            echo "$NB_OUTPUT" > notebook_execution_output.log
+          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
