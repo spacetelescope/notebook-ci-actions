@@ -90,6 +90,7 @@ jobs:
         fi
         
     - name: Archive executed notebooks
+      id: archive
       run: |
         if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
           git config pull.rebase false
@@ -106,28 +107,32 @@ jobs:
           git push origin $SANITIZED_BRANCH
         fi
         
-  merge-notebooks:
-    needs: [execute_notebooks]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-  
-      - name: Set up Git for merging
+    - name: Replace files in gh-storage
+      needs: [archive]
+      id: store
+      runs-on: ubuntu-latest
+        steps:
+          - name: Checkout gh-storage branch
+            uses: actions/checkout@v2
+            with:
+              ref: gh-storage
+    
+      - name: Set up Git config
         run: |
-          git fetch
           git config pull.rebase false
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git checkout gh-storage
-  
-      - name: Merge unique branches
+    
+      - name: Replace files with the executed notebooks
         run: |
           for branch in $(git branch -r | grep 'storage-' | sed 's/origin\///'); do
-            git pull origin $branch --allow-unrelated-histories -s recursive -X theirs
+            echo "Replacing files in gh-storage with the ones from $branch"
+            git fetch origin $branch
+            git checkout $branch -- .
+            git commit -m "Replaced files with the executed notebooks from $branch"
           done
   
-      - name: Push merged changes to gh-storage
+      - name: Push changes to gh-storage
         run: |
           git push origin gh-storage --force
   
@@ -138,7 +143,7 @@ jobs:
           done
 
   generate_html:
-    needs: merge-notebooks
+    needs: [store]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
