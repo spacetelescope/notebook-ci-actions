@@ -124,7 +124,7 @@ jobs:
 
         # Optionally delete the temporary branch if you want to clean up
         git branch -d $TEMP_BRANCH
-      fi
+      
       
   generate_html:
     runs-on: ubuntu-latest
