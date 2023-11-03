@@ -93,40 +93,38 @@ jobs:
         # Configure Git with the GitHub Actions identity
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        
-        # Stash any other changes that are not related to the notebook we want to push
-        git stash --include-untracked
-    
-        # Fetch the gh-storage branch from origin
-        git fetch origin gh-storage
-        
-        # Force checkout of the gh-storage branch
-        git checkout -B gh-storage FETCH_HEAD
-    
-        # Pop the stash which contains our notebook changes
-        git stash pop
-    
-        # Now add and commit the notebook
+
+        # Create a unique identifier for the temporary branch
+        TEMP_BRANCH="temp-$(date +%s)-${{ github.run_id }}"
+
+        # Check out to the temporary branch
+        git checkout -b $TEMP_BRANCH
+
+        # Add the notebook
         git add ${{ matrix.notebook }}
-        git commit -m "Archive executed notebook ${{ matrix.notebook }}"
-    
-        # Force push the commit to the remote gh-storage branch, with retries for collisions
-        ATTEMPTS_LEFT=3
-        while [ $ATTEMPTS_LEFT -gt 0 ]; do
-          if git push --force origin gh-storage; then
-            echo "Push succeeded"
-            break
-          else
-            echo "Push failed due to collision, retrying in 5 seconds..."
-            ATTEMPTS_LEFT=$((ATTEMPTS_LEFT-1))
-            sleep 5
+        
+        # Commit the changes
+        git commit -m "Executed notebook on $TEMP_BRANCH"
+
+        # Retry mechanism
+        RETRIES=3
+        DELAY=10
+        until git push origin $TEMP_BRANCH:gh-storage -f; do
+          if [ $RETRIES -le 0 ]; then
+            echo "Retry limit reached, not trying anymore."
+            exit 1
           fi
+          echo "Push failed, retrying in $DELAY seconds..."
+          sleep $DELAY
+          let RETRIES-=1
+          DELAY=$(( DELAY*2 ))
+          git fetch origin
+          git reset --hard origin/gh-storage
         done
-    
-        if [ $ATTEMPTS_LEFT -eq 0 ]; then
-          echo "All attempts to push have failed!"
-          exit 1
-        fi
+
+        # Optionally delete the temporary branch if you want to clean up
+        git branch -d $TEMP_BRANCH
+      fi
       
   generate_html:
     runs-on: ubuntu-latest
