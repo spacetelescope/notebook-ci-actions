@@ -94,22 +94,20 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
 
-        # Create a unique identifier for the temporary branch
-        TEMP_BRANCH="temp-$(date +%s)-${{ github.run_id }}"
-
-        # Check out to the temporary branch
-        git checkout -b $TEMP_BRANCH
-
-        # Add the notebook
+        # Checkout the gh-storage branch
+        git fetch origin gh-storage
+        git checkout -b temp-branch origin/gh-storage
+    
+        # Add the executed notebook
         git add ${{ matrix.notebook }}
         
-        # Commit the changes
-        git commit -m "Executed notebook on $TEMP_BRANCH"
-
-        # Retry mechanism
+        # Commit the changes. This will create a new commit each time it's run, even if there are no changes.
+        git commit -m "Update executed notebook"
+        
+        # Force push the update to gh-storage. We use --force-with-lease to ensure we do not overwrite other changes inadvertently.
         RETRIES=3
         DELAY=10
-        until git push origin $TEMP_BRANCH:gh-storage -f; do
+        until git push --force-with-lease origin temp-branch:gh-storage; do
           if [ $RETRIES -le 0 ]; then
             echo "Retry limit reached, not trying anymore."
             exit 1
@@ -117,17 +115,14 @@ jobs:
           echo "Push failed, retrying in $DELAY seconds..."
           sleep $DELAY
           let RETRIES-=1
-          DELAY=$(( DELAY*2 ))
-          git fetch origin
+          DELAY=$(( DELAY * 2 ))
+          # Fetch the latest gh-storage updates to avoid overwriting concurrent changes
+          git fetch origin gh-storage
           git reset --hard origin/gh-storage
+          # Re-add the executed notebook and commit again
+          git add ${{ matrix.notebook }}
+          git commit -m "Retry update of executed notebook"
         done
-
-        git fetch
-        git checkout main 
-      
-        # Now that we are not on the temp branch, we can safely delete it
-        git branch -D $TEMP_BRANCH
-        
       
       
   generate_html:
