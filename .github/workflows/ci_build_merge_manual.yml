@@ -107,7 +107,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: gh-storage
-  
+    
       - name: Set up Git config
         run: |
           git config pull.rebase false
@@ -120,21 +120,25 @@ jobs:
           BRANCHES=$(git branch -r | grep 'storage-' | sed 's/origin\///')
           for BRANCH in $BRANCHES; do
             # Extract the notebook path from the branch name
-            NOTEBOOK=$(echo $BRANCH | sed 's/storage-[0-9]*-//; s/_/\//g')
+            NOTEBOOK=$(echo $BRANCH | sed -e 's/storage-[0-9]*-//' -e 's/_/\//g')
             echo "Replacing file in gh-storage with the one from $BRANCH"
             git fetch origin $BRANCH
-            git checkout "origin/$BRANCH" -- "$NOTEBOOK"
-            # If the notebook exists and was checked out, commit it to gh-storage
-            if [ -f "$NOTEBOOK" ]; then
-              git add "$NOTEBOOK"
-              git commit -m "Update executed notebook from $BRANCH" -- "$NOTEBOOK"
-              # Push the change to the gh-storage branch
-              git push origin gh-storage
+            # Ensure the notebook path is correct and exists
+            if git ls-remote --heads origin $BRANCH | grep -q "$NOTEBOOK"; then
+              git checkout "origin/$BRANCH" -- "$NOTEBOOK"
+              # If the notebook exists and was checked out, commit it to gh-storage
+              if [ -f "$NOTEBOOK" ]; then
+                git add "$NOTEBOOK"
+                git commit -m "Update executed notebook from $BRANCH" -- "$NOTEBOOK"
+                # Push the change to the gh-storage branch
+                git push origin gh-storage
+              else
+                echo "Notebook file $NOTEBOOK was not found after checkout."
+              fi
             else
-              echo "Notebook file $NOTEBOOK was not found in $BRANCH."
+              echo "The branch $BRANCH does not contain the file $NOTEBOOK."
             fi
           done
-
       - name: Delete unique branches
         run: |
           git fetch --prune
