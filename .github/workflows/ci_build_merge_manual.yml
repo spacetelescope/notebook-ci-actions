@@ -92,18 +92,29 @@ jobs:
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-  
-        # Fetch all the remote branches without checking them out to avoid affecting the local working copy
-        git fetch origin
-  
-        # Switch to the gh-storage branch, but ensure local changes are not affected
-        git checkout -B gh-storage origin/gh-storage --no-track
-  
-        # Now forcefully replace the file with the local version
-        git add ${{ matrix.notebook }} -f
-        git commit -m 'Archive executed notebook ${{ matrix.notebook }}'
-  
-        # Use force push to overwrite the file in the remote branch
+        
+        # Ensure the current local changes are committed
+        git add ${{ matrix.notebook }}
+        git commit -m 'Archive local changes of executed notebook ${{ matrix.notebook }}'
+        
+        # Stash all other changes to ensure a clean switch to gh-storage branch
+        git stash --keep-index
+        
+        # Checkout the gh-storage branch
+        git fetch origin gh-storage
+        git checkout gh-storage --force
+        
+        # Apply the stashed changes (which contains our committed notebook) to gh-storage branch
+        git stash pop
+        
+        # The stashed changes could result in conflicts, resolve by keeping the stashed changes
+        git checkout --theirs ${{ matrix.notebook }} || true
+        git add ${{ matrix.notebook }}
+        
+        # Now the local branch contains the changes we want to push to gh-storage, commit them
+        git commit -m 'Overwrite notebook with local changes ${{ matrix.notebook }}'
+        
+        # Force push the local changes to the remote gh-storage branch
         ATTEMPTS_LEFT=3
         until [ $ATTEMPTS_LEFT -le 0 ]; do
           if git push origin gh-storage --force; then
@@ -115,7 +126,7 @@ jobs:
             sleep 5
           fi
         done
-  
+        
         if [ $ATTEMPTS_LEFT -le 0 ]; then
           echo "All attempts to push have failed!"
           exit 1
