@@ -93,6 +93,7 @@ jobs:
           git config pull.rebase false
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
+          
           git checkout -b gh-storage
           git add ${{ matrix.notebook }}
           git commit -m 'Added executed notebook ${{ matrix.notebook }}'
@@ -100,13 +101,12 @@ jobs:
           git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
       
           # Attempt to push with retries
-          MAX_RETRIES=3
+          MAX_RETRIES=5
           DELAY_BETWEEN_RETRIES=5
           RETRY_COUNT=0
           PUSH_SUCCESS=0
-      
+          
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
             if git push -f origin gh-storage; then
               PUSH_SUCCESS=1
               break
@@ -114,13 +114,12 @@ jobs:
               RETRY_COUNT=$((RETRY_COUNT+1))
               echo "Push failed, attempt $RETRY_COUNT/$MAX_RETRIES. Retrying in $DELAY_BETWEEN_RETRIES seconds..."
               sleep $DELAY_BETWEEN_RETRIES
+              
+              # Fetch the latest remote changes and rebase again
+              git fetch origin gh-storage
+              git rebase origin/gh-storage
             fi
           done
-      
-          if [ $PUSH_SUCCESS -ne 1 ]; then
-            echo "Push failed after $MAX_RETRIES retries."
-            exit 1
-          fi
         fi
   generate_html:
     needs: tests
