@@ -19,7 +19,7 @@ env:
 
 jobs:
   find_notebooks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       notebook_list: ${{ steps.find.outputs.notebook_list }}
     steps:
@@ -35,7 +35,7 @@ jobs:
 
   tests:
     needs: find_notebooks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
@@ -112,7 +112,7 @@ jobs:
         fi
   generate_html:
     needs: tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
