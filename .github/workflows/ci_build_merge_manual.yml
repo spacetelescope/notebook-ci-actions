@@ -88,32 +88,37 @@ jobs:
           fi
         fi
 
-    - name: Replace notebook in gh-storage with retries on failure
+    - name: Remove existing notebook from gh-storage and commit deletion
+      run: |
+        git rm --ignore-unmatch "$NOTEBOOK" || echo "File $NOTEBOOK was not found in gh-storage."
+        git commit -m "Remove existing notebook: $NOTEBOOK" || echo "No existing notebook to remove."
+
+    - name: Add and commit the executed notebook
+      run: |
+        git add "$NOTEBOOK"
+        git commit -m "Update executed notebook: ${{ matrix.notebook }}"
+
+    - name: Force push to gh-storage with retries
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add "${{ matrix.notebook }}"
-        git commit -m "Update executed notebook: ${{ matrix.notebook }}"
-        
-        # Retry mechanism with exponential backoff
-        MAX_RETRIES=5
-        DELAY_SECONDS=5
+        MAX_RETRIES=3
+        DELAY_SECONDS=10
         for attempt in $(seq 1 $MAX_RETRIES); do
-          git fetch origin gh-storage
-          git reset --soft origin/gh-storage
+          echo "Attempt $attempt of $MAX_RETRIES to force push."
           if git push --force origin HEAD:refs/heads/gh-storage; then
-            echo "Push successful on attempt $attempt"
+            echo "Push successful."
             break
           else
-            echo "Push failed on attempt $attempt. Retrying in $DELAY_SECONDS seconds..."
+            echo "Push failed, retrying in $DELAY_SECONDS seconds..."
             sleep $DELAY_SECONDS
             DELAY_SECONDS=$((DELAY_SECONDS * 2))  # Exponential backoff
           fi
-          if [ $attempt -eq $MAX_RETRIES ]; then
-            echo "Max push attempts reached. Unable to update gh-storage."
-            exit 1
-          fi
         done
+        if [ $attempt -eq $MAX_RETRIES ]; then
+          echo "Max push attempts reached, unable to push to gh-storage."
+          exit 1
+        fi
       
   generate_html:
     runs-on: ubuntu-latest
