@@ -101,7 +101,7 @@ jobs:
         for attempt in $(seq 1 $MAX_RETRIES); do
           git fetch origin gh-storage
           git reset --soft origin/gh-storage
-          if git push --force-with-lease origin HEAD:refs/heads/gh-storage; then
+          if git push --force origin HEAD:refs/heads/gh-storage; then
             echo "Push successful on attempt $attempt"
             break
           else
