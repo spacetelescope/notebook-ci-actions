@@ -82,42 +82,39 @@ jobs:
       run: |
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        NOTEBOOK="${{ matrix.notebook }}"
-        if [ "$NOTEBOOK" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          jupyter nbconvert --to notebook --execute --inplace "$NOTEBOOK" || true
-          if [ $? -ne 0 ]; then
-            echo "Notebook execution failed, inserting failure message."
-            python .github/scripts/insert_failure_message.py "$NOTEBOOK"
+        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
+            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
 
-        - name: Replace notebook in gh-storage with retries on failure
-          run: |
-            git config --global user.name "GitHub Actions"
-            git config --global user.email "actions@github.com"
-            git add "${{ matrix.notebook }}"
-            git commit -m "Update executed notebook: ${{ matrix.notebook }}"
-            
-            # Retry mechanism with exponential backoff
-            MAX_RETRIES=5
-            DELAY_SECONDS=5
-            for attempt in $(seq 1 $MAX_RETRIES); do
-              git fetch origin gh-storage
-              git reset --soft origin/gh-storage
-              if git push --force-with-lease origin HEAD:refs/heads/gh-storage; then
-                echo "Push successful on attempt $attempt"
-                break
-              else
-                echo "Push failed on attempt $attempt. Retrying in $DELAY_SECONDS seconds..."
-                sleep $DELAY_SECONDS
-                DELAY_SECONDS=$((DELAY_SECONDS * 2))  # Exponential backoff
-              fi
-              if [ $attempt -eq $MAX_RETRIES ]; then
-                echo "Max push attempts reached. Unable to update gh-storage."
-                exit 1
-              fi
-            done
-          
+    - name: Replace notebook in gh-storage with retries on failure
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git add "${{ matrix.notebook }}"
+        git commit -m "Update executed notebook: ${{ matrix.notebook }}"
+        
+        # Retry mechanism with exponential backoff
+        MAX_RETRIES=5
+        DELAY_SECONDS=5
+        for attempt in $(seq 1 $MAX_RETRIES); do
+          git fetch origin gh-storage
+          git reset --soft origin/gh-storage
+          if git push --force-with-lease origin HEAD:refs/heads/gh-storage; then
+            echo "Push successful on attempt $attempt"
+            break
+          else
+            echo "Push failed on attempt $attempt. Retrying in $DELAY_SECONDS seconds..."
+            sleep $DELAY_SECONDS
+            DELAY_SECONDS=$((DELAY_SECONDS * 2))  # Exponential backoff
+          fi
+          if [ $attempt -eq $MAX_RETRIES ]; then
+            echo "Max push attempts reached. Unable to update gh-storage."
+            exit 1
+          fi
+        done
+      
   generate_html:
     runs-on: ubuntu-latest
     needs: execute_notebooks
