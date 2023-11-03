@@ -90,39 +90,41 @@ jobs:
 
     - name: Upload notebook to gh-storage
       run: |
-        # Configure Git with the GitHub Actions identity
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git config pull.rebase false
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
-        git checkout -b gh-storage
-        git add ${{ matrix.notebook }}
-        git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-    
-        # Pull the latest history to avoid conflicts, using ours strategy to favor current changes
-        git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-    
-        # Attempt to push with retries
-        MAX_RETRIES=3
-        DELAY_BETWEEN_RETRIES=5
-        RETRY_COUNT=0
-        PUSH_SUCCESS=0
-    
-        while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-          if git push -f origin gh-storage; then
-            PUSH_SUCCESS=1
-            break
-          else
-            RETRY_COUNT=$((RETRY_COUNT+1))
-            echo "Push failed, attempt $RETRY_COUNT/$MAX_RETRIES. Retrying in $DELAY_BETWEEN_RETRIES seconds..."
-            sleep $DELAY_BETWEEN_RETRIES
+        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+          # Configure Git with the GitHub Actions identity
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git config pull.rebase false
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git checkout -b gh-storage
+          git add ${{ matrix.notebook }}
+          git commit -m 'Added executed notebook ${{ matrix.notebook }}'
+      
+          # Pull the latest history to avoid conflicts, using ours strategy to favor current changes
+          git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
+      
+          # Attempt to push with retries
+          MAX_RETRIES=3
+          DELAY_BETWEEN_RETRIES=5
+          RETRY_COUNT=0
+          PUSH_SUCCESS=0
+      
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            if git push -f origin gh-storage; then
+              PUSH_SUCCESS=1
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT+1))
+              echo "Push failed, attempt $RETRY_COUNT/$MAX_RETRIES. Retrying in $DELAY_BETWEEN_RETRIES seconds..."
+              sleep $DELAY_BETWEEN_RETRIES
+            fi
+          done
+      
+          if [ $PUSH_SUCCESS -ne 1 ]; then
+            echo "Push failed after $MAX_RETRIES retries."
+            exit 1
           fi
-        done
-    
-        if [ $PUSH_SUCCESS -ne 1 ]; then
-          echo "Push failed after $MAX_RETRIES retries."
-          exit 1
         fi
 
       
