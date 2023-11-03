@@ -122,6 +122,7 @@ jobs:
           git reset --hard origin/gh-storage
         done
 
+        git fetch
         git checkout main 
       
         # Now that we are not on the temp branch, we can safely delete it
