@@ -84,72 +84,43 @@ jobs:
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         NOTEBOOK="${{ matrix.notebook }}"
         if [ "$NOTEBOOK" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          if jupyter nbconvert --to notebook --execute --inplace "$NOTEBOOK"; then
-            echo "Notebook executed successfully: $NOTEBOOK"
-          else
-            echo "Notebook execution failed, inserting failure message: $NOTEBOOK"
+          jupyter nbconvert --to notebook --execute --inplace "$NOTEBOOK" || true
+          if [ $? -ne 0 ]; then
+            echo "Notebook execution failed, inserting failure message."
             python .github/scripts/insert_failure_message.py "$NOTEBOOK"
           fi
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          UNIQUE_BRANCH="storage-${{ github.run_id }}-$(echo "$NOTEBOOK" | sed 's/\//_/g')"
-          git checkout -b "$UNIQUE_BRANCH"
-          git add "$NOTEBOOK"
-          git commit -m "Added executed notebook $NOTEBOOK"
-          git push origin "$UNIQUE_BRANCH"
         fi
 
-  replace_in_storage:
-    needs: execute_notebooks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout gh-storage branch
-        uses: actions/checkout@v2
-        with:
-          ref: gh-storage
-    
-      - name: Set up Git config
-        run: |
-          git config pull.rebase false
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-  
-      - name: Replace files with the executed notebooks
-        run: |
-          git fetch --all
-          BRANCHES=$(git branch -r | grep 'storage-' | sed 's/origin\///')
-          for BRANCH in $BRANCHES; do
-            # Extract the notebook path from the branch name
-            NOTEBOOK=$(echo $BRANCH | sed -e 's/storage-[0-9]*-//' -e 's/_/\//g')
-            echo "Replacing file in gh-storage with the one from $BRANCH"
-            git fetch origin $BRANCH
-            # Ensure the notebook path is correct and exists
-            if git ls-remote --heads origin $BRANCH | grep -q "$NOTEBOOK"; then
-              git checkout "origin/$BRANCH" -- "$NOTEBOOK"
-              # If the notebook exists and was checked out, commit it to gh-storage
-              if [ -f "$NOTEBOOK" ]; then
-                git add "$NOTEBOOK"
-                git commit -m "Update executed notebook from $BRANCH" -- "$NOTEBOOK"
-                # Push the change to the gh-storage branch
-                git push origin gh-storage
+        - name: Replace notebook in gh-storage with retries on failure
+          run: |
+            git config --global user.name "GitHub Actions"
+            git config --global user.email "actions@github.com"
+            git add "${{ matrix.notebook }}"
+            git commit -m "Update executed notebook: ${{ matrix.notebook }}"
+            
+            # Retry mechanism with exponential backoff
+            MAX_RETRIES=5
+            DELAY_SECONDS=5
+            for attempt in $(seq 1 $MAX_RETRIES); do
+              git fetch origin gh-storage
+              git reset --soft origin/gh-storage
+              if git push --force-with-lease origin HEAD:refs/heads/gh-storage; then
+                echo "Push successful on attempt $attempt"
+                break
               else
-                echo "Notebook file $NOTEBOOK was not found after checkout."
+                echo "Push failed on attempt $attempt. Retrying in $DELAY_SECONDS seconds..."
+                sleep $DELAY_SECONDS
+                DELAY_SECONDS=$((DELAY_SECONDS * 2))  # Exponential backoff
               fi
-            else
-              echo "The branch $BRANCH does not contain the file $NOTEBOOK."
-            fi
-          done
-      - name: Delete unique branches
-        run: |
-          git fetch --prune
-          BRANCHES=$(git branch -r | grep 'storage-' | sed 's/origin\///')
-          for BRANCH in $BRANCHES; do
-            git push origin --delete $BRANCH
-          done
+              if [ $attempt -eq $MAX_RETRIES ]; then
+                echo "Max push attempts reached. Unable to update gh-storage."
+                exit 1
+              fi
+            done
           
   generate_html:
     runs-on: ubuntu-latest
-    needs: replace_in_storage
+    needs: execute_notebooks
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
