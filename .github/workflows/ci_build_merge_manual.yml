@@ -126,7 +126,8 @@ jobs:
         git checkout main 
       
         # Now that we are not on the temp branch, we can safely delete it
-        git branch -d $TEMP_BRANCH
+        git branch -D $TEMP_BRANCH
+        
       
       
   generate_html:
