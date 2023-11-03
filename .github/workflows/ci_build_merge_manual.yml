@@ -122,7 +122,9 @@ jobs:
           git reset --hard origin/gh-storage
         done
 
-        # Optionally delete the temporary branch if you want to clean up
+        git checkout main 
+      
+        # Now that we are not on the temp branch, we can safely delete it
         git branch -d $TEMP_BRANCH
       
       
