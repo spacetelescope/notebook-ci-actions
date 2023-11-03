@@ -135,13 +135,13 @@ jobs:
             fi
           done
 
-    - name: Delete unique branches
-      run: |
-        git fetch --prune
-        BRANCHES=$(git branch -r | grep 'storage-' | sed 's/origin\///')
-        for BRANCH in $BRANCHES; do
-          git push origin --delete $BRANCH
-        done
+      - name: Delete unique branches
+        run: |
+          git fetch --prune
+          BRANCHES=$(git branch -r | grep 'storage-' | sed 's/origin\///')
+          for BRANCH in $BRANCHES; do
+            git push origin --delete $BRANCH
+          done
           
   generate_html:
     runs-on: ubuntu-latest
