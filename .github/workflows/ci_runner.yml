@@ -117,7 +117,7 @@ jobs:
 
       - name: Checkout only the file to the target branch
         run: |
-          git checkout gh-storage
+          git checkout -f gh-storage
           git checkout @{-1} ${{ matrix.notebooks }}
 
       - name: Commit and push modifications to target branch
