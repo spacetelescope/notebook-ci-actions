@@ -37,9 +37,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: spacetelescope/notebook-ci-actions
-#          sparse-checkout: |
-#            .github/helpers/make_dependabot_file.py
-#          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            .github/helpers/make_dependabot_file.py
+          sparse-checkout-cone-mode: false
           path: temp_dpbot
       - name: Run dependabot config file updater script
         run: |
