@@ -3,9 +3,8 @@ Automatic package version updating is controlled by the .github/dependabot.yml f
 wildcards are not supported, so the paths to all notebook-level requirements.txt files must be explicitly
 listed in the file.
 This script fully automates dynamic updates to the dependabot.yml file when notebooks are added or removed,
-If no updates are required, the dependabot.yml file will not be regenerated. It assumes 1) that
-notebook-level requirements.txt files are stored somewhere in notebooks/, and 2) that github-actions
-workflows are stored im .github/workflows/
+If no updates are required, the dependabot.yml file will not be regenerated. It is assumed that if they exist,
+github-actions workflows are stored im .github/workflows/
 """
 
 import argparse
