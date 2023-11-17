@@ -1,3 +1,20 @@
+## This workflow calls a python script that updates the contents of the .github/dependabot.yml config file. As the
+## dependabot.yml file is version-controlled, the workflow commits and pushes the changes to a new branch, then creates
+## a new PR to merge the changes into main.
+##
+## Some background:
+## Automatic package version updating is controlled by the .github/dependabot.yml file. However, at this time,
+## wildcards are not supported, so the paths to all requirements.txt files must be explicitly listed in the file. This
+## workflow fully automates dynamic updates to the dependabot.yml file when notebooks are added or removed, thus
+## reducing the human interaction to only a single pull request approval when an updated version of dependabot.yml
+## needs to be merged into main.
+##
+## How it works:
+## If no updates are made to the dependabot.yml file, no new branches or PRs are created, and no further action is
+## required. However, if the dependabot.yml file is updated, A new pull request named "Updated contents of
+## configuration file .github/dependabot.yml" will be created. The PR needs a human to approve the merge the changes
+## into main. Once the changes are merged in, dependabot will automatically trigger new scans.
+
 name: Update Dependabot Config File
 
 on:
