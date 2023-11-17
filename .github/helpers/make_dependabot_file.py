@@ -1,6 +1,11 @@
 """
-This script generates .github/dependabot.yml. It assumes github-actions workflows are stored in
-.github/workflows/
+Automatic package version updating is controlled by the .github/dependabot.yml file. However, at this time,
+wildcards are not supported, so the paths to all notebook-level requirements.txt files must be explicitly
+listed in the file.
+This script fully automates dynamic updates to the dependabot.yml file when notebooks are added or removed,
+If no updates are required, the dependabot.yml file will not be regenerated. It assumes 1) that
+notebook-level requirements.txt files are stored somewhere in notebooks/, and 2) that github-actions
+workflows are stored im .github/workflows/
 """
 
 import argparse
@@ -53,8 +58,9 @@ def make_file(req_file_search_string="notebooks/**/requirements.txt"):
     output_file_name = ".github/dependabot.yml"
     output_file_content = ['version: 2',
                            'updates:']
-    # 0: Add lines of code for github actions coverage.
-    output_file_content += generate_file_content_from_template("github-actions", "/")
+    # 0: Add lines of code for github actions coverage if required
+    if os.path.exists(".github/workflows"):
+        output_file_content += generate_file_content_from_template("github-actions", "/")
 
     # 1: locate all paths with notebook-level requirements.txt files.
     req_file_list = glob.glob(req_file_search_string, recursive=True)
