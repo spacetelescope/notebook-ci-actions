@@ -44,9 +44,7 @@ jobs:
       - name: Run dependabot config file updater script
         run: |
           python temp_dpbot/.github/helpers/make_dependabot_file.py "${{ inputs.req_file_search_string }}"
-          pwd
-          ls -lat
-          ls -lat temp_dpbot
+          rm -rf temp_dpbot
       - name: Commit and push changes to branch "${{ inputs.pull_request_source_branch }}"
         uses: devops-infra/action-commit-push@v0.9.2
         with:
