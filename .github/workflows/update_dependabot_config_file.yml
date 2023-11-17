@@ -11,12 +11,12 @@ on:
         type: 'string'
       pull_request_source_branch:
         default: dependabot_file_update
-        description: "Name of the branch that will created to serve as the source branch for the pull request"
+        description: "Name of the branch that will be created to serve as the source branch for the pull request"
         required: false
         type: 'string'
       pull_request_target_branch:
         default: main
-        description: "Name of the branch that will created to serve as the target branch for the pull request"
+        description: "Name of the branch that will serve as the target branch for the pull request"
         required: false
         type: 'string'
 
@@ -55,8 +55,8 @@ jobs:
         uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          body: "**Automated pull request**<br><br>Updated ./github/dependabot.yml"
-          title: "Updated ./github/dependabot.yml"
+          body: "**Automated pull request**<br><br>Updated Updated contents of ./github/dependabot.yml"
+          title: "Updated contents of configuration file ./github/dependabot.yml"
           label: dependencies
           source_branch: ${{ inputs.pull_request_source_branch }}
           target_branch: ${{ inputs.pull_request_target_branch }}
