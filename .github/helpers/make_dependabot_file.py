@@ -35,7 +35,7 @@ def generate_file_content_from_template(ecosystem, directory):
         yml_content.append(line)
     return yml_content
 
-def make_file(req_file_search_string="notebooks/*/*/requirements.txt"):
+def make_file(req_file_search_string="notebooks/**/requirements.txt"):
     """
     Generates the dependabot.yml file.
 
@@ -44,7 +44,7 @@ def make_file(req_file_search_string="notebooks/*/*/requirements.txt"):
     req_file_search_string : string
         Search pattern used to locate notebook-level requirements.txt files. The path in the search string is
         assumed to start from the repository root. If not explicitly specified by the user, the default value
-        is "notebooks/*/*/requirements.txt".
+        is "notebooks/**/requirements.txt", which will enable a fully recursive search.
 
     Returns
     -------
@@ -57,7 +57,7 @@ def make_file(req_file_search_string="notebooks/*/*/requirements.txt"):
     output_file_content += generate_file_content_from_template("github-actions", "/")
 
     # 1: locate all paths with notebook-level requirements.txt files.
-    req_file_list = glob.glob(req_file_search_string)
+    req_file_list = glob.glob(req_file_search_string, recursive=True)
 
     # 2: Dynamically generate the dependabot.yml file content based on the paths identified by the above glob command.
     for rf_list_item in sorted(req_file_list):
@@ -81,10 +81,11 @@ def make_file(req_file_search_string="notebooks/*/*/requirements.txt"):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('req_file_search_string', type=str, help='Search pattern used to locate '
-                                                                 'notebook-level requirements.txt files. '
-                                                                 'The path in the search string is assumed to '
-                                                                 'start from the repository root.')
+    parser.add_argument('-r', '--req_file_search_string', required=False,
+                        default='notebooks/**/requirements.txt',type=str,
+                        help='Search pattern used to locate notebook-level requirements.txt files. The path '
+                             'in the search string is assumed to start from the repository root, which will '
+                             'enable a fully recursive search.')
     args = parser.parse_args()
     make_file(req_file_search_string=args.req_file_search_string)
 
