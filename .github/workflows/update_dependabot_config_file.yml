@@ -27,17 +27,20 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python 3.8.12
         uses: actions/setup-python@v4 ## needed for caching
         with:
           python-version: 3.8.12
           cache: 'pip'
       - name: Check-out notebook-ci-actions repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: spacetelescope/notebook-ci-actions
+          sparse-checkout: |
+            .github/helpers/make_dependabot_file.py
           path: temp_dpbot
+          sparse-checkout-cone-mode: false
       - name: Run dependabot config file updater script
         run: |
           python temp_dpbot/.github/helpers/make_dependabot_file.py "${{ inputs.req_file_search_string }}"
