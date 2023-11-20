@@ -11,7 +11,7 @@ import argparse
 import glob
 import os
 
-def generate_file_content_from_template(ecosystem, directory):
+def generate_file_content_from_template(ecosystem, directory, exclude_list=[]):
     """
     Generates sections of yml code from template.
 
@@ -23,6 +23,8 @@ def generate_file_content_from_template(ecosystem, directory):
     directory : str
         Location of package manifests
 
+    exclude_list: str, optional
+        List of packages that should be excluded from dependabot version update tracking.
     Returns
     -------
     yml_content : list
@@ -35,17 +37,31 @@ def generate_file_content_from_template(ecosystem, directory):
                         '     interval: "weekly"',
                         '     day: "sunday"',
                         '     time: "12:00"']
+
+    # Tack on additional parameter set to ignore specific packages.
+    if exclude_list:
+        template_content.append('    ignore:')
+        for pkg_name in exclude_list:
+            template_content.append('      - dependency-name: "{}"'.format(pkg_name))
     for line in template_content:
         yml_content.append(line)
     return yml_content
 
-def make_file(req_file_search_string="notebooks/**/requirements.txt"):
+def make_file(exclude_filename="", req_file_search_string="notebooks/**/requirements.txt"):
     """
     Generates the dependabot.yml file.
 
     Parameters
     ----------
-    req_file_search_string : string
+    exclude_filename: str, optional.
+        Text file containing names of specific requirements.txt files and lists of packages that should be
+        excluded from dependabot version update tracking.
+        File syntax: <path of requirements.txt file from repository root>: <package1>, <package2>
+         Example: skip depdendabot updates for packages "package1" and "package2" in file
+         notebooks/foo/requirements.txt and package "package3" in file notebooks/bar/requirements.txt:
+         notebooks/foo/requirements.txt: package1, package2
+         notebooks/bar/requirements.txt: package3
+    req_file_search_string : str, optional.
         Search pattern used to locate notebook-level requirements.txt files. The path in the search string is
         assumed to start from the repository root. If not explicitly specified by the user, the default value
         is "notebooks/**/requirements.txt", which will enable a fully recursive search.
@@ -65,9 +81,22 @@ def make_file(req_file_search_string="notebooks/**/requirements.txt"):
     req_file_list = glob.glob(req_file_search_string, recursive=True)
 
     # 2: Dynamically generate the dependabot.yml file content based on the paths identified by the above glob command.
+    # 2a: read in ignore-file, if found.
+    exclude_dict = {}
+    if exclude_filename and os.path.exists(exclude_filename):
+        with open(exclude_filename, 'r') as i_in:
+            exclude_file_content = i_in.readlines()
+        for line in exclude_file_content:
+            line=line.strip()
+            exclude_dict[line.split(":")[0]] = sorted([item.strip() for item in line.split(":")[1].split(",")])
+
     for rf_list_item in sorted(req_file_list):
         rf_path = rf_list_item.replace("requirements.txt", "")
-        output_file_content += generate_file_content_from_template("pip", rf_path)
+        if rf_list_item in exclude_dict.keys():
+            exclude_list = exclude_dict[rf_list_item]
+        else:
+            exclude_list = []
+        output_file_content += generate_file_content_from_template("pip", rf_path, exclude_list=exclude_list)
 
     # 3: Write yml file content only if generated content and content of current file are not identical
     if os.path.isfile(output_file_name):
@@ -86,11 +115,21 @@ def make_file(req_file_search_string="notebooks/**/requirements.txt"):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--exclude_filename', required=False,
+                        default='',type=str,
+                        help='Text file containing names of specific requirements.txt files and lists of '
+                             'packages that should be skipped from dependabot version updating; File syntax: '
+                             '<path of requirements.txt file from repository root>: <package1>, <package2>   '
+                             'Example: skip depdendabot updates for packages "package1" and "package2" in '
+                             'file notebooks/foo/requirements.txt and package "package3" in file '
+                             'notebooks/bar/requirements.txt:                                                '
+                             'notebooks/foo/requirements.txt: package1, package2                             '
+                             'notebooks/bar/requirements.txt: package3')
     parser.add_argument('-r', '--req_file_search_string', required=False,
                         default='notebooks/**/requirements.txt',type=str,
                         help='Search pattern used to locate notebook-level requirements.txt files. The path '
                              'in the search string is assumed to start from the repository root, which will '
                              'enable a fully recursive search.')
     args = parser.parse_args()
-    make_file(req_file_search_string=args.req_file_search_string)
+    make_file(exclude_filename=args.exclude_filename, req_file_search_string=args.req_file_search_string, )
 
