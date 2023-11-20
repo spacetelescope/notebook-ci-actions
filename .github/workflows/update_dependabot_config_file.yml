@@ -28,13 +28,15 @@ on:
         type: 'string'
       exclude_filename:
         default: "***NO FILE***"
-        description: "Text file containing names of specific requirements.txt files and lists of packages that should 
-        be skipped from dependabot version updating; File syntax: 
-        <path of requirements.txt file from repository root>: <package1>, <package2>   
-        Example: skip depdendabot updates for packages 'package1' and 'package2' in file notebooks/foo/requirements.txt 
-        and package 'package3' in file notebooks/bar/requirements.txt:
+        description: "Text file containing names of specific requirements.txt files and lists of packages that should be 
+        skipped from dependabot version updating, one requirements.txt file and package list per line.  
+        File syntax: <path of requirements.txt file from repository root>: <package1>, ..., <packageN>,
+        Example: skip depdendabot updates for packages 'package1' and 'package2' in file 
+        notebooks/foo/requirements.txt and package 'package3' in file notebooks/bar/requirements.txt: 
         notebooks/foo/requirements.txt: package1, package2                             
-        notebooks/bar/requirements.txt: package3"
+        notebooks/bar/requirements.txt: package3 
+        NOTE: unless explicitly specified, it is assumed that there is no file, and that all packages in all 
+        requirements.txt files should be included in dependabot version tracking."
         required: false
         type: 'string'
       pull_request_source_branch:

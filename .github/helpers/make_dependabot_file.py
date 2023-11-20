@@ -55,12 +55,14 @@ def make_file(exclude_filename="", req_file_search_string="notebooks/**/requirem
     ----------
     exclude_filename: str, optional.
         Text file containing names of specific requirements.txt files and lists of packages that should be
-        excluded from dependabot version update tracking.
-        File syntax: <path of requirements.txt file from repository root>: <package1>, <package2>
-         Example: skip depdendabot updates for packages "package1" and "package2" in file
-         notebooks/foo/requirements.txt and package "package3" in file notebooks/bar/requirements.txt:
-         notebooks/foo/requirements.txt: package1, package2
-         notebooks/bar/requirements.txt: package3
+        skipped from dependabot version updating, one requirements.txt file and package list per line.
+        File syntax: <path of requirements.txt file from repository root>: <package1>, ..., <packageN>,
+        Example: skip depdendabot updates for packages "package1" and "package2" in file
+        notebooks/foo/requirements.txt and package "package3" in file notebooks/bar/requirements.txt:
+        notebooks/foo/requirements.txt: package1, package2
+        notebooks/bar/requirements.txt: package3
+        NOTE: unless explicitly specified, it is assumed that there is no file, and that all packages in all
+        requirements.txt files should be included in dependabot version tracking.
     req_file_search_string : str, optional.
         Search pattern used to locate notebook-level requirements.txt files. The path in the search string is
         assumed to start from the repository root. If not explicitly specified by the user, the default value
@@ -118,20 +120,24 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--exclude_filename', required=False,
                         default='',type=str,
                         help='Text file containing names of specific requirements.txt files and lists of '
-                             'packages that should be skipped from dependabot version updating; File syntax: '
-                             '<path of requirements.txt file from repository root>: <package1>, <package2>   '
+                             'packages that should be skipped from dependabot version updating, one '
+                             'requirements.txt file and package list per line.  File syntax: '
+                             '<path of requirements.txt file from repository root>: <package1>, ..., <packageN>,'
                              'Example: skip depdendabot updates for packages "package1" and "package2" in '
                              'file notebooks/foo/requirements.txt and package "package3" in file '
                              'notebooks/bar/requirements.txt:                                                '
                              'notebooks/foo/requirements.txt: package1, package2                             '
-                             'notebooks/bar/requirements.txt: package3')
+                             'notebooks/bar/requirements.txt: package3 '
+                             'NOTE: unless explicitly specified, it is assumed that there is no file, and '
+                             'that all packages in all requirements.txt files should be included in '
+                             'dependabot version tracking.')
     parser.add_argument('-r', '--req_file_search_string', required=False,
                         default='notebooks/**/requirements.txt',type=str,
                         help='Search pattern used to locate notebook-level requirements.txt files. The path '
                              'in the search string is assumed to start from the repository root, which will '
                              'enable a fully recursive search.')
     args = parser.parse_args()
-    if args.exclude_filename == "***NO FILE***":
+    if args.exclude_filename == "***NO FILE***": # So everything works when run from a github workflow.
         args.exclude_filename = ""
     make_file(exclude_filename=args.exclude_filename, req_file_search_string=args.req_file_search_string, )
 
