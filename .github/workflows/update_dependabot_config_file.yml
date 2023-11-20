@@ -26,6 +26,17 @@ on:
         string is assumed to start from the repository root"
         required: false
         type: 'string'
+      exclude_filename:
+        default: ""
+        description: "Text file containing names of specific requirements.txt files and lists of packages that should 
+        be skipped from dependabot version updating; File syntax: 
+        <path of requirements.txt file from repository root>: <package1>, <package2>   
+        Example: skip depdendabot updates for packages 'package1' and 'package2' in file notebooks/foo/requirements.txt 
+        and package 'package3' in file notebooks/bar/requirements.txt:
+        notebooks/foo/requirements.txt: package1, package2                             
+        notebooks/bar/requirements.txt: package3"
+        required: false
+        type: 'string'
       pull_request_source_branch:
         default: dependabot_file_update
         description: "Name of the branch that will be created to serve as the source branch for the pull request"
@@ -60,7 +71,7 @@ jobs:
           path: temp_dpbot
       - name: Run dependabot config file updater script
         run: |
-          python temp_dpbot/.github/helpers/make_dependabot_file.py -r "${{ inputs.req_file_search_string }}"
+          python temp_dpbot/.github/helpers/make_dependabot_file.py -e ${{ inputs.exclude_filename }} -r "${{ inputs.req_file_search_string }}"
           rm -rf temp_dpbot
       - name: Commit and push changes to branch "${{ inputs.pull_request_source_branch }}"
         uses: devops-infra/action-commit-push@v0.9.2
