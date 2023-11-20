@@ -27,7 +27,7 @@ on:
         required: false
         type: 'string'
       exclude_filename:
-        default: ""
+        default: "**NO FILE**"
         description: "Text file containing names of specific requirements.txt files and lists of packages that should 
         be skipped from dependabot version updating; File syntax: 
         <path of requirements.txt file from repository root>: <package1>, <package2>   

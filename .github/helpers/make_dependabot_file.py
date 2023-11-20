@@ -131,5 +131,7 @@ if __name__ == '__main__':
                              'in the search string is assumed to start from the repository root, which will '
                              'enable a fully recursive search.')
     args = parser.parse_args()
+    if args.exclude_filename == "**NO FILE**":
+        args.exclude_filename = ""
     make_file(exclude_filename=args.exclude_filename, req_file_search_string=args.req_file_search_string, )
 
