@@ -115,7 +115,7 @@ def make_file(exclude_filename="", req_file_search_string="notebooks/**/requirem
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--exclude_filename', required=False,
+    parser.add_argument('-e', '--exclude_filename', required=False,
                         default='',type=str,
                         help='Text file containing names of specific requirements.txt files and lists of '
                              'packages that should be skipped from dependabot version updating; File syntax: '
