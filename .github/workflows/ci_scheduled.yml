@@ -58,7 +58,7 @@ jobs:
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
-          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-installl.sh ]; then
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
           fi
