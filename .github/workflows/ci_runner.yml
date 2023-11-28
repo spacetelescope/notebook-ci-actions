@@ -79,7 +79,7 @@ jobs:
           if [ -f pre-requirements.txt ]; then
             pip install -r pre-requirements.txt
           fi
-          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-installl.sh ]; then
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
           fi
