@@ -1,0 +1,15 @@
+# This workflow checks notebook html pages deployed to github.io for broken links.
+
+on:
+  workflow_call:
+
+jobs:
+  broken_link_checker_job:
+    runs-on: ubuntu-latest
+    name: Check for broken links
+    steps:
+      - name: Check for broken links
+        id: link-report
+        uses: elliotforbes/broken-link-checker@1.0.3
+        with:
+          url: 'https://spacetelescope.github.io/hst_notebooks/'
