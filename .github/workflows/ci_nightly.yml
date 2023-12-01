@@ -15,7 +15,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - id: set-matrix
         run: echo "::set-output name=matrix::$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')"
   nightly-notebook-execution:
@@ -26,10 +26,10 @@ jobs:
         matrix:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v2   
+      - uses: actions/checkout@v4   
       #- run: | 
       #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python 3.8.12
         uses: actions/setup-python@v2 ## needed for caching
         with:
