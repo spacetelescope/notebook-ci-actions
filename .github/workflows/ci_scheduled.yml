@@ -59,7 +59,7 @@ jobs:
           pip install nbconvert
       - name: Execute notebooks
         run: |
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          jupyter nbconvert --to html --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_input_tags='["hide-cell"]' --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: |
           pytest --nbval "${{ matrix.notebooks }}"
