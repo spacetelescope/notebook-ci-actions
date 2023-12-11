@@ -5,7 +5,7 @@ on:
       python-version:
         required: true
         type: string
-      file-name:
+      filename:
         required: true
         type: string
     secrets:
@@ -32,7 +32,7 @@ jobs:
     - name: Find notebook files
       id: find
       run: |
-        notebook_files=$(find notebooks -name ${{ inputs.file-name }} | jq -R -s -c 'split("\n")[:-1]')
+        notebook_files=$(find notebooks -name ${{ inputs.filename }} | jq -R -s -c 'split("\n")[:-1]')
         #echo "::set-output name=notebook_list::$notebook_files"
         echo "notebook_list=$notebook_files" >>$GITHUB_OUTPUT
 
