@@ -44,7 +44,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python 3.8.12
-        uses: actions/setup-python@v4 ## needed for caching
+        uses: actions/setup-python@v5 ## needed for caching
         with:
           python-version: 3.8.12
           cache: 'pip'
