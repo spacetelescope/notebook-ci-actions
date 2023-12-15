@@ -104,7 +104,7 @@ jobs:
         run: |
           #export CASJOBS_PW="$CI_CASJOBS_PW"
           #export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+          if ! jupyter nbconvert --to notebook --execute --inplace --TagRemovePreprocessor.enabled=True --TagRemovePreprocessor.remove_input_tags='["hide-cell"]' ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
           
