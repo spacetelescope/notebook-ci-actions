@@ -104,7 +104,7 @@ def nb_style_checker(nb_file):
                                     else '  # noqa' + top_line[noqa_check.end():])
 
                     for ln in cl['source']:
-                        # replace lines with IPython magic commands with a "pass" statements
+                        # replace lines with IPython magic commands with a "pass" statement
                         if len(ln.strip()) == 0:
                             line = ln
                         else:
