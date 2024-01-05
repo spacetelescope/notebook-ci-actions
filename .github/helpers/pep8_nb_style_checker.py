@@ -104,11 +104,11 @@ def nb_style_checker(nb_file):
                                     else '  # noqa' + top_line[noqa_check.end():])
 
                     for ln in cl['source']:
-                        # comment out lines with IPython magic commands
+                        # replace lines with IPython magic commands with a "pass" statement
                         if len(ln.strip()) == 0:
                             line = ln
                         else:
-                            line = ln if ln.strip()[0] not in ["!", "%"] else '# ' + ln
+                            line = ln if ln.strip()[0] not in ["!", "%"] else ln.replace(ln.strip(), "pass")
 
                         # insert noqa comment if needed (with care for newline char)
                         if (noqa_comment and not line.startswith('#')
