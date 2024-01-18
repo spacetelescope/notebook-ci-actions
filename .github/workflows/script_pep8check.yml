@@ -60,8 +60,9 @@ jobs:
       - name: Check-out notebook-ci-actions repository
         uses: actions/checkout@v4
         with:
-          repository: spacetelescope/notebook-ci-actions@spb-1792
+          repository: spacetelescope/notebook-ci-actions
           path: temp_pep8checker
+          ref: spb-1792
       - name: Run PEP8 style check
         run: |
           python temp_pep8checker/.github/helpers/pep8_script_style_checker.py ${{ matrix.scripts }}
