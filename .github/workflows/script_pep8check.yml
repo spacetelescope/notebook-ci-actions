@@ -3,6 +3,10 @@ name: PEP8 Script Style Check Execution
 
 on:
   workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
 
 jobs:
   gather-scripts:
@@ -39,10 +43,10 @@ jobs:
             scripts: ${{ fromJson(needs.gather-scripts.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.8.12
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
         with:
-          python-version: 3.8.12
+          python-version: ${{ inputs.python-version }}
           cache: 'pip'
       - name: Add conda to system path
         run: |
@@ -56,7 +60,7 @@ jobs:
       - name: Check-out notebook-ci-actions repository
         uses: actions/checkout@v4
         with:
-          repository: spacetelescope/notebook-ci-actions
+          repository: spacetelescope/notebook-ci-actions@spb-1792
           path: temp_pep8checker
       - name: Run PEP8 style check
         run: |
