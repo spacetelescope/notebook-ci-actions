@@ -61,7 +61,7 @@ jobs:
         with:
           repository: spacetelescope/notebook-ci-actions
           path: temp_pep8checker
-          ref: spb-1792
+          ref: v3
       - name: Run PEP8 style check
         run: |
           python temp_pep8checker/.github/helpers/pep8_nb_style_checker.py ${{ matrix.notebooks }}
