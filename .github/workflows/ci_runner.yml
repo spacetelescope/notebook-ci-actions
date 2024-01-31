@@ -97,7 +97,7 @@ jobs:
       - name: Validate notebooks 
         run: |
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-         export CASJOBS_WSID=${{ secrets.CASJOBS_USERID }}
+         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
          pytest --nbval "${{ matrix.notebooks }}" 
          
@@ -105,7 +105,7 @@ jobs:
         id: execute
         run: |
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-          export CASJOBS_WSID=${{ secrets.CASJOBS_USERID }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
