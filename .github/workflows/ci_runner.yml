@@ -22,13 +22,13 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     ## routine to gather only the changed notebook files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
-      uses: tj-actions/changed-files@v36
+      uses: tj-actions/changed-files@v42
       with:
         separator: ","
         files: |
@@ -51,12 +51,12 @@ jobs:
         matrix:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v4 ## needed for caching
+        uses: actions/setup-python@v5 ## needed for caching
         with:
           python-version: ${{ inputs.python-version }}
           cache: 'pip'
