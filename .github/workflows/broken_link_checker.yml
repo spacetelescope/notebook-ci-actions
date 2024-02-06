@@ -24,7 +24,7 @@ jobs:
     name: Evaluation of ${{ inputs.website_url }} for broken links
     steps:
       - name: Broken-Links-Crawler
-        uses: ScholliYT/Broken-Links-Crawler-Action@v3.3.0
+        uses: ScholliYT/Broken-Links-Crawler-Action@v3.3.1
         with:
           website_url: ${{ inputs.website_url }}
           resolve_before_filtering: 'true'
