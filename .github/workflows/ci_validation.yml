@@ -34,7 +34,7 @@ jobs:
         #linux-local-args: # optional, default is ["--toolkit", "--samples"]
     - uses: actions/checkout@v3
     - name: Set up Python 3.8.12
-      uses: actions/setup-python@v2 ## needed for caching
+      uses: actions/setup-python@v5 ## needed for caching
       with:
         python-version: 3.8.12
         cache: 'pip'
