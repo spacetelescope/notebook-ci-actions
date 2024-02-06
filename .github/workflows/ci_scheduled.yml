@@ -12,9 +12,6 @@ on:
       CASJOBS_PW:
         description: 'CASJOBS password'
         required: false
-env:
-  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
   
 permissions: write-all  
 jobs:
