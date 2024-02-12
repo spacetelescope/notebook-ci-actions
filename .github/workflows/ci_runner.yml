@@ -18,7 +18,7 @@ on:
   
 jobs:
   gather-notebooks:
-    runs-on: ubuntu-20.04
+    runs-on: macos-14
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -43,7 +43,7 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: ubuntu-20.04
+    runs-on: macos-14
     permissions:
       contents: write
     strategy:
