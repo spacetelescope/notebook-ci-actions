@@ -38,7 +38,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install ghp-import
-        pip install jupyter-book
+        pip install jupyter-book==v0.15.1
         pip install myst-nb
         pip install astroid
         pip install nbval
