@@ -36,7 +36,7 @@ jobs:
         ## Install the global requirements file - needed for jupyter-book
         pip install -r requirements.txt
         pip install ghp-import
-        pip install jupyter-book
+        pip install jupyter-book==v0.15.1
         pip install myst-nb
         pip install nbval
         ## work-around to bypass the jupyter-book lower version
