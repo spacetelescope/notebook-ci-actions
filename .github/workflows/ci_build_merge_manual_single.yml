@@ -18,7 +18,7 @@ on:
 
 jobs:
   find_notebooks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       notebook_list: ${{ steps.find.outputs.notebook_list }}
     steps:
@@ -34,7 +34,7 @@ jobs:
 
   tests:
     needs: find_notebooks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
