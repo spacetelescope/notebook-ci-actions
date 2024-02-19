@@ -11,6 +11,8 @@ on:
       CASJOBS_PW:
         description: 'CASJOBS password'
         required: false
+      CI-TOKEN:
+        required: true
 
 #permissions:
 #  id-token: write
@@ -18,13 +20,14 @@ on:
   
 jobs:
   gather-notebooks:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        token: ${{ secrets.CI-TOKEN }}
     ## routine to gather only the changed notebook files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
@@ -54,6 +57,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.CI-TOKEN }}
          # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
@@ -121,6 +125,7 @@ jobs:
         run: |
           git checkout -f gh-storage
           git checkout @{-1} ${{ matrix.notebooks }}
+        
 
       - name: Commit and push modifications to target branch
         run: |
@@ -135,4 +140,8 @@ jobs:
             }
           done
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: CI Bot
+          GIT_AUTHOR_EMAIL: action@github.com
+          GIT_COMMITTER_NAME: CI Bot
+          GIT_COMMITTER_EMAIL: action@github.com
+          GITHUB_TOKEN: ${{ secrets.CI-TOKEN }}
