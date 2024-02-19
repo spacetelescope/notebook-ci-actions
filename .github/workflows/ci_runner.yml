@@ -122,19 +122,15 @@ jobs:
 
       - name: Checkout only the file to the target branch
         run: |
-          git checkout -f gh-storage
-          git checkout @{-1} ${{ matrix.notebooks }}
-        
-
-      - name: Commit and push modifications to target branch
-        run: |
           git config user.name 'CI Bot'
           git config user.email 'action@github.com'
-          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-      
-          # Configure Git to use the PAT for HTTPS operations
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${{ secrets.CITOKEN }} | base64)"
-      
+          git commit -m "Storing executed notebook notebooks/COS/AsnFile/AsnFile.ipynb"
+          
+          # Temporarily set the remote with the PAT included in the URL for authentication
+          GIT_URL=$(git remote get-url origin)
+          GIT_URL_WITH_TOKEN=${GIT_URL/https:\/\/github.com\//https:\/\/x-access-token:${{ secrets.CITOKEN }}@github.com/}
+          git remote set-url origin $GIT_URL_WITH_TOKEN
+          
           MAX_RETRIES=5
           RETRY_DELAY=10s
           for i in $(seq 1 $MAX_RETRIES); do
@@ -143,3 +139,7 @@ jobs:
               sleep $RETRY_DELAY
             }
           done
+          
+          # Revert the remote URL to its original state
+          git remote set-url origin $GIT_URL
+        #shell: /bin/bash -e {0}
