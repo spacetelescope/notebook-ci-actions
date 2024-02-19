@@ -27,7 +27,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.CITOKEN }}
+        #token: ${{ secrets.CITOKEN }}
     ## routine to gather only the changed notebook files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
