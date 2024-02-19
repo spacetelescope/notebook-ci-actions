@@ -126,20 +126,20 @@ jobs:
           git checkout @{-1} ${{ matrix.notebooks }}
         
 
-- name: Commit and push modifications to target branch
-  run: |
-    git config user.name 'CI Bot'
-    git config user.email 'action@github.com'
-    git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-
-    # Configure Git to use the PAT for HTTPS operations
-    git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${{ secrets.CITOKEN }} | base64)"
-
-    MAX_RETRIES=5
-    RETRY_DELAY=10s
-    for i in $(seq 1 $MAX_RETRIES); do
-      git push origin gh-storage --force && break || {
-        echo "Push $i failed... waiting $RETRY_DELAY"
-        sleep $RETRY_DELAY
-      }
-    done
+      - name: Commit and push modifications to target branch
+        run: |
+          git config user.name 'CI Bot'
+          git config user.email 'action@github.com'
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+      
+          # Configure Git to use the PAT for HTTPS operations
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic $(echo -n x-access-token:${{ secrets.CITOKEN }} | base64)"
+      
+          MAX_RETRIES=5
+          RETRY_DELAY=10s
+          for i in $(seq 1 $MAX_RETRIES); do
+            git push origin gh-storage --force && break || {
+              echo "Push $i failed... waiting $RETRY_DELAY"
+              sleep $RETRY_DELAY
+            }
+          done
