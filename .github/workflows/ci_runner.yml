@@ -11,8 +11,6 @@ on:
       CASJOBS_PW:
         description: 'CASJOBS password'
         required: false
-      CITOKEN:
-        required: true
 
 #permissions:
 #  id-token: write
@@ -24,32 +22,24 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout PR code from the forked repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.pr_head_repo }}
-          ref: ${{ inputs.pr_head_sha }}
-          path: 'forked-repo'
-          fetch-depth: 0
-          token: ${{ secrets.CITOKEN }}
-
-      - name: Detect Changed Files
-        id: get-changed-files
-        uses: tj-actions/changed-files@v42
-        with:
-          separator: ","
-          files: "forked-repo/**/*.ipynb"
-          token: ${{ secrets.CITOKEN }}
-          fetch_depth: 0
-          
-      ## convert the list of files to an array and push them into the matrix as a json object      
-      - name: set-matrix
-        id: set-matrix
-        run: |
-          IFS=',' read -r -a array <<< "${{ steps.get-changed-files.outputs.all_changed_files }}"
-          echo "{$array}"
-          echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- \"${array[@]}\")" >> $GITHUB_OUTPUT
-
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    ## routine to gather only the changed notebook files and supply them to the matrix
+    - name: changed-files
+      id: get-changed-files
+      uses: tj-actions/changed-files@v42
+      with:
+        separator: ","
+        files: |
+          **/*.ipynb
+    ## convert the list of files to an array and push them into the matrix as a json object      
+    - name: set-matrix
+      id: set-matrix
+      run: |
+        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
+        echo "{$array}"
+        echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
@@ -63,9 +53,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          #ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 50
+          fetch-depth: 0
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
         with:
