@@ -54,7 +54,9 @@ jobs:
     permissions:
       contents: write
     strategy:
-      matrix: ${{fromJson(needs.identify-changed-notebooks.outputs.matrix)}}
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.identify-changed-notebooks.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
