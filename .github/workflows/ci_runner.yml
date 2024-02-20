@@ -34,20 +34,21 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
-          path: forked-repo
-          fetch-depth: 50
-          token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN or a PAT with the necessary permissions
+          path: 'forked-repo'
+          fetch-depth: 0  # Consider fetching all history to ensure the commit is included
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 
       ## routine to gather only the changed notebook files and supply them to the matrix
-      - name: changed-files
+      - name: Detect Changed Files
         uses: tj-actions/changed-files@v42
         with:
           separator: ","
           files: "**/*.ipynb"
-          path: forked-repo
+          path: 'forked-repo'
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch_depth: 50 
+          fetch_depth: 0 
+          
       ## convert the list of files to an array and push them into the matrix as a json object      
       - name: set-matrix
         id: set-matrix
