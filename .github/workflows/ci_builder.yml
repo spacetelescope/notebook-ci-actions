@@ -85,7 +85,8 @@ jobs:
             echo "Installing requirements from ${NOTEBOOK_DIR}/requirements.txt"
             pip install -r ${NOTEBOOK_DIR}/requirements.txt
           fi
-
+          pip install nbconvert
+          pip install jupyter
           # Execute the notebook
           jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}
       - name: Commit modified file on current branch
