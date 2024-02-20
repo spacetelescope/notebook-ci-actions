@@ -24,25 +24,23 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout code conditionally
+      - name: Checkout PR code from the forked repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.repository.full_name }}
+          repository: ${{ inputs.pr_head_repo }}
           ref: ${{ inputs.pr_head_sha }}
-          path: ${{ github.event.repository.fork && 'forked-repo' || 'same-repo' }}
+          path: 'forked-repo'
           fetch-depth: 0
-          token: ${{ github.event.repository.fork && secrets.CITOKEN || github.token }}
+          token: ${{ secrets.CITOKEN }}
 
-      - name: get-changed-files
+      - name: Detect Changed Files
         id: get-changed-files
         uses: tj-actions/changed-files@v42
         with:
           separator: ","
-          files: "**/*.ipynb"
-          path: ${{ github.event.repository.fork && 'forked-repo' || 'same-repo' }}
-          token: ${{ github.event.repository.fork && secrets.CITOKEN || github.token }}
+          files: "forked-repo/**/*.ipynb"
+          token: ${{ secrets.CITOKEN }}
           fetch_depth: 0
-          
           
       ## convert the list of files to an array and push them into the matrix as a json object      
       - name: set-matrix
