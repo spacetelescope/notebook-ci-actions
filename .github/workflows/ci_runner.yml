@@ -49,7 +49,6 @@ jobs:
           IFS=',' read -r -a array <<< "${{ steps.get-changed-files.outputs.all_changed_files }}"
           echo "{$array}"
           echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- \"${array[@]}\")" >> $GITHUB_OUTPUT
-        working-directory: 'forked-repo'  # Ensure this step runs in the directory with the fork's code
 
   notebook-execution:
     needs: gather-notebooks
