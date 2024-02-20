@@ -30,21 +30,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history
+          fetch-depth: 0  # Fetch all history for all branches and tags
 
-      - name: Get list of changed .ipynb files
-        id: get_files
+      - name: Find changed .ipynb files
+        id: find-files
         run: |
-          git fetch origin gh-storage:gh-storage
-          changed_files=$(git diff --name-only ${{ github.sha }} gh-storage -- '*.ipynb')
-          echo "changed_files=$changed_files" >> $GITHUB_ENV
+          PR_NUM=${{ github.event.pull_request.number }}
+          FILES=$(gh pr view $PR_NUM --json files --jq '.files.[].path' | grep '\.ipynb$')
+          echo "Notebook files: $FILES"
+          echo "FILES<<EOF" >> $GITHUB_ENV
+          echo "$FILES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
       - name: Create matrix for changed notebooks
         id: set-matrix
         run: |
-          readarray -t notebooks <<< "$changed_files"
+          readarray -t notebooks <<< "$FILES"
           notebooks_json=$(echo "${notebooks[@]}" | jq -Rc 'split("\n")[:-1]')
           echo "::set-output name=matrix::{\"include\": $(echo "$notebooks_json" | jq -c '[.[] | {notebook: .}]')}"
+
 
   execute-notebooks:
     needs: identify-changed-notebooks
@@ -112,6 +116,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   generate_html:
+    needs: execute-notebooks
     runs-on: ubuntu-latest
     permissions:
       contents: write
