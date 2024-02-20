@@ -24,30 +24,22 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout base repository code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
-
       - name: Checkout PR code from the forked repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ inputs.pr_head_repo }}
+          ref: ${{ inputs.pr_head_sha }}
           path: 'forked-repo'
-          fetch-depth: 0  # Consider fetching all history to ensure the commit is included
-          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          token: ${{ secrets.CITOKEN }}
 
-
-      ## routine to gather only the changed notebook files and supply them to the matrix
       - name: Detect Changed Files
         uses: tj-actions/changed-files@v42
         with:
           separator: ","
-          files: "**/*.ipynb"
-          path: 'forked-repo'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch_depth: 0 
+          files: "forked-repo/**/*.ipynb"
+          token: ${{ secrets.CITOKEN }}
+          fetch_depth: 0
           
       ## convert the list of files to an array and push them into the matrix as a json object      
       - name: set-matrix
