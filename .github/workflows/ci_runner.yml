@@ -121,35 +121,3 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
           
-      - name: Commit modified file on current branch
-        run: |
-          git config user.name 'CI Bot'
-          git config user.email 'action@github.com'
-          git add ${{ matrix.notebooks }}
-          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-
-      - name: Checkout only the file to the target branch
-        env:
-          CITOKEN: ${{ secrets.CITOKEN }}
-        run: |
-          git config user.name 'CI Bot'
-          git config user.email 'action@github.com'
-          git commit -m "Storing executed notebook"
-          
-          # Temporarily set the remote with the PAT included in the URL for authentication
-          GIT_URL=$(git remote get-url origin)
-          GIT_URL_WITH_TOKEN=${GIT_URL/https:\/\/github.com\//https:\/\/x-access-token:${CITOKEN}@github.com/}
-          git remote set-url origin $GIT_URL_WITH_TOKEN
-          
-          MAX_RETRIES=5
-          RETRY_DELAY=10s
-          for i in $(seq 1 $MAX_RETRIES); do
-            git push origin gh-storage --force && break || {
-              echo "Push $i failed... waiting $RETRY_DELAY"
-              sleep $RETRY_DELAY
-            }
-          done
-          
-          # Revert the remote URL to its original state
-          git remote set-url origin $GIT_URL
-        #shell: /bin/bash -e {0}
