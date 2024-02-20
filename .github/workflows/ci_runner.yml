@@ -53,7 +53,7 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     strategy:
