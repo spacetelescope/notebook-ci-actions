@@ -24,26 +24,38 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v4
-      with:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Checkout PR code from the fork
+        uses: actions/checkout@v4
+        with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          #ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 50
-    ## routine to gather only the changed notebook files and supply them to the matrix
-    - name: changed-files
-      id: get-changed-files
-      uses: tj-actions/changed-files@v42
-      with:
-        separator: ","
-        files: |
-          **/*.ipynb
-    ## convert the list of files to an array and push them into the matrix as a json object      
-    - name: set-matrix
-      id: set-matrix
-      run: |
-        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
-        echo "{$array}"
-        echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+          path: 'forked-repo'
+          token: ${{ secrets.GITHUB_TOKEN }}  # Use GITHUB_TOKEN for public repos, PAT if needed for private
+
+      ## routine to gather only the changed notebook files and supply them to the matrix
+      - name: changed-files
+        id: get-changed-files
+        uses: tj-actions/changed-files@v42
+        with:
+          separator: ","
+          files: |
+            **/*.ipynb
+          path: 'forked-repo'  # Point to the path where the fork's code is checked out
+
+      ## convert the list of files to an array and push them into the matrix as a json object      
+      - name: set-matrix
+        id: set-matrix
+        run: |
+          IFS=',' read -r -a array <<< "${{ steps.get-changed-files.outputs.all_changed_files }}"
+          echo "{$array}"
+          echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- \"${array[@]}\")" >> $GITHUB_OUTPUT
+        working-directory: 'forked-repo'  # Ensure this step runs in the directory with the fork's code
+
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
