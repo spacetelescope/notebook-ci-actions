@@ -31,4 +31,4 @@ jobs:
           verbose: 'Error'
           max_retry_time: 30
           max_retries: 5
-          exclude_url_prefix: 'https://github.com/spacetelescope/hst_notebooks/issues/new?, https://acspsf.stsci.edu/'
+          exclude_url_prefix: 'https://github.com/spacetelescope/hst_notebooks/issues/new?,https://acspsf.stsci.edu/'
