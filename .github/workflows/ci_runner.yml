@@ -121,14 +121,16 @@ jobs:
           git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
 
       - name: Checkout only the file to the target branch
+        env:
+          CITOKEN: ${{ secrets.CITOKEN }}
         run: |
           git config user.name 'CI Bot'
           git config user.email 'action@github.com'
-          git commit -m "Storing executed notebook notebooks/COS/AsnFile/AsnFile.ipynb"
+          git commit -m "Storing executed notebook"
           
           # Temporarily set the remote with the PAT included in the URL for authentication
           GIT_URL=$(git remote get-url origin)
-          GIT_URL_WITH_TOKEN=${GIT_URL/https:\/\/github.com\//https:\/\/x-access-token:${{ secrets.CITOKEN }}@github.com/}
+          GIT_URL_WITH_TOKEN=${GIT_URL/https:\/\/github.com\//https:\/\/x-access-token:${CITOKEN}@github.com/}
           git remote set-url origin $GIT_URL_WITH_TOKEN
           
           MAX_RETRIES=5
