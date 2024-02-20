@@ -28,27 +28,24 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
-
-      - name: Find changed .ipynb files
-        id: find-files
-        run: |
-          PR_NUM=${{ github.event.pull_request.number }}
-          FILES=$(gh pr view $PR_NUM --json files --jq '.files.[].path' | grep '\.ipynb$')
-          echo "Notebook files: $FILES"
-          echo "FILES<<EOF" >> $GITHUB_ENV
-          echo "$FILES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
-      - name: Create matrix for changed notebooks
-        id: set-matrix
-        run: |
-          readarray -t notebooks <<< "$FILES"
-          notebooks_json=$(echo "${notebooks[@]}" | jq -Rc 'split("\n")[:-1]')
-          echo "::set-output name=matrix::{\"include\": $(echo "$notebooks_json" | jq -c '[.[] | {notebook: .}]')}"
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    ## routine to gather only the changed notebook files and supply them to the matrix
+    - name: changed-files
+      id: get-changed-files
+      uses: tj-actions/changed-files@v42
+      with:
+        separator: ","
+        files: |
+          **/*.ipynb
+    ## convert the list of files to an array and push them into the matrix as a json object      
+    - name: set-matrix
+      id: set-matrix
+      run: |
+        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
+        echo "{$array}"
+        echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
 
 
   execute-notebooks:
