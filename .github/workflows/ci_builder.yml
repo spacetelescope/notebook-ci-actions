@@ -19,6 +19,7 @@ permissions:
 env:
   CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
   CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  GH_TOKEN: ${{ github.token }}
 
  
 jobs:
