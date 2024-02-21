@@ -27,4 +27,4 @@ jobs:
           EXTERNAL: false
           UPLOAD: true
           FAIL_ERRORS_COUNT: 1
-          A11YWATCH_TOKEN: ${{ secrets.A11YWATCH_TOKEN }}
+          # A11YWATCH_TOKEN: ${{ secrets.A11YWATCH_TOKEN }}
