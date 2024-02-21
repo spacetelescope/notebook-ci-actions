@@ -24,7 +24,7 @@ jobs:
           SITEMAP: true
           UPGRADE: true
           LIST: true
-          EXTERNAL: True
+          EXTERNAL: true
           UPLOAD: true
           FAIL_ERRORS_COUNT: 1
           A11YWATCH_TOKEN: ${{ secrets.A11YWATCH_TOKEN }}
