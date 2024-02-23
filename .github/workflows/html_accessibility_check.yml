@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
-        uses: a11ywatch/github-actions@v2.1.9
+        uses: a11ywatch/github-actions@v2.1.10
         with:
           WEBSITE_URL: ${{ inputs.target_url }}
           SITE_WIDE: true
