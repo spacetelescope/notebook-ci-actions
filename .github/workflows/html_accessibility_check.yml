@@ -8,6 +8,13 @@ on:
         description: "URL to scan"
         required: false
         type: 'string'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        default: null
+        description: "URL to scan"
+        required: false
+        type: 'string'
         
 
 jobs:
