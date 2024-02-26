@@ -5,6 +5,8 @@ Based on https://github.com/spacetelescope/jdat_notebooks/blob/main/.github/help
 """
 import argparse
 import json
+import pdb
+
 import numpy as np
 import os
 import pathlib
@@ -53,6 +55,31 @@ def check_cell_content(source):
             # a "negative lookahead" for any characters in "non-capturing group"
             return True
 
+def multistartswith(string_to_check, list_to_check):
+    """Similar to ".startswith()", except it will check to see if the provided string starts with any of the
+    items in the provided list.
+
+    Parameters
+    ----------
+    string_to_check : str
+        string to check.
+
+    list_to_check : list
+        list of items to check if they start off string_to_check
+
+    Returns
+    -------
+    check_state: Bool
+        Boolean 'True' if any of the items in list_to_check start off the text in string_to_check, Boolean
+        'False' if not.
+    """
+    for item in list_to_check:
+        check_status = string_to_check.startswith(item)
+        if check_status == True:
+            return(check_status)
+    return(check_status)
+
+
 def nb_style_checker(nb_file):
     """Use flake8 to perform a PEP8 style check on the python code embedded in a user-specified jupyter
     notebook
@@ -81,7 +108,23 @@ def nb_style_checker(nb_file):
     # save relevant file paths
     code_file = pathlib.Path(f"{nb_file.stem}_scripted.py")
     warn_file = pathlib.Path(f"{nb_file.stem}_pep8.txt")
-
+    magic_command_list = ["%alias", "%alias_magic", "%autoawait", "%autocall", "%autoindent", "%automagic",
+                          "%bookmark", "%cat", "%cd", "%clear", "%colors", "%conda", "%config", "%cp",
+                          "%cpaste", "%debug", "%dhist", "%dirs", "%doctest_mode", "%ed", "%edit", "%env",
+                          "%gui", "%hist", "%history", "%killbgscripts", "%ldir", "%less", "%lf", "%lk",
+                          "%ll", "%load", "%load_ext", "%loadpy", "%logoff", "%logon", "%logstart",
+                          "%logstate", "%logstop", "%ls", "%lsmagic", "%lx", "%macro", "%magic", "%man",
+                          "%matplotlib", "%mkdir", "%more", "%mv", "%notebook", "%page", "%paste",
+                          "%pastebin", "%pdb", "%pdef", "%pdoc", "%pfile", "%pinfo", "%pinfo2", "%pip",
+                          "%popd", "%pprint", "%precision", "%prun", "%psearch", "%psource", "%pushd",
+                          "%pwd", "%pycat", "%pylab", "%quickref", "%recall", "%rehashx", "%reload_ext",
+                          "%rep", "%rerun", "%reset", "%reset_selective", "%rm", "%rmdir", "%run", "%save",
+                          "%sc", "%set_env", "%store", "%sx", "%system", "%tb", "%time", "%timeit",
+                          "%unalias", "%unload_ext", "%who", "%who_ls", "%whos", "%xdel", "%xmode", "%%!",
+                          "%%HTML", "%%SVG", "%%bash", "%%capture", "%%debug", "%%file", "%%html",
+                          "%%javascript", "%%js", "%%latex", "%%markdown", "%%perl", "%%prun", "%%pypy",
+                          "%%python", "%%python2", "%%python3", "%%ruby", "%%script", "%%sh", "%%svg",
+                          "%%sx", "%%system", "%%time", "%%timeit", "%%writefile"]
     # save code cell contents to a script divided into blocks with the separator
     code_cells = []
     with open(nb_file) as nf:
@@ -107,8 +150,10 @@ def nb_style_checker(nb_file):
                         # replace lines with IPython magic commands with a "pass" statement
                         if len(ln.strip()) == 0:
                             line = ln
+                        elif multistartswith(ln.strip(), ["!"] + magic_command_list) == True:
+                            line = ln.replace(ln.strip(), "pass")
                         else:
-                            line = ln if ln.strip()[0] not in ["!", "%"] else ln.replace(ln.strip(), "pass")
+                            line = ln
 
                         # insert noqa comment if needed (with care for newline char)
                         if (noqa_comment and not line.startswith('#')
@@ -217,7 +262,7 @@ def nb_style_checker(nb_file):
         nu_output_dict[all_cell_num]['text'].append(nu_msg)
 
     # remove temp files created earlier in run
-    remove_temp_files(code_file, warn_file)
+    # remove_temp_files(code_file, warn_file)
     return 99
 
 if __name__ == '__main__':
