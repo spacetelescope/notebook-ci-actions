@@ -106,7 +106,7 @@ jobs:
         run: |
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+          if ! jupyter nbconvert --Application.log_level=DEBUG --to notebook --execute --inplace ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
           
