@@ -12,13 +12,13 @@ on:
       A11YWATCH_TOKEN:
         description: 'a11ywatch token'
         required: false
-  workflow_dispatch:
-    inputs:
-      target_url:
-        default: null
-        description: "URL to scan"
-        required: false
-        type: 'string'
+  # workflow_dispatch:
+  #   inputs:
+  #     target_url:
+  #       default: null
+  #       description: "URL to scan"
+  #       required: false
+  #       type: 'string'
         
 
 jobs:
