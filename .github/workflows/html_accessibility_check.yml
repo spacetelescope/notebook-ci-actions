@@ -8,6 +8,10 @@ on:
         description: "URL to scan"
         required: false
         type: 'string'
+    secrets:
+      A11YWATCH_TOKEN:
+        description: 'a11ywatch token'
+        required: false
   workflow_dispatch:
     inputs:
       target_url:
