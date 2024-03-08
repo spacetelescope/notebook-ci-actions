@@ -83,4 +83,4 @@ jobs:
         run: |
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-          pytest --nbval "${{ matrix.notebooks }}"
+          pytest --nbval --nbval-cell-timeout 2000 "${{ matrix.notebooks }}"
