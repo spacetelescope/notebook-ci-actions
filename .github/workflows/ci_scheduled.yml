@@ -35,16 +35,16 @@ jobs:
       #- run: | 
       #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
       - uses: actions/checkout@v4
+
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5 ## needed for caching
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          #cache: 'pip'
           
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+      #- name: Add conda to system path
+      #  run: |
+      #    # $CONDA is an environment variable pointing to the root of the miniconda directory
+      #    echo $CONDA/bin >> $GITHUB_PATH
           
       - name: Install dependencies
         run: |
