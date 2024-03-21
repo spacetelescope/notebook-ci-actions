@@ -78,7 +78,7 @@ jobs:
         run: |
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-          jupyter nbconvert --template classic --to html --execute --Application.log_level=DEBUG' "${{ matrix.notebooks }}"
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: |
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
