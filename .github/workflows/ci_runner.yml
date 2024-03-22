@@ -22,24 +22,17 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    ## routine to gather only the changed notebook files and supply them to the matrix
-    - name: changed-files
-      id: get-changed-files
-      uses: tj-actions/changed-files@v42
-      with:
-        separator: ","
-        files: |
-          **/*.ipynb
-    ## convert the list of files to an array and push them into the matrix as a json object      
-    - name: set-matrix
-      id: set-matrix
-      run: |
-        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
-        echo "{$array}"
-        echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - id: set-matrix
+        run: |
+          files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} '*.ipynb')
+          #files_json=$(echo $files | jq -R -s -c 'split("\n")[:-1]')
+          files_json=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
+          echo "::set-output name=matrix::${files_json}"
   notebook-execution:
     needs: gather-notebooks
     #if: ${{ fromJson(needs.gather-notebooks.outputs.matrix).length > 0 }}
