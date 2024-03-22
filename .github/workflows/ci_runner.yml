@@ -16,7 +16,6 @@ on:
 #  id-token: write
 jobs:
   gather-notebooks:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
