@@ -42,7 +42,7 @@ jobs:
         echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
   notebook-execution:
     needs: gather-notebooks
-    if: ${{ fromJson(needs.gather-notebooks.outputs.matrix).length > 0 }}
+    #if: ${{ fromJson(needs.gather-notebooks.outputs.matrix).length > 0 }}
     environment: ci_env
     runs-on: ubuntu-latest
     permissions:
