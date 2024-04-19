@@ -98,8 +98,7 @@ jobs:
           ATTEMPTS_LEFT=3
           until [ $ATTEMPTS_LEFT -lt 1 ]
           do
-            #git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git pull --rebase origin gh-storage
+            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
             git push origin gh-storage 2>&1 | tee output.log
             if grep -q "Updates were rejected because the remote contains work" output.log; then
               echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
