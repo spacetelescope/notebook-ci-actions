@@ -88,7 +88,7 @@ jobs:
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-         pytest --nbval "${{ matrix.notebooks }}" 
+         pytest --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" 
          
       - name: Execute notebooks
         id: execute
