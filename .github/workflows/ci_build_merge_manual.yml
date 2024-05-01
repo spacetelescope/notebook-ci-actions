@@ -95,6 +95,7 @@ jobs:
 
     - name: Checkout only the file to the target branch
       run: |
+        git fetch origin
         git checkout -f gh-storage
         git checkout @{-1} ${{ matrix.notebook }}
 
