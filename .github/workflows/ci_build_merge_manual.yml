@@ -95,17 +95,18 @@ jobs:
           git checkout -b gh-storage
           git add ${{ matrix.notebook }}
           git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-          ATTEMPTS_LEFT=3
-          until [ $ATTEMPTS_LEFT -lt 1 ]
+          # Retry logic for pushing changes
+          MAX_RETRIES=5
+          COUNT=0
+          until git push origin gh-storage
           do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage 2>&1 | tee output.log
-            if grep -q "Updates were rejected because the remote contains work" output.log; then
-              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-              let "ATTEMPTS_LEFT--"
-              sleep 5
-            else
-              break
+            echo "Push failed, retrying..."
+            sleep 3s  # Wait a bit before retrying
+            git pull --rebase  # Rebase the latest changes
+            ((COUNT++))
+            if [ "$COUNT" -ge "$MAX_RETRIES" ]; then
+              echo "Max retries reached, stopping..."
+              exit 1
             fi
           done
         fi
