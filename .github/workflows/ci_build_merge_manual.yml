@@ -102,6 +102,7 @@ jobs:
           do
             echo "Push failed, retrying..."
             sleep 3s  # Wait a bit before retrying
+            git pull
             git pull --rebase  # Rebase the latest changes
             ((COUNT++))
             if [ "$COUNT" -ge "$MAX_RETRIES" ]; then
