@@ -86,29 +86,32 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
-    - name: Archive executed notebooks
+    - name: Commit modified file on current branch
       run: |
-        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          git config pull.rebase false
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout -b gh-storage
-          git add ${{ matrix.notebook }}
-          git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-          ATTEMPTS_LEFT=3
-          until [ $ATTEMPTS_LEFT -lt 1 ]
-          do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage 2>&1 | tee output.log
-            if grep -q "Updates were rejected because the remote contains work" output.log; then
-              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-              let "ATTEMPTS_LEFT--"
-              sleep 5
-            else
-              break
-            fi
-          done
-        fi
+        git config user.name 'CI Bot'
+        git config user.email 'action@github.com'
+        git add ${{ matrix.notebooks }}
+        git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+
+    - name: Checkout only the file to the target branch
+      run: |
+        git checkout -f gh-storage
+        git checkout @{-1} ${{ matrix.notebooks }}
+
+    - name: Commit and push modifications to target branch
+      run: |
+        git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+
+        MAX_RETRIES=5
+        RETRY_DELAY=10s
+        for i in $(seq 1 $MAX_RETRIES); do
+          git push origin gh-storage --force && break || {
+            echo "Push $i failed... waiting $RETRY_DELAY"
+            sleep $RETRY_DELAY
+          }
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   generate_html:
     needs: tests
     runs-on: ubuntu-20.04
