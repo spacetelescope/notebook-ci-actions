@@ -106,12 +106,21 @@ jobs:
 
         MAX_RETRIES=10
         RETRY_DELAY=15s
+        success=false
         for i in $(seq 1 $MAX_RETRIES); do
-          git push origin gh-storage --force && break || {
+          if git push origin gh-storage --force; then
+            success=true
+            break
+          else
             echo "Push $i failed... waiting $RETRY_DELAY"
             sleep $RETRY_DELAY
-          }
+          fi
         done
+
+        if [ "$success" = false ]; then
+          echo "Failed to push after $MAX_RETRIES attempts."
+          exit 1
+        fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
