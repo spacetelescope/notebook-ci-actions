@@ -86,34 +86,34 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
-      - name: Commit modified file on current branch
-        run: |
-          git config user.name 'CI Bot'
-          git config user.email 'action@github.com'
-          git add "${{ matrix.notebook }}"
-          git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+    - name: Commit modified file on current branch
+      run: |
+        git config user.name 'CI Bot'
+        git config user.email 'action@github.com'
+        git add "${{ matrix.notebook }}"
+        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
 
-      - name: Checkout only the file to the target branch
-        run: |
-          git fetch
-          git pull
-          git checkout -f gh-storage
-          git checkout @{-1} "${{ matrix.notebook }}"
+    - name: Checkout only the file to the target branch
+      run: |
+        git fetch
+        git pull
+        git checkout -f gh-storage
+        git checkout @{-1} "${{ matrix.notebook }}"
 
-      - name: Commit and push modifications to target branch
-        run: |
-          git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+    - name: Commit and push modifications to target branch
+      run: |
+        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
 
-          MAX_RETRIES=10
-          RETRY_DELAY=15s
-          for i in $(seq 1 $MAX_RETRIES); do
-            git push origin gh-storage --force && break || {
-              echo "Push $i failed... waiting $RETRY_DELAY"
-              sleep $RETRY_DELAY
-            }
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        MAX_RETRIES=10
+        RETRY_DELAY=15s
+        for i in $(seq 1 $MAX_RETRIES); do
+          git push origin gh-storage --force && break || {
+            echo "Push $i failed... waiting $RETRY_DELAY"
+            sleep $RETRY_DELAY
+          }
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
   generate_html:
     needs: tests
