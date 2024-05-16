@@ -1,4 +1,4 @@
-name: Scheduled Notebook Execution
+ name: Scheduled Notebook Execution
 on:
   workflow_call:
     inputs:  
@@ -41,10 +41,10 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
           
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+      #- name: Add conda to system path
+      #  run: |
+      #    # $CONDA is an environment variable pointing to the root of the miniconda directory
+      #    echo $CONDA/bin >> $GITHUB_PATH
           
       - name: Install dependencies
         run: |
@@ -57,11 +57,11 @@ jobs:
           echo ---
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
-            ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
+            source $(dirname "${{ matrix.notebooks }}")/pre-install.sh
           fi
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
-            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            source $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
             pip install -r $(dirname  "${{ matrix.notebooks }}")/pre-requirements.txt
