@@ -1,4 +1,4 @@
- name: Scheduled Notebook Execution
+name: Scheduled Notebook Execution
 on:
   workflow_call:
     inputs:  
