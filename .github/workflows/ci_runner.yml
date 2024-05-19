@@ -21,7 +21,7 @@ jobs:
     ## routine to gather only the changed notebook files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
-      uses: tj-actions/changed-files@v44.3.0
+      uses: tj-actions/changed-files@v44.4.0
       with:
         separator: ","
         files: |
