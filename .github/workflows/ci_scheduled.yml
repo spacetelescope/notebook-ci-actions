@@ -58,10 +58,12 @@ jobs:
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
             source $(dirname "${{ matrix.notebooks }}")/pre-install.sh
+            hash -r
           fi
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
             source $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            hash -r
           fi
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
             pip install -r $(dirname  "${{ matrix.notebooks }}")/pre-requirements.txt
