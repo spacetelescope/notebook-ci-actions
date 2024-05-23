@@ -176,6 +176,7 @@ def nb_style_checker(nb_file):
 
     # Ignore lines with PEP 8 codes on ignore list
     codes_to_ignore = ["E261", # At least two spaces before inline comment
+                       "E265", # Space after the # in a comment
                        "E402", # module level import not at top of file
                        "E501", # line too long
                        "F821", # undefined name
