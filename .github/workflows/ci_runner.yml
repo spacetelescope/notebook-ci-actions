@@ -4,6 +4,7 @@ on:
       python-version:
         required: true
         type: string
+        default: '3.11'
     secrets:
       CASJOBS_USERID:
         description: 'CASJOBS user ID'
