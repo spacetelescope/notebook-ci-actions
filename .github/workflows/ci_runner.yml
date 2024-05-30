@@ -1,10 +1,10 @@
 on:
   workflow_call:
-    #inputs:  
-    #  python-version:
-    #    required: true
-    #    type: string
-    #    default: '3.11'
+    inputs:  
+      python-version:
+        required: true
+        type: string
+
     secrets:
       CASJOBS_USERID:
         description: 'CASJOBS user ID'
@@ -52,9 +52,7 @@ jobs:
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
         with:
-          python-version: '3.11'
-          #python-version: ${{ inputs.python-version }}
-
+          python-version: ${{ inputs.python-version }}
       - name: Install dependencies
         run: |
           ## Install the local requirements file
