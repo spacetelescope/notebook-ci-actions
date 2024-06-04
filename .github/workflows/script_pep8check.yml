@@ -7,6 +7,7 @@ on:
       python-version:
         required: true
         type: string
+        default: 3.11
 jobs:
   gather-scripts:
     # below logic will only allow workflow to trigger under specific conditions
