@@ -18,6 +18,7 @@ jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
     outputs:
+      os: [ubuntu-latest, macos-latest, macos-12]
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
