@@ -18,7 +18,6 @@ jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
     outputs:
-      os: [ubuntu-latest, macos-latest, macos-12]
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +29,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
+            os: [ubuntu-latest, macos-latest, macos-12]
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
