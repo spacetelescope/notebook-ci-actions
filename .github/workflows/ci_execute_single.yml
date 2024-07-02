@@ -1,4 +1,4 @@
-name: Manual Full Archive Execution/HTML Gen/Deply
+name: Execute Single File w/os matrix
 on:
   workflow_call:
     inputs:  
@@ -40,6 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest, macos-12]
         notebook: ${{fromJson(needs.find_notebooks.outputs.notebook_list)}}
     steps:
     - name: Checkout repository
