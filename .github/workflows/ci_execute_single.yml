@@ -84,8 +84,4 @@ jobs:
         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
-          fi
-        fi
+        jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}
