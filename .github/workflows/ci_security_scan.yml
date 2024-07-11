@@ -48,6 +48,7 @@ jobs:
       - name: Scan with NBDefense
         run: |
           pip install nbdefense
+          python -m spacy download en_core_web_trf
           nbdefense scan -r notebooks/
       - name: Archive NBDefense Log
         uses: actions/upload-artifact@v4
