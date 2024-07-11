@@ -29,7 +29,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install bandit
-          pip install nbdefense
           pip install nbconvert
           
       - name: Scan with Bandit
