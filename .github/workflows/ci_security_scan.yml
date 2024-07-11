@@ -34,8 +34,9 @@ jobs:
       - name: Scan with Bandit
         run: |
           jupyter nbconvert --to script ${{ matrix.notebooks }}
-          bandit ${{ matrix.notebooks }}
-
+          pyfile = $(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit $pyfile
+          
   NBDefenseTests:
     runs-on: ubuntu-latest
     steps:
