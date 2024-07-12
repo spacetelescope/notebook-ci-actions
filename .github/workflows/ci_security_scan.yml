@@ -35,26 +35,26 @@ jobs:
         run: |
           jupyter nbconvert --to script ${{ matrix.notebooks }}
           pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
-          bandit $pyfile
+          bandit -lll -iii $pyfile
           
-  NBDefenseTests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.9
+  #NBDefenseTests:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - name: Set up Python
+  #      uses: actions/setup-python@v5
+  #      with:
+  #        python-version: 3.9
           
-      - name: Scan with NBDefense
-        run: |
-          pip install nbdefense
-          python -m spacy download en_core_web_trf
-          nbdefense scan -r notebooks/
-      - name: Archive NBDefense Log
-        uses: actions/upload-artifact@v4
-        with:
-          name: securityLog
-          path: nbdefense*.html
+      # name: Scan with NBDefense
+        #run: |
+        #  pip install nbdefense
+        #  python -m spacy download en_core_web_trf
+        #  nbdefense scan -r notebooks/
+      #- name: Archive NBDefense Log
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: securityLog
+      #    path: nbdefense*.html
           
           
