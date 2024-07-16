@@ -80,10 +80,6 @@ jobs:
           pip install nbconvert
           pip install bandit
           
-      - name: Security testing with Bandit
-        run: | 
-          bandit "${{ matrix.notebooks }}"
-          
       - name: Validate notebooks 
         run: |
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
@@ -99,3 +95,9 @@ jobs:
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
+
+      - name: Scan with Bandit
+        run: |
+          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit -lll -iii $pyfile
