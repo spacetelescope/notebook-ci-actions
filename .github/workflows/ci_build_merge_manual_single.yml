@@ -87,7 +87,7 @@ jobs:
           if jq -e '.metadata.deprecated' "${{ matrix.notebook }}" > /dev/null; then
             echo "Notebook ${{ matrix.notebook }} is deprecated. Skipping execution."
             # Add banner
-            jq '.cells = [{"cell_type": "markdown", "metadata": {}, "source": ["# Deprecated Notebook\n\nThis notebook is deprecated and not functional."]}] + .cells' "${{ matrix.notebook }}" > tmp.ipynb && mv tmp.ipynb "${{ matrix.notebook }}"
+            jq '.cells |= ([.[] | select(.cell_type == "markdown" and .source | contains("Title of the Notebook"))] + [{"cell_type": "markdown", "metadata": {}, "source": ["<div style=\"background-color: yellow; border: 2px solid red; padding: 10px; text-align: center;\"><strong>Deprecated Notebook</strong><br>This notebook is deprecated and not functional.</div>"]}] + .[1:])' "${{ matrix.notebook }}" > "$tmpfile" && mv "$tmpfile" "${{ matrix.notebook }}"
           fi
           if ! jupyter nbconvert --Application.log_level=DEBUG --to notebook --execute --inplace ${{ matrix.notebook }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
