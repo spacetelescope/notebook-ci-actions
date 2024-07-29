@@ -84,6 +84,11 @@ jobs:
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+          if jq -e '.metadata.deprecated' "${{ matrix.notebook }}" > /dev/null; then
+            echo "Notebook ${{ matrix.notebook }} is deprecated. Skipping execution."
+            # Add banner
+            jq '.cells = [{"cell_type": "markdown", "metadata": {}, "source": ["# Deprecated Notebook\n\nThis notebook is deprecated and not functional."]}] + .cells' "${{ matrix.notebook }}" > tmp.ipynb && mv tmp.ipynb "${{ matrix.notebook }}"
+          fi
           if ! jupyter nbconvert --Application.log_level=DEBUG --to notebook --execute --inplace ${{ matrix.notebook }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
