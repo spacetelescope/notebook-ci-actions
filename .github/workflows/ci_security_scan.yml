@@ -28,6 +28,7 @@ jobs:
           
       - name: Install dependencies
         run: |
+          pip install ipython
           pip install bandit
           pip install nbconvert
           
