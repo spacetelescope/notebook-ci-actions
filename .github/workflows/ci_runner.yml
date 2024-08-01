@@ -104,6 +104,7 @@ jobs:
 
       - name: Scan with Bandit
         run: |
+          pip install ipython
           jupyter nbconvert --to script ${{ matrix.notebooks }}
           pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
           bandit -lll -iii $pyfile
