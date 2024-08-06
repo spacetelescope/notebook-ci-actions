@@ -75,8 +75,8 @@ jobs:
         if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
           chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
           ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-          #conda init bash
-          #conda activate hstcal
+          conda init
+          conda activate hstcal
         fi
         if [ -f pre-requirements.txt ]; then
           pip install -r pre-requirements.txt
