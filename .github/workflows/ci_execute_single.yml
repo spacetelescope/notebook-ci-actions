@@ -75,9 +75,6 @@ jobs:
         if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
           chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
           ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-          source /usr/share/miniconda/etc/profile.d/conda.sh
-          conda init
-          conda activate hstcal
         fi
         if [ -f pre-requirements.txt ]; then
           pip install -r pre-requirements.txt
@@ -88,6 +85,9 @@ jobs:
     - name: Execute notebook
       id: execute
       run: |
+        source /usr/share/miniconda/etc/profile.d/conda.sh
+        conda init
+        conda activate hstcal
         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
         export PYDEVD_DISABLE_FILE_VALIDATION=1
