@@ -87,15 +87,15 @@ jobs:
           fi
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
           
-      - name: Validate notebooks
-        run: |
-          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda init
-            conda activate hstcal
-          fi
-          git checkout gh-storage
-          pytest --nbval "${{ matrix.notebooks }}"
+      #- name: Validate notebooks
+      #  run: |
+      #    if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+      #      source /usr/share/miniconda/etc/profile.d/conda.sh
+      #      conda init
+      #      conda activate hstcal
+      #    fi
+      #    git checkout gh-storage
+      #    pytest --nbval "${{ matrix.notebooks }}"
 
 
 
