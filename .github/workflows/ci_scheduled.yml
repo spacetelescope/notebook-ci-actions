@@ -78,6 +78,7 @@ jobs:
       - name: Execute notebooks
         run: |
           if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
             conda init
             conda activate hstcal
           fi
@@ -85,6 +86,7 @@ jobs:
       - name: Validate notebooks
         run: |
           if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
             conda init
             conda activate hstcal
           fi
