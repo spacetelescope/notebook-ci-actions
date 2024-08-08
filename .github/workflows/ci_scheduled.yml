@@ -48,10 +48,10 @@ jobs:
           
       - name: Install dependencies
         run: |
-       #   pip install wheel
           export PYDEVD_DISABLE_FILE_VALIDATION=1
           export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        #  python -m pip install --upgrade pip
+          #python -m pip install --upgrade pip
+          #pip install wheel
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
