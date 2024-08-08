@@ -57,6 +57,7 @@ jobs:
           python -m pip install --upgrade pip
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
+          source /usr/share/miniconda/etc/profile.d/conda.sh
           conda create -n hstcal python==${{ inputs.python-version }}
           echo ---
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
