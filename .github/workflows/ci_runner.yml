@@ -85,9 +85,18 @@ jobs:
           pip install nbval
           pip install nbconvert
           pip install bandit
+          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
+            conda create --yes -n hstcal -c conda-forge hstcal          
+          fi
           
       - name: Validate notebooks 
         run: |
+         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
+            conda init
+            conda activate hstcal
+         fi
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
@@ -96,6 +105,11 @@ jobs:
       - name: Execute notebooks
         id: execute
         run: |
+         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
+            conda init
+            conda activate hstcal
+         fi        
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
