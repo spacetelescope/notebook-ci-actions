@@ -96,6 +96,7 @@ jobs:
             source /usr/share/miniconda/etc/profile.d/conda.sh
             conda init
             conda activate hstcal
+            conda config --set solver classic
          fi
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
@@ -109,6 +110,7 @@ jobs:
             source /usr/share/miniconda/etc/profile.d/conda.sh
             conda init
             conda activate hstcal
+            conda config --set solver classic
          fi        
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
