@@ -85,9 +85,6 @@ jobs:
     - name: Execute notebook
       id: execute
       run: |
-        source /usr/share/miniconda/etc/profile.d/conda.sh
-        conda init
-        conda activate hstcal
         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
         export PYDEVD_DISABLE_FILE_VALIDATION=1
