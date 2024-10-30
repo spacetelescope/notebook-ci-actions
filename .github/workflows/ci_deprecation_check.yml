@@ -1,0 +1,86 @@
+name: Scheduled Notebook Execution
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+    secrets:
+      CASJOBS_USERID:
+        description: 'CASJOBS user ID'
+        required: false
+      CASJOBS_PW:
+        description: 'CASJOBS password'
+        required: false
+
+#permissions: write-all
+jobs:
+  gather-notebooks:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+  tests:
+    needs: gather-notebooks
+    runs-on: ubuntu-latest
+    strategy:
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      #- run: |
+      #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      #- name: Add conda to system path
+      #  run: |
+      #    # $CONDA is an environment variable pointing to the root of the miniconda directory
+      #    echo $CONDA/bin >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          pip install wheel
+          export PYDEVD_DISABLE_FILE_VALIDATION=1
+          export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
+          python -m pip install --upgrade pip
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
+          echo ---
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
+          fi
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          fi
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname  "${{ matrix.notebooks }}")/pre-requirements.txt
+          fi
+          if [ -f pre-requirements.txt ]; then
+            pip install -r pre-requirements.txt
+          fi
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
+
+      - name: Execute notebooks
+        run: |
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+      - name: Validate notebooks
+        run: |
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+          pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" -W error::DeprecationWarning
