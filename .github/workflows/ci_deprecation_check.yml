@@ -83,4 +83,4 @@ jobs:
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: |
-          pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}"
+          pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" -W error::DeprecationWarning
