@@ -1,0 +1,157 @@
+name: Manual Full Archive Execution/HTML Gen/Deply
+on:
+  workflow_call:
+    inputs:  
+      python-version:
+        required: true
+        type: string
+    secrets:
+      CASJOBS_USERID:
+        description: 'CASJOBS user ID'
+        required: false
+      CASJOBS_PW:
+        description: 'CASJOBS password'
+        required: false
+          
+
+jobs:
+  find_notebooks:
+    runs-on: JWST-Pipeline-Notebooks
+    outputs:
+      notebook_list: ${{ steps.find.outputs.notebook_list }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Find notebook files
+      id: find
+      run: |
+        notebook_files=$(find notebooks -name "*.ipynb" | jq -R -s -c 'split("\n")[:-1]')
+        #echo "::set-output name=notebook_list::$notebook_files"
+        echo "notebook_list=$notebook_files" >>$GITHUB_OUTPUT
+
+  tests:
+    needs: find_notebooks
+    runs-on: JWST-Pipeline-Notebooks
+    outputs:
+      executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{fromJson(needs.find_notebooks.outputs.notebook_list)}}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        
+    - name: Install dependencies
+      continue-on-error: true
+      run: |
+        export PYDEVD_DISABLE_FILE_VALIDATION=1
+        export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
+        python -m pip install --upgrade pip
+        pip install pytest
+        pip install nbval
+        pip install nbconvert
+        echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
+        ls $(dirname ${{ matrix.notebook }})
+        echo ---
+        if [ -f $(dirname "${{ matrix.notebook }}")/pre-install.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebook }}")/pre-install.sh
+          ./$(dirname "${{ matrix.notebook }}")/pre-install.sh
+        fi
+        if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
+          ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
+        fi
+        if [ -f pre-requirements.txt ]; then
+          pip install -r pre-requirements.txt
+        fi
+        pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
+
+
+    - name: Execute notebook
+      id: execute
+      run: |
+        export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+        export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+        export PYDEVD_DISABLE_FILE_VALIDATION=1
+        export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
+        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
+            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
+          fi
+        fi
+    - name: Commit modified file on current branch
+      run: |
+        git config user.name 'CI Bot'
+        git config user.email 'action@github.com'
+        git add "${{ matrix.notebook }}"
+        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+
+    - name: Checkout only the file to the target branch
+      run: |
+        git fetch
+        git pull
+        git checkout -f gh-storage
+        git checkout @{-1} "${{ matrix.notebook }}"
+
+    - name: Commit and push modifications to target branch
+      run: |
+        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+
+        MAX_RETRIES=10
+        RETRY_DELAY=30s  # Increased delay
+        success=false
+        for i in $(seq 1 $MAX_RETRIES); do
+          git fetch origin gh-storage
+          git rebase origin/gh-storage
+          if git push origin gh-storage --force; then
+            success=true
+            break
+          else
+            echo "Push $i failed... waiting $RETRY_DELAY"
+            sleep $RETRY_DELAY
+          fi
+        done
+
+        if [ "$success" = false ]; then
+          echo "Failed to push after $MAX_RETRIES attempts."
+          exit 1
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  generate_html:
+    needs: tests
+    runs-on: JWST-Pipeline-Notebooks
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ inputs.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        
+    - name: Install dependencies
+      run: |
+        pip install jupyter-book==v0.15.1
+
+    - name: Build HTML
+      run: |
+        git fetch
+        git checkout origin/gh-storage -- notebooks/
+        jupyter-book build .
+        
+
+    # Push the book's HTML to github-pages
+    - name: GitHub Pages action
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./_build/html
