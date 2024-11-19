@@ -32,7 +32,8 @@ jobs:
 
   tests:
     needs: find_notebooks
-    runs-on: JWST-Pipeline-Notebooks
+    runs-on: 
+      group: jwst-pipeline-notebooks
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
@@ -128,7 +129,7 @@ jobs:
           
   generate_html:
     needs: tests
-    runs-on: JWST-Pipeline-Notebooks
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
