@@ -16,7 +16,7 @@ on:
 
 jobs:
   find_notebooks:
-    runs-on: JWST-Pipeline-Notebooks
+    runs-on: ubuntu-latest
     outputs:
       notebook_list: ${{ steps.find.outputs.notebook_list }}
     steps:
