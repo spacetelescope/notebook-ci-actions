@@ -58,6 +58,7 @@ jobs:
         pip install pytest
         pip install nbval
         pip install nbconvert
+        python3 -m ipykernel install --user
         echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
         ls $(dirname ${{ matrix.notebook }})
         echo ---
