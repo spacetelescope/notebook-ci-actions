@@ -32,7 +32,7 @@ jobs:
 
   tests:
     needs: find_notebooks
-    runs-on: ubuntu-20.04	
+    runs-on: jwst-pipeline-notebooks
       #group: jwst-pipeline-notebooks
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
