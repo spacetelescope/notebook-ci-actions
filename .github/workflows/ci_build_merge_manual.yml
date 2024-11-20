@@ -78,7 +78,7 @@ jobs:
     - name: Execute notebook
       id: execute
       run: |
-        pip uninstall ipykernel
+        pip uninstall ipykernel -y
         pip install ipykernel
         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
