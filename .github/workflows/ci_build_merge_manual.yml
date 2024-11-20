@@ -32,8 +32,8 @@ jobs:
 
   tests:
     needs: find_notebooks
-    runs-on: jwst-pipeline-notebooks
-      #group: jwst-pipeline-notebooks
+    runs-on:
+      group: jwst-pipeline-notebooks
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
