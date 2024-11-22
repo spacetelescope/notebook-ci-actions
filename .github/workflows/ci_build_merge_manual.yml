@@ -33,8 +33,7 @@ jobs:
   tests:
     needs: find_notebooks
     runs-on:
-      group: ubuntu-20.04
-      #group: jwst-pipeline-notebooks
+      group: jwst-pipeline-notebooks
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
