@@ -72,11 +72,19 @@ jobs:
           pip install -r pre-requirements.txt
         fi
         pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
-
+        if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+          source /usr/share/miniconda/etc/profile.d/conda.sh
+          conda create --yes --solver=classic -n hstcal -c conda-forge hstcal          
+        fi
 
     - name: Execute notebook
       id: execute
       run: |
+        if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+          source /usr/share/miniconda/etc/profile.d/conda.sh
+          conda init
+          conda activae hstcal
+        fi
         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
         export PYDEVD_DISABLE_FILE_VALIDATION=1
