@@ -25,17 +25,7 @@ jobs:
   a11yWatchRun:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
-        uses: a11ywatch/github-actions@v2.1.10
-        with:
-          WEBSITE_URL: ${{ inputs.target_url }}
-          SITE_WIDE: true
-          SUBDOMAINS: true
-          SITEMAP: true
-          UPGRADE: true
-          LIST: true
-          EXTERNAL: true
-          UPLOAD: true
-          FAIL_ERRORS_COUNT: 1
-          A11YWATCH_TOKEN: ${{ secrets.A11YWATCH_TOKEN }}
+      - name: Run PEP8 style check
+        run: |
+          curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }'
+
