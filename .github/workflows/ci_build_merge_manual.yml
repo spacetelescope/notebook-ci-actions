@@ -83,7 +83,7 @@ jobs:
         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
           source /usr/share/miniconda/etc/profile.d/conda.sh
           conda init
-          conda activae hstcal
+          conda activate hstcal
         fi
         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
