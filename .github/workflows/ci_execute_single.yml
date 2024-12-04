@@ -62,22 +62,22 @@ jobs:
         ## Install the local requirements file
         echo DEBUG ---
         pwd ## print working directory
-        echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
-        ls $(dirname ${{ matrix.notebooks }})
+        echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
+        ls $(dirname ${{ matrix.notebook }})
         echo ---
-        if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
-          chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
-          ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+        if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
+          ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
         fi
         if [ -f pre-requirements.txt ]; then
           pip install -r pre-requirements.txt
         fi
-        if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
-          chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
-          ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
+        if [ -f $(dirname "${{ matrix.notebook }}")/pre-install.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebook }}")/pre-install.sh
+          ./$(dirname "${{ matrix.notebook }}")/pre-install.sh
         fi
-        #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
-        pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+        #pip install -r $(dirname "${{ matrix.notebook }}")/requirements.txt
+        pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
         pip install pytest
         pip install nbval
         pip install nbconvert
