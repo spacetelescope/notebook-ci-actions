@@ -86,9 +86,9 @@ if __name__ == '__main__':
     parser.add_argument( 'json_filename', type=str, help='Name of the json file to be processed')
     parser.add_argument('-c', '--total_combined_limit', required=False,
                         default=0, type=int,
-                        help='The maximum total allowed number of HTML accessibility errors and errors. To skip this '
-                             'testing requirement, enter the value "-1". If not explicitly specified, the '
-                             'default value is "0".')
+                        help='The maximum total allowed number of HTML accessibility errors and warnings. To '
+                             'skip this testing requirement, enter the value "-1". If not explicitly '
+                             'specified, the default value is "0".')
     parser.add_argument('-e', '--total_error_limit', required=False,
                         default=0, type=int,
                         help='The maximum total allowed number of HTML accessibility errors. To skip this '
