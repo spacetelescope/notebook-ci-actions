@@ -1,3 +1,7 @@
+"""This script parses out the a11ywatch scan results json file and returns an exit status of '0' if the
+number of HTML accessibility errors and warnings were all within allowed limits, '98' if an a11ywatch scan
+failure occurred, and '99' if the number of errors and/or warnings exceeded allowed limits."""
+
 import argparse
 import json
 import sys
@@ -47,16 +51,17 @@ def parse_json_file(json_filename, total_combined_limit=0, total_error_limit=0, 
                 item_dict[issuesInfoItem] = item['data']['issuesInfo'][issuesInfoItem]
                 totals_dict[issuesInfoItem] += item['data']['issuesInfo'][issuesInfoItem]
             scan_results_dict[item['data']['url']] = item_dict
-        # Determine test status
-        print()
-        print("****************")
-        print("* SCAN RESULTS *")
-        print("****************")
 
-        print("Total number of HTML accessibility errors:   {}".format(totals_dict['errorCount']))
-        print("Total number of HTML accessibility warnings: {}".format(totals_dict['warningCount']))
-        print("Total number of warnings and errors:         {}".format(totals_dict['totalIssues']))
-        print
+        # Display error and warning totals
+        print()
+        print("                            Maximum  Total")
+        print("                            Allowed  Count")
+        print("HTML accessibility errors    %6d %6d"%(total_error_limit, totals_dict['errorCount']))
+        print("HTML accessibility warnings  %6d %6d"%(total_warning_limit, totals_dict['warningCount']))
+        print("Combined warnings and errors %6d %6d"%(total_combined_limit, totals_dict['totalIssues']))
+        print()
+
+        # Determine overall test status
         rv = 0
         if total_combined_limit != -1 and totals_dict['totalIssues'] > total_combined_limit:
             print("The total number of HTML accessibility errors and warnings ({}) exceeded the maximum allowed threshold ({}).".format(totals_dict['totalIssues'], total_combined_limit))
