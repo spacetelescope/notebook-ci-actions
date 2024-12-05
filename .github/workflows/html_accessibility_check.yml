@@ -42,9 +42,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: spacetelescope/notebook-ci-actions
+          ref: refactor_html_accessibility_check
           path: temp_jsonparser
       - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         run: |
           curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }' > scan_results.json
-          python .github/helpers/parse_a11ywatch_results.py scan_results.json
+          python temp_jsonparser/.github/helpers/parse_a11ywatch_results.py scan_results.json
 
