@@ -40,6 +40,21 @@ on:
       python-version:
         required: true
         type: string
+      total_combined_limit:
+        required: false
+        description: 'The maximum total allowed number of HTML accessibility errors and warnings. To skip this testing requirement, enter the value "-1". If not explicitly specified, the default value is "0".'
+        default: 0
+        type: string
+      total_error_limit:
+        required: false
+        description: 'The maximum total allowed number of HTML accessibility errors. To skip this testing requirement, enter the value "-1". If not explicitly specified, the default value is "0".'
+        default: 0
+        type: string
+      total_warning_limit:
+        required: false
+        description: 'The maximum total allowed number of HTML accessibility warnings. To skip this testing requirement, enter the value "-1". If not explicitly specified, the default value is "0".'
+        default: 0
+        type: string
 
 jobs:
   a11yWatchRun:
