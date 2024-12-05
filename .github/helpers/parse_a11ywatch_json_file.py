@@ -54,23 +54,25 @@ def parse_json_file(json_filename, total_combined_limit=0, total_error_limit=0, 
 
         # Display error and warning totals
         print()
+        print("------------------------------------------")
         print("                            Maximum  Total")
         print("                            Allowed  Count")
         print("HTML accessibility errors    %6d %6d"%(total_error_limit, totals_dict['errorCount']))
         print("HTML accessibility warnings  %6d %6d"%(total_warning_limit, totals_dict['warningCount']))
         print("Combined warnings and errors %6d %6d"%(total_combined_limit, totals_dict['totalIssues']))
+        print("------------------------------------------")
         print()
 
         # Determine overall test status
         rv = 0
         if total_combined_limit != -1 and totals_dict['totalIssues'] > total_combined_limit:
-            print("The total number of HTML accessibility errors and warnings ({}) exceeded the maximum allowed threshold ({}).".format(totals_dict['totalIssues'], total_combined_limit))
+            print("The total number of HTML accessibility errors and warnings ({}) exceeded the maximum allowed ({}).".format(totals_dict['totalIssues'], total_combined_limit))
             rv = 99
         elif total_error_limit != -1 and totals_dict['errorCount'] > total_error_limit:
-            print("The total number of HTML accessibility errors ({}) exceeded the maximum allowed threshold ({}).".format(totals_dict['errorCount'], total_error_limit))
+            print("The total number of HTML accessibility errors ({}) exceeded the maximum allowed ({}).".format(totals_dict['errorCount'], total_error_limit))
             rv = 99
         elif total_warning_limit != -1 and totals_dict['warningCount'] > total_warning_limit:
-            print("The total number of HTML accessibility warnings ({}) exceeded the maximum allowed threshold ({}).".format(totals_dict['warningCount'], total_warning_limit))
+            print("The total number of HTML accessibility warnings ({}) exceeded the maximum allowed ({}).".format(totals_dict['warningCount'], total_warning_limit))
             rv = 99
         else:
             print("SUCCESS! No HTML accessibility errors and warnings were found.")
