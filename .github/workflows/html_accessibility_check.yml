@@ -27,5 +27,5 @@ jobs:
     steps:
       - name: Run PEP8 style check
         run: |
-          curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }'
+          curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }' > blarg.json
 
