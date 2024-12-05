@@ -19,7 +19,6 @@ on:
         description: "URL to scan"
         required: false
         type: 'string'
-        
 
 jobs:
   a11yWatchRun:
@@ -42,7 +41,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: spacetelescope/notebook-ci-actions
-          ref: refactor_html_accessibility_check
           path: temp_jsonparser
       - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         run: |
