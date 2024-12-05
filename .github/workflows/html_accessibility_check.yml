@@ -46,5 +46,5 @@ jobs:
       - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         run: |
           curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }' > scan_results.json
-          python temp_jsonparser/.github/helpers/parse_a11ywatch_results.py scan_results.json
+          python temp_jsonparser/.github/helpers/parse_a11ywatch_json_file.py scan_results.json
 
