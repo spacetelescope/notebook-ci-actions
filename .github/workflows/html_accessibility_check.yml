@@ -19,23 +19,31 @@ on:
         description: "URL to scan"
         required: false
         type: 'string'
-        
 
 jobs:
   a11yWatchRun:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
-        uses: a11ywatch/github-actions@v2.1.10
+      - name: Set up Python 3.8.12
+        uses: actions/setup-python@v5 ## needed for caching
         with:
-          WEBSITE_URL: ${{ inputs.target_url }}
-          SITE_WIDE: true
-          SUBDOMAINS: true
-          SITEMAP: true
-          UPGRADE: true
-          LIST: true
-          EXTERNAL: true
-          UPLOAD: true
-          FAIL_ERRORS_COUNT: 1
-          A11YWATCH_TOKEN: ${{ secrets.A11YWATCH_TOKEN }}
+          python-version: 3.8.12
+          cache: 'pip'
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          pip install json_repair
+      - name: Check-out notebook-ci-actions repository
+        uses: actions/checkout@v4
+        with:
+          repository: spacetelescope/notebook-ci-actions
+          path: temp_jsonparser
+      - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
+        run: |
+          curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }' > scan_results.json
+          python temp_jsonparser/.github/helpers/parse_a11ywatch_results.py scan_results.json
+
