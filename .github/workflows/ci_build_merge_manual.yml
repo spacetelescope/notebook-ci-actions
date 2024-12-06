@@ -33,7 +33,7 @@ jobs:
   tests:
     needs: find_notebooks
     runs-on:
-      group: jwst-pipeline-notebooks-16gb
+      group: jwst-pipeline-notebooks-32gb
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
