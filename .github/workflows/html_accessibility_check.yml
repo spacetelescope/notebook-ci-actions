@@ -11,11 +11,6 @@ on:
       python-version:
         required: true
         type: string
-      total_combined_limit:
-        required: false
-        description: 'The maximum total allowed number of HTML accessibility errors and warnings. To skip this testing requirement, enter the value "-1". If not explicitly specified, the default value is "0".'
-        default: 0
-        type: string
       total_error_limit:
         required: false
         description: 'The maximum total allowed number of HTML accessibility errors. To skip this testing requirement, enter the value "-1". If not explicitly specified, the default value is "0".'
@@ -39,11 +34,6 @@ on:
         type: 'string'
       python-version:
         required: true
-        type: string
-      total_combined_limit:
-        required: false
-        description: 'The maximum total allowed number of HTML accessibility errors and warnings. To skip this testing requirement, enter the value "-1". If not explicitly specified, the default value is "0".'
-        default: 0
         type: string
       total_error_limit:
         required: false
@@ -82,4 +72,4 @@ jobs:
       - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         run: |
           curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }' > scan_results.json
-          python temp_jsonparser/.github/helpers/parse_a11ywatch_json_file.py scan_results.json -c ${{ inputs.total_combined_limit }} -e ${{ inputs.total_error_limit }} -w ${{ inputs.total_warning_limit }}
+          python temp_jsonparser/.github/helpers/parse_a11ywatch_json_file.py scan_results.json -e ${{ inputs.total_error_limit }} -w ${{ inputs.total_warning_limit }}
