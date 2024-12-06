@@ -8,16 +8,13 @@ import sys
 
 import json_repair #will have to pip install
 
-def parse_json_file(json_filename, total_combined_limit=0, total_error_limit=0, total_warning_limit=0):
+def parse_json_file(json_filename, total_error_limit=0, total_warning_limit=0):
     """reads through json file produced by a11ywatch API and displays the results.
 
     Parameters
     ----------
     json_filename : str
         name of the json file to process
-    total_combined_limit : int
-        The maximum total allowed number of HTML accessibility errors and warnings. To skip this testing
-        requirement, enter the value "-1". If not explicitly specified, the default value is "0".
     total_error_limit : int
         The maximum total allowed number of HTML accessibility errors. To skip this testing requirement,
         enter the value "-1". If not explicitly specified, the default value is "0".
@@ -59,16 +56,12 @@ def parse_json_file(json_filename, total_combined_limit=0, total_error_limit=0, 
         print("                            Allowed  Count")
         print("HTML accessibility errors    %6d %6d"%(total_error_limit, totals_dict['errorCount']))
         print("HTML accessibility warnings  %6d %6d"%(total_warning_limit, totals_dict['warningCount']))
-        print("Combined warnings and errors %6d %6d"%(total_combined_limit, totals_dict['totalIssues']))
         print("------------------------------------------")
         print()
 
         # Determine overall test status
         rv = 0
-        if total_combined_limit != -1 and totals_dict['totalIssues'] > total_combined_limit:
-            print("The total number of HTML accessibility errors and warnings ({}) exceeded the maximum allowed ({}).".format(totals_dict['totalIssues'], total_combined_limit))
-            rv = 99
-        elif total_error_limit != -1 and totals_dict['errorCount'] > total_error_limit:
+        if total_error_limit != -1 and totals_dict['errorCount'] > total_error_limit:
             print("The total number of HTML accessibility errors ({}) exceeded the maximum allowed ({}).".format(totals_dict['errorCount'], total_error_limit))
             rv = 99
         elif total_warning_limit != -1 and totals_dict['warningCount'] > total_warning_limit:
@@ -84,11 +77,6 @@ def parse_json_file(json_filename, total_combined_limit=0, total_error_limit=0, 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument( 'json_filename', type=str, help='Name of the json file to be processed')
-    parser.add_argument('-c', '--total_combined_limit', required=False,
-                        default=0, type=int,
-                        help='The maximum total allowed number of HTML accessibility errors and warnings. To '
-                             'skip this testing requirement, enter the value "-1". If not explicitly '
-                             'specified, the default value is "0".')
     parser.add_argument('-e', '--total_error_limit', required=False,
                         default=0, type=int,
                         help='The maximum total allowed number of HTML accessibility errors. To skip this '
@@ -102,7 +90,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     rv = parse_json_file(args.json_filename,
-                         total_combined_limit = args.total_combined_limit,
                          total_error_limit=args.total_error_limit,
                          total_warning_limit=args.total_warning_limit)
     sys.exit(rv)
