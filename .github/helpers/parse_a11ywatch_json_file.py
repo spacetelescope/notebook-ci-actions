@@ -64,10 +64,10 @@ def parse_json_file(json_filename, total_error_limit=0, total_warning_limit=0):
         if total_error_limit != -1 and totals_dict['errorCount'] > total_error_limit:
             print("The total number of HTML accessibility errors ({}) exceeded the maximum allowed ({}).".format(totals_dict['errorCount'], total_error_limit))
             rv = 99
-        elif total_warning_limit != -1 and totals_dict['warningCount'] > total_warning_limit:
+        if total_warning_limit != -1 and totals_dict['warningCount'] > total_warning_limit:
             print("The total number of HTML accessibility warnings ({}) exceeded the maximum allowed ({}).".format(totals_dict['warningCount'], total_warning_limit))
             rv = 99
-        else:
+        if rv == 0:
             print("SUCCESS! No HTML accessibility errors and warnings were found.")
     else:
         print("ERROR: A11ywatch scan failure.")
