@@ -37,7 +37,7 @@ jobs:
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         notebook: ${{fromJson(needs.find_notebooks.outputs.notebook_list)}}
     steps:
