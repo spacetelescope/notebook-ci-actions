@@ -33,7 +33,7 @@ jobs:
   tests:
     needs: find_notebooks
     runs-on:
-      group: jwst-pipeline-notebooks-16gb
+      group: jwst-pipeline-notebooks-32gb
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
@@ -85,7 +85,7 @@ jobs:
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          if ! jupyter nbconvert --ExecutePreprocessor.timeout=-1 --Application.log_level=10  --to notebook --execute --inplace ${{ matrix.notebook }}; then
+          if ! jupyter nbconvert --ExecutePreprocessor.timeout=-1  --to notebook --execute --inplace ${{ matrix.notebook }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
