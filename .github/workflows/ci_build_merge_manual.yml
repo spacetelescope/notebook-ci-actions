@@ -36,12 +36,11 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.find_notebooks.outputs.notebook_list) }}
     runs-on: 
-      group: ${{ matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 
-               matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb' && 'jwst-pipeline-notebooks-32bit' || 
-               'jwst-pipeline-notebooks-16gb' }}
+      group: ${{ matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-16gb' }}
       #group: ${{ matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb' ? 'jwst-pipeline-notebooks-32gb' && 'jwst-pipeline-notebooks-16gb' }}
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
+    continue-on-error: false
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -52,7 +51,7 @@ jobs:
         python-version: ${{ inputs.python-version }}
         
     - name: Install dependencies
-      continue-on-error: true
+      continue-on-error: false
       run: |
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
@@ -79,6 +78,7 @@ jobs:
 
     - name: Execute notebook
       id: execute
+      continue-on-error: false
       run: |
         pip uninstall ipykernel -y
         pip install ipykernel
