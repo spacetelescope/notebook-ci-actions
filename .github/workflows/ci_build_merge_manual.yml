@@ -35,7 +35,7 @@ jobs:
       fail-fast: true
       matrix:
         notebook: ${{ fromJson(needs.find_notebooks.outputs.notebook_list) }}
-    runs-on: ${{ matrix.notebook == 'notebooks/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-16gb' }}
+    runs-on: ${{ matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-16gb' }}
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     steps:
