@@ -32,14 +32,14 @@ jobs:
 
   tests:
     needs: find_notebooks
-    runs-on:
-      group: jwst-pipeline-notebooks-32gb
-    outputs:
-      executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     strategy:
       fail-fast: true
       matrix:
         notebook: ${{fromJson(needs.find_notebooks.outputs.notebook_list)}}
+    # IF notebook is MIRI-MRS, use 32gb runner, if not, use 16gb
+    runs-on: ${{ matrix.notebook == 'notebooks/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-16gb' }}
+    outputs:
+      executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
