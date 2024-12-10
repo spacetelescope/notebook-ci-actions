@@ -16,7 +16,7 @@ on:
 
 jobs:
   find_notebooks:
-    runs-on: ubuntu-20.04	
+    runs-on: ubuntu-20.04
     outputs:
       notebook_list: ${{ steps.find.outputs.notebook_list }}
     steps:
@@ -27,7 +27,6 @@ jobs:
       id: find
       run: |
         notebook_files=$(find notebooks -name "*.ipynb" | jq -R -s -c 'split("\n")[:-1]')
-        #echo "::set-output name=notebook_list::$notebook_files"
         echo "notebook_list=$notebook_files" >>$GITHUB_OUTPUT
 
   tests:
@@ -35,9 +34,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        notebook: ${{fromJson(needs.find_notebooks.outputs.notebook_list)}}
-    # IF notebook is MIRI-MRS, use 32gb runner, if not, use 16gb
-    runs-on: ${{ matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-16gb' }}
+        notebook: ${{ fromJson(needs.find_notebooks.outputs.notebook_list) }}
+    runs-on: ${{ matrix.notebook == 'notebooks/JWPipeNB-MIRI-MRS.ipynb' && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-16gb' }}
     outputs:
       executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
     steps:
