@@ -84,3 +84,11 @@ jobs:
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
           pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}"
+
+      - name: Scan with Bandit
+        run: |
+          pip install ipython
+          pip install bandit
+          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit -lll -iii $pyfile
