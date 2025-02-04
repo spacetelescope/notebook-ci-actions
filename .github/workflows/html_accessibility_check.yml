@@ -8,6 +8,11 @@ on:
         description: "URL to scan"
         required: false
         type: 'string'
+      domain:
+        default: https://spacetelescope.github.io/${{ github.event.repository.name }}
+        description: "domain to scan"
+        required: false
+        type: 'string'
       python-version:
         required: true
         type: string
@@ -30,6 +35,11 @@ on:
       target_url:
         default: null
         description: "URL to scan"
+        required: false
+        type: 'string'
+      domain:
+        default: null
+        description: "domain to scan"
         required: false
         type: 'string'
       python-version:
@@ -71,5 +81,5 @@ jobs:
           ref: v3
       - name: Web Accessibility Evaluation of ${{ inputs.target_url }}
         run: |
-          curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}" }' > scan_results.json
+          curl --location --request POST 'https://api.a11ywatch.com/api/crawl' --header 'Authorization: ${{ secrets.A11YWATCH_TOKEN }}' --header 'Content-Type: application/json'   -d '{ "url": "${{ inputs.target_url }}", "whitelist": "${{ inputs.domain }}" }' > scan_results.json
           python temp_jsonparser/.github/helpers/parse_a11ywatch_json_file.py scan_results.json -e ${{ inputs.total_error_limit }} -w ${{ inputs.total_warning_limit }}
