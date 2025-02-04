@@ -81,3 +81,11 @@ jobs:
             conda activate hstcal
           fi
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+
+      - name: Scan with Bandit
+        run: |
+          pip install bandit
+          pip install ipython
+          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit -lll -iii $pyfile
