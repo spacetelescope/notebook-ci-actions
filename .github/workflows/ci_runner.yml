@@ -50,6 +50,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Determine notebooks to run
+        id: determine
+        run: |
+          if [ -n "${{ steps.filter.outputs.notebooks }}"; then
+            echo "Changed notebooks: "${{ steps.filter.outputs.notebooks }}"
+            echo "target=changed" >> $GITHUB_OUTPUT
+          elif [ -n "${{ steps.filter.outputs.requirements }}"; then
+            echo "Changed requirements: "Requirements changed, running all notebooks in directory against new requirements."
+            echo "target=all" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected"
+            echo "target=none" >> $GITHUB_OUTPUT
+          fi
+      - name: Exit if no notebooks to run
+        if: ${{ steps.determine.outputs.target == 'none' }}
+        run: echo "No notebooks to execute, exiting."
+
+        
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
         with:
@@ -91,16 +109,20 @@ jobs:
           fi
           
       - name: Validate notebooks 
+        if: ${{ steps.determine.outputs.target != 'none' }}
         run: |
-         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda init
-            conda activate hstcal
-         fi
-         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-         pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" 
+          if [ "${{ steps.determine.outputs.target }}" = "changed" ]; then
+           if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+              source /usr/share/miniconda/etc/profile.d/conda.sh
+              conda init
+              conda activate hstcal
+           fi
+           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+           jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
+           pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" 
+         ######### continue updates here!!!
+
          
       - name: Execute notebooks
         id: execute
