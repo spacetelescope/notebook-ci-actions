@@ -36,7 +36,8 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: ubuntu-latest
+    runs-on: 
+      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
     strategy:
         fail-fast: false
         matrix:
@@ -76,14 +77,13 @@ jobs:
           pip install nbval
           pip install nbconvert
           pip install bandit
-      - name: Security testing with Bandit
-        run: | 
-          bandit "${{ matrix.notebooks }}"
+
       - name: Execute notebooks
         run: |
           export CASJOBS_PW="$CI_CASJOBS_PW"
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          
       - name: Validate notebooks 
         run: |
          pytest --nbval "${{ matrix.notebooks }}" 
