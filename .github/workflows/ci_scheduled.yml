@@ -1,6 +1,10 @@
 name: Scheduled Notebook Execution
 on:
   workflow_call:
+      inputs:  
+        python-version:
+          required: true
+          type: string
       secrets:
         CASJOBS_USERID:
           description: 'CASJOBS user ID'
