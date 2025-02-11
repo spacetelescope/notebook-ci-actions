@@ -24,7 +24,8 @@ jobs:
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
   scheduled-notebook-execution:
     needs: gather-notebooks
-    runs-on: ubuntu-latest
+    runs-on: 
+      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
     strategy:
         fail-fast: false
         matrix:
