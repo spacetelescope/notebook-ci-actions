@@ -71,7 +71,7 @@ jobs:
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
-            pip install -r "${{ matrix.notebooks }}")/pre-requirements.txt
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
           fi
           if [ -f pre-requirements.txt ]; then
             pip install -r pre-requirements.txt
