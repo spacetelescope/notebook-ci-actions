@@ -39,8 +39,8 @@ jobs:
       #- run: | 
       #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
       - uses: actions/checkout@v4
-      - name: Set up Python 3.8.12
-        uses: actions/setup-python@v5 ## needed for caching
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@${{ inputs.python-version }} ## needed for caching
         with:
           python-version: 3.8.12
           cache: 'pip'
