@@ -48,11 +48,12 @@ jobs:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python 3.8.12
+      - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
         with:
-          python-version: 3.8.12
+          python-version: ${{ inputs.python-version }}
           cache: 'pip'
+          
       - name: Add conda to system path
         run: |
           # $CONDA is an environment variable pointing to the root of the miniconda directory
