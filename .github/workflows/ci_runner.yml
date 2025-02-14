@@ -2,10 +2,8 @@ on:
   workflow_call:
     inputs:  
       python-version:
-        required: false
+        required: true
         type: string
-        default: 3.11
-
     secrets:
       CASJOBS_USERID:
         description: 'CASJOBS user ID'
@@ -14,10 +12,6 @@ on:
         description: 'CASJOBS password'
         required: false
 
-#permissions:
-#  id-token: write
-
-  
 jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
@@ -26,69 +20,101 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
-          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
 
-      - id: set-matrix
+      # Gather changed files matching notebooks or requirements.txt.
+      - name: changed-files
+        id: get-changed-files
+        uses: tj-actions/changed-files@v42
+        with:
+          separator: ","
+          files: |
+            **/*.ipynb
+            **/requirements.txt
+
+      # Process the changed file list to build a matrix of notebooks to execute.
+      - name: set-matrix
+        id: set-matrix
+        shell: bash
         run: |
-          files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} '*.ipynb')
-          #files_json=$(echo $files | jq -R -s -c 'split("\n")[:-1]')
-          files_json=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
-          echo "::set-output name=matrix::${files_json}"
+          # Convert the comma-separated list to an array.
+          IFS=',' read -r -a files <<< "${{ steps.get-changed-files.outputs.all_changed_files }}"
+          echo "Changed files: ${files[*]}"
+          
+          # Array to hold the notebooks that will be executed.
+          notebooks=()
+          notebook_changed=false
+          
+          # First, if any changed file is a notebook, add it.
+          for file in "${files[@]}"; do
+            if [[ "$file" == *.ipynb ]]; then
+              notebook_changed=true
+              notebooks+=("$file")
+            fi
+          done
+          
+          # If no notebook file changed, look for requirements.txt changes.
+          if [ "$notebook_changed" = false ]; then
+            for file in "${files[@]}"; do
+              if [[ "$file" == *requirements.txt ]]; then
+                dir=$(dirname "$file")
+                echo "Found requirements file in folder '$dir'; gathering notebooks from that folder."
+                # Find all notebooks in the folder (only that folder, not recursing).
+                while IFS= read -r nb; do
+                  notebooks+=("$nb")
+                done < <(find "$dir" -maxdepth 1 -type f -name '*.ipynb')
+              fi
+            done
+          fi
+          
+          # Remove duplicate entries.
+          unique_notebooks=($(printf "%s\n" "${notebooks[@]}" | sort -u))
+          
+          if [ ${#unique_notebooks[@]} -eq 0 ]; then
+            echo "No relevant changes found; skipping notebook execution."
+          else
+            echo "Notebooks selected for testing: ${unique_notebooks[*]}"
+          fi
+          
+          # Build a JSON array for the matrix.
+          matrix_json=$(jq --compact-output --null-input --args "${unique_notebooks[@]}")
+          echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
+          
   notebook-execution:
     needs: gather-notebooks
-    #if: ${{ fromJson(needs.gather-notebooks.outputs.matrix).length > 0 }}
+    if: ${{ length(fromJson(needs.gather-notebooks.outputs.matrix)) > 0 }}
     environment: ci_env
     runs-on: ubuntu-latest
     permissions:
       contents: write
     strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+      fail-fast: false
+      matrix:
+        notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Determine notebooks to run
-        id: determine
-        run: |
-          if [ -n "${{ steps.filter.outputs.notebooks }}"; then
-            echo "Changed notebooks: "${{ steps.filter.outputs.notebooks }}"
-            echo "target=changed" >> $GITHUB_OUTPUT
-          elif [ -n "${{ steps.filter.outputs.requirements }}"; then
-            echo "Changed requirements: "Requirements changed, running all notebooks in directory against new requirements."
-            echo "target=all" >> $GITHUB_OUTPUT
-          else
-            echo "No changes detected"
-            echo "target=none" >> $GITHUB_OUTPUT
-          fi
-      - name: Exit if no notebooks to run
-        if: ${{ steps.determine.outputs.target == 'none' }}
-        run: echo "No notebooks to execute, exiting."
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5 ## needed for caching
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-            
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-        
+
       - name: Install dependencies
         run: |
-          ## Install the local requirements file
-          echo DEBUG ---
-          pwd ## print working directory
-          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
-          ls $(dirname ${{ matrix.notebooks }})
-          echo ---
+          echo "DEBUG ---"
+          pwd
+          echo "Path to requirements: $(dirname "${{ matrix.notebooks }}")/requirements.txt"
+          ls $(dirname "${{ matrix.notebooks }}")
+          echo "---"
           if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          fi
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
           fi
           if [ -f pre-requirements.txt ]; then
             pip install -r pre-requirements.txt
@@ -97,50 +123,54 @@ jobs:
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
           fi
-          #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
-          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-          pip install pytest
-          pip install nbval
-          pip install nbconvert
-          pip install bandit
-          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda create --yes --solver=classic -n hstcal -c conda-forge hstcal          
-          fi
-          
-      - name: Validate notebooks 
-        if: ${{ steps.determine.outputs.target != 'none' }}
-        run: |
-          if [ "${{ steps.determine.outputs.target }}" = "changed" ]; then
-           if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-              source /usr/share/miniconda/etc/profile.d/conda.sh
-              conda init
-              conda activate hstcal
-           fi
-           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-           jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-           pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" 
-         ######### continue updates here!!!
-
-         
-      - name: Execute notebooks
-        id: execute
-        run: |
-         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda init
-            conda activate hstcal
-         fi        
-          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
-          fi
+          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          pip install pytest nbval nbconvert bandit
 
       - name: Scan with Bandit
         run: |
           pip install ipython
-          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          jupyter nbconvert --to script "${{ matrix.notebooks }}"
           pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
           bandit -lll -iii $pyfile
+          
+      - name: Validate notebooks
+        run: |
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
+          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebooks }}" 
+         
+      - name: Execute notebooks
+        id: execute
+        run: |
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+          if ! jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebooks }}"; then
+            python .github/scripts/insert_failure_message.py "${{ matrix.notebooks }}"
+          fi
+          
+      - name: Commit modified file on current branch
+        run: |
+          git config user.name 'CI Bot'
+          git config user.email 'action@github.com'
+          git add "${{ matrix.notebooks }}"
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+          
+      - name: Checkout only the file to the target branch
+        run: |
+          git checkout -f gh-storage
+          git checkout @{-1} "${{ matrix.notebooks }}"
+          
+      - name: Commit and push modifications to target branch
+        run: |
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+          MAX_RETRIES=5
+          RETRY_DELAY=10s
+          for i in $(seq 1 $MAX_RETRIES); do
+            git push origin gh-storage --force && break || {
+              echo "Push $i failed... waiting $RETRY_DELAY"
+              sleep $RETRY_DELAY
+            }
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
