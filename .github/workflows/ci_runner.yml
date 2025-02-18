@@ -80,7 +80,8 @@ jobs:
             echo "has_notebooks=true" >> "$GITHUB_OUTPUT"
             # Build a JSON array for the matrix.
             matrix_json=$(printf '%s\n' "${unique_notebooks[@]}" | jq -R . | jq -s .)
-            echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
+            # Write the JSON to GITHUB_OUTPUT using the heredoc syntax.
+            printf "matrix<<EOF\n%s\nEOF\n" "$matrix_json" >> "$GITHUB_OUTPUT"
           fi
 
   notebook-execution:
@@ -166,14 +167,4 @@ jobs:
           
       - name: Commit and push modifications to target branch
         run: |
-          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-          MAX_RETRIES=5
-          RETRY_DELAY=10s
-          for i in $(seq 1 $MAX_RETRIES); do
-            git push origin gh-storage --force && break || {
-              echo "Push $i failed... waiting $RETRY_DELAY"
-              sleep $RETRY_DELAY
-            }
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}
