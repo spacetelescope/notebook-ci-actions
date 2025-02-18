@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_notebooks: ${{ steps.set-matrix.outputs.has_notebooks }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -72,17 +73,19 @@ jobs:
           
           if [ ${#unique_notebooks[@]} -eq 0 ]; then
             echo "No relevant changes found; skipping notebook execution."
+            echo "has_notebooks=false" >> "$GITHUB_OUTPUT"
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
           else
             echo "Notebooks selected for testing: ${unique_notebooks[*]}"
+            echo "has_notebooks=true" >> "$GITHUB_OUTPUT"
+            # Build a JSON array for the matrix.
+            matrix_json=$(jq --compact-output --null-input --args "${unique_notebooks[@]}")
+            echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
           fi
-          
-          # Build a JSON array for the matrix.
-          matrix_json=$(jq --compact-output --null-input --args "${unique_notebooks[@]}")
-          echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
-          
+
   notebook-execution:
     needs: gather-notebooks
-    if: ${{ needs.gather-notebooks.outputs.matrix != '[]' }}
+    if: ${{ needs.gather-notebooks.outputs.has_notebooks == 'true' }}
     environment: ci_env
     runs-on: ubuntu-latest
     permissions:
