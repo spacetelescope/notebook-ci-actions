@@ -79,7 +79,7 @@ jobs:
             echo "Notebooks selected for testing: ${unique_notebooks[*]}"
             echo "has_notebooks=true" >> "$GITHUB_OUTPUT"
             # Build a JSON array for the matrix.
-            matrix_json=$(jq --compact-output --null-input --args "${unique_notebooks[@]}")
+            matrix_json=$(printf '%s\n' "${unique_notebooks[@]}" | jq -R . | jq -s .)
             echo "matrix=$matrix_json" >> "$GITHUB_OUTPUT"
           fi
 
