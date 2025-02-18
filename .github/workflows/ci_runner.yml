@@ -82,7 +82,7 @@ jobs:
           
   notebook-execution:
     needs: gather-notebooks
-    if: ${{ length(fromJson(needs.gather-notebooks.outputs.matrix)) > 0 }}
+    if: ${{ needs.gather-notebooks.outputs.matrix != '[]' }}
     environment: ci_env
     runs-on: ubuntu-latest
     permissions:
