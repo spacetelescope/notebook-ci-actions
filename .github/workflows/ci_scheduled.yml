@@ -55,7 +55,6 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
-          # Remove only files owned by the runner from /tmp.
           find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
@@ -76,41 +75,45 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Set thresholds (initial job):
+          # Thresholds for the ubuntu-latest runner.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
 
           NOTEBOOK="${{ matrix.notebook }}"
 
-          echo "Pre-check: Memory usage: $(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')%, Disk usage: $(df / | tail -1 | awk '{print $5}' | sed 's/%//')%."
+          # Remove any existing kill flag.
+          rm -f killed.flag
 
-          # If pre-check already indicates high usage, abort.
+          echo "Pre-check: Memory usage: $(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')%, Disk usage: $(df / | tail -1 | awk '{print $5}' | sed 's/%//')%."
           current_mem=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
           current_disk=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
           if [ "$current_mem" -ge "$MEM_THRESHOLD" ]; then
-            echo "Pre-check: Memory usage exceeds threshold ($MEM_THRESHOLD%). Exiting."
+            echo "Pre-check: Memory usage ($current_mem%) exceeds threshold ($MEM_THRESHOLD%). Exiting."
             exit 1
           fi
           if [ "$current_disk" -ge "$DISK_THRESHOLD" ]; then
-            echo "Pre-check: Disk usage exceeds threshold ($DISK_THRESHOLD%). Exiting."
+            echo "Pre-check: Disk usage ($current_disk%) exceeds threshold ($DISK_THRESHOLD%). Exiting."
             exit 1
           fi
 
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
           monitor() {
+            # Wait until nb_pid is set.
             while [ -z "$nb_pid" ]; do sleep 0.1; done
             while true; do
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
               if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
                 echo "Monitor: Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Killing process $nb_pid."
+                touch killed.flag
                 kill -9 $nb_pid
                 break
               fi
               disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
               if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
                 echo "Monitor: Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Killing process $nb_pid."
+                touch killed.flag
                 kill -9 $nb_pid
                 break
               elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -121,6 +124,7 @@ jobs:
                 disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
                 if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
                   echo "Monitor: After cleanup, disk usage remains at $disk_usage%. Killing process $nb_pid."
+                  touch killed.flag
                   kill -9 $nb_pid
                   break
                 else
@@ -131,20 +135,27 @@ jobs:
             done
           }
 
+          # Launch notebook conversion in the background.
           jupyter nbconvert --template classic --to html --execute "$NOTEBOOK" 2>&1 | tee output.log &
           nb_pid=$!
+          # Launch the monitor.
           monitor &
           monitor_pid=$!
+          # Wait for the notebook process.
           wait $nb_pid
           rc=$?
           kill $monitor_pid 2>/dev/null
-          if [ $rc -eq 143 ]; then
+          # If the kill flag was set, force error code 1.
+          if [ -f killed.flag ]; then
+            echo "Notebook was killed by monitor. Forcing exit code 1."
+            rc=1
+          elif [ $rc -eq 143 ]; then
             echo "Notebook process terminated with exit code 143; normalizing to 1."
             rc=1
           fi
           if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
             echo "Error detected in notebook execution for $NOTEBOOK."
-            exit 1
+            rc=1
           fi
           exit $rc
           EOF
@@ -163,7 +174,7 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          if [ "${{ job.status }}" == "failure" ]; then
+          if [ "${{ job.status }}" != "success" ]; then
             echo "${{ matrix.notebook }}" >> failed_ubuntu.txt
           fi
           echo "::set-output name=failedList::$(cat failed_ubuntu.txt || true)"
@@ -209,7 +220,6 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # For the 16GB runner, we use similar thresholds.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -222,12 +232,14 @@ jobs:
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
               if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
                 echo "Monitor: Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Killing process $nb_pid."
+                touch killed.flag
                 kill -9 $nb_pid
                 break
               fi
               disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
               if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
                 echo "Monitor: Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Killing process $nb_pid."
+                touch killed.flag
                 kill -9 $nb_pid
                 break
               elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -238,6 +250,7 @@ jobs:
                 disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
                 if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
                   echo "Monitor: After cleanup, disk usage remains at $disk_usage%. Killing process $nb_pid."
+                  touch killed.flag
                   kill -9 $nb_pid
                   break
                 else
@@ -255,13 +268,16 @@ jobs:
           wait $nb_pid
           rc=$?
           kill $monitor_pid 2>/dev/null
-          if [ $rc -eq 143 ]; then
-            echo "Process terminated with exit code 143; normalizing to 1."
-            rc=1
+          if [ -f killed.flag ]; then
+              echo "Notebook was killed by monitor; forcing exit code 1."
+              rc=1
+          elif [ $rc -eq 143 ]; then
+              echo "Process terminated with exit code 143; normalizing to 1."
+              rc=1
           fi
           if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-            echo "Error detected in notebook execution for ${{ matrix.notebook }}."
-            exit 1
+              echo "Error detected in notebook execution for ${{ matrix.notebook }}."
+              rc=1
           fi
           exit $rc
           EOF
@@ -280,7 +296,7 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          if [ "${{ job.status }}" == "failure" ]; then
+          if [ "${{ job.status }}" != "success" ]; then
             echo "${{ matrix.notebook }}" >> failed_16gb.txt
           fi
           echo "::set-output name=failedList::$(cat failed_16gb.txt || true)"
@@ -374,7 +390,7 @@ jobs:
           fi
           if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
               echo "Error detected in notebook execution for ${{ matrix.notebook }}."
-              exit 1
+              rc=1
           fi
           exit $rc
           EOF
