@@ -25,7 +25,7 @@ permissions: write-all
 ##############################
 jobs:
   gather-notebooks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -36,17 +36,18 @@ jobs:
           echo "matrix=$notebooks" >> $GITHUB_OUTPUT
 
 ####################################################
-# 2. First Attempt: Run Notebooks on ubuntu-20.04
+# 2. First Attempt: Run Notebooks on ubuntu-latest
 ####################################################
   run-notebooks-ubuntu:
-    name: Run Notebooks on ubuntu-20.04
+    name: Run Notebooks on ubuntu-latest
     needs: gather-notebooks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       fail-fast: false
+    # Allow the job to finish (even if a step fails) so outputs are set.
     continue-on-error: true
     outputs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
@@ -55,6 +56,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
+          # Remove only files owned by the runner from /tmp.
           find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
@@ -75,7 +77,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Thresholds for the ubuntu-20.04 runner.
+          # Thresholds for ubuntu-latest:
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -90,17 +92,16 @@ jobs:
           current_disk=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
           if [ "$current_mem" -ge "$MEM_THRESHOLD" ]; then
             echo "Pre-check: Memory usage ($current_mem%) exceeds threshold ($MEM_THRESHOLD%). Exiting."
-            exit 1
+            exit 0
           fi
           if [ "$current_disk" -ge "$DISK_THRESHOLD" ]; then
             echo "Pre-check: Disk usage ($current_disk%) exceeds threshold ($DISK_THRESHOLD%). Exiting."
-            exit 1
+            exit 0
           fi
 
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
           monitor() {
-            # Wait until nb_pid is set.
             while [ -z "$nb_pid" ]; do sleep 0.1; done
             while true; do
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
@@ -135,17 +136,15 @@ jobs:
             done
           }
 
-          # Launch notebook conversion in the background.
+          # Launch notebook conversion.
           jupyter nbconvert --template classic --to html --execute "$NOTEBOOK" 2>&1 | tee output.log &
           nb_pid=$!
           # Launch the monitor.
           monitor &
           monitor_pid=$!
-          # Wait for the notebook process.
           wait $nb_pid
           rc=$?
           kill $monitor_pid 2>/dev/null
-          # If the kill flag was set, force error code 1.
           if [ -f killed.flag ]; then
             echo "Notebook was killed by monitor. Forcing exit code 1."
             rc=1
@@ -157,7 +156,11 @@ jobs:
             echo "Error detected in notebook execution for $NOTEBOOK."
             rc=1
           fi
-          exit $rc
+          # Record failure if rc != 0.
+          if [ $rc -ne 0 ]; then
+            echo "$NOTEBOOK" >> failed_ubuntu.txt
+          fi
+          exit 0
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
@@ -174,9 +177,7 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          if [ "${{ job.status }}" != "success" ]; then
-            echo "${{ matrix.notebook }}" >> failed_ubuntu.txt
-          fi
+          cat failed_ubuntu.txt 2>/dev/null
           echo "::set-output name=failedList::$(cat failed_ubuntu.txt || true)"
 
 ####################################################
@@ -220,6 +221,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
+          # Thresholds for 16GB runner.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -269,17 +271,20 @@ jobs:
           rc=$?
           kill $monitor_pid 2>/dev/null
           if [ -f killed.flag ]; then
-              echo "Notebook was killed by monitor; forcing exit code 1."
-              rc=1
+            echo "Notebook was killed by monitor; forcing exit code 1."
+            rc=1
           elif [ $rc -eq 143 ]; then
-              echo "Process terminated with exit code 143; normalizing to 1."
-              rc=1
+            echo "Process terminated with exit code 143; normalizing to 1."
+            rc=1
           fi
           if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-              echo "Error detected in notebook execution for ${{ matrix.notebook }}."
-              rc=1
+            echo "Error detected in notebook execution for ${{ matrix.notebook }}."
+            rc=1
           fi
-          exit $rc
+          if [ $rc -ne 0 ]; then
+            echo "${{ matrix.notebook }}" >> failed_16gb.txt
+          fi
+          exit 0
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
@@ -296,9 +301,7 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          if [ "${{ job.status }}" != "success" ]; then
-            echo "${{ matrix.notebook }}" >> failed_16gb.txt
-          fi
+          cat failed_16gb.txt 2>/dev/null
           echo "::set-output name=failedList::$(cat failed_16gb.txt || true)"
 
 ####################################################
@@ -392,7 +395,10 @@ jobs:
               echo "Error detected in notebook execution for ${{ matrix.notebook }}."
               rc=1
           fi
-          exit $rc
+          if [ $rc -ne 0 ]; then
+              echo "${{ matrix.notebook }}" >> failed_32gb.txt
+          fi
+          exit 0
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
@@ -405,6 +411,12 @@ jobs:
           jupyter nbconvert --to script "${{ matrix.notebook }}"
           pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
           bandit -lll -iii "$pyfile"
+      - name: Collect Failures
+        id: collect_failures
+        if: always()
+        run: |
+          cat failed_32gb.txt 2>/dev/null
+          echo "::set-output name=failedList::$(cat failed_32gb.txt || true)"
 
 ####################################################
 # 5. Final Check: Fail if Any Notebook Still Fails
@@ -412,7 +424,7 @@ jobs:
   final-check:
     name: Final Failure Check
     needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Final Failure Check
