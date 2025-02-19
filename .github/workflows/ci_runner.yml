@@ -40,8 +40,8 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: jwst-pipeline-notebooks-32gb
-      #group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
+    runs-on: 
+      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
     strategy:
         fail-fast: false
         matrix:
