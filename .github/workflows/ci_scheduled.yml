@@ -395,4 +395,11 @@ jobs:
 ####################################################
   final-check:
     name: Final Failure Check
-    needs: [run-notebooks-u
+    needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Final Failure Check
+        run: |
+          echo "Some notebooks still failed after all attempts. Failing the workflow."
+          exit 1
