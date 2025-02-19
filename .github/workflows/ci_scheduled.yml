@@ -76,13 +76,15 @@ jobs:
       - name: Execute Notebook
         id: exec
         run: |
-          # Run the notebook and capture all output.
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
           set -o pipefail
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
-          # If the log contains "Kernel died" then exit with error.
-          if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
-            echo "Kernel died error detected in ${{ matrix.notebook }}"
+          # Check for various termination messages.
+          if grep -q "Kernel died" output.log || \
+             grep -q "exit code 143" output.log || \
+             grep -q "Terminated" output.log || \
+             grep -q "Received termination signal" output.log; then
+            echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
       - name: Validate Notebook
@@ -152,8 +154,12 @@ jobs:
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
           set -o pipefail
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
-          if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
-            echo "Kernel died error detected in ${{ matrix.notebook }}"
+          # Check for various termination messages.
+          if grep -q "Kernel died" output.log || \
+             grep -q "exit code 143" output.log || \
+             grep -q "Terminated" output.log || \
+             grep -q "Received termination signal" output.log; then
+            echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
       - name: Validate Notebook
@@ -212,8 +218,12 @@ jobs:
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
           set -o pipefail
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
-          if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
-            echo "Kernel died error detected in ${{ matrix.notebook }}"
+          # Check for various termination messages.
+          if grep -q "Kernel died" output.log || \
+             grep -q "exit code 143" output.log || \
+             grep -q "Terminated" output.log || \
+             grep -q "Received termination signal" output.log; then
+            echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
       - name: Validate Notebook
