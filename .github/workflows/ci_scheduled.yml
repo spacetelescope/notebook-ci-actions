@@ -29,7 +29,7 @@ jobs:
   scheduled-notebook-execution:
     needs: gather-notebooks
     runs-on: 
-      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
+      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-32gb' }}
     strategy:
         fail-fast: false
         matrix:
