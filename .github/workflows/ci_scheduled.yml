@@ -21,7 +21,7 @@ env:
 permissions: write-all
 
 ##############################
-# 1. Gather notebooks to test
+# 1. Gather Notebooks to Run
 ##############################
 jobs:
   gather-notebooks:
@@ -36,9 +36,9 @@ jobs:
           notebooks=$(find notebooks -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "matrix=$notebooks" >> $GITHUB_OUTPUT
 
-#############################################################
-# 2. First attempt: run notebooks on ubuntu-latest runner
-#############################################################
+####################################################
+# 2. First Attempt: Run Notebooks on ubuntu-latest
+####################################################
   run-notebooks-ubuntu:
     name: Run Notebooks on ubuntu-latest
     needs: gather-notebooks
@@ -47,10 +47,9 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       fail-fast: false
-    # We let failures continue so we can collect which notebooks “kernel died”
+    # Allow failures so we can collect notebooks that need a fallback
     continue-on-error: true
     outputs:
-      # (In a full solution you’d aggregate the list of notebooks that failed because of “Kernel died”)
       failedList: ${{ steps.collect_failures.outputs.failedList }}
     steps:
       - uses: actions/checkout@v4
@@ -58,35 +57,68 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: 'pip'
+          cache: pip
       - name: Add conda to system path
         run: echo "$CONDA/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: |
           nb_dir=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$nb_dir/pre-requirements.sh" ]; then
-            chmod +x "$nb_dir/pre-requirements.sh"
-            "$nb_dir/pre-requirements.sh"
-          fi
-          if [ -f "$nb_dir/pre-requirements.txt" ]; then
-            pip install -r "$nb_dir/pre-requirements.txt"
-          fi
+          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
+          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook
+      - name: Execute Notebook with Resource Monitoring
         id: exec
         run: |
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-          set -o pipefail
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
-          # Check for various termination messages.
+          cat << 'EOF' > run_notebook.sh
+          #!/usr/bin/env bash
+          MEM_THRESHOLD=80
+          DISK_THRESHOLD=90
+
+          monitor() {
+            while true; do
+              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
+              if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
+                echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution."
+                kill $nb_pid 2>/dev/null
+                break
+              fi
+              disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
+              if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
+                echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
+                kill $nb_pid 2>/dev/null
+                break
+              fi
+              sleep 5
+            done
+          }
+
+          # Start the monitor in the background.
+          monitor &
+          monitor_pid=$!
+
+          # Run the notebook conversion in the background.
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
+          nb_pid=$!
+
+          # Wait for the notebook process to finish.
+          wait $nb_pid
+          # Kill the monitor.
+          kill $monitor_pid 2>/dev/null
+
+          # Check for error conditions.
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
              grep -q "Terminated" output.log || \
-             grep -q "Received termination signal" output.log; then
+             grep -q "Received termination signal" output.log || \
+             grep -q "Memory usage is at" output.log || \
+             grep -q "Disk usage is at" output.log; then
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
+          EOF
+          chmod +x run_notebook.sh
+          ./run_notebook.sh
       - name: Validate Notebook
         if: success()
         run: pytest --nbval "${{ matrix.notebook }}"
@@ -99,28 +131,21 @@ jobs:
       - name: Collect failures
         id: collect_failures
         run: |
-          # In a real solution, you could write the notebook path to a file if the previous steps failed.
-          # For example, if the "Execute Notebook" step failed because of "Kernel died", append the notebook path.
-          if [ ${{ job.status }} == "failure" ]; then
+          # Append the notebook path if this job failed.
+          if [ "${{ job.status }}" == "failure" ]; then
             echo "${{ matrix.notebook }}" >> failed_ubuntu.txt
           fi
-          # For simplicity, output the file content (or an empty string if none).
-          if [ -f failed_ubuntu.txt ]; then
-            cat failed_ubuntu.txt
-          fi
           echo "::set-output name=failedList::$(cat failed_ubuntu.txt || true)"
-          
-##############################################################################
-# 3. Second attempt: run (failed) notebooks on the 16GB runner (if needed)
-##############################################################################
+
+#####################################################
+# 3. Second Attempt: Run Notebooks on 16GB Runner
+#####################################################
   run-notebooks-16gb:
     name: Run Notebooks on jwst-pipeline-notebooks-16gb
     needs: run-notebooks-ubuntu
-    # (Ideally, run only if any notebooks failed with "Kernel died")
     if: needs.run-notebooks-ubuntu.outputs.failedList != ''
     runs-on: jwst-pipeline-notebooks-16gb
     strategy:
-      # In a full solution, use the collected list from the previous job to form the matrix.
       matrix:
         notebook: ${{ fromJson(needs.run-notebooks-ubuntu.outputs.failedList) }}
       fail-fast: false
@@ -133,35 +158,63 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: 'pip'
+          cache: pip
       - name: Add conda to system path
         run: echo "$CONDA/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: |
           nb_dir=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$nb_dir/pre-requirements.sh" ]; then
-            chmod +x "$nb_dir/pre-requirements.sh"
-            "$nb_dir/pre-requirements.sh"
-          fi
-          if [ -f "$nb_dir/pre-requirements.txt" ]; then
-            pip install -r "$nb_dir/pre-requirements.txt"
-          fi
+          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
+          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook (16GB)
+      - name: Execute Notebook with Resource Monitoring (16GB)
         id: exec16
         run: |
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-          set -o pipefail
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
-          # Check for various termination messages.
+          cat << 'EOF' > run_notebook.sh
+          #!/usr/bin/env bash
+          MEM_THRESHOLD=80
+          DISK_THRESHOLD=90
+
+          monitor() {
+            while true; do
+              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
+              if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
+                echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution."
+                kill $nb_pid 2>/dev/null
+                break
+              fi
+              disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
+              if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
+                echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
+                kill $nb_pid 2>/dev/null
+                break
+              fi
+              sleep 5
+            done
+          }
+
+          monitor &
+          monitor_pid=$!
+
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
+          nb_pid=$!
+
+          wait $nb_pid
+          kill $monitor_pid 2>/dev/null
+
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
              grep -q "Terminated" output.log || \
-             grep -q "Received termination signal" output.log; then
+             grep -q "Received termination signal" output.log || \
+             grep -q "Memory usage is at" output.log || \
+             grep -q "Disk usage is at" output.log; then
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
+          EOF
+          chmod +x run_notebook.sh
+          ./run_notebook.sh
       - name: Validate Notebook
         if: success()
         run: pytest --nbval "${{ matrix.notebook }}"
@@ -174,14 +227,14 @@ jobs:
       - name: Collect failures
         id: collect_failures
         run: |
-          if [ ${{ job.status }} == "failure" ]; then
+          if [ "${{ job.status }}" == "failure" ]; then
             echo "${{ matrix.notebook }}" >> failed_16gb.txt
           fi
           echo "::set-output name=failedList::$(cat failed_16gb.txt || true)"
-          
-##############################################################################
-# 4. Third attempt: run (still failed) notebooks on the 32GB runner (if needed)
-##############################################################################
+
+#####################################################
+# 4. Third Attempt: Run Notebooks on 32GB Runner
+#####################################################
   run-notebooks-32gb:
     name: Run Notebooks on jwst-pipeline-notebooks-32gb
     needs: run-notebooks-16gb
@@ -198,34 +251,62 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: 'pip'
+          cache: pip
       - name: Add conda to system path
         run: echo "$CONDA/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: |
           nb_dir=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$nb_dir/pre-requirements.sh" ]; then
-            chmod +x "$nb_dir/pre-requirements.sh"
-            "$nb_dir/pre-requirements.sh"
-          fi
-          if [ -f "$nb_dir/pre-requirements.txt" ]; then
-            pip install -r "$nb_dir/pre-requirements.txt"
-          fi
+          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
+          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook (32GB)
+      - name: Execute Notebook with Resource Monitoring (32GB)
         run: |
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-          set -o pipefail
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
-          # Check for various termination messages.
+          cat << 'EOF' > run_notebook.sh
+          #!/usr/bin/env bash
+          MEM_THRESHOLD=80
+          DISK_THRESHOLD=90
+
+          monitor() {
+            while true; do
+              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
+              if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
+                echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution."
+                kill $nb_pid 2>/dev/null
+                break
+              fi
+              disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
+              if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
+                echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
+                kill $nb_pid 2>/dev/null
+                break
+              fi
+              sleep 5
+            done
+          }
+
+          monitor &
+          monitor_pid=$!
+
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
+          nb_pid=$!
+
+          wait $nb_pid
+          kill $monitor_pid 2>/dev/null
+
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
              grep -q "Terminated" output.log || \
-             grep -q "Received termination signal" output.log; then
+             grep -q "Received termination signal" output.log || \
+             grep -q "Memory usage is at" output.log || \
+             grep -q "Disk usage is at" output.log; then
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
+          EOF
+          chmod +x run_notebook.sh
+          ./run_notebook.sh
       - name: Validate Notebook
         if: success()
         run: pytest --nbval "${{ matrix.notebook }}"
@@ -236,18 +317,16 @@ jobs:
           pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
           bandit -lll -iii "$pyfile"
 
-###########################################################
-# 5. Final check: if any notebook still failed, fail the run.
-###########################################################
+####################################################
+# 5. Final Check: Fail if Any Notebook Still Fails
+####################################################
   final-check:
     name: Final Failure Check
     needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Fail if any notebooks still failed due to Kernel died
+      - name: Final Failure Check
         run: |
-          # In a complete implementation, you would aggregate the failed notebook lists from prior jobs.
-          # For this example, we simply print a message.
-          echo "If any notebook still failed with 'Kernel died' after all attempts, this step should exit with an error."
-          # exit 1  <-- Uncomment this if you determine failures remain.
+          echo "If any notebooks still failed after all attempts, failing the workflow."
+          exit 1
