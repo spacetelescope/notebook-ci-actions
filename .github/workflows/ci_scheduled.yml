@@ -90,14 +90,14 @@ jobs:
               # Check memory usage.
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
               if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
-                echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution of ${nb_pid}."
+                echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution of ${nb_pid}%."
                 sudo kill -9 $nb_pid 2>/dev/null
                 break
               fi
               # Check disk usage.
               disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
               if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
-                echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution of ${nb_pid}"
+                echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution of ${nb_pid}%"
                 sudo kill -9 $nb_pid 2>/dev/null
                 break
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -107,7 +107,7 @@ jobs:
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "After cleanup, disk usage is still at ${disk_usage}%. Aborting notebook execution of ${nb_pid}"
+                  echo "After cleanup, disk usage is still at ${disk_usage}%. Aborting notebook execution of ${nb_pid}%"
                   sudo kill -9 $nb_pid 2>/dev/null
                   break
                 else
