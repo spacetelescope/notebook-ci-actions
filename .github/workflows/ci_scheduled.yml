@@ -55,7 +55,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
-          # Remove only files owned by the current user from /tmp
+          # Remove only files owned by the runner user from /tmp.
           find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
@@ -71,18 +71,34 @@ jobs:
           [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Monitoring
+      - name: Execute Notebook with Aggressive Monitoring
         id: exec
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Set thresholds.
-          MEM_THRESHOLD=70
-          DISK_THRESHOLD=90
-          CLEANUP_DISK_THRESHOLD=80
+          # Aggressive thresholds:
+          #   Abort if memory usage >=50%
+          #   Abort if disk usage >=70%
+          #   Attempt cleanup if disk usage >=60%
+          MEM_THRESHOLD=50
+          DISK_THRESHOLD=70
+          CLEANUP_DISK_THRESHOLD=60
 
-          # Save the notebook path for logging.
+          # Save the notebook path.
           NOTEBOOK="${{ matrix.notebook }}"
+
+          # Pre-check: exit immediately if current usage is too high.
+          current_mem=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
+          current_disk=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
+          echo "Pre-check: Memory usage: $current_mem%, Disk usage: $current_disk%."
+          if [ "$current_mem" -ge "$MEM_THRESHOLD" ]; then
+            echo "Pre-check: Memory usage exceeds threshold ($MEM_THRESHOLD%). Exiting."
+            exit 1
+          fi
+          if [ "$current_disk" -ge "$DISK_THRESHOLD" ]; then
+            echo "Pre-check: Disk usage exceeds threshold ($DISK_THRESHOLD%). Exiting."
+            exit 1
+          fi
 
           # Trap termination signals.
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
@@ -93,55 +109,54 @@ jobs:
             while true; do
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
               if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
-                echo "Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Terminating process $nb_pid."
-                kill $nb_pid 2>/dev/null
+                echo "Monitor: Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Killing process $nb_pid."
+                kill -9 $nb_pid
                 break
               fi
               disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
               if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
-                echo "Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Terminating process $nb_pid."
-                kill $nb_pid 2>/dev/null
+                echo "Monitor: Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Killing process $nb_pid."
+                kill -9 $nb_pid
                 break
               elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                echo "Disk usage ($disk_usage%) exceeds cleanup threshold ($CLEANUP_DISK_THRESHOLD%). Attempting cleanup."
+                echo "Monitor: Disk usage ($disk_usage%) exceeds cleanup threshold ($CLEANUP_DISK_THRESHOLD%). Attempting cleanup."
                 rm -rf ~/.cache/pip 2>/dev/null
-                # Remove only files owned by the current user from /tmp.
                 find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; 2>/dev/null
-                sleep 2
+                sleep 1
                 disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
                 if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "After cleanup, disk usage remains at $disk_usage%. Terminating process $nb_pid."
-                  kill $nb_pid 2>/dev/null
+                  echo "Monitor: After cleanup, disk usage remains at $disk_usage%. Killing process $nb_pid."
+                  kill -9 $nb_pid
                   break
                 else
-                  echo "Cleanup successful; disk usage is now $disk_usage%."
+                  echo "Monitor: Cleanup successful; disk usage is now $disk_usage%."
                 fi
               fi
-              sleep 3
+              sleep 1
             done
           }
 
-          # Start the notebook conversion in the background.
+          # Launch notebook conversion.
           jupyter nbconvert --template classic --to html --execute "$NOTEBOOK" 2>&1 | tee output.log &
           nb_pid=$!
-          # Start the monitor.
+          # Start monitoring in parallel.
           monitor &
           monitor_pid=$!
 
-          # Wait for the notebook process.
+          # Wait for notebook process to finish.
           wait $nb_pid
           rc=$?
           kill $monitor_pid 2>/dev/null
 
-          # Normalize exit code 143 (SIGTERM) to 1.
+          # Normalize exit code 143 to 1.
           if [ $rc -eq 143 ]; then
-              echo "Process terminated with exit code 143; normalizing to 1."
+              echo "Notebook process terminated with exit code 143; normalizing to 1."
               rc=1
           fi
 
-          # Check output log for errors.
+          # Scan output log for error indications.
           if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-              echo "Detected error in notebook execution for $NOTEBOOK."
+              echo "Error detected in notebook execution for $NOTEBOOK."
               exit 1
           fi
 
@@ -156,248 +171,4 @@ jobs:
         if: success()
         run: |
           jupyter nbconvert --to script "${{ matrix.notebook }}"
-          pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii "$pyfile"
-      - name: Collect Failures
-        id: collect_failures
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "failure" ]; then
-            echo "${{ matrix.notebook }}" >> failed_ubuntu.txt
-          fi
-          echo "::set-output name=failedList::$(cat failed_ubuntu.txt || true)"
-
-####################################################
-# 3. Second Attempt: Run Notebooks on 16GB Runner
-####################################################
-  run-notebooks-16gb:
-    name: Run Notebooks on jwst-pipeline-notebooks-16gb
-    needs: run-notebooks-ubuntu
-    if: needs.run-notebooks-ubuntu.outputs.failedList != ''
-    runs-on: jwst-pipeline-notebooks-16gb
-    timeout-minutes: 20
-    strategy:
-      matrix:
-        notebook: ${{ fromJson(needs.run-notebooks-ubuntu.outputs.failedList) }}
-      fail-fast: false
-    continue-on-error: true
-    outputs:
-      failedList: ${{ steps.collect_failures.outputs.failedList }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Pre-job Cleanup
-        run: |
-          rm -rf ~/.cache/pip || true
-          find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-          cache: pip
-      - name: Add conda to system path
-        run: echo "$CONDA/bin" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          nb_dir=$(dirname "${{ matrix.notebook }}")
-          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
-          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
-          pip install -r "$nb_dir/requirements.txt"
-          pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Monitoring (16GB)
-        id: exec16
-        run: |
-          cat << 'EOF' > run_notebook.sh
-          #!/usr/bin/env bash
-          MEM_THRESHOLD=70
-          DISK_THRESHOLD=90
-          CLEANUP_DISK_THRESHOLD=80
-
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-
-          monitor() {
-            while [ -z "$nb_pid" ]; do sleep 0.1; done
-            while true; do
-              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
-              if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
-                echo "Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Terminating process $nb_pid."
-                kill $nb_pid 2>/dev/null
-                break
-              fi
-              disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-              if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
-                echo "Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Terminating process $nb_pid."
-                kill $nb_pid 2>/dev/null
-                break
-              elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                echo "Disk usage ($disk_usage%) exceeds cleanup threshold ($CLEANUP_DISK_THRESHOLD%). Attempting cleanup."
-                rm -rf ~/.cache/pip 2>/dev/null
-                find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; 2>/dev/null
-                sleep 2
-                disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-                if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "After cleanup, disk usage remains at $disk_usage%. Terminating process $nb_pid."
-                  kill $nb_pid 2>/dev/null
-                  break
-                else
-                  echo "Cleanup successful; disk usage is now $disk_usage%."
-                fi
-              fi
-              sleep 3
-            done
-          }
-
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
-          monitor &
-          monitor_pid=$!
-          wait $nb_pid
-          rc=$?
-          kill $monitor_pid 2>/dev/null
-          if [ $rc -eq 143 ]; then
-              echo "Process terminated with exit code 143; normalizing to 1."
-              rc=1
-          fi
-          if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-              echo "Detected error in notebook execution for ${{ matrix.notebook }}."
-              exit 1
-          fi
-          exit $rc
-          EOF
-          chmod +x run_notebook.sh
-          ./run_notebook.sh
-      - name: Validate Notebook
-        if: success()
-        run: pytest --nbval "${{ matrix.notebook }}"
-      - name: Scan with Bandit
-        if: success()
-        run: |
-          jupyter nbconvert --to script "${{ matrix.notebook }}"
-          pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii "$pyfile"
-      - name: Collect Failures
-        id: collect_failures
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "failure" ]; then
-            echo "${{ matrix.notebook }}" >> failed_16gb.txt
-          fi
-          echo "::set-output name=failedList::$(cat failed_16gb.txt || true)"
-
-####################################################
-# 4. Third Attempt: Run Notebooks on 32GB Runner
-####################################################
-  run-notebooks-32gb:
-    name: Run Notebooks on jwst-pipeline-notebooks-32gb
-    needs: run-notebooks-16gb
-    if: needs.run-notebooks-16gb.outputs.failedList != ''
-    runs-on: jwst-pipeline-notebooks-32gb
-    timeout-minutes: 25
-    strategy:
-      matrix:
-        notebook: ${{ fromJson(needs.run-notebooks-16gb.outputs.failedList) }}
-      fail-fast: false
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - name: Pre-job Cleanup
-        run: |
-          rm -rf ~/.cache/pip || true
-          find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-          cache: pip
-      - name: Add conda to system path
-        run: echo "$CONDA/bin" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          nb_dir=$(dirname "${{ matrix.notebook }}")
-          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
-          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
-          pip install -r "$nb_dir/requirements.txt"
-          pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Monitoring (32GB)
-        run: |
-          cat << 'EOF' > run_notebook.sh
-          #!/usr/bin/env bash
-          MEM_THRESHOLD=70
-          DISK_THRESHOLD=90
-          CLEANUP_DISK_THRESHOLD=80
-
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-
-          monitor() {
-            while [ -z "$nb_pid" ]; do sleep 0.1; done
-            while true; do
-              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
-              if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
-                echo "Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Terminating process $nb_pid."
-                kill $nb_pid 2>/dev/null
-                break
-              fi
-              disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-              if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
-                echo "Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Terminating process $nb_pid."
-                kill $nb_pid 2>/dev/null
-                break
-              elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                echo "Disk usage ($disk_usage%) exceeds cleanup threshold ($CLEANUP_DISK_THRESHOLD%). Attempting cleanup."
-                rm -rf ~/.cache/pip 2>/dev/null
-                find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; 2>/dev/null
-                sleep 2
-                disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-                if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "After cleanup, disk usage remains at $disk_usage%. Terminating process $nb_pid."
-                  kill $nb_pid 2>/dev/null
-                  break
-                else
-                  echo "Cleanup successful; disk usage is now $disk_usage%."
-                fi
-              fi
-              sleep 3
-            done
-          }
-
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
-          monitor &
-          monitor_pid=$!
-          wait $nb_pid
-          rc=$?
-          kill $monitor_pid 2>/dev/null
-          if [ $rc -eq 143 ]; then
-              echo "Process terminated with exit code 143; normalizing to 1."
-              rc=1
-          fi
-          if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-              echo "Detected error in notebook execution for ${{ matrix.notebook }}."
-              exit 1
-          fi
-          exit $rc
-          EOF
-          chmod +x run_notebook.sh
-          ./run_notebook.sh
-      - name: Validate Notebook
-        if: success()
-        run: pytest --nbval "${{ matrix.notebook }}"
-      - name: Scan with Bandit
-        if: success()
-        run: |
-          jupyter nbconvert --to script "${{ matrix.notebook }}"
-          pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii "$pyfile"
-
-####################################################
-# 5. Final Check: Fail if Any Notebook Still Fails
-####################################################
-  final-check:
-    name: Final Failure Check
-    needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Final Failure Check
-        run: |
-          echo "Some notebooks still failed after all attempts. Failing the workflow."
-          exit 1
+          pyfile=$(
