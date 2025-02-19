@@ -25,7 +25,7 @@ permissions: write-all
 ##############################
 jobs:
   gather-notebooks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -42,7 +42,7 @@ jobs:
   run-notebooks-ubuntu:
     name: Run Notebooks on ubuntu-latest
     needs: gather-notebooks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
@@ -350,7 +350,7 @@ jobs:
   final-check:
     name: Final Failure Check
     needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: always()
     steps:
       - name: Final Failure Check
