@@ -75,6 +75,9 @@ jobs:
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
 
+          # Trap termination signals and exit with 1
+          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
+
           monitor() {
             while true; do
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
@@ -93,20 +96,22 @@ jobs:
             done
           }
 
-          # Start the monitor in the background.
           monitor &
           monitor_pid=$!
 
-          # Run the notebook conversion in the background.
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
           nb_pid=$!
 
-          # Wait for the notebook process to finish.
           wait $nb_pid
-          # Kill the monitor.
+          rc=$?
           kill $monitor_pid 2>/dev/null
 
-          # Check for error conditions.
+          # Normalize exit code 143 to 1.
+          if [ $rc -eq 143 ]; then
+            echo "Notebook process terminated with exit code 143, forcing exit code 1"
+            rc=1
+          fi
+
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
              grep -q "Terminated" output.log || \
@@ -116,6 +121,8 @@ jobs:
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
+
+          exit $rc
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
@@ -131,7 +138,7 @@ jobs:
       - name: Collect failures
         id: collect_failures
         run: |
-          # Append the notebook path if this job failed.
+          # If the job failed, record the notebook path.
           if [ "${{ job.status }}" == "failure" ]; then
             echo "${{ matrix.notebook }}" >> failed_ubuntu.txt
           fi
@@ -176,6 +183,8 @@ jobs:
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
 
+          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
+
           monitor() {
             while true; do
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
@@ -201,7 +210,13 @@ jobs:
           nb_pid=$!
 
           wait $nb_pid
+          rc=$?
           kill $monitor_pid 2>/dev/null
+
+          if [ $rc -eq 143 ]; then
+            echo "Notebook process terminated with exit code 143, forcing exit code 1"
+            rc=1
+          fi
 
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
@@ -212,6 +227,8 @@ jobs:
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
+
+          exit $rc
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
@@ -268,6 +285,8 @@ jobs:
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
 
+          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
+
           monitor() {
             while true; do
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
@@ -293,7 +312,13 @@ jobs:
           nb_pid=$!
 
           wait $nb_pid
+          rc=$?
           kill $monitor_pid 2>/dev/null
+
+          if [ $rc -eq 143 ]; then
+            echo "Notebook process terminated with exit code 143, forcing exit code 1"
+            rc=1
+          fi
 
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
@@ -304,6 +329,8 @@ jobs:
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
+
+          exit $rc
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
