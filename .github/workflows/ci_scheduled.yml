@@ -92,24 +92,24 @@ jobs:
               if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
                 echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
-                break
+                #break
               fi
               # Check disk usage.
               disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
               if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
-                break
+                #break
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
-                rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
-                rm -rf /tmp/* || echo "Unable to clean /tmp"
+                #rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                sudo rm -rf /tmp/* || echo "Unable to clean /tmp"
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                   echo "After cleanup, disk usage is still at ${disk_usage}%. Aborting notebook execution."
                   kill $nb_pid 2>/dev/null
-                  break
+                  #break
                 else
                   echo "Cleanup successful; disk usage is now ${disk_usage}%."
                 fi
