@@ -77,6 +77,7 @@ jobs:
         id: exec
         run: |
           # Run the notebook and capture all output.
+          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
           set -o pipefail
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
           # If the log contains "Kernel died" then exit with error.
@@ -148,6 +149,7 @@ jobs:
       - name: Execute Notebook (16GB)
         id: exec16
         run: |
+          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
           set -o pipefail
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
           if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
@@ -207,6 +209,7 @@ jobs:
           pip install pytest nbval nbconvert ipython bandit
       - name: Execute Notebook (32GB)
         run: |
+          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
           set -o pipefail
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
           if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
