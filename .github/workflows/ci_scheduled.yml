@@ -56,8 +56,8 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           # Clean pip cache and temporary files to free disk space.
-          rm -rf ~/.cache/pip || true
-          rm -rf /tmp/* || true
+          #rm -rf ~/.cache/pip || true
+          sudo rm -rf /tmp/* || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
