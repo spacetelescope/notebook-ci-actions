@@ -42,8 +42,8 @@ jobs:
     name: Run Notebooks on ubuntu-latest
     needs: gather-notebooks
     runs-on: ubuntu-latest
-    # Set a job-level timeout to force graceful exit before system shutdown
-    timeout-minutes: 20
+    # Set a conservative timeout to exit gracefully
+    timeout-minutes: 15
     strategy:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
@@ -53,6 +53,11 @@ jobs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
     steps:
       - uses: actions/checkout@v4
+      - name: Pre-job Cleanup
+        run: |
+          # Clean pip cache and temporary files to free disk space.
+          rm -rf ~/.cache/pip || true
+          rm -rf /tmp/* || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -67,28 +72,29 @@ jobs:
           [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Resource Monitoring
+      - name: Execute Notebook with Aggressive Monitoring
         id: exec
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Use more aggressive thresholds to exit before system shutdown
+          # Aggressive thresholds: exit early before resource exhaustion.
           MEM_THRESHOLD=70
-          DISK_THRESHOLD=80
-          CLEANUP_DISK_THRESHOLD=70
+          DISK_THRESHOLD=70
+          CLEANUP_DISK_THRESHOLD=60
 
           # Trap termination signals.
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
           monitor() {
             while true; do
+              # Check memory usage.
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
               if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
                 echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
                 break
               fi
-
+              # Check disk usage.
               disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
               if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
@@ -97,6 +103,7 @@ jobs:
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
                 rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                rm -rf /tmp/* || echo "Unable to clean /tmp"
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -107,8 +114,7 @@ jobs:
                   echo "Cleanup successful; disk usage is now ${disk_usage}%."
                 fi
               fi
-
-              sleep 5
+              sleep 3
             done
           }
 
@@ -122,6 +128,7 @@ jobs:
           rc=$?
           kill $monitor_pid 2>/dev/null
 
+          # If process was killed with exit code 143, force a nonzero exit.
           if [ $rc -eq 143 ]; then
             echo "Notebook process terminated with exit code 143, forcing exit code 1"
             rc=1
@@ -167,7 +174,7 @@ jobs:
     needs: run-notebooks-ubuntu
     if: needs.run-notebooks-ubuntu.outputs.failedList != ''
     runs-on: jwst-pipeline-notebooks-16gb
-    timeout-minutes: 30
+    timeout-minutes: 20
     strategy:
       matrix:
         notebook: ${{ fromJson(needs.run-notebooks-ubuntu.outputs.failedList) }}
@@ -177,6 +184,10 @@ jobs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
     steps:
       - uses: actions/checkout@v4
+      - name: Pre-job Cleanup
+        run: |
+          rm -rf ~/.cache/pip || true
+          rm -rf /tmp/* || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -191,14 +202,14 @@ jobs:
           [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Resource Monitoring (16GB)
+      - name: Execute Notebook with Aggressive Monitoring (16GB)
         id: exec16
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
           MEM_THRESHOLD=70
-          DISK_THRESHOLD=80
-          CLEANUP_DISK_THRESHOLD=70
+          DISK_THRESHOLD=70
+          CLEANUP_DISK_THRESHOLD=60
 
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
@@ -217,7 +228,8 @@ jobs:
                 break
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
-                rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                rm -rf ~/.cache/pip || true
+                rm -rf /tmp/* || true
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -228,7 +240,7 @@ jobs:
                   echo "Cleanup successful; disk usage is now ${disk_usage}%."
                 fi
               fi
-              sleep 5
+              sleep 3
             done
           }
 
@@ -287,7 +299,7 @@ jobs:
     needs: run-notebooks-16gb
     if: needs.run-notebooks-16gb.outputs.failedList != ''
     runs-on: jwst-pipeline-notebooks-32gb
-    timeout-minutes: 40
+    timeout-minutes: 25
     strategy:
       matrix:
         notebook: ${{ fromJson(needs.run-notebooks-16gb.outputs.failedList) }}
@@ -295,6 +307,10 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+      - name: Pre-job Cleanup
+        run: |
+          rm -rf ~/.cache/pip || true
+          rm -rf /tmp/* || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -309,13 +325,13 @@ jobs:
           [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
           pip install -r "$nb_dir/requirements.txt"
           pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Resource Monitoring (32GB)
+      - name: Execute Notebook with Aggressive Monitoring (32GB)
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
           MEM_THRESHOLD=70
-          DISK_THRESHOLD=80
-          CLEANUP_DISK_THRESHOLD=70
+          DISK_THRESHOLD=70
+          CLEANUP_DISK_THRESHOLD=60
 
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
@@ -334,7 +350,8 @@ jobs:
                 break
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
-                rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                rm -rf ~/.cache/pip || true
+                rm -rf /tmp/* || true
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -345,7 +362,7 @@ jobs:
                   echo "Cleanup successful; disk usage is now ${disk_usage}%."
                 fi
               fi
-              sleep 5
+              sleep 3
             done
           }
 
@@ -400,5 +417,5 @@ jobs:
     steps:
       - name: Final Failure Check
         run: |
-          echo "If any notebooks still failed after all attempts, failing the workflow."
+          echo "Some notebooks still failed after all attempts. Failing the workflow."
           exit 1
