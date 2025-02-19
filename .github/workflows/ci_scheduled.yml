@@ -121,8 +121,7 @@ jobs:
           monitor &
           monitor_pid=$!
 
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log & nb_pid=$!
 
           wait $nb_pid
           rc=$?
@@ -247,8 +246,7 @@ jobs:
           monitor &
           monitor_pid=$!
 
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log & nb_pid=$!
 
           wait $nb_pid
           rc=$?
@@ -369,8 +367,7 @@ jobs:
           monitor &
           monitor_pid=$!
 
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log & nb_pid=$!
 
           wait $nb_pid
           rc=$?
