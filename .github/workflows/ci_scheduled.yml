@@ -25,7 +25,7 @@ permissions: write-all
 ##############################
 jobs:
   gather-notebooks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -42,7 +42,7 @@ jobs:
   run-notebooks-ubuntu:
     name: Run Notebooks on ubuntu-latest
     needs: gather-notebooks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
@@ -74,34 +74,55 @@ jobs:
           #!/usr/bin/env bash
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
+          CLEANUP_DISK_THRESHOLD=85  # When disk usage exceeds this, attempt cleanup
 
-          # Trap termination signals and exit with 1
+          # Trap termination signals.
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
           monitor() {
             while true; do
+              # Check memory usage.
               mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
               if [ "$mem_usage" -gt "$MEM_THRESHOLD" ]; then
                 echo "Memory usage is at ${mem_usage}%, exceeding threshold of ${MEM_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
                 break
               fi
+
+              # Check disk usage.
               disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
               if [ "$disk_usage" -gt "$DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
                 break
+              elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
+                echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
+                # Example cleanup: remove pip cache
+                rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                sleep 2
+                disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
+                if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
+                  echo "After cleanup, disk usage is still at ${disk_usage}%. Aborting notebook execution."
+                  kill $nb_pid 2>/dev/null
+                  break
+                else
+                  echo "Cleanup successful; disk usage is now ${disk_usage}%."
+                fi
               fi
+
               sleep 5
             done
           }
 
+          # Start the monitor in the background.
           monitor &
           monitor_pid=$!
 
+          # Start notebook execution in the background.
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
           nb_pid=$!
 
+          # Wait for the notebook process to finish and capture its exit code.
           wait $nb_pid
           rc=$?
           kill $monitor_pid 2>/dev/null
@@ -112,12 +133,14 @@ jobs:
             rc=1
           fi
 
+          # Check output log for error messages.
           if grep -q "Kernel died" output.log || \
              grep -q "exit code 143" output.log || \
              grep -q "Terminated" output.log || \
              grep -q "Received termination signal" output.log || \
              grep -q "Memory usage is at" output.log || \
-             grep -q "Disk usage is at" output.log; then
+             grep -q "Disk usage is at" output.log || \
+             grep -q "No space left on device" output.log; then
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
@@ -138,7 +161,6 @@ jobs:
       - name: Collect failures
         id: collect_failures
         run: |
-          # If the job failed, record the notebook path.
           if [ "${{ job.status }}" == "failure" ]; then
             echo "${{ matrix.notebook }}" >> failed_ubuntu.txt
           fi
@@ -182,6 +204,7 @@ jobs:
           #!/usr/bin/env bash
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
+          CLEANUP_DISK_THRESHOLD=85
 
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
@@ -198,6 +221,18 @@ jobs:
                 echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
                 break
+              elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
+                echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
+                rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                sleep 2
+                disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
+                if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
+                  echo "After cleanup, disk usage is still at ${disk_usage}%. Aborting notebook execution."
+                  kill $nb_pid 2>/dev/null
+                  break
+                else
+                  echo "Cleanup successful; disk usage is now ${disk_usage}%."
+                fi
               fi
               sleep 5
             done
@@ -223,7 +258,8 @@ jobs:
              grep -q "Terminated" output.log || \
              grep -q "Received termination signal" output.log || \
              grep -q "Memory usage is at" output.log || \
-             grep -q "Disk usage is at" output.log; then
+             grep -q "Disk usage is at" output.log || \
+             grep -q "No space left on device" output.log; then
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
@@ -284,6 +320,7 @@ jobs:
           #!/usr/bin/env bash
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
+          CLEANUP_DISK_THRESHOLD=85
 
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
 
@@ -300,6 +337,18 @@ jobs:
                 echo "Disk usage is at ${disk_usage}%, exceeding threshold of ${DISK_THRESHOLD}%. Aborting notebook execution."
                 kill $nb_pid 2>/dev/null
                 break
+              elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
+                echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
+                rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
+                sleep 2
+                disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
+                if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
+                  echo "After cleanup, disk usage is still at ${disk_usage}%. Aborting notebook execution."
+                  kill $nb_pid 2>/dev/null
+                  break
+                else
+                  echo "Cleanup successful; disk usage is now ${disk_usage}%."
+                fi
               fi
               sleep 5
             done
@@ -325,7 +374,8 @@ jobs:
              grep -q "Terminated" output.log || \
              grep -q "Received termination signal" output.log || \
              grep -q "Memory usage is at" output.log || \
-             grep -q "Disk usage is at" output.log; then
+             grep -q "Disk usage is at" output.log || \
+             grep -q "No space left on device" output.log; then
             echo "Notebook execution error detected in ${{ matrix.notebook }}"
             exit 1
           fi
@@ -350,7 +400,7 @@ jobs:
   final-check:
     name: Final Failure Check
     needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Final Failure Check
