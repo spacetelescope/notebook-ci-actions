@@ -73,7 +73,7 @@ jobs:
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
           # Use more aggressive thresholds to exit before system shutdown
-          MEM_THRESHOLD=80
+          MEM_THRESHOLD=70
           DISK_THRESHOLD=80
           CLEANUP_DISK_THRESHOLD=70
 
@@ -196,7 +196,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          MEM_THRESHOLD=80
+          MEM_THRESHOLD=70
           DISK_THRESHOLD=80
           CLEANUP_DISK_THRESHOLD=70
 
@@ -313,7 +313,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          MEM_THRESHOLD=80
+          MEM_THRESHOLD=70
           DISK_THRESHOLD=80
           CLEANUP_DISK_THRESHOLD=70
 
