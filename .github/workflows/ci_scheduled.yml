@@ -25,7 +25,7 @@ permissions: write-all
 ##############################
 jobs:
   gather-notebooks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -36,12 +36,12 @@ jobs:
           echo "matrix=$notebooks" >> $GITHUB_OUTPUT
 
 ####################################################
-# 2. First Attempt: Run Notebooks on ubuntu-latest
+# 2. First Attempt: Run Notebooks on ubuntu-20.04
 ####################################################
   run-notebooks-ubuntu:
-    name: Run Notebooks on ubuntu-latest
+    name: Run Notebooks on ubuntu-20.04
     needs: gather-notebooks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     timeout-minutes: 15
     strategy:
       matrix:
@@ -77,7 +77,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Thresholds for ubuntu-latest:
+          # Thresholds for ubuntu-20.04:
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -424,7 +424,7 @@ jobs:
   final-check:
     name: Final Failure Check
     needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     if: always()
     steps:
       - name: Final Failure Check
