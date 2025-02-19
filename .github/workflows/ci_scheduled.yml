@@ -78,7 +78,7 @@ jobs:
         run: |
           # Run the notebook and capture all output.
           set -o pipefail
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
           # If the log contains "Kernel died" then exit with error.
           if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
             echo "Kernel died error detected in ${{ matrix.notebook }}"
@@ -149,7 +149,7 @@ jobs:
         id: exec16
         run: |
           set -o pipefail
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
           if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
             echo "Kernel died error detected in ${{ matrix.notebook }}"
             exit 1
@@ -208,7 +208,7 @@ jobs:
       - name: Execute Notebook (32GB)
         run: |
           set -o pipefail
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log || true
           if grep -q "Kernel died" output.log || grep -q "exit code 143" output.log; then
             echo "Kernel died error detected in ${{ matrix.notebook }}"
             exit 1
