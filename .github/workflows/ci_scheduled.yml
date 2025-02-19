@@ -55,7 +55,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
-          rm -rf /tmp/* || true
+          find /tmp -maxdepth 1 -user $(whoami) -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -75,13 +75,16 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Set thresholds: memory abort if >70%, disk abort if >90%, cleanup attempted if >80%.
+          # Set thresholds: abort if memory >70%, abort if disk >90%, cleanup attempted if disk >80%.
           MEM_THRESHOLD=70
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=80
 
           # Trap termination signals.
           trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
+
+          # Store the notebook path for later use.
+          NOTEBOOK="${{ matrix.notebook }}"
 
           monitor() {
             # Wait until nb_pid is set.
@@ -101,7 +104,8 @@ jobs:
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
                 rm -rf ~/.cache/pip || echo "Unable to clean pip cache"
-                rm -rf /tmp/* || echo "Unable to clean /tmp"
+                # Delete only files owned by the current user in /tmp.
+                find /tmp -maxdepth 1 -user $(whoami) -exec rm -f {} \; || echo "Unable to clean /tmp"
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -117,7 +121,7 @@ jobs:
           }
 
           # Start the notebook execution in the background.
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
+          jupyter nbconvert --template classic --to html --execute "$NOTEBOOK" 2>&1 | tee output.log &
           nb_pid=$!
           # Now start the monitor.
           monitor &
@@ -139,7 +143,7 @@ jobs:
              grep -q "Memory usage is at" output.log || \
              grep -q "Disk usage is at" output.log || \
              grep -q "No space left on device" output.log; then
-            echo "Notebook execution error detected in ${{ matrix.notebook }}"
+            echo "Notebook execution error detected in $NOTEBOOK"
             exit 1
           fi
 
@@ -186,7 +190,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
-          rm -rf /tmp/* || true
+          find /tmp -maxdepth 1 -user $(whoami) -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -229,7 +233,7 @@ jobs:
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
                 rm -rf ~/.cache/pip || true
-                rm -rf /tmp/* || true
+                find /tmp -maxdepth 1 -user $(whoami) -exec rm -f {} \; || true
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
@@ -310,7 +314,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
-          rm -rf /tmp/* || true
+          find /tmp -maxdepth 1 -user $(whoami) -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -352,7 +356,7 @@ jobs:
               elif [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
                 echo "Disk usage is at ${disk_usage}%, exceeding cleanup threshold of ${CLEANUP_DISK_THRESHOLD}%. Attempting cleanup."
                 rm -rf ~/.cache/pip || true
-                rm -rf /tmp/* || true
+                find /tmp -maxdepth 1 -user $(whoami) -exec rm -f {} \; || true
                 sleep 2
                 disk_usage=$(df / | awk 'END {print $5}' | sed 's/%//')
                 if [ "$disk_usage" -gt "$CLEANUP_DISK_THRESHOLD" ]; then
