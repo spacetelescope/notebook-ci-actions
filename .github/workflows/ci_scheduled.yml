@@ -12,24 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
-      has_notebooks: ${{ steps.set-matrix.outputs.has_notebooks }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
 
-      - name: Generate matrix from notebooks/
-        id: set-matrix
-        run: |
-          # Find all .ipynb files under the notebooks/ directory.
-          notebooks=$(find notebooks -type f -name "*.ipynb")
-          if [ -z "$notebooks" ]; then
-            echo "matrix=[{\"notebook\":\"skip\"}]" >> "$GITHUB_OUTPUT"
-            echo "has_notebooks=false" >> "$GITHUB_OUTPUT"
-          else
-            matrix=$(echo "$notebooks" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
-            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-            echo "has_notebooks=true" >> "$GITHUB_OUTPUT"
-          fi
 
   run-notebook:
     needs: generate-matrix
@@ -96,9 +83,7 @@ jobs:
 
   fallback-run:
     needs: run-notebook
-    if: ${{ needs.generate-matrix.outputs.has_notebooks == 'true' && failure() }}
     strategy:
-      # Use a ternary expression: if the output is non-empty, use it; otherwise default to a dummy value.
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
