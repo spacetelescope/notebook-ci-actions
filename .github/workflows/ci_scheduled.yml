@@ -21,12 +21,13 @@ jobs:
         run: |
           # Find all .ipynb files under notebooks/ and create a JSON array of objects.
           # Each object has a "notebook" key.
-          echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+          matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   run-notebook:
     needs: generate-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[]') }}
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -55,9 +56,7 @@ jobs:
           NB_CONVERT_PID=0
           monitor() {
             while sleep 5; do
-              # Get memory usage as a percentage.
               mem_usage=$(free | awk '/^Mem/ {printf "%.0f", $3/$2 * 100}')
-              # Get disk usage percentage for the root filesystem.
               disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
               if [ "$mem_usage" -gt 80 ] || [ "$disk_usage" -gt 80 ]; then
                 echo "Resource usage exceeded threshold (Mem: ${mem_usage}%, Disk: ${disk_usage}%). Killing nbconvert (PID: $NB_CONVERT_PID)"
@@ -69,16 +68,13 @@ jobs:
           MONITOR_PID=$!
           echo "Monitor started (PID: $MONITOR_PID)"
           
-          # Run nbconvert in the background and capture its PID.
           python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
           NB_CONVERT_PID=$!
           echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
           
-          # Wait for nbconvert to finish.
           wait $NB_CONVERT_PID
           RESULT=$?
           
-          # Clean up the monitor.
           kill $MONITOR_PID || true
           
           exit $RESULT
@@ -95,19 +91,28 @@ jobs:
     if: ${{ failure() }}
     strategy:
       matrix:
-        include: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[]') }}
+        include: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[{"notebook": "dummy"}]') }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
+      - name: Check for dummy notebook
+        if: ${{ matrix.notebook == 'dummy' }}
+        run: |
+          echo "No notebooks found, skipping fallback-run."
+          exit 0
+
       - name: Checkout repository
+        if: ${{ matrix.notebook != 'dummy' }}
         uses: actions/checkout@v3
 
       - name: Set up Python ${{ inputs.python-version }} (Fallback)
+        if: ${{ matrix.notebook != 'dummy' }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.python-version }}
 
       - name: Install notebook dependencies (Fallback)
+        if: ${{ matrix.notebook != 'dummy' }}
         run: |
           nb_dir=$(dirname "${{ matrix.notebook }}")
           if [ -f "$nb_dir/requirements.txt" ]; then
@@ -118,6 +123,7 @@ jobs:
           fi
 
       - name: Execute notebook with resource monitoring (Fallback)
+        if: ${{ matrix.notebook != 'dummy' }}
         env:
           NOTEBOOK: ${{ matrix.notebook }}
         run: |
@@ -148,7 +154,7 @@ jobs:
           exit $RESULT
 
       - name: Archive executed notebook (Fallback)
-        if: success()
+        if: ${{ matrix.notebook != 'dummy' }}
         uses: actions/upload-artifact@v3
         with:
           name: executed-notebook-fallback-${{ matrix.notebook }}
