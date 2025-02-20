@@ -21,8 +21,9 @@ jobs:
   run-notebook:
     needs: generate-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-      fail-fast: false
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }} 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -62,9 +63,9 @@ jobs:
           MONITOR_PID=$!
           echo "Monitor started (PID: $MONITOR_PID)"
           
-          python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
+          python -m nbconvert --to notebook --execute "${{ matrix.notebooks }}" --output executed.ipynb &
           NB_CONVERT_PID=$!
-          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
+          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: ${{ matrix.notebooks }}"
           
           wait $NB_CONVERT_PID
           RESULT=$?
@@ -83,8 +84,9 @@ jobs:
   fallback-run:
     needs: run-notebook
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-      fail-fast: false
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }} 
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
       - name: Checkout repository
@@ -124,9 +126,9 @@ jobs:
           MONITOR_PID=$!
           echo "Monitor started (PID: $MONITOR_PID)"
           
-          python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
+          python -m nbconvert --to notebook --execute "${{ matrix.notebooks }}" --output executed.ipynb &
           NB_CONVERT_PID=$!
-          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
+          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: ${{ matrix.notebooks }}"
           
           wait $NB_CONVERT_PID
           RESULT=$?
