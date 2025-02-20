@@ -76,7 +76,7 @@ jobs:
 
       - name: Archive executed notebook
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: executed-notebook-${{ matrix.notebook }}
           path: executed.ipynb
@@ -139,7 +139,7 @@ jobs:
 
       - name: Archive executed notebook (Fallback)
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: executed-notebook-fallback-${{ matrix.notebook }}
           path: executed.ipynb
