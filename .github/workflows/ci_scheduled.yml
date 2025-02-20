@@ -20,7 +20,6 @@ jobs:
 
   run-notebook:
     needs: generate-matrix
-    if: ${{ needs.generate-matrix.outputs.has_notebooks == 'true' }}
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
