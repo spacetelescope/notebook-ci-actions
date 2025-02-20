@@ -6,171 +6,153 @@ on:
       python-version:
         required: true
         type: string
-    secrets:
-      CASJOBS_USERID:
-        description: "CASJOBS user ID"
-        required: false
-      CASJOBS_PW:
-        description: "CASJOBS password"
-        required: false
 
 jobs:
-  gather-notebooks:
-    runs-on: ubuntu-20.04
+  # Job 1: Discover all notebooks and output a matrix (each object contains the key "notebook")
+  generate-matrix:
+    runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
-      - id: set-matrix
-        run: |
-          # Find all notebooks under the "notebooks" directory
-          notebooks=$(find notebooks -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "matrix=$notebooks" >> $GITHUB_OUTPUT
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  run-notebooks-ubuntu:
-    name: Run Notebooks on ubuntu-20.04
-    needs: gather-notebooks
-    runs-on: ubuntu-20.04
-    timeout-minutes: 15
-    strategy:
-      matrix:
-        notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
-      fail-fast: false
-    # Continue on error so that each matrix job completes and we can record failures.
-    continue-on-error: true
-    outputs:
-      failed: ${{ steps.collect.outputs.failed }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Pre-job Cleanup
+      - name: Generate matrix from notebooks/
+        id: set-matrix
         run: |
-          rm -rf ~/.cache/pip || true
-          # Remove only files owned by the runner from /tmp.
-          find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
-      - name: Ensure pip cache folder exists
-        run: mkdir -p ~/.cache/pip
-      - name: Set up Python
-        uses: actions/setup-python@v5
+          # Find all .ipynb files under notebooks/ and create a JSON array of objects
+          matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  # Job 2: Run each notebook on the default runner (ubuntu-latest)
+  run-notebook:
+    needs: generate-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      fail-fast: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.python-version }}
-          cache: pip
-      - name: Install Dependencies
+
+      - name: Install notebook dependencies
         run: |
           nb_dir=$(dirname "${{ matrix.notebook }}")
-          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
-          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
-          pip install -r "$nb_dir/requirements.txt"
-          pip install nbconvert
-      - name: Execute Notebook with Monitoring
-        id: exec
-        run: |
-          cat << 'EOF' > run_notebook.sh
-          #!/usr/bin/env bash
-          # --- Monitoring thresholds ---
-          MEM_THRESHOLD=80
-          DISK_THRESHOLD=90
-          CLEANUP_DISK_THRESHOLD=85
-          NOTEBOOK="${{ matrix.notebook }}"
-          rm -f killed.flag
-
-          echo "Pre-check: Memory: $(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')%, Disk: $(df / | tail -1 | awk '{print $5}' | sed 's/%//')%."
-          current_mem=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
-          current_disk=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-          if [ "$current_mem" -ge "$MEM_THRESHOLD" ] || [ "$current_disk" -ge "$DISK_THRESHOLD" ]; then
-              echo "Pre-check failed: Resources already high."
-              exit 1
+          if [ -f "$nb_dir/requirements.txt" ]; then
+            echo "Installing requirements from $nb_dir/requirements.txt"
+            pip install -r "$nb_dir/requirements.txt"
+          else
+            echo "No requirements.txt found in $nb_dir, skipping dependency install."
           fi
 
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-
+      - name: Execute notebook with resource monitoring
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: |
+          # Start an inline monitor in the background that kills nbconvert if memory or disk usage >80%
+          NB_CONVERT_PID=0
           monitor() {
-            while [ -z "$nb_pid" ]; do sleep 0.1; done
-            while true; do
-              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
-              if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
-                echo "Monitor: Memory usage $mem_usage% exceeds threshold $MEM_THRESHOLD%. Killing process $nb_pid."
-                touch killed.flag
-                kill -9 $nb_pid
-                break
+            while sleep 5; do
+              # Calculate memory usage as a percentage (this may vary by distro)
+              mem_usage=$(free | awk '/^Mem/ {printf "%.0f", $3/$2 * 100}')
+              # Get disk usage for the root filesystem (assumes '/' is the relevant mount)
+              disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
+              if [ "$mem_usage" -gt 80 ] || [ "$disk_usage" -gt 80 ]; then
+                echo "Resource usage exceeded threshold (Mem: ${mem_usage}%, Disk: ${disk_usage}%). Killing nbconvert (PID: $NB_CONVERT_PID)"
+                kill -9 $NB_CONVERT_PID || true
               fi
-              disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-              if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
-                echo "Monitor: Disk usage $disk_usage% exceeds threshold $DISK_THRESHOLD%. Killing process $nb_pid."
-                touch killed.flag
-                kill -9 $nb_pid
-                break
-              elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                echo "Monitor: Disk usage $disk_usage% exceeds cleanup threshold $CLEANUP_DISK_THRESHOLD%. Attempting cleanup."
-                rm -rf ~/.cache/pip 2>/dev/null
-                find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; 2>/dev/null
-                sleep 1
-                disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-                if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "Monitor: After cleanup, disk usage remains $disk_usage%. Killing process $nb_pid."
-                  touch killed.flag
-                  kill -9 $nb_pid
-                  break
-                else
-                  echo "Monitor: Cleanup successful; disk usage is now $disk_usage%."
-                fi
-              fi
-              sleep 1
             done
           }
-
-          # Launch notebook execution.
-          jupyter nbconvert --template classic --to html --execute "$NOTEBOOK" 2>&1 | tee output.log &
-          nb_pid=$!
           monitor &
-          monitor_pid=$!
-          wait $nb_pid
-          rc=$?
-          kill $monitor_pid 2>/dev/null
-          if [ -f killed.flag ]; then
-            echo "Notebook was killed by monitor."
-            rc=1
-          fi
-          exit $rc
-          EOF
-          chmod +x run_notebook.sh
-          ./run_notebook.sh
-      - name: Collect Failures
-        id: collect
-        run: |
-          if [ $? -ne 0 ]; then
-            echo "${{ matrix.notebook }}" > failure.txt
-          fi
-          FAILED=$(cat failure.txt 2>/dev/null || echo "")
-          echo "::set-output name=failed::$FAILED"
-      - name: Upload Failure Artifact
-        if: failure()
+          MONITOR_PID=$!
+          echo "Monitor started (PID: $MONITOR_PID)"
+          
+          # Execute the notebook with nbconvert in the background and capture its PID
+          python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
+          NB_CONVERT_PID=$!
+          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
+          
+          # Wait for nbconvert to finish
+          wait $NB_CONVERT_PID
+          RESULT=$?
+          
+          # Kill the monitor process
+          kill $MONITOR_PID || true
+          
+          exit $RESULT
+
+      - name: Archive executed notebook
+        if: success()
         uses: actions/upload-artifact@v3
         with:
-          name: failure-${{ replace(matrix.notebook, '/', '-') }}
-          path: failure.txt
+          name: executed-notebook-${{ matrix.notebook }}
+          path: executed.ipynb
 
-  run-notebooks-16gb:
-    name: Run Notebooks on 16GB Runner
-    needs: run-notebooks-ubuntu
-    if: ${{ needs.run-notebooks-ubuntu.outputs.failed != '' }}
+  # Job 3: Fallback – re-run notebooks on an alternate runner if the primary run fails
+  fallback-run:
+    needs: run-notebook
+    if: ${{ failure() }}
+    strategy:
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
-      - uses: actions/checkout@v4
-      - name: Run Fallback Notebook on 16GB
-        run: |
-          NB="${{ needs.run-notebooks-ubuntu.outputs.failed }}"
-          echo "Re-running failed notebook on 16GB: $NB"
-          jupyter nbconvert --template classic --to html --execute "$NB"
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-  run-notebooks-32gb:
-    name: Run Notebooks on 32GB Runner
-    needs: run-notebooks-16gb
-    if: ${{ needs.run-notebooks-16gb.outputs.failed != '' }}
-    runs-on: jwst-pipeline-notebooks-32gb
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Fallback Notebook on 32GB
+      - name: Set up Python ${{ inputs.python-version }} (Fallback)
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install notebook dependencies (Fallback)
         run: |
-          NB="${{ needs.run-notebooks-16gb.outputs.failed }}"
-          echo "Re-running failed notebook on 32GB: $NB"
-          jupyter nbconvert --template classic --to html --execute "$NB"
+          nb_dir=$(dirname "${{ matrix.notebook }}")
+          if [ -f "$nb_dir/requirements.txt" ]; then
+            echo "Installing requirements from $nb_dir/requirements.txt"
+            pip install -r "$nb_dir/requirements.txt"
+          else
+            echo "No requirements.txt found in $nb_dir, skipping dependency install."
+          fi
+
+      - name: Execute notebook with resource monitoring (Fallback)
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: |
+          NB_CONVERT_PID=0
+          monitor() {
+            while sleep 5; do
+              mem_usage=$(free | awk '/^Mem/ {printf "%.0f", $3/$2 * 100}')
+              disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
+              if [ "$mem_usage" -gt 80 ] || [ "$disk_usage" -gt 80 ]; then
+                echo "Resource usage exceeded threshold (Mem: ${mem_usage}%, Disk: ${disk_usage}%). Killing nbconvert (PID: $NB_CONVERT_PID)"
+                kill -9 $NB_CONVERT_PID || true
+              fi
+            done
+          }
+          monitor &
+          MONITOR_PID=$!
+          echo "Monitor started (PID: $MONITOR_PID)"
+          
+          python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
+          NB_CONVERT_PID=$!
+          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
+          
+          wait $NB_CONVERT_PID
+          RESULT=$?
+          
+          kill $MONITOR_PID || true
+          
+          exit $RESULT
+
+      - name: Archive executed notebook (Fallback)
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: executed-notebook-fallback-${{ matrix.notebook }}
+          path: executed.ipynb
