@@ -94,7 +94,8 @@ jobs:
     needs: run-notebook
     if: ${{ failure() }}
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix:
+        include: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[]') }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
