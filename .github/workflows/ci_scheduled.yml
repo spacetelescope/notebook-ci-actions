@@ -47,7 +47,7 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       fail-fast: false
-    # Continue-on-error so outputs can be set.
+    # Use continue-on-error so that the job completes and can set outputs.
     continue-on-error: true
     outputs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
@@ -56,6 +56,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
+          # Remove only files owned by the runner user from /tmp.
           find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5
@@ -76,7 +77,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Thresholds for ubuntu-20.04.
+          # Thresholds for ubuntu-20.04 job.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -154,19 +155,21 @@ jobs:
             echo "Error detected in notebook execution for $NOTEBOOK."
             rc=1
           fi
-          # Record failure if rc != 0.
+          # Record failure if any, then output the real outcome.
+          echo "::set-output name=outcome::$rc"
           if [ $rc -ne 0 ]; then
             echo "$NOTEBOOK" >> failed_ubuntu.txt
           fi
-          exit $rc
+          # Always exit with 0 so that the job completes and outputs are set.
+          exit 0
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
       - name: Validate Notebook
-        if: steps.exec.outcome == 'success'
+        if: steps.exec.outputs.outcome == '0'
         run: pytest --nbval "${{ matrix.notebook }}"
       - name: Scan with Bandit
-        if: steps.exec.outcome == 'success'
+        if: steps.exec.outputs.outcome == '0'
         run: |
           jupyter nbconvert --to script "${{ matrix.notebook }}"
           pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
@@ -280,17 +283,18 @@ jobs:
               rc=1
           fi
           if [ $rc -ne 0 ]; then
-            echo "${{ matrix.notebook }}" >> failed_16gb.txt
+              echo "${{ matrix.notebook }}" >> failed_16gb.txt
           fi
+          echo "::set-output name=outcome::$rc"
           exit 0
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
       - name: Validate Notebook
-        if: steps.exec16.outcome == 'success'
+        if: steps.exec16.outputs.outcome == '0'
         run: pytest --nbval "${{ matrix.notebook }}"
       - name: Scan with Bandit
-        if: steps.exec16.outcome == 'success'
+        if: steps.exec16.outputs.outcome == '0'
         run: |
           jupyter nbconvert --to script "${{ matrix.notebook }}"
           pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
@@ -301,7 +305,7 @@ jobs:
         run: |
           failedList=$(cat failed_16gb.txt 2>/dev/null || echo "")
           echo "::set-output name=failedList::$failedList"
-
+          
 ####################################################
 # 4. Third Attempt: Run Notebooks on 32GB Runner
 ####################################################
