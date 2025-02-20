@@ -246,4 +246,16 @@ jobs:
 
   final-check:
     name: Final Failure Check
-    needs: [aggregate-failures, run-notebooks-16gb, r
+    needs: [aggregate-failures, run-notebooks-16gb, run-notebooks-32gb]
+    runs-on: ubuntu-20.04
+    if: always()
+    steps:
+      - name: Final Failure Check
+        run: |
+          FAILED_LIST=$(cat failed_ubuntu_list.txt 2>/dev/null || echo "")
+          if [ -n "$FAILED_LIST" ]; then
+            echo "Some notebooks still failed after all attempts: $FAILED_LIST"
+            exit 1
+          else
+            echo "All notebooks succeeded."
+          fi
