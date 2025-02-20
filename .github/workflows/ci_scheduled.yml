@@ -20,9 +20,6 @@ env:
 
 permissions: write-all
 
-##############################
-# 1. Gather Notebooks to Run
-##############################
 jobs:
   gather-notebooks:
     runs-on: ubuntu-20.04
@@ -35,10 +32,6 @@ jobs:
           notebooks=$(find notebooks -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "matrix=$notebooks" >> $GITHUB_OUTPUT
 
-####################################################
-# 2. Run Notebooks on Ubuntu-20.04 (Matrix Job)
-####################################################
-jobs:
   run-notebooks-ubuntu:
     name: Run Notebooks on ubuntu-20.04
     needs: gather-notebooks
@@ -48,7 +41,6 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       fail-fast: false
-    # Continue on error so that each matrix job finishes and can upload its artifact.
     continue-on-error: true
     outputs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
@@ -57,7 +49,6 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
-          # Remove only files owned by the runner user in /tmp.
           find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
       - name: Ensure pip cache folder exists
         run: mkdir -p ~/.cache/pip
@@ -80,7 +71,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Set thresholds.
+          # Thresholds for ubuntu-20.04.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -180,7 +171,6 @@ jobs:
         run: |
           failedList=$(cat failure.txt 2>/dev/null || echo "")
           echo "::set-output name=failedList::$failedList"
-
       - name: Upload Failure Artifact
         if: failure()
         uses: actions/upload-artifact@v3
