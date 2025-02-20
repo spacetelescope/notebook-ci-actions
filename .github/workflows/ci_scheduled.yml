@@ -8,7 +8,6 @@ on:
         type: string
 
 jobs:
-  # Job 1: Discover all notebooks and output a matrix (each object contains the key "notebook")
   generate-matrix:
     runs-on: ubuntu-latest
     outputs:
@@ -20,15 +19,15 @@ jobs:
       - name: Generate matrix from notebooks/
         id: set-matrix
         run: |
-          # Find all .ipynb files under notebooks/ and create a JSON array of objects
+          # Find all .ipynb files under notebooks/ and create a JSON array of objects.
+          # Each object has a "notebook" key.
           matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
-  # Job 2: Run each notebook on the default runner (ubuntu-latest)
   run-notebook:
     needs: generate-matrix
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[]') }}
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -54,13 +53,12 @@ jobs:
         env:
           NOTEBOOK: ${{ matrix.notebook }}
         run: |
-          # Start an inline monitor in the background that kills nbconvert if memory or disk usage >80%
           NB_CONVERT_PID=0
           monitor() {
             while sleep 5; do
-              # Calculate memory usage as a percentage (this may vary by distro)
+              # Get memory usage as a percentage.
               mem_usage=$(free | awk '/^Mem/ {printf "%.0f", $3/$2 * 100}')
-              # Get disk usage for the root filesystem (assumes '/' is the relevant mount)
+              # Get disk usage percentage for the root filesystem.
               disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
               if [ "$mem_usage" -gt 80 ] || [ "$disk_usage" -gt 80 ]; then
                 echo "Resource usage exceeded threshold (Mem: ${mem_usage}%, Disk: ${disk_usage}%). Killing nbconvert (PID: $NB_CONVERT_PID)"
@@ -72,16 +70,16 @@ jobs:
           MONITOR_PID=$!
           echo "Monitor started (PID: $MONITOR_PID)"
           
-          # Execute the notebook with nbconvert in the background and capture its PID
+          # Run nbconvert in the background and capture its PID.
           python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
           NB_CONVERT_PID=$!
           echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
           
-          # Wait for nbconvert to finish
+          # Wait for nbconvert to finish.
           wait $NB_CONVERT_PID
           RESULT=$?
           
-          # Kill the monitor process
+          # Clean up the monitor.
           kill $MONITOR_PID || true
           
           exit $RESULT
@@ -93,12 +91,11 @@ jobs:
           name: executed-notebook-${{ matrix.notebook }}
           path: executed.ipynb
 
-  # Job 3: Fallback – re-run notebooks on an alternate runner if the primary run fails
   fallback-run:
     needs: run-notebook
     if: ${{ failure() }}
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[]') }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
