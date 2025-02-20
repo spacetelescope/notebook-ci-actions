@@ -19,15 +19,18 @@ jobs:
       - name: Generate matrix from notebooks/
         id: set-matrix
         run: |
-          # Find all .ipynb files under notebooks/ and create a JSON array of objects.
+          # Find all .ipynb files under the notebooks/ directory and build a JSON array of objects.
           # Each object has a "notebook" key.
           matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   run-notebook:
     needs: generate-matrix
+    # Skip this job if the matrix is empty (dummy value will be set to "skip")
+    if: ${{ matrix.notebook != 'skip' }}
     strategy:
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[]') }}
+      # If the generated array is non-empty, use it; otherwise, use a dummy value.
+      matrix: ${{ length(fromJson(needs.generate-matrix.outputs.matrix)) > 0 && fromJson(needs.generate-matrix.outputs.matrix) || [ { notebook: "skip" } ] }}
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -88,31 +91,22 @@ jobs:
 
   fallback-run:
     needs: run-notebook
-    if: ${{ failure() }}
+    # Only run fallback if there were notebooks to process and the primary job failed
+    if: ${{ matrix.notebook != 'skip' && failure() }}
     strategy:
-      matrix:
-        include: ${{ fromJson(needs.generate-matrix.outputs.matrix || '[{"notebook": "dummy"}]') }}
+      matrix: ${{ length(fromJson(needs.generate-matrix.outputs.matrix)) > 0 && fromJson(needs.generate-matrix.outputs.matrix) || [ { notebook: "skip" } ] }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
-      - name: Check for dummy notebook
-        if: ${{ matrix.notebook == 'dummy' }}
-        run: |
-          echo "No notebooks found, skipping fallback-run."
-          exit 0
-
       - name: Checkout repository
-        if: ${{ matrix.notebook != 'dummy' }}
         uses: actions/checkout@v3
 
       - name: Set up Python ${{ inputs.python-version }} (Fallback)
-        if: ${{ matrix.notebook != 'dummy' }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ inputs.python-version }}
 
       - name: Install notebook dependencies (Fallback)
-        if: ${{ matrix.notebook != 'dummy' }}
         run: |
           nb_dir=$(dirname "${{ matrix.notebook }}")
           if [ -f "$nb_dir/requirements.txt" ]; then
@@ -123,7 +117,6 @@ jobs:
           fi
 
       - name: Execute notebook with resource monitoring (Fallback)
-        if: ${{ matrix.notebook != 'dummy' }}
         env:
           NOTEBOOK: ${{ matrix.notebook }}
         run: |
@@ -154,7 +147,7 @@ jobs:
           exit $RESULT
 
       - name: Archive executed notebook (Fallback)
-        if: ${{ matrix.notebook != 'dummy' }}
+        if: success()
         uses: actions/upload-artifact@v3
         with:
           name: executed-notebook-fallback-${{ matrix.notebook }}
