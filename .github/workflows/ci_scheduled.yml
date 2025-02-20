@@ -21,8 +21,7 @@ jobs:
         run: |
           # Find all .ipynb files under notebooks/ and create a JSON array of objects.
           # Each object has a "notebook" key.
-          matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
 
   run-notebook:
     needs: generate-matrix
