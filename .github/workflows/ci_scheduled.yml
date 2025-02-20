@@ -76,18 +76,13 @@ jobs:
           RESULT=$?
           
           kill $MONITOR_PID || true
-          
-          exit $RESULT
 
-      - name: Archive executed notebook
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: executed-notebook-${{ matrix.notebook }}
-          path: executed.ipynb
+          echo "Exit result: $RESULT"
+          exit $RESULT
 
   fallback-run:
     needs: run-notebook
+    if: ${{ needs.run-notebook.outcome == 'failure' }}
     strategy:
         fail-fast: false
         matrix:
