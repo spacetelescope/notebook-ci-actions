@@ -47,7 +47,7 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       fail-fast: false
-    # Continue on error so that outputs can be set.
+    # Continue-on-error so outputs can be set.
     continue-on-error: true
     outputs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
@@ -76,7 +76,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Thresholds for ubuntu-20.04 job.
+          # Thresholds for ubuntu-20.04.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -154,7 +154,10 @@ jobs:
             echo "Error detected in notebook execution for $NOTEBOOK."
             rc=1
           fi
-          # Exit with the rc from notebook execution.
+          # Record failure if rc != 0.
+          if [ $rc -ne 0 ]; then
+            echo "$NOTEBOOK" >> failed_ubuntu.txt
+          fi
           exit $rc
           EOF
           chmod +x run_notebook.sh
@@ -172,10 +175,9 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          # Print contents of failure file (if any) and set output.
-          cat failed_ubuntu.txt 2>/dev/null
-          echo "::set-output name=failedList::$(cat failed_ubuntu.txt || true)"
-          
+          failedList=$(cat failed_ubuntu.txt 2>/dev/null || echo "")
+          echo "::set-output name=failedList::$failedList"
+
 ####################################################
 # 3. Second Attempt: Run Notebooks on 16GB Runner
 ####################################################
@@ -297,9 +299,9 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          cat failed_16gb.txt 2>/dev/null
-          echo "::set-output name=failedList::$(cat failed_16gb.txt || true)"
-          
+          failedList=$(cat failed_16gb.txt 2>/dev/null || echo "")
+          echo "::set-output name=failedList::$failedList"
+
 ####################################################
 # 4. Third Attempt: Run Notebooks on 32GB Runner
 ####################################################
@@ -411,8 +413,8 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          cat failed_32gb.txt 2>/dev/null
-          echo "::set-output name=failedList::$(cat failed_32gb.txt || true)"
+          failedList=$(cat failed_32gb.txt 2>/dev/null || echo "")
+          echo "::set-output name=failedList::$failedList"
 
 ####################################################
 # 5. Final Check: Fail if Any Notebook Still Fails
