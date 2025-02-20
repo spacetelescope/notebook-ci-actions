@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_notebooks: ${{ steps.set-matrix.outputs.has_notebooks }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,16 +21,19 @@ jobs:
         id: set-matrix
         run: |
           # Find all .ipynb files under the notebooks/ directory.
-          matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
-          # If no notebooks are found, substitute a dummy value.
-          if [ "$matrix" = "null" ] || [ "$matrix" = "[]" ]; then
-            matrix='[{"notebook": "skip"}]'
+          notebooks=$(find notebooks -type f -name "*.ipynb")
+          if [ -z "$notebooks" ]; then
+            echo "matrix=[{\"notebook\": \"skip\"}]" >> "$GITHUB_OUTPUT"
+            echo "has_notebooks=false" >> "$GITHUB_OUTPUT"
+          else
+            matrix=$(echo "$notebooks" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
+            echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+            echo "has_notebooks=true" >> "$GITHUB_OUTPUT"
           fi
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   run-notebook:
     needs: generate-matrix
-    if: ${{ matrix.notebook != 'skip' }}
+    if: ${{ needs.generate-matrix.outputs.has_notebooks == 'true' }}
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
@@ -92,7 +96,7 @@ jobs:
 
   fallback-run:
     needs: run-notebook
-    if: ${{ matrix.notebook != 'skip' && failure() }}
+    if: ${{ needs.generate-matrix.outputs.has_notebooks == 'true' && failure() }}
     strategy:
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
@@ -111,4 +115,44 @@ jobs:
           nb_dir=$(dirname "${{ matrix.notebook }}")
           if [ -f "$nb_dir/requirements.txt" ]; then
             echo "Installing requirements from $nb_dir/requirements.txt"
-       
+            pip install -r "$nb_dir/requirements.txt"
+          else
+            echo "No requirements.txt found in $nb_dir, skipping dependency install."
+          fi
+
+      - name: Execute notebook with resource monitoring (Fallback)
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: |
+          NB_CONVERT_PID=0
+          monitor() {
+            while sleep 5; do
+              mem_usage=$(free | awk '/^Mem/ {printf "%.0f", $3/$2 * 100}')
+              disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
+              if [ "$mem_usage" -gt 80 ] || [ "$disk_usage" -gt 80 ]; then
+                echo "Resource usage exceeded threshold (Mem: ${mem_usage}%, Disk: ${disk_usage}%). Killing nbconvert (PID: $NB_CONVERT_PID)"
+                kill -9 $NB_CONVERT_PID || true
+              fi
+            done
+          }
+          monitor &
+          MONITOR_PID=$!
+          echo "Monitor started (PID: $MONITOR_PID)"
+          
+          python -m nbconvert --to notebook --execute "$NOTEBOOK" --output executed.ipynb &
+          NB_CONVERT_PID=$!
+          echo "Started nbconvert (PID: $NB_CONVERT_PID) for notebook: $NOTEBOOK"
+          
+          wait $NB_CONVERT_PID
+          RESULT=$?
+          
+          kill $MONITOR_PID || true
+          
+          exit $RESULT
+
+      - name: Archive executed notebook (Fallback)
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: executed-notebook-fallback-${{ matrix.notebook }}
+          path: executed.ipynb
