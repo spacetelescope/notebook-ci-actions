@@ -99,7 +99,7 @@ jobs:
     if: ${{ needs.generate-matrix.outputs.has_notebooks == 'true' && failure() }}
     strategy:
       # Use a ternary expression: if the output is non-empty, use it; otherwise default to a dummy value.
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix != '' ? needs.generate-matrix.outputs.matrix : '[{"notebook":"skip"}]') }}
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
