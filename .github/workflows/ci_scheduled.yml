@@ -23,7 +23,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }} 
+            notebooks: ${{ fromJson(needs.generate-matrix.outputs.matrix) }} 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -86,7 +86,7 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }} 
+            notebooks: ${{ fromJson(needs.generate-matrix.outputs.matrix) }} 
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
       - name: Checkout repository
