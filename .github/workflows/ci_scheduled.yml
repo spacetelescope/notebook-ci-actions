@@ -175,7 +175,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v3
         with:
-          name: failure-${{ matrix.notebook | hash }}
+          name: failure-${{ replace(matrix.notebook, '/', '-') }}
           path: failure.txt
 
   aggregate-failures:
@@ -203,7 +203,7 @@ jobs:
   run-notebooks-16gb:
     name: Run Notebooks on jwst-pipeline-notebooks-16gb
     needs: aggregate-failures
-    if: ${{ fromJson(needs.aggregate-failures.outputs.failedList) != [] && needs.aggregate-failures.outputs.failedList != '' }}
+    if: ${{ needs.aggregate-failures.outputs.failedList != '' }}
     runs-on: jwst-pipeline-notebooks-16gb
     timeout-minutes: 20
     steps:
@@ -220,7 +220,7 @@ jobs:
   run-notebooks-32gb:
     name: Run Notebooks on jwst-pipeline-notebooks-32gb
     needs: aggregate-failures
-    if: ${{ fromJson(needs.aggregate-failures.outputs.failedList) != [] && needs.aggregate-failures.outputs.failedList != '' }}
+    if: ${{ needs.aggregate-failures.outputs.failedList != '' }}
     runs-on: jwst-pipeline-notebooks-32gb
     timeout-minutes: 25
     steps:
