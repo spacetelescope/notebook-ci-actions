@@ -19,18 +19,17 @@ jobs:
       - name: Generate matrix from notebooks/
         id: set-matrix
         run: |
-          # Find all .ipynb files under the notebooks/ directory and build a JSON array of objects.
-          # Each object has a "notebook" key.
+          # Find all .ipynb files under notebooks/ and create a JSON array.
+          # Each array element is an object with a "notebook" key.
           matrix=$(find notebooks -type f -name "*.ipynb" | jq -R -s -c 'split("\n") | map(select(length > 0) | { notebook: . })')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   run-notebook:
     needs: generate-matrix
-    # Skip this job if the matrix is empty (dummy value will be set to "skip")
     if: ${{ matrix.notebook != 'skip' }}
     strategy:
-      # If the generated array is non-empty, use it; otherwise, use a dummy value.
-      matrix: ${{ length(fromJson(needs.generate-matrix.outputs.matrix)) > 0 && fromJson(needs.generate-matrix.outputs.matrix) || [ { notebook: "skip" } ] }}
+      # Use the generated matrix if non-empty; otherwise, fall back to a dummy value.
+      matrix: ${{ length(fromJson(needs.generate-matrix.outputs.matrix)) > 0 ? fromJson(needs.generate-matrix.outputs.matrix) : [ { notebook: "skip" } ] }}
       fail-fast: false
     runs-on: ubuntu-latest
     steps:
@@ -91,10 +90,9 @@ jobs:
 
   fallback-run:
     needs: run-notebook
-    # Only run fallback if there were notebooks to process and the primary job failed
     if: ${{ matrix.notebook != 'skip' && failure() }}
     strategy:
-      matrix: ${{ length(fromJson(needs.generate-matrix.outputs.matrix)) > 0 && fromJson(needs.generate-matrix.outputs.matrix) || [ { notebook: "skip" } ] }}
+      matrix: ${{ length(fromJson(needs.generate-matrix.outputs.matrix)) > 0 ? fromJson(needs.generate-matrix.outputs.matrix) : [ { notebook: "skip" } ] }}
       fail-fast: false
     runs-on: jwst-pipeline-notebooks-16gb
     steps:
