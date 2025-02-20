@@ -34,16 +34,21 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
 
-      - name: Install notebook dependencies
-        run: |
-          nb_dir=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$nb_dir/requirements.txt" ]; then
-            echo "Installing requirements from $nb_dir/requirements.txt"
-            pip install -r "$nb_dir/requirements.txt"
-          else
-            echo "No requirements.txt found in $nb_dir, skipping dependency install."
-          fi
 
+      - name: Install dependencies
+        run: |
+          #pip install -r requirements.txt
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          fi
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
+          fi
+          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
       - name: Execute notebook with resource monitoring
         env:
           NOTEBOOK: ${{ matrix.notebook }}
@@ -97,15 +102,20 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
 
-      - name: Install notebook dependencies (Fallback)
+      - name: Install dependencies
         run: |
-          nb_dir=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$nb_dir/requirements.txt" ]; then
-            echo "Installing requirements from $nb_dir/requirements.txt"
-            pip install -r "$nb_dir/requirements.txt"
-          else
-            echo "No requirements.txt found in $nb_dir, skipping dependency install."
+          #pip install -r requirements.txt
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
+          fi
+          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
 
       - name: Execute notebook with resource monitoring (Fallback)
         env:
