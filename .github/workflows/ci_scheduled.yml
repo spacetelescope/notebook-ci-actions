@@ -56,9 +56,10 @@ jobs:
           NB_CONVERT_PID=0
           monitor() {
             while sleep 5; do
-              mem_usage=$(free | awk '/^Mem/ {printf "%.0f", $3/$2 * 100}')
+              mem_usage=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
               disk_usage=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
-              if [ "$mem_usage" -gt 80 ] || [ "$disk_usage" -gt 80 ]; then
+              echo "Memory usage - $mem_usage"
+              if [ "$mem_usage" -gt 60 ] || [ "$disk_usage" -gt 60 ]; then
                 echo "Resource usage exceeded threshold (Mem: ${mem_usage}%, Disk: ${disk_usage}%). Killing nbconvert (PID: $NB_CONVERT_PID)"
                 kill -9 $NB_CONVERT_PID || true
               fi
