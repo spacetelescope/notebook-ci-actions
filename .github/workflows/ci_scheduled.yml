@@ -36,8 +36,9 @@ jobs:
           echo "matrix=$notebooks" >> $GITHUB_OUTPUT
 
 ####################################################
-# 2. First Attempt: Run Notebooks on ubuntu-20.04
+# 2. Run Notebooks on Ubuntu-20.04 (Matrix Job)
 ####################################################
+jobs:
   run-notebooks-ubuntu:
     name: Run Notebooks on ubuntu-20.04
     needs: gather-notebooks
@@ -47,6 +48,7 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       fail-fast: false
+    # Continue on error so that each matrix job finishes and can upload its artifact.
     continue-on-error: true
     outputs:
       failedList: ${{ steps.collect_failures.outputs.failedList }}
@@ -55,6 +57,7 @@ jobs:
       - name: Pre-job Cleanup
         run: |
           rm -rf ~/.cache/pip || true
+          # Remove only files owned by the runner user in /tmp.
           find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
       - name: Ensure pip cache folder exists
         run: mkdir -p ~/.cache/pip
@@ -77,7 +80,7 @@ jobs:
         run: |
           cat << 'EOF' > run_notebook.sh
           #!/usr/bin/env bash
-          # Thresholds for ubuntu-20.04.
+          # Set thresholds.
           MEM_THRESHOLD=80
           DISK_THRESHOLD=90
           CLEANUP_DISK_THRESHOLD=85
@@ -136,7 +139,6 @@ jobs:
             done
           }
 
-          # Launch notebook conversion.
           jupyter nbconvert --template classic --to html --execute "$NOTEBOOK" 2>&1 | tee output.log &
           nb_pid=$!
           monitor &
@@ -155,12 +157,11 @@ jobs:
             echo "Error detected in notebook execution for $NOTEBOOK."
             rc=1
           fi
-          # Record failure if any.
           if [ $rc -ne 0 ]; then
-            echo "$NOTEBOOK" >> failed_ubuntu.txt
+            echo "$NOTEBOOK" > failure.txt
           fi
           echo "::set-output name=outcome::$rc"
-          exit 0
+          exit $rc
           EOF
           chmod +x run_notebook.sh
           ./run_notebook.sh
@@ -177,262 +178,72 @@ jobs:
         id: collect_failures
         if: always()
         run: |
-          failedList=$(cat failed_ubuntu.txt 2>/dev/null || echo "")
+          failedList=$(cat failure.txt 2>/dev/null || echo "")
           echo "::set-output name=failedList::$failedList"
 
-####################################################
-# 3. Second Attempt: Run Notebooks on 16GB Runner
-####################################################
-  run-notebooks-16gb:
-    name: Run Notebooks on jwst-pipeline-notebooks-16gb
+      - name: Upload Failure Artifact
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: failure-${{ matrix.notebook | hash }}
+          path: failure.txt
+
+  aggregate-failures:
+    name: Aggregate Failures from Ubuntu Job
     needs: run-notebooks-ubuntu
-    if: needs.run-notebooks-ubuntu.outputs.failedList != ''
-    runs-on: jwst-pipeline-notebooks-16gb
-    timeout-minutes: 20
-    strategy:
-      matrix:
-        notebook: ${{ fromJson(needs.run-notebooks-ubuntu.outputs.failedList) }}
-      fail-fast: false
-    continue-on-error: true
-    outputs:
-      failedList: ${{ steps.collect_failures.outputs.failedList }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Pre-job Cleanup
-        run: |
-          rm -rf ~/.cache/pip || true
-          find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
-      - name: Ensure pip cache folder exists
-        run: mkdir -p ~/.cache/pip
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-          cache: pip
-      - name: Add conda to system path
-        run: echo "$CONDA/bin" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          nb_dir=$(dirname "${{ matrix.notebook }}")
-          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
-          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
-          pip install -r "$nb_dir/requirements.txt"
-          pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Monitoring (16GB)
-        id: exec16
-        run: |
-          cat << 'EOF' > run_notebook.sh
-          #!/usr/bin/env bash
-          # Thresholds for 16GB runner.
-          MEM_THRESHOLD=80
-          DISK_THRESHOLD=90
-          CLEANUP_DISK_THRESHOLD=85
-
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-
-          monitor() {
-            while [ -z "$nb_pid" ]; do sleep 0.1; done
-            while true; do
-              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
-              if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
-                echo "Monitor: Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Killing process $nb_pid."
-                touch killed.flag
-                kill -9 $nb_pid
-                break
-              fi
-              disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-              if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
-                echo "Monitor: Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Killing process $nb_pid."
-                touch killed.flag
-                kill -9 $nb_pid
-                break
-              elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                echo "Monitor: Disk usage ($disk_usage%) exceeds cleanup threshold ($CLEANUP_DISK_THRESHOLD%). Attempting cleanup."
-                rm -rf ~/.cache/pip 2>/dev/null
-                find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; 2>/dev/null
-                sleep 1
-                disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-                if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "Monitor: After cleanup, disk usage remains at $disk_usage%. Killing process $nb_pid."
-                  touch killed.flag
-                  kill -9 $nb_pid
-                  break
-                else
-                  echo "Monitor: Cleanup successful; disk usage is now $disk_usage%."
-                fi
-              fi
-              sleep 1
-            done
-          }
-
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
-          monitor &
-          monitor_pid=$!
-          wait $nb_pid
-          rc=$?
-          kill $monitor_pid 2>/dev/null
-          if [ -f killed.flag ]; then
-              echo "Notebook was killed by monitor; forcing exit code 1."
-              rc=1
-          elif [ $rc -eq 143 ]; then
-              echo "Process terminated with exit code 143; normalizing to 1."
-              rc=1
-          fi
-          if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-              echo "Error detected in notebook execution for ${{ matrix.notebook }}."
-              rc=1
-          fi
-          if [ $rc -ne 0 ]; then
-              echo "${{ matrix.notebook }}" >> failed_16gb.txt
-          fi
-          echo "::set-output name=outcome::$rc"
-          exit 0
-          EOF
-          chmod +x run_notebook.sh
-          ./run_notebook.sh
-      - name: Validate Notebook
-        if: steps.exec16.outputs.outcome == '0'
-        run: pytest --nbval "${{ matrix.notebook }}"
-      - name: Scan with Bandit
-        if: steps.exec16.outputs.outcome == '0'
-        run: |
-          jupyter nbconvert --to script "${{ matrix.notebook }}"
-          pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii "$pyfile"
-      - name: Collect Failures
-        id: collect_failures
-        if: always()
-        run: |
-          failedList=$(cat failed_16gb.txt 2>/dev/null || echo "")
-          echo "::set-output name=failedList::$failedList"
-          
-####################################################
-# 4. Third Attempt: Run Notebooks on 32GB Runner
-####################################################
-  run-notebooks-32gb:
-    name: Run Notebooks on jwst-pipeline-notebooks-32gb
-    needs: run-notebooks-16gb
-    if: needs.run-notebooks-16gb.outputs.failedList != ''
-    runs-on: jwst-pipeline-notebooks-32gb
-    timeout-minutes: 25
-    strategy:
-      matrix:
-        notebook: ${{ fromJson(needs.run-notebooks-16gb.outputs.failedList) }}
-      fail-fast: false
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - name: Pre-job Cleanup
-        run: |
-          rm -rf ~/.cache/pip || true
-          find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; || true
-      - name: Ensure pip cache folder exists
-        run: mkdir -p ~/.cache/pip
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-          cache: pip
-      - name: Add conda to system path
-        run: echo "$CONDA/bin" >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          nb_dir=$(dirname "${{ matrix.notebook }}")
-          [ -f "$nb_dir/pre-requirements.sh" ] && chmod +x "$nb_dir/pre-requirements.sh" && "$nb_dir/pre-requirements.sh"
-          [ -f "$nb_dir/pre-requirements.txt" ] && pip install -r "$nb_dir/pre-requirements.txt"
-          pip install -r "$nb_dir/requirements.txt"
-          pip install pytest nbval nbconvert ipython bandit
-      - name: Execute Notebook with Monitoring (32GB)
-        run: |
-          cat << 'EOF' > run_notebook.sh
-          #!/usr/bin/env bash
-          MEM_THRESHOLD=80
-          DISK_THRESHOLD=90
-          CLEANUP_DISK_THRESHOLD=85
-
-          trap 'echo "Received termination signal"; exit 1' SIGTERM SIGINT
-
-          monitor() {
-            while [ -z "$nb_pid" ]; do sleep 0.1; done
-            while true; do
-              mem_usage=$(free | awk '/^Mem/ {printf("%d", 100*$3/$2)}')
-              if [ "$mem_usage" -ge "$MEM_THRESHOLD" ]; then
-                echo "Monitor: Memory usage ($mem_usage%) exceeded threshold ($MEM_THRESHOLD%). Killing process $nb_pid."
-                kill -9 $nb_pid
-                break
-              fi
-              disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-              if [ "$disk_usage" -ge "$DISK_THRESHOLD" ]; then
-                echo "Monitor: Disk usage ($disk_usage%) exceeded threshold ($DISK_THRESHOLD%). Killing process $nb_pid."
-                kill -9 $nb_pid
-                break
-              elif [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                echo "Monitor: Disk usage ($disk_usage%) exceeds cleanup threshold ($CLEANUP_DISK_THRESHOLD%). Attempting cleanup."
-                rm -rf ~/.cache/pip 2>/dev/null
-                find /tmp -maxdepth 1 -user $(whoami) -type f -exec rm -f {} \; 2>/dev/null
-                sleep 1
-                disk_usage=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-                if [ "$disk_usage" -ge "$CLEANUP_DISK_THRESHOLD" ]; then
-                  echo "Monitor: After cleanup, disk usage remains at $disk_usage%. Killing process $nb_pid."
-                  kill -9 $nb_pid
-                  break
-                else
-                  echo "Monitor: Cleanup successful; disk usage is now $disk_usage%."
-                fi
-              fi
-              sleep 1
-            done
-          }
-
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebook }}" 2>&1 | tee output.log &
-          nb_pid=$!
-          monitor &
-          monitor_pid=$!
-          wait $nb_pid
-          rc=$?
-          kill $monitor_pid 2>/dev/null
-          if [ $rc -eq 143 ]; then
-              echo "Process terminated with exit code 143; normalizing to 1."
-              rc=1
-          fi
-          if grep -q -E "(Kernel died|exit code 143|Terminated|Received termination signal|No space left on device)" output.log; then
-              echo "Error detected in notebook execution for ${{ matrix.notebook }}."
-              rc=1
-          fi
-          if [ $rc -ne 0 ]; then
-              echo "${{ matrix.notebook }}" >> failed_32gb.txt
-          fi
-          exit 0
-          EOF
-          chmod +x run_notebook.sh
-          ./run_notebook.sh
-      - name: Validate Notebook
-        if: success()
-        run: pytest --nbval "${{ matrix.notebook }}"
-      - name: Scan with Bandit
-        if: success()
-        run: |
-          jupyter nbconvert --to script "${{ matrix.notebook }}"
-          pyfile=$(echo "${{ matrix.notebook }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii "$pyfile"
-      - name: Collect Failures
-        id: collect_failures
-        if: always()
-        run: |
-          failedList=$(cat failed_32gb.txt 2>/dev/null || echo "")
-          echo "::set-output name=failedList::$failedList"
-
-####################################################
-# 5. Final Check: Fail if Any Notebook Still Fails
-####################################################
-  final-check:
-    name: Final Failure Check
-    needs: [run-notebooks-ubuntu, run-notebooks-16gb, run-notebooks-32gb]
     runs-on: ubuntu-20.04
     if: always()
+    outputs:
+      failedList: ${{ steps.aggregate.outputs.failedList }}
     steps:
-      - name: Final Failure Check
+      - uses: actions/download-artifact@v3
+        with:
+          name: failure-
+          path: failures
+      - name: Aggregate Failure List
+        id: aggregate
         run: |
-          echo "Some notebooks still failed after all attempts. Failing the workflow."
-          exit 1
+          if [ -d failures ]; then
+            cat failures/* > failed_ubuntu_list.txt || true
+          fi
+          FAILED_LIST=$(cat failed_ubuntu_list.txt 2>/dev/null || echo "")
+          echo "Failed notebooks: $FAILED_LIST"
+          echo "::set-output name=failedList::$FAILED_LIST"
+
+  run-notebooks-16gb:
+    name: Run Notebooks on jwst-pipeline-notebooks-16gb
+    needs: aggregate-failures
+    if: ${{ fromJson(needs.aggregate-failures.outputs.failedList) != [] && needs.aggregate-failures.outputs.failedList != '' }}
+    runs-on: jwst-pipeline-notebooks-16gb
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Failure Artifact
+        run: echo "Using aggregated failure list from previous job."
+      - name: Run Fallback Notebooks on 16GB
+        run: |
+          while read -r NB; do
+            echo "Re-running failed notebook: $NB"
+            jupyter nbconvert --template classic --to html --execute "$NB"
+          done < failed_ubuntu_list.txt
+
+  run-notebooks-32gb:
+    name: Run Notebooks on jwst-pipeline-notebooks-32gb
+    needs: aggregate-failures
+    if: ${{ fromJson(needs.aggregate-failures.outputs.failedList) != [] && needs.aggregate-failures.outputs.failedList != '' }}
+    runs-on: jwst-pipeline-notebooks-32gb
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Failure Artifact
+        run: echo "Using aggregated failure list from previous job."
+      - name: Run Fallback Notebooks on 32GB
+        run: |
+          while read -r NB; do
+            echo "Re-running failed notebook: $NB"
+            jupyter nbconvert --template classic --to html --execute "$NB"
+          done < failed_ubuntu_list.txt
+
+  final-check:
+    name: Final Failure Check
+    needs: [aggregate-failures, run-notebooks-16gb, r
