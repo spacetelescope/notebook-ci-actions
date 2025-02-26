@@ -92,7 +92,7 @@ jobs:
           
       - name: Create conftest.py dynamically to override nbval's timeout
         run: |
-          cat > conftest.py << 'EOF'
+          cat > $(dirname "${{ matrix.notebooks }}")/conftest.py << 'EOF'
           from nbclient import NotebookClient
           
           class CustomNotebookClient(NotebookClient):
