@@ -90,23 +90,6 @@ jobs:
             conda create --yes --solver=classic -n hstcal -c conda-forge hstcal          
           fi
           
-      - name: Create conftest.py dynamically to override nbval's timeout
-        run: |
-          cat > $(dirname "${{ matrix.notebooks }}")/conftest.py << 'EOF'
-          from nbclient import NotebookClient
-
-          print("Custom conftest.py loaded")
-
-          class CustomNotebookClient(NotebookClient):
-              def __init__(self, *args, **kwargs):
-                  kwargs.setdefault("iopub_timeout", 300)  #Set timeout to 300 seconds (?!)
-                  super().__init__(*args, **kwargs)
-          
-          def pytest_configure(config):
-              config._nbclient_class = CustomNotebookClient
-          EOF
-          #pytest --collect-only
-          
       - name: Validate notebooks 
         run: |
          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
