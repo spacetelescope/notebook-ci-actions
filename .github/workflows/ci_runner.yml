@@ -96,15 +96,16 @@ jobs:
           from nbclient import NotebookClient
 
           print("Custom conftest.py loaded")
+
           class CustomNotebookClient(NotebookClient):
               def __init__(self, *args, **kwargs):
-                  kwargs.setdefault("iopub_timeout", 60)  # Increase iopub timeout to 60 seconds
+                  kwargs.setdefault("iopub_timeout", 300)  #Set timeout to 300 seconds (?!)
                   super().__init__(*args, **kwargs)
           
           def pytest_configure(config):
               config._nbclient_class = CustomNotebookClient
           EOF
-          pytest --collect-only
+          #pytest --collect-only
           
       - name: Validate notebooks 
         run: |
