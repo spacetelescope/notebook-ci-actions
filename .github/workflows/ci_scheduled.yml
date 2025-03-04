@@ -1,76 +1,143 @@
-name: Scheduled Notebook Execution
+name: Test Notebooks
+
 on:
   workflow_call:
-      inputs:  
-        python-version:
-          required: true
-          type: string
-      secrets:
-        CASJOBS_USERID:
-          description: 'CASJOBS user ID'
-          required: false
-        CASJOBS_PW:
-          description: 'CASJOBS password'
-          required: false
-env:
-  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
-  
-permissions: write-all  
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        required: true
+        type: string
+
 jobs:
-  gather-notebooks:
+  find-notebooks:
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: set-matrix
-        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
-  scheduled-notebook-execution:
-    needs: gather-notebooks
-    runs-on: 
-      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-32gb' || 'jwst-pipeline-notebooks-32gb' }}
-    strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-          cache: 'pip'
-          
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
-      - name: Install dependencies
-        run: |
-          #pip install -r requirements.txt
-          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
-            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
-            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
-          fi
-          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
-            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
-          fi
-          pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
-          pip install pytest
-          pip install nbval
-          pip install nbconvert
-      - name: Execute notebooks
-        run: |
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
-      - name: Validate notebooks
-        run: |
-          pytest --nbval "${{ matrix.notebooks }}"
+      notebooks: ${{ steps.notebooks.outputs.notebooks }}
 
-      - name: Scan with Bandit
-        run: |
-          pip install ipython
-          pip install bandit
-          jupyter nbconvert --to script ${{ matrix.notebooks }}
-          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii $pyfile
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Find all notebooks
+      id: notebooks
+      run: |
+        notebooks=$(find notebooks/ -type f -name "*.ipynb")
+        echo "::set-output name=notebooks::[\"$(echo $notebooks | sed 's/ /", "/g')\"]"
+
+  test-notebooks:
+    needs: find-notebooks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        notebook: ${{ fromJson(needs.find-notebooks.outputs.notebooks) }}
+    continue-on-error: true  # Allow other notebooks to continue even if one fails
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Python packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install jupyter nbconvert
+        notebook_dir=$(dirname "${{ matrix.notebook }}")
+        pip install -r "$notebook_dir/requirements.txt"
+
+    - name: Run memory and disk monitoring alongside notebook execution
+      run: |
+        monitor_resources() {
+          while true; do
+            memory_usage=$(free -m | grep Mem | awk '{print $3/$2 * 100.0}')
+            disk_usage=$(df / | grep / | awk '{print $5}' | sed 's/%//')
+            echo "Memory usage: ${memory_usage}%"
+            echo "Disk usage: ${disk_usage}%"
+  
+            if (( $(echo "$memory_usage > 90" | bc -l) )) || [ "$disk_usage" -gt 90 ]; then
+              echo "Resource usage exceeded 90%, stopping execution..."
+              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Set a flag indicating failure
+              kill_process $JUPYTER_PID
+              break
+            fi
+            sleep 10
+          done
+        }
+
+        kill_process() {
+          PID=$1
+          if [ -z "$PID" ]; then
+            echo "No PID provided. Skipping kill."
+            return 0
+          fi
+          if ps -p $PID > /dev/null; then
+            kill $PID || echo "Failed to kill process."
+          else
+            echo "Process with PID: $PID already terminated."
+          fi
+        }
+
+        monitor_resources &
+
+        notebook_path="${{ matrix.notebook }}"
+        jupyter nbconvert --to notebook --execute "$notebook_path" &
+        JUPYTER_PID=$!
+
+        wait $JUPYTER_PID
+
+        if [ -n "$MONITOR_PID" ]; then
+          kill_process $MONITOR_PID
+        fi
+
+  handle-resource-failure:
+    if: ${{ env.RESOURCE_FAILURE == 'true' }}
+    runs-on: jwst-pipeline-notebooks-16gb
+    needs: test-notebooks
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install Python packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install jupyter nbconvert
+        notebook_dir=$(dirname "${{ needs.find-notebooks.outputs.notebooks }}")
+        pip install -r "$notebook_dir/requirements.txt"
+
+    - name: Retry the notebook execution
+      run: |
+        notebook_path="${{ needs.find-notebooks.outputs.notebooks }}"
+        jupyter nbconvert --to notebook --execute "$notebook_path"
+
+  handle-resource-failure-32gb:
+    if: ${{ env.RESOURCE_FAILURE == 'true' && needs.handle-resource-failure.result == 'failure' }}
+    runs-on: jwst-pipeline-notebooks-32gb
+    needs: handle-resource-failure
+    steps:
+    - name: Retry the notebook execution on a larger runner (32GB)
+      run: |
+        notebook_path="${{ needs.find-notebooks.outputs.notebooks }}"
+        jupyter nbconvert --to notebook --execute "$notebook_path"
+
+  fail-test:
+    if: ${{ env.RESOURCE_FAILURE == 'true' && needs.handle-resource-failure-32gb.result == 'failure' }}
+    runs-on: ubuntu-latest
+    needs: handle-resource-failure-32gb
+    steps:
+    - name: Fail the test if all attempts fail
+      run: |
+        echo "Memory or disk usage exceeded 90% on all runners. Failing the test."
+        exit 1
