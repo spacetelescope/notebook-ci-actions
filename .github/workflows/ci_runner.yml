@@ -2,46 +2,35 @@ on:
   workflow_call:
     inputs:  
       python-version:
-        required: true
+        required: false
         type: string
-      casjobs-id:
+        default: 3.11
+
+    secrets:
+      CASJOBS_USERID:
         description: 'CASJOBS user ID'
-        type: string
         required: false
-      casjobs-pw:
+      CASJOBS_PW:
         description: 'CASJOBS password'
-        type: string
         required: false
 
-#permissions:
-#  id-token: write
-
-  
 jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    ## routine to gather only the changed notebook files and supply them to the matrix
-    - name: changed-files
-      id: get-changed-files
-      uses: tj-actions/changed-files@v36
-      with:
-        separator: ","
-        files: |
-          **/*.ipynb
-          notebooks/**/requirements.txt
-    ## convert the list of files to an array and push them into the matrix as a json object      
-    - name: set-matrix
-      id: set-matrix
-      run: |
-        IFS=',' read -r -a array <<< "${{steps.get-changed-files.outputs.all_changed_files}}"
-        echo "{$array}"
-        echo "matrix=$(jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - id: set-matrix
+        run: |
+          files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} '*.ipynb')
+          files_json=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
+          echo "::set-output name=matrix::${files_json}"
+
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
@@ -49,26 +38,26 @@ jobs:
     permissions:
       contents: write
     strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+      fail-fast: false
+      matrix:
+        notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v4 ## needed for caching
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ inputs.python-version }}
-          cache: 'pip'
+            
       - name: Add conda to system path
         run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
+        
       - name: Install dependencies
         run: |
-          ## Install the req's file IF its a req's file being modified
+          echo DEBUG ---
+          pwd
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -79,65 +68,63 @@ jobs:
           if [ -f pre-requirements.txt ]; then
             pip install -r pre-requirements.txt
           fi
-          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-installl.sh ]; then
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
           fi
-          #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
           pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
           pip install nbconvert
           pip install bandit
-          
-      - name: Security testing with Bandit
-        run: | 
-          if [[ "${{ github.event.pull_request.head.ref }}" == *"/requirements.txt" ]]; then
-            DIRNAME=$(dirname "${{ matrix.notebooks }}")
-            for notebook in $find notebooks -name '*.ipynb'); do
-              bandit $notebook
-            done
-          else
-            bandit ${{ matrix.notebooks }}
+          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
+            conda create --yes --solver=classic -n hstcal -c conda-forge hstcal          
           fi
-          
-      - name: Validate notebooks 
+
+      - name: Monitor memory and disk usage every 10 seconds
         run: |
-          if [[ "${{ github.event.pull_request.head.ref }}" == *"/requirements.txt" ]]; then
-            DIRNAME=$(dirname "${{ matrix.notebooks }}")
-            for notebook in $find notebooks -name '*.ipynb'); do
-              jupyter nbconvert --clear-output --inplace  $notebook
-              pytest --nbval $notebook
-            done
-          else
-             jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-             pytest --nbval "${{ matrix.notebooks }}" 
-          fi
-         
+          while true; do
+            # Memory usage
+            memory=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
+            echo "Memory Usage: $memory%"
+            
+            # Disk usage
+            disk=$(df / | grep / | awk '{print $5}')
+            echo "Disk Usage: $disk"
+            
+            sleep 10
+          done &  # Run in background
+
+      - name: Validate notebooks
+        run: |
+         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
+            conda init
+            conda activate hstcal
+         fi
+         export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+         export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+         jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
+         pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}"
+
       - name: Execute notebooks
         id: execute
         run: |
-          export CASJOBS_PW=${{ inputs.casjobs-pw }}
-          export CASJOBS_USERID=${{ inputs.casjobs-id }}
+         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
+            source /usr/share/miniconda/etc/profile.d/conda.sh
+            conda init
+            conda activate hstcal
+         fi        
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
-          
-      - name: Commit modified file on current branch
-        run: |
-          git config user.name 'CI Bot'
-          git config user.email 'action@github.com'
-          git add ${{ matrix.notebooks }}
-          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
 
-      - name: Checkout only the file to the target branch
+      - name: Scan with Bandit
         run: |
-          git checkout gh-storage
-          git checkout @{-1} ${{ matrix.notebooks }}
-
-      - name: Commit and push modifications to target branch
-        run: |
-          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
-          git push origin gh-storage --force
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pip install ipython
+          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit -lll -iii $pyfile
