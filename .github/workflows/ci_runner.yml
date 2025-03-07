@@ -14,6 +14,10 @@ on:
         description: 'CASJOBS password'
         required: false
 
+#permissions:
+#  id-token: write
+
+  
 jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
@@ -28,36 +32,39 @@ jobs:
       - id: set-matrix
         run: |
           files=$(git diff --name-only ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} '*.ipynb')
+          #files_json=$(echo $files | jq -R -s -c 'split("\n")[:-1]')
           files_json=$(echo "$files" | jq -R -s -c 'split("\n")[:-1]')
           echo "::set-output name=matrix::${files_json}"
-
   notebook-execution:
     needs: gather-notebooks
+    #if: ${{ fromJson(needs.gather-notebooks.outputs.matrix).length > 0 }}
     environment: ci_env
     runs-on: ubuntu-latest
     permissions:
       contents: write
     strategy:
-      fail-fast: false
-      matrix:
-        notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5 ## needed for caching
         with:
           python-version: ${{ inputs.python-version }}
             
       - name: Add conda to system path
         run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
           echo $CONDA/bin >> $GITHUB_PATH
         
       - name: Install dependencies
         run: |
+          ## Install the local requirements file
           echo DEBUG ---
-          pwd
+          pwd ## print working directory
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -72,6 +79,7 @@ jobs:
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
           fi
+          #pip install -r $(dirname "${{ matrix.notebooks }}")/requirements.txt
           pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           pip install pytest
           pip install nbval
@@ -81,22 +89,8 @@ jobs:
             source /usr/share/miniconda/etc/profile.d/conda.sh
             conda create --yes --solver=classic -n hstcal -c conda-forge hstcal          
           fi
-
-      - name: Monitor memory and disk usage every 10 seconds
-        run: |
-          while true; do
-            # Memory usage
-            memory=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
-            echo "Memory Usage: $memory%"
-            
-            # Disk usage
-            disk=$(df / | grep / | awk '{print $5}')
-            echo "Disk Usage: $disk"
-            
-            sleep 10
-          done &  # Run in background
-
-      - name: Validate notebooks
+          
+      - name: Validate notebooks 
         run: |
          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
             source /usr/share/miniconda/etc/profile.d/conda.sh
@@ -106,8 +100,8 @@ jobs:
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-         pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}"
-
+         pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}" 
+         
       - name: Execute notebooks
         id: execute
         run: |
