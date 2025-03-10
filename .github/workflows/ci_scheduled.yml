@@ -35,6 +35,7 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.find-notebooks.outputs.notebooks) }}
     continue-on-error: true  # Allow other notebooks to continue even if one fails
+    timeout-minutes: 60  # Ensure job doesn't time out prematurely
     outputs:
       resource_failure: ${{ steps.monitor_resources.outputs.resource_failure }}  # Pass the result as output
     steps:
@@ -112,6 +113,7 @@ jobs:
     if: ${{ needs.test-notebooks.outputs.resource_failure == 'true' }}  # Use output from previous job
     runs-on: jwst-pipeline-notebooks-16gb  # 16GB runner for retry
     needs: test-notebooks  # Ensure this depends on the test-notebooks job
+    timeout-minutes: 60  # Allow sufficient time for this job
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
