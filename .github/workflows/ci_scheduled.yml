@@ -14,20 +14,6 @@ on:
         required: true
         type: string
 jobs:
-  find-notebooks:
-    runs-on: ubuntu-latest
-    outputs:
-      notebooks: ${{ steps.notebooks.outputs.notebooks }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Find all notebooks
-      id: notebooks
-      run: |
-        notebooks=$(find notebooks/ -type f -name "*.ipynb")
-        echo "::set-output name=notebooks::[\"$(echo $notebooks | sed 's/ /", "/g')\"]"
-
   test-notebooks:
     needs: find-notebooks
     runs-on: ubuntu-latest
@@ -65,9 +51,13 @@ jobs:
   
             if (( $(echo "$memory_usage > 90" | bc -l) )) || [ "$disk_usage" -gt 90 ]; then
               echo "Resource usage exceeded 90%, stopping execution..."
-              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Set the flag to an environment file (recommended)
+              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Set the flag indicating failure
               echo "resource_failure=true" >> $GITHUB_ENV  # Pass the flag to outputs
-              kill_process $JUPYTER_PID
+              if [ -z "$JUPYTER_PID" ]; then
+                echo "Error: nbconvert PID not found. Skipping kill of nbconvert process."
+              else
+                kill_process $JUPYTER_PID
+              fi
               break
             fi
             sleep 10
@@ -103,48 +93,3 @@ jobs:
         else
           echo "Monitor process already terminated or not running."
         fi
-
-  handle-resource-failure:
-    if: ${{ needs.test-notebooks.outputs.resource_failure == 'true' }}  # Use output from previous job
-    runs-on: jwst-pipeline-notebooks-16gb
-    needs: test-notebooks
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ inputs.python-version }}
-
-    - name: Install Python packages
-      run: |
-        python -m pip install --upgrade pip
-        pip install jupyter nbconvert
-        notebook_dir=$(dirname "${{ needs.find-notebooks.outputs.notebooks }}")
-        pip install -r "$notebook_dir/requirements.txt"
-
-    - name: Retry the notebook execution
-      run: |
-        notebook_path="${{ needs.find-notebooks.outputs.notebooks }}"
-        jupyter nbconvert --to notebook --execute "$notebook_path"
-
-  handle-resource-failure-32gb:
-    if: ${{ needs.handle-resource-failure.result == 'failure' }}
-    runs-on: jwst-pipeline-notebooks-32gb
-    needs: handle-resource-failure
-    steps:
-    - name: Retry the notebook execution on a larger runner (32GB)
-      run: |
-        notebook_path="${{ needs.find-notebooks.outputs.notebooks }}"
-        jupyter nbconvert --to notebook --execute "$notebook_path"
-
-  fail-test:
-    if: ${{ needs.handle-resource-failure-32gb.result == 'failure' }}
-    runs-on: ubuntu-latest
-    needs: handle-resource-failure-32gb
-    steps:
-    - name: Fail the test if all attempts fail
-      run: |
-        echo "Memory or disk usage exceeded 90% on all runners. Failing the test."
-        exit 1
