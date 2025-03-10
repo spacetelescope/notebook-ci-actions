@@ -63,11 +63,13 @@ jobs:
             disk_usage=$(df / | grep / | awk '{print $5}' | sed 's/%//')
             echo "Memory usage: ${memory_usage}%"
             echo "Disk usage: ${disk_usage}%"
-  
+
             if (( $(echo "$memory_usage > 90" | bc -l) )) || [ "$disk_usage" -gt 90 ]; then
               echo "Resource usage exceeded 90%, stopping execution..."
-              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Set the flag indicating failure
+              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Explicitly set failure flag in the environment
               echo "resource_failure=true" >> $GITHUB_ENV  # Pass the flag to outputs
+              echo "Memory usage: ${memory_usage}%, Disk usage: ${disk_usage}%"  # Debug output
+
               if [ -z "$JUPYTER_PID" ]; then
                 echo "Error: nbconvert PID not found. Skipping kill of nbconvert process."
               else
