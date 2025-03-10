@@ -56,6 +56,7 @@ jobs:
     - name: Run memory and disk monitoring alongside notebook execution
       id: monitor_resources
       run: |
+        # Monitor memory and disk usage
         monitor_resources() {
           while true; do
             memory_usage=$(free -m | grep Mem | awk '{print $3/$2 * 100.0}')
@@ -65,7 +66,8 @@ jobs:
   
             if (( $(echo "$memory_usage > 90" | bc -l) )) || [ "$disk_usage" -gt 90 ]; then
               echo "Resource usage exceeded 90%, stopping execution..."
-              echo "::set-output name=resource_failure::true"  # Set the flag as an output
+              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Set the flag to an environment file (recommended)
+              echo "resource_failure=true" >> $GITHUB_ENV  # Pass the flag to outputs
               kill_process $JUPYTER_PID
               break
             fi
@@ -73,6 +75,7 @@ jobs:
           done
         }
 
+        # Kill the process by PID if necessary
         kill_process() {
           PID=$1
           if [ -z "$PID" ]; then
@@ -86,7 +89,7 @@ jobs:
           fi
         }
 
-        monitor_resources &
+        monitor_resources &  # Run monitoring in the background
 
         notebook_path="${{ matrix.notebook }}"
         jupyter nbconvert --to notebook --execute "$notebook_path" &
@@ -94,6 +97,7 @@ jobs:
 
         wait $JUPYTER_PID
 
+        MONITOR_PID=$(jobs -p)  # Get the process ID of the monitoring process
         if [ -n "$MONITOR_PID" ]; then
           kill_process $MONITOR_PID
         fi
