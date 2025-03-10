@@ -96,8 +96,12 @@ jobs:
 
         wait $JUPYTER_PID  # Wait for the notebook execution to complete
 
-        if [ -n "$MONITOR_PID" ]; then
-          kill_process $MONITOR_PID  # Ensure the monitor process is killed
+        # Only kill the monitoring process if it's still running
+        if ps -p $MONITOR_PID > /dev/null; then
+          echo "Killing the monitor process (PID: $MONITOR_PID)"
+          kill $MONITOR_PID
+        else
+          echo "Monitor process already terminated or not running."
         fi
 
   handle-resource-failure:
