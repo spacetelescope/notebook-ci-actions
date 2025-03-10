@@ -13,7 +13,6 @@ on:
         description: 'Python version to use'
         required: true
         type: string
-
 jobs:
   find-notebooks:
     runs-on: ubuntu-latest
