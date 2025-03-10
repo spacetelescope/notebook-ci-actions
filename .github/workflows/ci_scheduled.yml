@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.notebooks.outputs.notebooks }}
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
