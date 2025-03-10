@@ -56,7 +56,6 @@ jobs:
     - name: Run memory and disk monitoring alongside notebook execution
       id: monitor_resources
       run: |
-        # Monitor memory and disk usage
         monitor_resources() {
           while true; do
             memory_usage=$(free -m | grep Mem | awk '{print $3/$2 * 100.0}')
@@ -75,7 +74,6 @@ jobs:
           done
         }
 
-        # Kill the process by PID if necessary
         kill_process() {
           PID=$1
           if [ -z "$PID" ]; then
@@ -90,16 +88,16 @@ jobs:
         }
 
         monitor_resources &  # Run monitoring in the background
+        MONITOR_PID=$!  # Capture the PID of the monitoring process
 
         notebook_path="${{ matrix.notebook }}"
         jupyter nbconvert --to notebook --execute "$notebook_path" &
         JUPYTER_PID=$!
 
-        wait $JUPYTER_PID
+        wait $JUPYTER_PID  # Wait for the notebook execution to complete
 
-        MONITOR_PID=$(jobs -p)  # Get the process ID of the monitoring process
         if [ -n "$MONITOR_PID" ]; then
-          kill_process $MONITOR_PID
+          kill_process $MONITOR_PID  # Ensure the monitor process is killed
         fi
 
   handle-resource-failure:
