@@ -23,10 +23,14 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-      - id: set-matrixi
+      - id: set-matrix
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
   debug-runners:
       runs-on: ubuntu-latest
+      strategy:
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
       steps:
       - name: Debug notebook check
         run: echo "Checking notebook ${{ matrix.notebook }}"
