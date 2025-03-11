@@ -1,0 +1,103 @@
+name: Execute Jupyter Notebooks
+
+on:
+
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  find-notebooks:
+    runs-on: ubuntu-latest
+    outputs:
+      notebook_matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find all notebooks
+        id: set-matrix
+        run: |
+          notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
+          echo "matrix={\"notebook\": $notebooks}" | jq . > matrix.json
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+
+  execute-notebooks:
+    needs: find-notebooks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install nbconvert
+          NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
+          if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
+            pip install -r "$NOTEBOOK_DIR/requirements.txt"
+          fi
+
+      - name: Execute notebook with resource monitoring
+        id: execute
+        run: |
+          # Create a script to monitor resources and execute notebook
+          cat > monitor.sh << 'EOF'
+          #!/bin/bash
+          notebook_path="$1"
+          
+          # Start notebook conversion in background
+          jupyter nbconvert --to notebook --execute --inplace "$notebook_path" &
+          pid=$!
+          
+          # Monitor resources while process is running
+          while kill -0 $pid 2>/dev/null; do
+            MEMORY_USAGE=$(free -m | awk 'NR==2{printf "%.2f", $3*100/$2}')
+            DISK_USAGE=$(df -h / | awk 'NR==2{printf "%.2f", $5}' | tr -d '%')
+            
+            if (( $(echo "$MEMORY_USAGE > 80" | bc -l) )) || (( $(echo "$DISK_USAGE > 80" | bc -l) )); then
+              echo "Resource limit exceeded"
+              echo "needs_larger_runner=true" >> $GITHUB_OUTPUT
+              kill $pid
+              exit 1
+            fi
+            sleep 1
+          done
+          
+          # Wait for process to complete and check exit status
+          wait $pid
+          exit $?
+          EOF
+          
+          chmod +x monitor.sh
+          ./monitor.sh "${{ matrix.notebook }}" || echo "needs_larger_runner=true" >> $GITHUB_OUTPUT
+
+      - name: Execute on larger runner if needed
+        if: steps.execute.outputs.needs_larger_runner == 'true'
+        runs-on: 16gb-runner
+        steps:
+          - name: Checkout repository
+            uses: actions/checkout@v4
+
+          - name: Set up Python
+            uses: actions/setup-python@v5
+            with:
+              python-version: '3.x'
+
+          - name: Install dependencies on larger runner
+            run: |
+              pip install nbconvert
+              NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
+              if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
+                pip install -r "$NOTEBOOK_DIR/requirements.txt"
+              fi
+
+          - name: Execute notebook on larger runner
+            run: |
+              jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
