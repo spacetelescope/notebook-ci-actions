@@ -26,8 +26,24 @@ jobs:
       - name: Find all notebooks
         id: set-matrix
         run: |
-          notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
-          echo "matrix={\"notebook\": $notebooks}" | jq . > matrix.json
+          # Ensure the notebooks directory exists
+          mkdir -p notebooks
+          
+          # Find notebooks and handle empty case
+          NOTEBOOKS=$(find notebooks/ -type f -name "*.ipynb")
+          if [ -z "$NOTEBOOKS" ]; then
+            echo "No notebooks found, creating empty matrix"
+            echo "matrix={\"notebook\": []}" > matrix.json
+          else
+            # Convert find output to JSON array
+            echo "$NOTEBOOKS" | jq -R . | jq -s . > notebooks.json
+            echo "matrix={\"notebook\": $(cat notebooks.json)}" > matrix.json
+          fi
+          
+          # Debug output
+          echo "Generated matrix:"
+          cat matrix.json
+          
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
   execute-notebooks:
@@ -36,6 +52,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
+    outputs:
+      needs_larger_runner: ${{ steps.execute.outputs.needs_larger_runner }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -81,17 +99,23 @@ jobs:
           
           # Wait for process to complete and check exit status
           wait $pid
+          if [ $? -eq 0 ]; then
+            echo "needs_larger_runner=false" >> $GITHUB_OUTPUT
+          fi
           exit $?
           EOF
           
           chmod +x monitor.sh
-          ./monitor.sh "${{ matrix.notebook }}" || echo "needs_larger_runner=true" >> $GITHUB_OUTPUT
+          ./monitor.sh "${{ matrix.notebook }}"
 
   execute-on-larger-runner:
-    needs: execute-notebooks
+    needs: [find-notebooks, execute-notebooks]
     if: needs.execute-notebooks.outputs.needs_larger_runner == 'true'
     runs-on: 
-      group: jwst-pipeline-notebooks-16gb
+      - group: jwst-pipeline-notebooks-16gb
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -99,7 +123,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: ${{ inputs.python-version }}
 
       - name: Install dependencies on larger runner
         run: |
