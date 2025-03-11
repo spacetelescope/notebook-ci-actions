@@ -1,9 +1,18 @@
-name: Execute Jupyter Notebooks
+name: Scaled - Execute Jupyter Notebooks
 
 on:
-
-  pull_request:
-    branches: [ main ]
+  workflow_call:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      python-version:
+        description: 'Python version to use'
+        required: true
+        type: string
 
 jobs:
   find-notebooks:
@@ -34,7 +43,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: ${{ inputs.python-version }}
 
       - name: Install dependencies
         run: |
@@ -78,26 +87,28 @@ jobs:
           chmod +x monitor.sh
           ./monitor.sh "${{ matrix.notebook }}" || echo "needs_larger_runner=true" >> $GITHUB_OUTPUT
 
-      - name: Execute on larger runner if needed
-        if: steps.execute.outputs.needs_larger_runner == 'true'
-        runs-on: 16gb-runner
-        steps:
-          - name: Checkout repository
-            uses: actions/checkout@v4
+  execute-on-larger-runner:
+    needs: execute-notebooks
+    if: needs.execute-notebooks.outputs.needs_larger_runner == 'true'
+    runs-on: 
+      group: jwst-pipeline-notebooks-16gb
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-          - name: Set up Python
-            uses: actions/setup-python@v5
-            with:
-              python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-          - name: Install dependencies on larger runner
-            run: |
-              pip install nbconvert
-              NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
-              if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
-                pip install -r "$NOTEBOOK_DIR/requirements.txt"
-              fi
+      - name: Install dependencies on larger runner
+        run: |
+          pip install nbconvert
+          NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
+          if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
+            pip install -r "$NOTEBOOK_DIR/requirements.txt"
+          fi
 
-          - name: Execute notebook on larger runner
-            run: |
-              jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+      - name: Execute notebook on larger runner
+        run: |
+          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
