@@ -86,13 +86,17 @@ jobs:
           ./monitor.sh "${{ matrix.notebook }}"
 
 
+      - name: Set safe artifact name
+        run: |
+          SAFE_NAME=$(echo "${{ matrix.notebook }}" | sed 's/\//_/g')
+          echo "SAFE_NAME=$SAFE_NAME" >> $GITHUB_ENV
+      
       - name: Upload execution status
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: status-${{ replace(matrix.notebook, '/', '_') }}
+          name: status-${{ env.SAFE_NAME }}
           path: status.txt
-
 
 
   aggregate-status:
