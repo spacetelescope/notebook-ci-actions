@@ -29,10 +29,11 @@ jobs:
         run: |
           # Recursively find all .ipynb files under notebooks/
           notebooks=$(find notebooks/ -type f -name "*.ipynb")
+          echo "::set-output name=notebooks::[\"$(echo $notebooks | sed 's/ /", "/g')\"]"
           #notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
           # Create a JSON matrix for GitHub Actions
-          echo "matrix={\"notebook\": $notebooks}" > matrix.json
-          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+          #echo "matrix={\"notebook\": $notebooks}" > matrix.json
+          #echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
   # Job 2: Execute notebooks on standard runners with resource monitoring
   execute-notebooks:
