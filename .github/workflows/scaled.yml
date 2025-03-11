@@ -26,9 +26,9 @@ jobs:
       - name: Find all Jupyter notebooks
         id: set-matrix
         run: |
-          notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
-          echo "matrix={\"notebook\": $notebooks}" > matrix.json
-          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+          matrix=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s '{notebook: .}')
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+        shell: bash
 
   execute-notebooks:
     needs: find-notebooks
