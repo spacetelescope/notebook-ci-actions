@@ -63,7 +63,7 @@ jobs:
             disk_usage=$(df / | grep / | awk '{print $5}' | sed 's/%//')
             echo "Memory usage: ${memory_usage}%"
             echo "Disk usage: ${disk_usage}%"
-
+  
             if (( $(echo "$memory_usage > 90" | bc -l) )) || [ "$disk_usage" -gt 90 ]; then
               echo "Resource usage exceeded 90%, stopping execution..."
               echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Explicitly set failure flag in the environment
@@ -111,6 +111,11 @@ jobs:
           echo "Monitor process already terminated or not running."
         fi
 
+    - name: Print RESOURCE_FAILURE status
+      run: |
+        echo "RESOURCE_FAILURE=$RESOURCE_FAILURE"
+        echo "resource_failure=$RESOURCE_FAILURE"
+
   handle-resource-failure:
     if: ${{ needs.test-notebooks.outputs.resource_failure == 'true' }}  # Use output from previous job
     runs-on: jwst-pipeline-notebooks-16gb  # 16GB runner for retry
@@ -131,6 +136,11 @@ jobs:
         pip install jupyter nbconvert
         notebook_dir=$(dirname "${{ needs.find-notebooks.outputs.notebooks }}")
         pip install -r "$notebook_dir/requirements.txt"
+
+    - name: Debug resource failure flag
+      run: |
+        echo "Resource failure flag: ${{ needs.test-notebooks.outputs.resource_failure }}"
+        echo "RESOURCE_FAILURE=$RESOURCE_FAILURE"
 
     - name: Retry the notebook execution
       run: |
