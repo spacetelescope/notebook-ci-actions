@@ -112,7 +112,7 @@ jobs:
     needs: [find-notebooks, execute-notebooks]
     if: needs.execute-notebooks.outputs.needs_larger_runner == 'true'
     runs-on: 
-      - group: jwst-pipeline-notebooks-16gb
+      group: jwst-pipeline-notebooks-16gb
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
