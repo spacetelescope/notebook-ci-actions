@@ -15,7 +15,6 @@ on:
         type: string
 
 jobs:
-  # Job 1: Find all notebooks and create a matrix
   find-notebooks:
     runs-on: ubuntu-latest
     outputs:
@@ -27,21 +26,16 @@ jobs:
       - name: Find all Jupyter notebooks
         id: set-matrix
         run: |
-          # Recursively find all .ipynb files under notebooks/
-          notebooks=$(find notebooks/ -type f -name "*.ipynb")
-          echo "::set-output name=matrix::$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')"
-          #notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
-          # Create a JSON matrix for GitHub Actions
-          #echo "matrix={\"notebook\": $notebooks}" > matrix.json
-          #echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+          notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
+          echo "matrix={\"notebook\": $notebooks}" > matrix.json
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
-  # Job 2: Execute notebooks on standard runners with resource monitoring
   execute-notebooks:
     needs: find-notebooks
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
-      fail-fast: false  # Continue even if some notebooks fail
+      fail-fast: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,14 +58,11 @@ jobs:
       - name: Execute notebook with resource monitoring
         id: execute
         run: |
-          # Create a script to monitor resources during execution
           cat > monitor.sh << 'EOF'
           #!/bin/bash
           notebook="$1"
-          # Run nbconvert in the background
           jupyter nbconvert --to notebook --execute --inplace "$notebook" &
           pid=$!
-          # Monitor memory and disk usage every 5 seconds
           while kill -0 $pid 2>/dev/null; do
             mem_usage=$(free | awk '/Mem/{printf "%.2f", $3/$2 * 100.0}')
             disk_usage=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
@@ -83,7 +74,6 @@ jobs:
             fi
             sleep 5
           done
-          # Wait for nbconvert to finish and check its exit status
           wait $pid
           status=$?
           if [ $status -eq 0 ]; then
@@ -96,13 +86,12 @@ jobs:
           ./monitor.sh "${{ matrix.notebook }}"
 
       - name: Upload execution status
-        if: always()  # Ensure this runs even if the previous step fails
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: status-${{ matrix.notebook }}
           path: status.txt
 
-  # Job 3: Aggregate results and determine which notebooks need larger runners
   aggregate-status:
     needs: execute-notebooks
     runs-on: ubuntu-latest
@@ -118,25 +107,23 @@ jobs:
         id: process
         run: |
           NEEDS_LARGER=()
-          # Iterate through all status files
-          for file in artifacts/status-*; do
-            NOTEBOOK=$(basename "$file" | sed 's/status-//')
+          for file in $(find artifacts -name status.txt); do
+            dir=$(dirname "$file")
+            status_name=$(basename "$dir")
+            notebook=${status_name#status-}
             STATUS=$(cat "$file")
             if [ "$STATUS" == "needs_larger" ]; then
-              NEEDS_LARGER+=("$NOTEBOOK")
+              NEEDS_LARGER+=("$notebook")
             fi
           done
-          # Convert the list to a JSON array for the matrix
           JSON=$(printf '%s\n' "${NEEDS_LARGER[@]}" | jq -R . | jq -s .)
-          echo "needs_larger_matrix={\"notebook\": $JSON}" > matrix.json
+          echo "matrix={\"notebook\": $JSON}" > matrix.json
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
-  # Job 4: Execute notebooks that need more resources on larger runners
   execute-on-larger-runner:
     needs: aggregate-status
-    if: ${{ fromJson(needs.aggregate-status.outputs.matrix).notebook.length > 0 }}
-    runs-on: 
-      group: jwst-pipeline-notebooks-16gb  # 16GB runner for retry
+    if: needs.aggregate-status.outputs.matrix != '{\"notebook\": []}'
+    runs-on: 16gb-runner
     strategy:
       matrix: ${{ fromJson(needs.aggregate-status.outputs.matrix) }}
     steps:
