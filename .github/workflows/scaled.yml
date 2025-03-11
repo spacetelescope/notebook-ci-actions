@@ -122,7 +122,7 @@ jobs:
 
   execute-on-larger-runner:
     needs: aggregate-status
-    if: needs.aggregate-status.outputs.matrix != '{\"notebook\": []}'
+    if: ${{ fromJson(needs.aggregate-status.outputs.matrix).notebook.length > 0 }}
     runs-on: 16gb-runner
     strategy:
       matrix: ${{ fromJson(needs.aggregate-status.outputs.matrix) }}
