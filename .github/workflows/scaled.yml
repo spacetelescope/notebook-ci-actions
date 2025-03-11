@@ -15,6 +15,7 @@ on:
         type: string
 
 jobs:
+  # Job 1: Find all notebooks and create a matrix
   find-notebooks:
     runs-on: ubuntu-latest
     outputs:
@@ -23,37 +24,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Find all notebooks
+      - name: Find all Jupyter notebooks
         id: set-matrix
         run: |
-          # Ensure the notebooks directory exists
-          mkdir -p notebooks
-          
-          # Find notebooks and handle empty case
-          NOTEBOOKS=$(find notebooks/ -type f -name "*.ipynb")
-          if [ -z "$NOTEBOOKS" ]; then
-            echo "No notebooks found, creating empty matrix"
-            echo "matrix={\"notebook\": []}" > matrix.json
-          else
-            # Convert find output to JSON array
-            echo "$NOTEBOOKS" | jq -R . | jq -s . > notebooks.json
-            echo "matrix={\"notebook\": $(cat notebooks.json)}" > matrix.json
-          fi
-          
-          # Debug output
-          echo "Generated matrix:"
-          cat matrix.json
-          
+          # Recursively find all .ipynb files under notebooks/
+          notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
+          # Create a JSON matrix for GitHub Actions
+          echo "matrix={\"notebook\": $notebooks}" > matrix.json
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
+  # Job 2: Execute notebooks on standard runners with resource monitoring
   execute-notebooks:
     needs: find-notebooks
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
-    outputs:
-      needs_larger_runner: ${{ steps.execute.outputs.needs_larger_runner }}
+      fail-fast: false  # Continue even if some notebooks fail
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,11 +47,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: '3.x'
 
-      - name: Install dependencies
+      - name: Install nbconvert
+        run: pip install nbconvert
+
+      - name: Install notebook-specific requirements
         run: |
-          pip install nbconvert
           NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
           if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
             pip install -r "$NOTEBOOK_DIR/requirements.txt"
@@ -74,48 +62,81 @@ jobs:
       - name: Execute notebook with resource monitoring
         id: execute
         run: |
-          # Create a script to monitor resources and execute notebook
+          # Create a script to monitor resources during execution
           cat > monitor.sh << 'EOF'
           #!/bin/bash
-          notebook_path="$1"
-          
-          # Start notebook conversion in background
-          jupyter nbconvert --to notebook --execute --inplace "$notebook_path" &
+          notebook="$1"
+          # Run nbconvert in the background
+          jupyter nbconvert --to notebook --execute --inplace "$notebook" &
           pid=$!
-          
-          # Monitor resources while process is running
+          # Monitor memory and disk usage every 5 seconds
           while kill -0 $pid 2>/dev/null; do
-            MEMORY_USAGE=$(free -m | awk 'NR==2{printf "%.2f", $3*100/$2}')
-            DISK_USAGE=$(df -h / | awk 'NR==2{printf "%.2f", $5}' | tr -d '%')
-            
-            if (( $(echo "$MEMORY_USAGE > 80" | bc -l) )) || (( $(echo "$DISK_USAGE > 80" | bc -l) )); then
-              echo "Resource limit exceeded"
-              echo "needs_larger_runner=true" >> $GITHUB_OUTPUT
+            mem_usage=$(free | awk '/Mem/{printf "%.2f", $3/$2 * 100.0}')
+            disk_usage=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
+            if (( $(echo "$mem_usage > 80" | bc -l) )) || (( disk_usage > 80 )); then
+              echo "Resource limit exceeded: Memory $mem_usage%, Disk $disk_usage%"
               kill $pid
+              echo "needs_larger" > status.txt
               exit 1
             fi
-            sleep 1
+            sleep 5
           done
-          
-          # Wait for process to complete and check exit status
+          # Wait for nbconvert to finish and check its exit status
           wait $pid
-          if [ $? -eq 0 ]; then
-            echo "needs_larger_runner=false" >> $GITHUB_OUTPUT
+          status=$?
+          if [ $status -eq 0 ]; then
+            echo "success" > status.txt
+          else
+            echo "failed" > status.txt
           fi
-          exit $?
           EOF
-          
           chmod +x monitor.sh
           ./monitor.sh "${{ matrix.notebook }}"
 
+      - name: Upload execution status
+        if: always()  # Ensure this runs even if the previous step fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-${{ matrix.notebook }}
+          path: status.txt
+
+  # Job 3: Aggregate results and determine which notebooks need larger runners
+  aggregate-status:
+    needs: execute-notebooks
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.process.outputs.matrix }}
+    steps:
+      - name: Download all status artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Process execution statuses
+        id: process
+        run: |
+          NEEDS_LARGER=()
+          # Iterate through all status files
+          for file in artifacts/status-*; do
+            NOTEBOOK=$(basename "$file" | sed 's/status-//')
+            STATUS=$(cat "$file")
+            if [ "$STATUS" == "needs_larger" ]; then
+              NEEDS_LARGER+=("$NOTEBOOK")
+            fi
+          done
+          # Convert the list to a JSON array for the matrix
+          JSON=$(printf '%s\n' "${NEEDS_LARGER[@]}" | jq -R . | jq -s .)
+          echo "needs_larger_matrix={\"notebook\": $JSON}" > matrix.json
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+
+  # Job 4: Execute notebooks that need more resources on larger runners
   execute-on-larger-runner:
-    needs: [find-notebooks, execute-notebooks]
-    if: needs.execute-notebooks.outputs.needs_larger_runner == 'true'
+    needs: aggregate-status
+    if: ${{ fromJson(needs.aggregate-status.outputs.matrix).notebook.length > 0 }}
     runs-on: 
-      group: jwst-pipeline-notebooks-16gb
+      group: jwst-pipeline-notebooks-16gb  # 16GB runner for retry
     strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
+      matrix: ${{ fromJson(needs.aggregate-status.outputs.matrix) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -123,16 +144,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: '3.x'
 
-      - name: Install dependencies on larger runner
+      - name: Install nbconvert
+        run: pip install nbconvert
+
+      - name: Install notebook-specific requirements
         run: |
-          pip install nbconvert
           NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
           if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
             pip install -r "$NOTEBOOK_DIR/requirements.txt"
           fi
 
       - name: Execute notebook on larger runner
-        run: |
-          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+        run: jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
