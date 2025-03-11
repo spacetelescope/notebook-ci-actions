@@ -26,6 +26,7 @@ jobs:
       - id: set-matrix
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
   debug-runners:
+      name: Debug Runners
       runs-on: ubuntu-latest
       strategy:
         fail-fast: false
