@@ -85,12 +85,15 @@ jobs:
           chmod +x monitor.sh
           ./monitor.sh "${{ matrix.notebook }}"
 
+
       - name: Upload execution status
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: status-${{ matrix.notebook | replace('/', '_') }}
+          name: status-${{ replace(matrix.notebook, '/', '_') }}
           path: status.txt
+
+
 
   aggregate-status:
     needs: execute-notebooks
