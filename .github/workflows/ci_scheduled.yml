@@ -23,9 +23,21 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-      - id: set-matrix
+      - id: set-matrixi
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
-        
+  debug-runners:
+      runs-on: ubuntu-latest
+      steps:
+      - name: Debug notebook check
+        run: echo "Checking notebook ${{ matrix.notebook }}"
+
+      - name: Set up the runner based on notebook
+        run: echo "Selected runner ${{ 
+          contains(fromJson('["notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb", "notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb"]'), matrix.notebook) && 'group:jwst-pipeline-notebooks-16gb' ||
+          contains(fromJson('["notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb", "notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb", "notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb"]'), matrix.notebook) && 'group:jwst-pipeline-notebooks-32gb' ||
+          'ubuntu-latest'
+          }}"
+          
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
