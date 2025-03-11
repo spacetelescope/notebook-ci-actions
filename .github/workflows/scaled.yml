@@ -29,7 +29,7 @@ jobs:
         run: |
           # Recursively find all .ipynb files under notebooks/
           notebooks=$(find notebooks/ -type f -name "*.ipynb")
-          echo "::set-output name=matrix::$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')"
+          echo "::set-output name=notebook_matrix::$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')"
           #notebooks=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s .)
           # Create a JSON matrix for GitHub Actions
           #echo "matrix={\"notebook\": $notebooks}" > matrix.json
