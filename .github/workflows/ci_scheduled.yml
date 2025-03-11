@@ -29,8 +29,18 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: 
-      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
+    runs-on: ${{ 
+      contains(fromJson('[
+      "notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb", 
+      "notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb"]'),
+      matrix.notebook) ? 'group:jwst-pipeline-notebooks-16gb' 
+      :contains(fromJson('[
+      "notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb",
+      "notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb",
+      "notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb"]'),
+      matrix.notebook) ? 'group:jwst-pipeline-notebooks-32gb' 
+      :'ubuntu-latest' }}
+      #group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
     strategy:
         fail-fast: false
         matrix:
