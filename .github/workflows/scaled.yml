@@ -23,10 +23,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Find all Jupyter notebooks
+      - name: Set Matrix with Jupyter Notebooks
         id: set-matrix
         run: |
-          matrix=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -s '{notebook: .}')
+          matrix=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -sc '{notebook: .}')
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
         shell: bash
 
