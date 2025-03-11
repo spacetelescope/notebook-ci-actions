@@ -1,155 +1,90 @@
-name: Test Notebooks
-
+name: Scaled - Execute Jupyter Notebooks
 on:
   workflow_call:
-    inputs:
+    inputs:  
       python-version:
-        description: 'Python version to use'
         required: true
         type: string
-  workflow_dispatch:
-    inputs:
-      python-version:
-        description: 'Python version to use'
-        required: true
-        type: string
+    secrets:
+      CASJOBS_USERID:
+        description: 'CASJOBS user ID'
+        required: false
+      CASJOBS_PW:
+        description: 'CASJOBS password'
+        required: false
+env:
+  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  
 jobs:
-  find-notebooks:
+  gather-notebooks:
     runs-on: ubuntu-latest
     outputs:
-      notebook_matrix: ${{ steps.set-matrix.outputs.matrix }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set Matrix with Jupyter Notebooks
-        id: set-matrix
-        run: |
-          matrix=$(find notebooks/ -type f -name "*.ipynb" | jq -R . | jq -sc '{notebook: .}')
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
-        shell: bash
-
-  execute-notebooks:
-    needs: find-notebooks
-    runs-on: ubuntu-latest
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+        
+  notebook-execution:
+    needs: gather-notebooks
+    environment: ci_env
+    runs-on: 
+      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
     strategy:
-      matrix: ${{ fromJson(needs.find-notebooks.outputs.notebook_matrix) }}
-      fail-fast: false
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5 ## needed for caching
         with:
-          python-version: '3.11'
-
-      - name: Install nbconvert
-        run: pip install nbconvert
-
-      - name: Install notebook-specific requirements
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+          
+      - name: Add conda to system path
         run: |
-          NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
-            pip install -r "$NOTEBOOK_DIR/requirements.txt"
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          ## Install the local requirements file
+          echo DEBUG ---
+          pwd ## print working directory
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
+          echo ---
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
-
-      - name: Execute notebook with resource monitoring
-        id: execute
-        run: |
-          cat > monitor.sh << 'EOF'
-          #!/bin/bash
-          notebook="$1"
-          jupyter nbconvert --to notebook --execute --inplace "$notebook" &
-          pid=$!
-          while kill -0 $pid 2>/dev/null; do
-            mem_usage=$(free | awk '/Mem/{printf "%.2f", $3/$2 * 100.0}')
-            disk_usage=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
-            if (( $(echo "$mem_usage > 80" | bc -l) )) || (( disk_usage > 80 )); then
-              echo "Resource limit exceeded: Memory $mem_usage%, Disk $disk_usage%"
-              kill $pid
-              echo "needs_larger" > status.txt
-              exit 1
-            fi
-            sleep 5
-          done
-          wait $pid
-          status=$?
-          if [ $status -eq 0 ]; then
-            echo "success" > status.txt
-          else
-            echo "failed" > status.txt
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
           fi
-          EOF
-          chmod +x monitor.sh
-          ./monitor.sh "${{ matrix.notebook }}"
-
-
-      - name: Set safe artifact name
-        run: |
-          SAFE_NAME=$(echo "${{ matrix.notebook }}" | sed 's/\//_/g')
-          echo "SAFE_NAME=$SAFE_NAME" >> $GITHUB_ENV
-      
-      - name: Upload execution status
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: status-${{ env.SAFE_NAME }}
-          path: status.txt
-
-
-  aggregate-status:
-    needs: execute-notebooks
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.process.outputs.matrix }}
-    steps:
-      - name: Download all status artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Process execution statuses
-        id: process
-        run: |
-          NEEDS_LARGER=()
-          for file in $(find artifacts -name status.txt); do
-            dir=$(dirname "$file")
-            status_name=$(basename "$dir")
-            notebook=${status_name#status-}
-            STATUS=$(cat "$file")
-            if [ "$STATUS" == "needs_larger" ]; then
-              NEEDS_LARGER+=("$notebook")
-            fi
-          done
-          JSON=$(printf '%s\n' "${NEEDS_LARGER[@]}" | jq -R . | jq -s .)
-          echo "matrix={\"notebook\": $JSON}" > matrix.json
-          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
-
-  execute-on-larger-runner:
-    needs: aggregate-status
-    if: ${{ fromJson(needs.aggregate-status.outputs.matrix).notebook.length > 0 }}
-    runs-on: 16gb-runner
-    strategy:
-      matrix: ${{ fromJson(needs.aggregate-status.outputs.matrix) }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install nbconvert
-        run: pip install nbconvert
-
-      - name: Install notebook-specific requirements
-        run: |
-          NOTEBOOK_DIR=$(dirname "${{ matrix.notebook }}")
-          if [ -f "$NOTEBOOK_DIR/requirements.txt" ]; then
-            pip install -r "$NOTEBOOK_DIR/requirements.txt"
+          if [ -f pre-requirements.txt ]; then
+            pip install -r pre-requirements.txt
+            echo Found Pre-Reqs
           fi
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
+          pip install bandit
 
-      - name: Execute notebook on larger runner
-        run: jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+      - name: Execute notebooks
+        run: |
+          export CASJOBS_PW="$CI_CASJOBS_PW"
+          export CASJOBS_USERID="$CI_CASJOBS_USERID"
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          
+      - name: Validate notebooks 
+        run: |
+         pytest --nbval "${{ matrix.notebooks }}" 
+
+      - name: Scan with Bandit
+        run: |
+          pip install ipython
+          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit -lll -iii $pyfile
