@@ -15,7 +15,7 @@ on:
         type: string
 jobs:
   find-notebooks:
-    runs-on: ubuntu-latest
+  runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.notebooks.outputs.notebooks }}
     steps:
@@ -28,141 +28,65 @@ jobs:
         notebooks=$(find notebooks/ -type f -name "*.ipynb")
         echo "::set-output name=notebooks::[\"$(echo $notebooks | sed 's/ /", "/g')\"]"
 
-  test-notebooks:
-    needs: find-notebooks
-    runs-on: ubuntu-latest
+  notebook-execution:
+    needs: gather-notebooks
+    environment: ci_env
+    runs-on: 
+      group: ${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' || 'jwst-pipeline-notebooks-16gb' }}
     strategy:
-      matrix:
-        notebook: ${{ fromJson(needs.find-notebooks.outputs.notebooks) }}
-    continue-on-error: true  # Allow other notebooks to continue even if one fails
-    timeout-minutes: 60  # Ensure job doesn't time out prematurely
-    outputs:
-      resource_failure: ${{ steps.monitor_resources.outputs.resource_failure }}  # Pass the result as output
+        fail-fast: false
+        matrix:
+            notebooks: ${{ fromJson(needs.find-notebooks.outputs.matrix) }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ inputs.python-version }}
-
-    - name: Install Python packages
-      run: |
-        python -m pip install --upgrade pip
-        pip install jupyter nbconvert
-        notebook_dir=$(dirname "${{ matrix.notebook }}")
-        pip install -r "$notebook_dir/requirements.txt"
-
-    - name: Run memory and disk monitoring alongside notebook execution
-      id: monitor_resources
-      run: |
-        monitor_resources() {
-          while true; do
-            memory_usage=$(free -m | grep Mem | awk '{print $3/$2 * 100.0}')
-            disk_usage=$(df / | grep / | awk '{print $5}' | sed 's/%//')
-            echo "Memory usage: ${memory_usage}%"
-            echo "Disk usage: ${disk_usage}%"
-  
-            if (( $(echo "$memory_usage > 90" | bc -l) )) || [ "$disk_usage" -gt 90 ]; then
-              echo "Resource usage exceeded 90%, stopping execution..."
-              echo "RESOURCE_FAILURE=true" >> $GITHUB_ENV  # Explicitly set failure flag in the environment
-              echo "resource_failure=true" >> $GITHUB_ENV  # Pass the flag to outputs
-              echo "Memory usage: ${memory_usage}%, Disk usage: ${disk_usage}%"  # Debug output
-
-              if [ -z "$JUPYTER_PID" ]; then
-                echo "Error: nbconvert PID not found. Skipping kill of nbconvert process."
-              else
-                kill_process $JUPYTER_PID
-              fi
-              break
-            fi
-            sleep 10
-          done
-        }
-
-        kill_process() {
-          PID=$1
-          if [ -z "$PID" ]; then
-            echo "No PID provided. Skipping kill."
-            return 0
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5 ## needed for caching
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+          
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          ## Install the local requirements file
+          echo DEBUG ---
+          pwd ## print working directory
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
+          echo ---
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
-          if ps -p $PID > /dev/null; then
-            kill $PID || echo "Failed to kill process."
-          else
-            echo "Process with PID: $PID already terminated."
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
           fi
-        }
+          if [ -f pre-requirements.txt ]; then
+            pip install -r pre-requirements.txt
+            echo Found Pre-Reqs
+          fi
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
+          pip install bandit
 
-        monitor_resources &  # Run monitoring in the background
-        MONITOR_PID=$!  # Capture the PID of the monitoring process
+      - name: Execute notebooks
+        run: |
+          export CASJOBS_PW="$CI_CASJOBS_PW"
+          export CASJOBS_USERID="$CI_CASJOBS_USERID"
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          
+      - name: Validate notebooks 
+        run: |
+         pytest --nbval "${{ matrix.notebooks }}" 
 
-        notebook_path="${{ matrix.notebook }}"
-        jupyter nbconvert --to notebook --execute "$notebook_path" &
-        JUPYTER_PID=$!
-
-        wait $JUPYTER_PID  # Wait for the notebook execution to complete
-
-        # Only kill the monitoring process if it's still running
-        if ps -p $MONITOR_PID > /dev/null; then
-          echo "Killing the monitor process (PID: $MONITOR_PID)"
-          kill $MONITOR_PID
-        else
-          echo "Monitor process already terminated or not running."
-        fi
-
-    - name: Print RESOURCE_FAILURE status
-      run: |
-        echo "RESOURCE_FAILURE=$RESOURCE_FAILURE"
-        echo "resource_failure=$RESOURCE_FAILURE"
-
-  handle-resource-failure:
-    if: ${{ needs.test-notebooks.outputs.resource_failure == 'true' }}  # Use output from previous job
-    runs-on: jwst-pipeline-notebooks-16gb  # 16GB runner for retry
-    needs: test-notebooks  # Ensure this depends on the test-notebooks job
-    timeout-minutes: 60  # Allow sufficient time for this job
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ inputs.python-version }}
-
-    - name: Install Python packages
-      run: |
-        python -m pip install --upgrade pip
-        pip install jupyter nbconvert
-        notebook_dir=$(dirname "${{ needs.find-notebooks.outputs.notebooks }}")
-        pip install -r "$notebook_dir/requirements.txt"
-
-    - name: Debug resource failure flag
-      run: |
-        echo "Resource failure flag: ${{ needs.test-notebooks.outputs.resource_failure }}"
-        echo "RESOURCE_FAILURE=$RESOURCE_FAILURE"
-
-    - name: Retry the notebook execution
-      run: |
-        notebook_path="${{ needs.find-notebooks.outputs.notebooks }}"
-        jupyter nbconvert --to notebook --execute "$notebook_path"
-
-  handle-resource-failure-32gb:
-    if: ${{ needs.handle-resource-failure.result == 'failure' }}
-    runs-on: jwst-pipeline-notebooks-32gb  # 32GB runner for retry
-    needs: handle-resource-failure
-    steps:
-    - name: Retry the notebook execution on a larger runner (32GB)
-      run: |
-        notebook_path="${{ needs.find-notebooks.outputs.notebooks }}"
-        jupyter nbconvert --to notebook --execute "$notebook_path"
-
-  fail-test:
-    if: ${{ needs.handle-resource-failure-32gb.result == 'failure' }}
-    runs-on: ubuntu-latest
-    needs: handle-resource-failure-32gb
-    steps:
-    - name: Fail the test if all attempts fail
-      run: |
-        echo "Memory or disk usage exceeded 90% on all runners. Failing the test."
-        exit 1
+      - name: Scan with Bandit
+        run: |
+          pip install ipython
+          jupyter nbconvert --to script ${{ matrix.notebooks }}
+          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+          bandit -lll -iii $pyfile
