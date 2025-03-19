@@ -46,7 +46,11 @@ jobs:
           
           # Path to your ci_config file (adjust if it's elsewhere)
           ci_config_file="ci_config.txt"
-          
+          # Check if the ci_config.txt file exists
+          if [[ ! -f "$ci_config_file" ]]; then
+            echo "ci_config.txt not found!"
+            exit 1
+          fi          
           # Read the ci_config file and parse the notebook name and runner size
           while IFS=: read -r notebook runner; do
             if [[ $notebook == ${{ matrix.notebooks }} ]]; then
