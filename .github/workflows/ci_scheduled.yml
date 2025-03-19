@@ -56,17 +56,14 @@ jobs:
           
           # Set the runner size as an output variable
           echo "runner_size=$runner_size" >> $GITHUB_ENV
-
-      - name: Display the selected runner size
-        run: |
-          echo "The selected runner size is: ${{ env.runner_size }}"
+          echo "runner_size=$runner_size" >> $GITHUB_OUTPUT
           
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
     runs-on:
-      group: ${{ steps.parse_config.outputs.runner_size }}
-
+      group: ${{ needs.get-runners.outputs.runner_size }}
+      
       #${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' }}
       #${{ (matrix.notebook == 'notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb' || matrix.notebook == 'notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb' || 'notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb') && 'jwst-pipeline-notebooks-32gb' || 'ubuntu-latest' }}
 
