@@ -36,7 +36,8 @@ jobs:
       steps:
       - name: Notebook check
         run: echo "Checking notebook ${{ matrix.notebooks }}"
-
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Parse ci_config file and set runner size
         id: parse_config
         run: |
