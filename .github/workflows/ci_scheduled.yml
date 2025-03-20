@@ -33,8 +33,11 @@ jobs:
         fail-fast: false
         matrix:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+      outputs:
+        runnerName: ${{ steps.runner-check.outputs.test }}
       steps:
       - name: Notebook check
+      - id: runner-check
         run: echo "Checking notebook ${{ matrix.notebooks }}"
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -60,14 +63,13 @@ jobs:
           done < "$ci_config_file"
           
           # Set the runner size as an output variable
-          echo "runner_size=$runner_size" >> $GITHUB_ENV
-          echo "runner_size=$runner_size" >> $GITHUB_OUTPUT
+          run: echo "runnerName=runner_size" >> "$GITHUB_OUTPUT"
           
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
     runs-on:
-      group: ${{ needs.get-runners.outputs.runner_size }}
+      group: ${{ needs.get-runners.outputs.runnerName }}
       
       #${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' }}
       #${{ (matrix.notebook == 'notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb' || matrix.notebook == 'notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb' || 'notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb') && 'jwst-pipeline-notebooks-32gb' || 'ubuntu-latest' }}
