@@ -16,7 +16,7 @@ jobs:
     ## routine to gather only the changed python files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
-      uses: tj-actions/changed-files@v45.0.1
+      uses: tj-actions/changed-files@v46.0.2
       with:
         separator: ","
         files: |
