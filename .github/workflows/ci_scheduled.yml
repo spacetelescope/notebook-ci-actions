@@ -41,8 +41,8 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    #runs-on: ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebook] || fromJson(needs.setup.outputs.runner-config).default }}
-    runs-on:  ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 'ubuntu-latest' }}
+    runs-on: ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || fromJson(needs.gather-notebooks.outputs.runner-config).default }}
+    #runs-on:  ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
