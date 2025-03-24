@@ -93,6 +93,7 @@ jobs:
       - name: Start Resource Monitoring
         run: |
           # Start monitoring script in the background
+          chmod +x monitor_resources.sh
           ./monitor_resources.sh & 
           echo "Monitoring started in background"
           
