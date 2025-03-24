@@ -68,10 +68,6 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    strategy:
-      fail-fast: false
-      matrix:
-          notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     runs-on: ${{ 
       fromJson(
         format('{{{0}}}', 
@@ -93,7 +89,10 @@ jobs:
         )
       )[matrix.notebooks] || 'ubuntu-latest'
       }}
-
+    strategy:
+      fail-fast: false
+      matrix:
+          notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ inputs.python-version }}
