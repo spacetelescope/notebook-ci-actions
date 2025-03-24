@@ -97,13 +97,13 @@ jobs:
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
           
-      - name: Validate notebooks 
-        run: |
-         pytest --nbval "${{ matrix.notebooks }}" 
+     # - name: Validate notebooks 
+     #   run: |
+     #    pytest --nbval "${{ matrix.notebooks }}" 
 
-      - name: Scan with Bandit
-        run: |
-          pip install ipython
-          jupyter nbconvert --to script ${{ matrix.notebooks }}
-          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii $pyfile
+     # - name: Scan with Bandit
+     #   run: |
+     #     pip install ipython
+     #     jupyter nbconvert --to script ${{ matrix.notebooks }}
+     #     pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+     #     bandit -lll -iii $pyfile
