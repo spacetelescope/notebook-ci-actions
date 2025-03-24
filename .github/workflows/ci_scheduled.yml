@@ -90,25 +90,22 @@ jobs:
           pip install bandit
           pip install ipykernel
 
-      - name: Start Resource Monitoring
-        run: |
-          # Start monitoring script in the background
-          chmod +x monitor_resources.sh
-          ./monitor_resources.sh & 
-          echo "Monitoring started in background"
           
       - name: Execute notebooks
         run: |
+         chmod +x ./monitor_resources.sh
+          
+          # Start monitoring in the background
+          ./monitor_resources.sh &
+          MONITOR_PID=$!
+          
           export CASJOBS_PW="$CI_CASJOBS_PW"
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
-
-      - name: Stop Resource Monitoring
-        run: |
-          # Kill the background monitoring process
-          pkill -f "monitor_resources.sh"
-          echo "Monitoring stopped"          
           
+          kill $MONITOR_PID
+          echo "Monitoring stopped"
+
      # - name: Validate notebooks 
      #   run: |
      #    pytest --nbval "${{ matrix.notebooks }}" 
