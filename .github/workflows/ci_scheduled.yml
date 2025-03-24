@@ -24,8 +24,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: set-matrix
- #       run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
-        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+  #      run: echo "matrix=$(find notebooks -name "*.ipynb" | jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
 
           
   notebook-execution:
