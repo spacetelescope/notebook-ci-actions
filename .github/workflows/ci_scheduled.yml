@@ -21,37 +21,25 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      runner-config: ${{ steps.parse-config.outputs.config }}
     steps:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
   #      run: echo "matrix=$(find notebooks -name "*.ipynb" | jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+     
+      - name: Parse CI Config
+        id: parse-config
+        run: |
+          # Convert ci_config.txt to JSON, adding "group:" prefix to runner names
+          config=$(cat ci_config.txt | jq -R 'split(":") | {".[0]": ("group:" + .[1])}' | jq -s 'add + {"default": "ubuntu-latest"}')
+          echo "config=$config" >> $GITHUB_OUTPUT
 
           
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: ${{ 
-      fromJson(
-        format('{{{0}}}', 
-          join(
-            split(
-              join(
-                split(
-                  file('ci_config.txt'), 
-                  '\n'
-                ), 
-                ','
-              ), 
-              ':'
-            ), 
-            '","',
-            '":"group:'
-          ) & 
-          '","default":"ubuntu-latest"'
-        )
-      )[matrix.notebooks] || 'ubuntu-latest'
-      }}
+    runs-on:  ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
