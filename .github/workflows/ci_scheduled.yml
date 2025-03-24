@@ -68,16 +68,32 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on:
-      group: ${{ needs.get-runners.outputs.runnerName }}
-      
-      #${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' }}
-      #${{ (matrix.notebook == 'notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb' || matrix.notebook == 'notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb' || 'notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb') && 'jwst-pipeline-notebooks-32gb' || 'ubuntu-latest' }}
-
     strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+      fail-fast: false
+      matrix:
+          notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+    runs-on: ${{ 
+      fromJson(
+        format('{{{0}}}', 
+          join(
+            split(
+              join(
+                split(
+                  file('ci_config.txt'), 
+                  '\n'
+                ), 
+                ','
+              ), 
+              ':'
+            ), 
+            '","',
+            '":"group:'
+          ) & 
+          '","default":"ubuntu-latest"'
+        )
+      )[matrix.notebooks] || 'ubuntu-latest'
+      }}
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ inputs.python-version }}
