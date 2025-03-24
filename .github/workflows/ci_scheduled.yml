@@ -31,8 +31,8 @@ jobs:
       - name: Parse CI Config
         id: parse-config
         run: |
-          # Convert ci_config.txt to JSON with group structure
-          config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": {"group": "ubuntu-latest"}}' | jq -c .)
+          # Convert ci_config.txt to JSON with group structure for specific runners, string for default
+          config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-latest"}' | jq -c .)
           echo "config<<EOF" >> $GITHUB_OUTPUT
           echo "$config" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -41,7 +41,12 @@ jobs:
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
-    runs-on: ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || fromJson(needs.gather-notebooks.outputs.runner-config).default }}
+    runs-on: ${{ 
+      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-latest' && 
+      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 
+      'ubuntu-latest' 
+      }}    
+    #runs-on: ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || fromJson(needs.gather-notebooks.outputs.runner-config).default }}
     #runs-on:  ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
