@@ -32,7 +32,7 @@ jobs:
         id: parse-config
         run: |
           # Convert ci_config.txt to JSON, adding "group:" prefix to runner names
-          config=$(cat ci_config.txt | jq -R 'split(":") | {".[0]": ("group:" + .[1])}' | jq -s 'add + {"default": "ubuntu-latest"}')
+          config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): ("group:" + .[1]) }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-latest"}')
           echo "config=$config" >> $GITHUB_OUTPUT
 
           
