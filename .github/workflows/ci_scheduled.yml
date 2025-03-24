@@ -26,44 +26,6 @@ jobs:
       - id: set-matrix
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
         
-  get-runners:
-      name: Get Runners
-      runs-on: ubuntu-latest
-      strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
-      outputs:
-        runnerName: ${{ steps.runner-check.outputs.test }}
-      steps:
-      - name: Notebook check
-      - id: runner-check
-        run: echo "Checking notebook ${{ matrix.notebooks }}"
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Parse ci_config file and set runner size
-        id: parse_config
-        run: |
-          # Default runner is ubuntu-latest
-          runner_size="ubuntu-latest"
-          
-          # Path to your ci_config file (adjust if it's elsewhere)
-          ci_config_file="ci_config.txt"
-          # Check if the ci_config.txt file exists
-          if [[ ! -f "$ci_config_file" ]]; then
-            echo "ci_config.txt not found!"
-            exit 1
-          fi          
-          # Read the ci_config file and parse the notebook name and runner size
-          while IFS=: read -r notebook runner; do
-            if [[ $notebook == ${{ matrix.notebooks }} ]]; then
-              runner_size=$runner
-              break
-            fi
-          done < "$ci_config_file"
-          
-          # Set the runner size as an output variable
-          run: echo "runnerName=runner_size" >> "$GITHUB_OUTPUT"
           
   notebook-execution:
     needs: gather-notebooks
