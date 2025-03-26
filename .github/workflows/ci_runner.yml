@@ -122,3 +122,30 @@ jobs:
           jupyter nbconvert --to script ${{ matrix.notebooks }}
           pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
           bandit -lll -iii $pyfile
+          
+      - name: Commit modified file on current branch
+        run: |
+          git config user.name 'CI Bot'
+          git config user.email 'action@github.com'
+          git add ${{ matrix.notebooks }}
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+
+      - name: Checkout only the file to the target branch
+        run: |
+          git checkout -f gh-storage
+          git checkout @{-1} ${{ matrix.notebooks }}
+
+      - name: Commit and push modifications to target branch
+        run: |
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+
+          MAX_RETRIES=5
+          RETRY_DELAY=10s
+          for i in $(seq 1 $MAX_RETRIES); do
+            git push origin gh-storage --force && break || {
+              echo "Push $i failed... waiting $RETRY_DELAY"
+              sleep $RETRY_DELAY
+            }
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
