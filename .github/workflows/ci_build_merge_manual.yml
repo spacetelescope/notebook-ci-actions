@@ -157,6 +157,7 @@ jobs:
         jupyter-book build .
 
     - name: Execute JDAVIZ placeholder substitution
+      if: github.repository == 'spacetelescope/jdat_notebooks' ## this will only run on jdat_notebook repository
       run: |
         cp jdaviz_placeholder_new.png _build/html  
         chmod +x placeholder.sh
