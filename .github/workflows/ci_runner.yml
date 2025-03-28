@@ -108,8 +108,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          echo "DEBUG ---"
-          pwd
+          # Check if requirements.txt exists
+          if [ ! -f $(dirname "${{ matrix.notebooks }}")/requirements.txt ]; then
+            echo "Error: requirements.txt not found! A notebook folder must have an associated requirements file."
+            exit 1
+          fi
           echo "Path to requirements: $(dirname "${{ matrix.notebooks }}")/requirements.txt"
           ls $(dirname "${{ matrix.notebooks }}")
           echo "---"
