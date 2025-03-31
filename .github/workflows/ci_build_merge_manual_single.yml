@@ -56,21 +56,21 @@ jobs:
         export PYDEVD_DISABLE_FILE_VALIDATION=1
         export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         python -m pip install --upgrade pip
-         echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
-        ls $(dirname ${{ matrix.notebooks }})
+         echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
+        ls $(dirname ${{ matrix.notebook }})
         echo ---
         if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
           chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
-          ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+          ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
         fi
         if [ -f pre-requirements.txt ]; then
           pip install -r pre-requirements.txt
         fi
-        if [ -f $(dirname "${{ matrix.notebooks }}")/pre-install.sh ]; then
-          chmod +x $(dirname "${{ matrix.notebooks }}")/pre-install.sh
-          ./$(dirname "${{ matrix.notebooks }}")/pre-install.sh
+        if [ -f $(dirname "${{ matrix.notebook }}")/pre-install.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebook }}")/pre-install.sh
+          ./$(dirname "${{ matrix.notebook }}")/pre-install.sh
         fi
-        pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+        pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
         pip install pytest
         pip install nbval
         pip install nbconvert
@@ -91,8 +91,8 @@ jobs:
          fi        
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
+          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
+            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
          fi
         
     - name: Archive executed notebooks
