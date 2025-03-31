@@ -63,8 +63,8 @@ jobs:
          echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
         ls $(dirname ${{ matrix.notebook }})
         echo ---
-        if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
-          chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+        if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
+          chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
           ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
         fi
         if [ -f pre-requirements.txt ]; then
