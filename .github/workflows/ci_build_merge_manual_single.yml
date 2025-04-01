@@ -99,33 +99,42 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
          fi
         
-    - name: Archive executed notebooks
+    - name: Checkout only the file to the target branch
       run: |
-        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          git config pull.rebase false
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git checkout -b gh-storage
-          git add ${{ matrix.notebook }}
-          git commit -m 'Added executed notebook ${{ matrix.notebook }}'
-          ATTEMPTS_LEFT=3
-          until [ $ATTEMPTS_LEFT -lt 1 ]
-          do
-            git pull origin gh-storage -s recursive -X ours --allow-unrelated-histories
-            git push origin gh-storage 2>&1 | tee output.log
-            if grep -q "Updates were rejected because the remote contains work" output.log; then
-              echo "Push failed due to conflicting remote changes. Remaining attempts: $ATTEMPTS_LEFT"
-              let "ATTEMPTS_LEFT--"
-              sleep 5
-            else
-              break
-            fi
-          done
+        git fetch
+        git pull
+        git checkout -f gh-storage
+        git checkout @{-1} "${{ matrix.notebook }}"
+
+    - name: Commit and push modifications to target branch
+      run: |
+        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
+
+        MAX_RETRIES=10
+        RETRY_DELAY=30s  # Increased delay
+        success=false
+        for i in $(seq 1 $MAX_RETRIES); do
+          git fetch origin gh-storage
+          git rebase origin/gh-storage
+          if git push origin gh-storage --force; then
+            success=true
+            break
+          else
+            echo "Push $i failed... waiting $RETRY_DELAY"
+            sleep $RETRY_DELAY
+          fi
+        done
+
+        if [ "$success" = false ]; then
+          echo "Failed to push after $MAX_RETRIES attempts."
+          exit 1
         fi
-        
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
   generate_html:
     needs: tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -144,13 +153,14 @@ jobs:
         git fetch
         git checkout origin/gh-storage -- notebooks/
         jupyter-book build .
-        
+
     - name: Execute JDAVIZ placeholder substitution
+      if: github.repository == 'spacetelescope/jdat_notebooks' ## this will only run on jdat_notebook repository
       run: |
         cp jdaviz_placeholder_new.png _build/html  
         chmod +x placeholder.sh
-        ./placeholder.sh
-        
+        placeholder.sh
+
     # Push the book's HTML to github-pages
     - name: GitHub Pages action
       uses: peaceiris/actions-gh-pages@v4
