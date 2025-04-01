@@ -98,6 +98,13 @@ jobs:
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
          fi
+         
+    - name: Commit modified file on current branch
+      run: |
+        git config user.name 'CI Bot'
+        git config user.email 'action@github.com'
+        git add "${{ matrix.notebook }}"
+        git commit -m "Storing executed notebook ${{ matrix.notebook }}"    
         
     - name: Checkout only the file to the target branch
       run: |
