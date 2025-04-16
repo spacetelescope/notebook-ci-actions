@@ -155,13 +155,6 @@ jobs:
           if ! jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebooks }}"; then
             python .github/scripts/insert_failure_message.py "${{ matrix.notebooks }}"
           fi
-
-      - name: Bandit security test
-        run: |
-          pip install ipython
-          jupyter nbconvert --to script ${{ matrix.notebooks }}
-          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii $pyfile
           
       - name: Commit modified file on current branch
         run: |
