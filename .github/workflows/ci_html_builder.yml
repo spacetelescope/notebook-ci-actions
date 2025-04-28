@@ -1,0 +1,39 @@
+name: Build JupyterBook and Deploy
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: false
+        type: string
+        default: "3.11"
+    secrets:
+      github-token:
+        required: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install JupyterBook
+      run: |
+        pip install jupyter-book
+
+    - name: Build JupyterBook
+      run: |
+        jupyter-book build .
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.github-token }}
+        publish_dir: _build/html
