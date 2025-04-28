@@ -1,0 +1,109 @@
+name: Full Notebook CI Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+      execution-mode:
+        required: true
+        type: string
+      single-filename:
+        required: false
+        type: string
+      build-html:
+        required: false
+        type: boolean
+        default: true
+      security-scan:
+        required: false
+        type: boolean
+        default: true
+      use-conda:
+        required: false
+        type: boolean
+        default: false
+      conda-environment-file:
+        required: false
+        type: string
+      conda-packages:
+        required: false
+        type: string
+    secrets:
+      CASJOBS_USERID:
+        required: false
+      CASJOBS_PW:
+        required: false
+
+jobs:
+  validate-and-execute:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: []
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Conda Setup (if requested)
+      if: inputs.use-conda == true
+      run: |
+        source /usr/share/miniconda/etc/profile.d/conda.sh
+        conda init bash
+        if [[ "${{ inputs.conda-environment-file }}" != "" ]]; then
+          conda env create -f "${{ inputs.conda-environment-file }}" -n custom-env
+        else
+          conda create --yes -n custom-env python=${{ inputs.python-version }}
+          conda activate custom-env
+          if [[ "${{ inputs.conda-packages }}" != "" ]]; then
+            conda install --yes -c conda-forge $(echo "${{ inputs.conda-packages }}" | tr ',' ' ')
+          fi
+        fi
+
+    - name: Install Validation Dependencies
+      run: |
+        pip install jupyter nbval nbconvert bandit
+
+    - name: Validate Notebook
+      run: |
+        if [[ "${{ inputs.single-filename }}" != "" ]]; then
+          pytest --nbval --nbval-cell-timeout=4000 "${{ inputs.single-filename }}"
+        else
+          find notebooks/ -name '*.ipynb' | while read nb; do
+            pytest --nbval --nbval-cell-timeout=4000 "$nb"
+          done
+        fi
+
+    - name: Execute Notebook
+      run: |
+        if [[ "${{ inputs.single-filename }}" != "" ]]; then
+          jupyter nbconvert --to notebook --execute --inplace "${{ inputs.single-filename }}"
+        else
+          find notebooks/ -name '*.ipynb' | while read nb; do
+            jupyter nbconvert --to notebook --execute --inplace "$nb"
+          done
+        fi
+
+    - name: Security Scan
+      if: inputs.security-scan == true
+      run: |
+        find notebooks/ -name '*.ipynb' | while read nb; do
+          jupyter nbconvert --to script "$nb"
+        done
+        bandit -r notebooks/
+
+    - name: Upload Notebook Artifacts if Failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: failed-notebooks
+        path: notebooks/
+
