@@ -43,7 +43,7 @@ jobs:
       id: parse-config
       run: |
         # Convert ci_config.txt to JSON with group structure for specific runners, string for default
-        config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-latest"}' | jq -c .)
+        config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-24.04"}' | jq -c .)
         echo "config<<EOF" >> $GITHUB_OUTPUT
         echo "$config" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
@@ -52,9 +52,9 @@ jobs:
     needs: gather-notebooks
     environment: ci_env
     runs-on:  ${{ 
-      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-latest' && 
+      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-24.04' && 
       fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 
-      'ubuntu-latest' 
+      'ubuntu-24.04' 
       }}        
       
     strategy:
