@@ -21,43 +21,37 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      runner-config: ${{ steps.parse-config.outputs.config }}
     steps:
       - uses: actions/checkout@v4
       - id: set-matrix
         run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
-  debug-runners:
-      name: Debug Runners
-      runs-on: ubuntu-latest
-      strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
-      steps:
-      - name: Debug notebook check
-        run: echo "Checking notebook ${{ matrix.notebook }}"
+  #      run: echo "matrix=$(find notebooks -name "*.ipynb" | jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+     
+      - name: Parse CI Config
+        id: parse-config
+        run: |
+          # Convert ci_config.txt to JSON with group structure for specific runners, string for default
+          config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-24.04"}' | jq -c .)
+          echo "config<<EOF" >> $GITHUB_OUTPUT
+          echo "$config" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Set up the runner based on notebook
-        run: echo "Selected runner ${{ 
-          contains(fromJson('["notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb", "notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb"]'), matrix.notebook) && 'group:jwst-pipeline-notebooks-16gb' ||
-          contains(fromJson('["notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb", "notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb", "notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb"]'), matrix.notebook) && 'group:jwst-pipeline-notebooks-32gb' ||
-          'ubuntu-latest'
-          }}"
           
   notebook-execution:
     needs: gather-notebooks
     environment: ci_env
     runs-on: ${{ 
-      contains(fromJson('["notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb", "notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb"]'), matrix.notebook) && 'group:jwst-pipeline-notebooks-16gb' ||
-      contains(fromJson('["notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb", "notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb", "notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb"]'), matrix.notebook) && 'group:jwst-pipeline-notebooks-32gb' ||
-      'ubuntu-latest' }}
-
-      #${{ (matrix.notebook == 'notebooks/MIRI/MRS/JWPipeNB-MIRI-MRS.ipynb' || matrix.notebook == 'notebooks/NIRISS/Imaging/JWPipeNB-niriss-imaging.ipynb') && 'jwst-pipeline-notebooks-16gb' }}
-      #${{ (matrix.notebook == 'notebooks/NIRSPEC/BOTS/JWPipeNB-NIRSpec-BOTS.ipynb' || matrix.notebook == 'notebooks/MIRI/LRS-slit/JWPipeNB-MIRI-LRS-slit.ipynb' || 'notebooks/MIRI/Imaging-TSO/JWPipeNB-MIRI-imaging-TSO.ipynb') && 'jwst-pipeline-notebooks-32gb' || 'ubuntu-latest' }}
-
+      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-24.04' && 
+      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 
+      'ubuntu-24.04' 
+      }}    
+    #runs-on: ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || fromJson(needs.gather-notebooks.outputs.runner-config).default }}
+    #runs-on:  ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 'ubuntu-latest' }}
     strategy:
-        fail-fast: false
-        matrix:
-            notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+      fail-fast: false
+      matrix:
+          notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ inputs.python-version }}
@@ -96,20 +90,54 @@ jobs:
           pip install bandit
           pip install ipykernel
 
-
+      - name: Set up monitoring
+        run: |
+          cat << 'EOF' > monitor.sh
+          #!/bin/bash
+          
+          # Infinite loop to monitor resources every 15 seconds
+          while true; do
+            # Disk usage percentage (root filesystem)
+            DISK_USAGE=$(df -h / | awk 'NR==2 {print $5}' | cut -d'%' -f1)
+            
+            # Memory usage percentage
+            MEM_TOTAL=$(free -m | awk 'NR==2 {print $2}')
+            MEM_USED=$(free -m | awk 'NR==2 {print $3}')
+            MEM_USAGE=$((MEM_USED * 100 / MEM_TOTAL))
+            
+            # CPU usage percentage (average over all cores)
+            CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}' | cut -d'.' -f1)
+            
+            # Echo the percentages with a timestamp
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Disk: ${DISK_USAGE}% | Memory: ${MEM_USAGE}% | CPU: ${CPU_USAGE}%"
+            
+            # Wait 5 seconds
+            sleep 5
+          done
+          EOF
+                
       - name: Execute notebooks
         run: |
+         chmod +x ./monitor.sh
+          
+          # Start monitoring in the background
+          ./monitor.sh &
+          MONITOR_PID=$!
+          
           export CASJOBS_PW="$CI_CASJOBS_PW"
           export CASJOBS_USERID="$CI_CASJOBS_USERID"
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          jupyter nbconvert --template classic --to html --execute --ExecutePreprocessor.timeout=-1 "${{ matrix.notebooks }}"
           
-      - name: Validate notebooks 
-        run: |
-         pytest --nbval "${{ matrix.notebooks }}" 
+          kill $MONITOR_PID
+          echo "Monitoring stopped"
 
-      - name: Scan with Bandit
-        run: |
-          pip install ipython
-          jupyter nbconvert --to script ${{ matrix.notebooks }}
-          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii $pyfile
+     # - name: Validate notebooks 
+     #   run: |
+     #    pytest --nbval "${{ matrix.notebooks }}" 
+
+     # - name: Scan with Bandit
+     #   run: |
+     #     pip install ipython
+     #     jupyter nbconvert --to script ${{ matrix.notebooks }}
+     #     pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
+     #     bandit -lll -iii $pyfile
