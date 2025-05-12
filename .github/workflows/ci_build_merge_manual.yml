@@ -140,7 +140,7 @@ jobs:
         run: |
           git config user.name 'CI Bot'
           git config user.email 'action@github.com'
-          git add "${{ matrix.notebook }}"
+          git add "${{ matrix.notebooks }}"
           git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
   
       - name: Checkout only the file to the target branch
