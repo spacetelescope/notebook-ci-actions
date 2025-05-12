@@ -16,7 +16,7 @@ on:
 
 jobs:
   find_notebooks:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       notebook_list: ${{ steps.find.outputs.notebook_list }}
     steps:
@@ -34,7 +34,7 @@ jobs:
       id: parse-config
       run: |
         # Convert ci_config.txt to JSON with group structure for specific runners, string for default
-        config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-latest"}' | jq -c .)
+        config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-24.04"}' | jq -c .)
         echo "config<<EOF" >> $GITHUB_OUTPUT
         echo "$config" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT    
@@ -46,9 +46,9 @@ jobs:
       matrix:
         notebook: ${{ fromJson(needs.find_notebooks.outputs.notebook_list) }}
     runs-on: ${{ 
-      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-latest' && 
+      fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-24.04' && 
       fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 
-      'ubuntu-latest' 
+      'ubuntu-24.04' 
       }}    
           
     outputs:
