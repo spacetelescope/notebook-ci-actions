@@ -37,7 +37,7 @@ jobs:
         config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-24.04"}' | jq -c .)
         echo "config<<EOF" >> $GITHUB_OUTPUT
         echo "$config" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT    
+        echo "EOF" >> $GITHUB_OUTPUT
 
   tests:
     needs: find_notebooks
