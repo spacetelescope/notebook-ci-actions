@@ -13,7 +13,6 @@ on:
         description: 'CASJOBS password'
         required: false
           
-
 jobs:
   gather-notebooks:
     runs-on: ubuntu-latest
@@ -35,6 +34,7 @@ jobs:
           echo "$config" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+        
   tests:
     needs: gather-notebooks
     environment: ci_env
@@ -48,96 +48,133 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+          notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.python-version }}
-        
-    - name: Install dependencies
-      continue-on-error: false
-      run: |
-        export PYDEVD_DISABLE_FILE_VALIDATION=1
-        export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        python -m pip install --upgrade pip
-        pip install pytest
-        pip install nbval
-        pip install nbconvert
-        echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
-        ls $(dirname ${{ matrix.notebook }})
-        echo ---
-        if [ -f $(dirname "${{ matrix.notebook }}")/pre-install.sh ]; then
-          chmod +x $(dirname "${{ matrix.notebook }}")/pre-install.sh
-          ./$(dirname "${{ matrix.notebook }}")/pre-install.sh
-        fi
-        if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
-          chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-          ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-        fi
-        if [ -f pre-requirements.txt ]; then
-          pip install -r pre-requirements.txt
-        fi
-        pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
-
-
-    - name: Execute notebook
-      id: execute
-      continue-on-error: false
-      run: |
-        pip uninstall ipykernel -y
-        pip install ipykernel
-        export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
-        export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
-        export PYDEVD_DISABLE_FILE_VALIDATION=1
-        export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          if ! jupyter nbconvert --ExecutePreprocessor.timeout=-1  --to notebook --execute --inplace ${{ matrix.notebook }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: actions/setup-python@v5 ## needed for caching
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: 'pip'
+          
+      - name: Add conda to system path
+        run: |
+          # $CONDA is an environment variable pointing to the root of the miniconda directory
+          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          ## Install the local requirements file
+          echo DEBUG ---
+          pwd ## print working directory
+          echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
+          ls $(dirname ${{ matrix.notebooks }})
+          echo ---
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh ]; then
+            chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
+            ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
-        fi
-    - name: Commit modified file on current branch
-      run: |
-        git config user.name 'CI Bot'
-        git config user.email 'action@github.com'
-        git add "${{ matrix.notebook }}"
-        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-
-    - name: Checkout only the file to the target branch
-      run: |
-        git fetch
-        git pull
-        git checkout -f gh-storage
-        git checkout @{-1} "${{ matrix.notebook }}"
-
-    - name: Commit and push modifications to target branch
-      run: |
-        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-
-        MAX_RETRIES=10
-        RETRY_DELAY=30s  # Increased delay
-        success=false
-        for i in $(seq 1 $MAX_RETRIES); do
-          git fetch origin gh-storage
-          git rebase origin/gh-storage
-          if git push origin gh-storage --force; then
-            success=true
-            break
-          else
-            echo "Push $i failed... waiting $RETRY_DELAY"
-            sleep $RETRY_DELAY
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            pip install -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
           fi
-        done
+          if [ -f pre-requirements.txt ]; then
+            pip install -r pre-requirements.txt
+            echo Found Pre-Reqs
+          fi
+          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          pip install pytest
+          pip install nbval
+          pip install nbconvert
+          pip install bandit
+          pip install ipykernel
 
-        if [ "$success" = false ]; then
-          echo "Failed to push after $MAX_RETRIES attempts."
-          exit 1
-        fi
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up monitoring
+        run: |
+          cat << 'EOF' > monitor.sh
+          #!/bin/bash
+          
+          # Infinite loop to monitor resources every 15 seconds
+          while true; do
+            # Disk usage percentage (root filesystem)
+            DISK_USAGE=$(df -h / | awk 'NR==2 {print $5}' | cut -d'%' -f1)
+            
+            # Memory usage percentage
+            MEM_TOTAL=$(free -m | awk 'NR==2 {print $2}')
+            MEM_USED=$(free -m | awk 'NR==2 {print $3}')
+            MEM_USAGE=$((MEM_USED * 100 / MEM_TOTAL))
+            
+            # CPU usage percentage (average over all cores)
+            CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | awk '{print $2 + $4}' | cut -d'.' -f1)
+            
+            # Echo the percentages with a timestamp
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Disk: ${DISK_USAGE}% | Memory: ${MEM_USAGE}% | CPU: ${CPU_USAGE}%"
+            
+            # Wait 5 seconds
+            sleep 5
+          done
+          EOF
+                
+      - name: Execute notebooks
+        run: |
+         chmod +x ./monitor.sh
+          
+          # Start monitoring in the background
+          ./monitor.sh &
+          MONITOR_PID=$!
+          
+          pip uninstall ipykernel -y
+          pip install ipykernel
+          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
+          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
+          export PYDEVD_DISABLE_FILE_VALIDATION=1
+          export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
+          if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
+            if ! jupyter nbconvert --ExecutePreprocessor.timeout=-1  --to notebook --execute --inplace ${{ matrix.notebooks }}; then
+              python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
+            fi
+          fi
+          
+          kill $MONITOR_PID
+          echo "Monitoring stopped"
+
+      - name: Commit modified file on current branch
+        run: |
+          git config user.name 'CI Bot'
+          git config user.email 'action@github.com'
+          git add "${{ matrix.notebook }}"
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+  
+      - name: Checkout only the file to the target branch
+        run: |
+          git fetch
+          git pull
+          git checkout -f gh-storage
+          git checkout @{-1} "${{ matrix.notebooks }}"
+  
+      - name: Commit and push modifications to target branch
+        run: |
+          git commit -m "Storing executed notebook ${{ matrix.notebooks }}"
+  
+          MAX_RETRIES=10
+          RETRY_DELAY=30s  # Increased delay
+          success=false
+          for i in $(seq 1 $MAX_RETRIES); do
+            git fetch origin gh-storage
+            git rebase origin/gh-storage
+            if git push origin gh-storage --force; then
+              success=true
+              break
+            else
+              echo "Push $i failed... waiting $RETRY_DELAY"
+              sleep $RETRY_DELAY
+            fi
+          done
+  
+          if [ "$success" = false ]; then
+            echo "Failed to push after $MAX_RETRIES attempts."
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
   generate_html:
     needs: tests
