@@ -15,45 +15,40 @@ on:
           
 
 jobs:
-  find_notebooks:
+  gather-notebooks:
     runs-on: ubuntu-latest
     outputs:
-      notebook_list: ${{ steps.find.outputs.notebook_list }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      runner-config: ${{ steps.parse-config.outputs.config }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Find notebook files
-      id: find
-      run: |
-        notebook_files=$(find notebooks -name "*.ipynb" | jq -R -s -c 'split("\n")[:-1]')
-        echo "notebook_list=$notebook_files" >>$GITHUB_OUTPUT
-
-    ## Determine if we need a large sized runner from the config file
-    - name: Parse CI Config
-      id: parse-config
-      run: |
-        # Convert ci_config.txt to JSON with group structure for specific runners, string for default
-        config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-24.04"}' | jq -c .)
-        echo "config<<EOF" >> $GITHUB_OUTPUT
-        echo "$config" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: echo "matrix=$(find notebooks -name "*.ipynb" | jq -cnR '[inputs | select(length>0)]')" >> $GITHUB_OUTPUT
+  #      run: echo "matrix=$(find notebooks -name "*.ipynb" | jq --compact-output --null-input '$ARGS.positional' --args -- "${array[@]}")" >> $GITHUB_OUTPUT
+     
+      - name: Parse CI Config
+        id: parse-config
+        run: |
+          # Convert ci_config.txt to JSON with group structure for specific runners, string for default
+          config=$(cat ci_config.txt | jq -R 'split(":") | { (.[0]): { "group": .[1] } }' | jq -s 'reduce .[] as $item ({}; . + $item) + {"default": "ubuntu-24.04"}' | jq -c .)
+          echo "config<<EOF" >> $GITHUB_OUTPUT
+          echo "$config" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   tests:
-    needs: find_notebooks
-    strategy:
-      fail-fast: true
-      matrix:
-        notebook: ${{ fromJson(needs.find_notebooks.outputs.notebook_list) }}
+    needs: gather-notebooks
+    environment: ci_env
     runs-on: ${{ 
       fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] != 'ubuntu-24.04' && 
       fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 
       'ubuntu-24.04' 
       }}    
-          
-    outputs:
-      executed_notebooks: ${{ steps.execute.outputs.executed_notebooks }}
-    continue-on-error: false
+    #runs-on: ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || fromJson(needs.gather-notebooks.outputs.runner-config).default }}
+    #runs-on:  ${{ fromJson(needs.gather-notebooks.outputs.runner-config)[matrix.notebooks] || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+          notebook: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
