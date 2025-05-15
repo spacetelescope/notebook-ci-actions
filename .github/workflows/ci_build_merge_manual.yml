@@ -112,42 +112,56 @@ jobs:
     - name: Commit and push modified notebook to gh-storage
       id: pushstep
       run: |
+        set -e
+    
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
     
         NOTEBOOK_PATH="${{ matrix.notebook }}"
-        NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")    
+        NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")
     
-        # Create a unique worktree path based on notebook name hash
+        # Create unique worktree path
         HASH=$(echo "$NOTEBOOK_PATH" | sha1sum | cut -d' ' -f1)
         WORKTREE_DIR=".worktrees/gh-storage-${HASH}"
     
-        # Clean up if it somehow already exists (e.g. from reruns)
+        # Clean up prior worktree if any
         git worktree prune
         rm -rf "$WORKTREE_DIR"
     
+        # Fetch and add worktree for gh-storage
         git fetch origin gh-storage
         git worktree add "$WORKTREE_DIR" gh-storage
     
+        # Copy executed notebook into same path
         mkdir -p "$WORKTREE_DIR/$NOTEBOOK_DIR"
         cp "$NOTEBOOK_PATH" "$WORKTREE_DIR/$NOTEBOOK_PATH"
     
+        # Check for deprecation tag in existing file
+        WORKTREE_NOTEBOOK="$WORKTREE_DIR/$NOTEBOOK_PATH"
+        if [ -f "$WORKTREE_NOTEBOOK" ]; then
+          if jq -e '.metadata.deprecated.status == true' "$WORKTREE_NOTEBOOK" > /dev/null 2>&1; then
+            echo "Notebook is deprecated in gh-storage. Skipping push."
+            echo "pushed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+        fi
+    
+        # Commit if modified
         cd "$WORKTREE_DIR"
         git add "$NOTEBOOK_PATH"
-    
         if git commit -m "Storing executed notebook $NOTEBOOK_PATH"; then
-          echo "Notebook updated."
-          echo "pushed=true" >> $GITHUB_OUTPUT
+          echo "Notebook committed."
         else
-          echo "No changes to commit."
+          echo "No changes to commit. Skipping push."
           echo "pushed=false" >> $GITHUB_OUTPUT
           exit 0
         fi
     
+        # Push with retry and rebase logic
         MAX_RETRIES=10
         RETRY_DELAY=30s
         success=false
-        
+    
         for i in $(seq 1 $MAX_RETRIES); do
           git fetch origin gh-storage
           if git rebase origin/gh-storage && git push origin gh-storage; then
@@ -155,15 +169,17 @@ jobs:
             break
           else
             echo "Push $i failed... retrying in $RETRY_DELAY"
-            git rebase --abort || true  # Clean up rebase if it failed
+            git rebase --abort || true
             sleep $RETRY_DELAY
           fi
         done
-        
+    
         if [ "$success" = false ]; then
           echo "Failed to push after $MAX_RETRIES attempts."
           exit 1
         fi
+    
+        echo "pushed=true" >> $GITHUB_OUTPUT
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
