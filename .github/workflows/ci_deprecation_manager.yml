@@ -16,7 +16,10 @@ on:
 jobs:
   deprecate-manual:
     if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
     steps:
     - uses: actions/checkout@v4
     - name: Mark Notebook as Deprecated
@@ -26,7 +29,7 @@ jobs:
 
   move-deprecated:
     if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v4
     - name: Move Expired Deprecated Notebooks

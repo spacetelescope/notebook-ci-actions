@@ -13,24 +13,29 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6.0.1
       with:
+        version: "0.7.3"
         python-version: ${{ inputs.python-version }}
+        enable-cache: true
 
     - name: Install JupyterBook
       run: |
-        pip install jupyter-book
+        uv run pip install jupyter-book
 
     - name: Build JupyterBook
       run: |
-        jupyter-book build .
+        uv run jupyter-book build .
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4

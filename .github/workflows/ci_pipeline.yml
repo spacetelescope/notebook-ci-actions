@@ -20,16 +20,7 @@ on:
         required: false
         type: boolean
         default: true
-      use-conda:
-        required: false
-        type: boolean
-        default: false
-      conda-environment-file:
-        required: false
-        type: string
-      conda-packages:
-        required: false
-        type: string
+
     secrets:
       CASJOBS_USERID:
         required: false
@@ -38,57 +29,56 @@ on:
 
 jobs:
   validate-and-execute:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         notebook: []
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v6.0.1
       with:
+        version: "0.7.3"
         python-version: ${{ inputs.python-version }}
+        enable-cache: true
 
-    - name: Conda Setup (if requested)
-      if: inputs.use-conda == true
-      run: |
-        source /usr/share/miniconda/etc/profile.d/conda.sh
-        conda init bash
-        if [[ "${{ inputs.conda-environment-file }}" != "" ]]; then
-          conda env create -f "${{ inputs.conda-environment-file }}" -n custom-env
-        else
-          conda create --yes -n custom-env python=${{ inputs.python-version }}
-          conda activate custom-env
-          if [[ "${{ inputs.conda-packages }}" != "" ]]; then
-            conda install --yes -c conda-forge $(echo "${{ inputs.conda-packages }}" | tr ',' ' ')
-          fi
-        fi
+    - name: Set up micromamba
+      if: ${{ github.repository == 'spacetelescope/hst_notebooks' }}
+      uses: mamba-org/setup-micromamba@v2.0.4
+      with:
+        init-shell: bash
+        create-args: >-
+          python=${{ inputs.python-version }}
+          hstcal
 
     - name: Install Validation Dependencies
       run: |
-        pip install jupyter nbval nbconvert bandit
+        uv pip install jupyter nbval nbconvert bandit
 
     - name: Validate Notebook
       run: |
         if [[ "${{ inputs.single-filename }}" != "" ]]; then
-          pytest --nbval --nbval-cell-timeout=4000 "${{ inputs.single-filename }}"
+          uv run pytest --nbval --nbval-cell-timeout=4000 "${{ inputs.single-filename }}"
         else
           find notebooks/ -name '*.ipynb' | while read nb; do
-            pytest --nbval --nbval-cell-timeout=4000 "$nb"
+            uv run pytest --nbval --nbval-cell-timeout=4000 "$nb"
           done
         fi
 
     - name: Execute Notebook
       run: |
         if [[ "${{ inputs.single-filename }}" != "" ]]; then
-          jupyter nbconvert --to notebook --execute --inplace "${{ inputs.single-filename }}"
+          uv run jupyter nbconvert --to notebook --execute --inplace "${{ inputs.single-filename }}"
         else
           find notebooks/ -name '*.ipynb' | while read nb; do
-            jupyter nbconvert --to notebook --execute --inplace "$nb"
+            uv run jupyter nbconvert --to notebook --execute --inplace "$nb"
           done
         fi
 
@@ -96,9 +86,9 @@ jobs:
       if: inputs.security-scan == true
       run: |
         find notebooks/ -name '*.ipynb' | while read nb; do
-          jupyter nbconvert --to script "$nb"
+          uv run jupyter nbconvert --to script "$nb"
         done
-        bandit -r notebooks/
+        uv runbandit -r notebooks/
 
     - name: Upload Notebook Artifacts if Failure
       if: failure()
