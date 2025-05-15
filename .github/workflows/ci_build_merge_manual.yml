@@ -109,26 +109,45 @@ jobs:
 #        git add "${{ matrix.notebook }}"
 #        git commit -m "Storing executed notebook ${{ matrix.notebook }}"    
         
-    - name: Commit and push modifications to target branch
-      continue-on-error: true  
+    - name: Commit and push modified notebook to gh-storage
+      id: pushstep
       run: |
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
-        git add "${{ matrix.notebook }}"
+    
+        # Save the path (directory portion) of the notebook
+        NOTEBOOK_PATH="${{ matrix.notebook }}"
+        NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")
+    
+        # Fetch and create an isolated worktree for gh-storage
+        git fetch origin gh-storage
+        mkdir gh-storage-work
+        git worktree add gh-storage-work gh-storage
+    
+        # Recreate the original folder structure in the worktree
+        mkdir -p "gh-storage-work/$NOTEBOOK_DIR"
+    
+        # Copy the executed notebook into its original path
+        cp "$NOTEBOOK_PATH" "gh-storage-work/$NOTEBOOK_PATH"
+    
+        # Change into worktree and commit
+        cd gh-storage-work
+        git add "$NOTEBOOK_PATH"
         if git commit -m "Storing executed notebook $NOTEBOOK_PATH"; then
-          echo "Changes committed successfully."
+          echo "Notebook updated."
+          echo "pushed=true" >> $GITHUB_OUTPUT
         else
-          echo "No changes to commit. Exiting job."
+          echo "No changes to commit."
           echo "pushed=false" >> $GITHUB_OUTPUT
-          exit 78
+          exit 0
         fi
+    
+        # Push with retry logic
         MAX_RETRIES=10
-        RETRY_DELAY=30s  # Increased delay
+        RETRY_DELAY=30s
         success=false
         for i in $(seq 1 $MAX_RETRIES); do
-          git fetch origin gh-storage
-          git rebase origin/gh-storage
-          if git push origin gh-storage --force; then
+          if git push origin gh-storage; then
             success=true
             break
           else
@@ -136,7 +155,7 @@ jobs:
             sleep $RETRY_DELAY
           fi
         done
-
+    
         if [ "$success" = false ]; then
           echo "Failed to push after $MAX_RETRIES attempts."
           exit 1
