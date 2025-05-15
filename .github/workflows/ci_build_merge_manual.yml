@@ -119,6 +119,7 @@ jobs:
           echo "Changes committed successfully."
         else
           echo "No changes to commit. Exiting job."
+          echo "pushed=false" >> $GITHUB_OUTPUT
           exit 78
         fi
         MAX_RETRIES=10
@@ -145,6 +146,7 @@ jobs:
           
   generate_html:
     needs: tests
+    if: needs.tests.outputs.pushed == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
