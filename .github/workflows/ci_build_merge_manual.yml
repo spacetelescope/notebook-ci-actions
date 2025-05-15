@@ -102,15 +102,18 @@ jobs:
         git checkout -f gh-storage
         git checkout @{-1} "${{ matrix.notebook }}"
         
-    - name: Commit modified file on current branch
+#    - name: Commit modified file on current branch
+#      run: |
+#        git config user.name 'CI Bot'
+#        git config user.email 'action@github.com'
+#        git add "${{ matrix.notebook }}"
+#        git commit -m "Storing executed notebook ${{ matrix.notebook }}"    
+        
+    - name: Commit and push modifications to target branch
       run: |
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
         git add "${{ matrix.notebook }}"
-        git commit -m "Storing executed notebook ${{ matrix.notebook }}"    
-        
-    - name: Commit and push modifications to target branch
-      run: |
         git commit -m "Storing executed notebook ${{ matrix.notebook }}"
 
         MAX_RETRIES=10
