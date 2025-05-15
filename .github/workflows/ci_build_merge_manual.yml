@@ -110,8 +110,13 @@ jobs:
 
     - name: Commit and push modifications to target branch
       run: |
+        git fetch
+        git pull --rebase  # Specify the strategy here
+        git checkout -f gh-storage
+        git checkout @{-1} "${{ matrix.notebook }}"
+    
         git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-
+    
         MAX_RETRIES=10
         RETRY_DELAY=30s  # Increased delay
         success=false
@@ -126,7 +131,7 @@ jobs:
             sleep $RETRY_DELAY
           fi
         done
-
+    
         if [ "$success" = false ]; then
           echo "Failed to push after $MAX_RETRIES attempts."
           exit 1
