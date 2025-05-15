@@ -59,6 +59,13 @@ jobs:
           python=${{ inputs.python-version }}
           hstcal
 
+    - name: Set up micromamba
+      uses: mamba-org/setup-micromamba@v2.0.4
+      with:
+        init-shell: bash
+        create-args: >-
+          python=${{ inputs.python-version }}
+
     - name: Install Validation Dependencies
       run: |
         uv pip install jupyter nbval nbconvert bandit
