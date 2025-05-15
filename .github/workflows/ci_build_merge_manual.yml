@@ -115,24 +115,26 @@ jobs:
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
     
-        # Save the path (directory portion) of the notebook
         NOTEBOOK_PATH="${{ matrix.notebook }}"
-        NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")
+        NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")    
     
-        # Fetch and create an isolated worktree for gh-storage
+        # Create a unique worktree path based on notebook name hash
+        HASH=$(echo "$NOTEBOOK_PATH" | sha1sum | cut -d' ' -f1)
+        WORKTREE_DIR=".worktrees/gh-storage-${HASH}"
+    
+        # Clean up if it somehow already exists (e.g. from reruns)
+        git worktree prune
+        rm -rf "$WORKTREE_DIR"
+    
         git fetch origin gh-storage
-        mkdir gh-storage-work
-        git worktree add gh-storage-work gh-storage
+        git worktree add "$WORKTREE_DIR" gh-storage
     
-        # Recreate the original folder structure in the worktree
-        mkdir -p "gh-storage-work/$NOTEBOOK_DIR"
+        mkdir -p "$WORKTREE_DIR/$NOTEBOOK_DIR"
+        cp "$NOTEBOOK_PATH" "$WORKTREE_DIR/$NOTEBOOK_PATH"
     
-        # Copy the executed notebook into its original path
-        cp "$NOTEBOOK_PATH" "gh-storage-work/$NOTEBOOK_PATH"
-    
-        # Change into worktree and commit
-        cd gh-storage-work
+        cd "$WORKTREE_DIR"
         git add "$NOTEBOOK_PATH"
+    
         if git commit -m "Storing executed notebook $NOTEBOOK_PATH"; then
           echo "Notebook updated."
           echo "pushed=true" >> $GITHUB_OUTPUT
@@ -142,7 +144,6 @@ jobs:
           exit 0
         fi
     
-        # Push with retry logic
         MAX_RETRIES=10
         RETRY_DELAY=30s
         success=false
@@ -162,6 +163,7 @@ jobs:
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
           
   generate_html:
     needs: tests
