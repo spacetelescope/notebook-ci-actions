@@ -114,7 +114,8 @@ jobs:
         git pull --rebase  # Specify the strategy here
         git checkout -f gh-storage
         git checkout @{-1} "${{ matrix.notebook }}"
-    
+        git add ${{ matrix.notebook }}
+
         git commit -m "Storing executed notebook ${{ matrix.notebook }}"
     
         MAX_RETRIES=10
