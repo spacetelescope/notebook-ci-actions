@@ -30,6 +30,7 @@ on:
 jobs:
   validate-and-execute:
     runs-on: ubuntu-24.04
+
     strategy:
       fail-fast: false
       matrix:
@@ -88,7 +89,7 @@ jobs:
         find notebooks/ -name '*.ipynb' | while read nb; do
           uv run jupyter nbconvert --to script "$nb"
         done
-        uv runbandit -r notebooks/
+        uv run bandit -r notebooks/
 
     - name: Upload Notebook Artifacts if Failure
       if: failure()
