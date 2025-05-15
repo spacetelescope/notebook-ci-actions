@@ -39,22 +39,17 @@ jobs:
       #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
       - uses: actions/checkout@v3
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v4 ## needed for caching
+        uses: astral-sh/setup-uv@v6.0.1
         with:
+          version: "0.7.3"
           python-version: ${{ inputs.python-version }}
-          cache: 'pip'
-          
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+          enable-cache: true
           
       - name: Install dependencies
+        env:
+          PYDEVD_DISABLE_FILE_VALIDATION: 1
+          SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
         run: |
-          pip install wheel
-          export PYDEVD_DISABLE_FILE_VALIDATION=1
-          export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-          python -m pip install --upgrade pip
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -67,16 +62,16 @@ jobs:
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
           if [ -f pre-requirements.txt ]; then
-            pip install -r pre-requirements.txt
+            uv pip install -r pre-requirements.txt
           fi
-          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-          pip install pytest
-          pip install nbval
-          pip install nbconvert
+          uv pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          uv pip install pytest
+          uv pip install nbval
+          uv pip install nbconvert
           
       - name: Execute notebooks
         run: |
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          uv run jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: |
-          pytest --nbval "${{ matrix.notebooks }}"
+          uv run pytest --nbval "${{ matrix.notebooks }}"

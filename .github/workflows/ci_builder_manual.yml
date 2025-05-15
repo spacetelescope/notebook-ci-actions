@@ -24,28 +24,30 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v4
+      uses: astral-sh/setup-uv@v6.0.1
       with:
+        version: "0.7.3"
         python-version: ${{ inputs.python-version }}
+        enable-cache: true
         
     - name: Install dependencies
       run: |
-        pip install ghp-import
-        pip install jupyter-book
-        pip install myst-nb
-        pip install astroid
-        pip install nbval
-        #pip install bs4
-        #pip install lxml
+        uv pip install ghp-import
+        uv pip install jupyter-book
+        uv pip install myst-nb
+        uv pip install astroid
+        uv pip install nbval
+        #uv pip install bs4
+        #uv pip install lxml
         ## test to bypass the jupyter-book lower version
-        pip install jsonschema==4.6.0
+        uv pip install jsonschema==4.6.0
         PATH="${PATH}:${HOME}/.local/bin"
 
     - name: Build HTML
       run: |
         git fetch
         git checkout origin/gh-storage -- notebooks/
-        jupyter-book build .
+        uv run jupyter-book build .
         
    # - name: Execute JDAVIZ placeholder substitution
    #   run: |

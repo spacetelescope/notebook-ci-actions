@@ -31,24 +31,21 @@ jobs:
       #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
       - uses: actions/checkout@v2
       - name: Set up Python 3.8.12
-        uses: actions/setup-python@v2 ## needed for caching
+        uses: astral-sh/setup-uv@v6.0.1
         with:
+          version: "0.7.3"
           python-version: 3.8.12
-          cache: 'pip'
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+          enable-cache: true
+          cache-dependency-glob: requirements.txt
       - name: Install dependencies
         run: |
-          #conda env update --file CIenvironment.yml --name base
-          pip install -r requirements.txt
-          pip install pytest
-          pip install nbval
-          pip install nbconvert
+          uv pip install -r requirements.txt
+          uv pip install pytest
+          uv pip install nbval
+          uv pip install nbconvert
       - name: Execute notebooks
         run: |
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          uv run jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       #- name: Validate notebooks 
       #  run: |
-      #   pytest --nbval "${{ matrix.notebooks }}"
+      #   uv run pytest --nbval "${{ matrix.notebooks }}"
