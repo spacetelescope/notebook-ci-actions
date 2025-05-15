@@ -94,13 +94,7 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
-    - name: Commit modified file on current branch
-      run: |
-        git config user.name 'CI Bot'
-        git config user.email 'action@github.com'
-        git add "${{ matrix.notebook }}"
-        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-
+        
     - name: Checkout only the file to the target branch
       run: |
         git fetch
@@ -110,14 +104,8 @@ jobs:
 
     - name: Commit and push modifications to target branch
       run: |
-        git fetch
-        git pull --rebase  # Specify the strategy here
-        git checkout -f gh-storage
-        git checkout @{-1} "${{ matrix.notebook }}"
-        git add ${{ matrix.notebook }}
-
         git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-    
+
         MAX_RETRIES=10
         RETRY_DELAY=30s  # Increased delay
         success=false
@@ -132,7 +120,7 @@ jobs:
             sleep $RETRY_DELAY
           fi
         done
-    
+
         if [ "$success" = false ]; then
           echo "Failed to push after $MAX_RETRIES attempts."
           exit 1
