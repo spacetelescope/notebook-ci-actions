@@ -114,8 +114,12 @@ jobs:
         git config user.name 'CI Bot'
         git config user.email 'action@github.com'
         git add "${{ matrix.notebook }}"
-        git commit -m "Storing executed notebook ${{ matrix.notebook }}"
-
+        if git commit -m "Storing executed notebook $NOTEBOOK_PATH"; then
+          echo "Changes committed successfully."
+        else
+          echo "No changes to commit. Exiting job."
+          exit 1  
+        fi
         MAX_RETRIES=10
         RETRY_DELAY=30s  # Increased delay
         success=false
