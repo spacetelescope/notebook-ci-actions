@@ -95,12 +95,12 @@ jobs:
           fi
         fi
         
-    - name: Checkout only the file to the target branch
-      run: |
-        git fetch
-        git pull
-        git checkout -f gh-storage
-        git checkout @{-1} "${{ matrix.notebook }}"
+#    - name: Checkout only the file to the target branch
+#      run: |
+#        git fetch
+#        git pull
+#        git checkout -f gh-storage
+#        git checkout @{-1} "${{ matrix.notebook }}"
         
 #    - name: Commit modified file on current branch
 #      run: |
