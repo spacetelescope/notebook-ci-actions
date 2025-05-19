@@ -33,13 +33,18 @@ jobs:
         fail-fast: false
         matrix:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
     steps:
       - uses: actions/checkout@v3
 
       - name: Set up micromamba and install dependencies
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2.0.4
         with:
           environment-name: hstcal-env
+          init-shell: >-
+            bash
           create-args: >-
             -c conda-forge
             python=${{ inputs.python-version }}
@@ -49,25 +54,15 @@ jobs:
             pytest
             nbval
             nbconvert
-      
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: astral-sh/setup-uv@v6.0.1
-        with:
-          version: "0.7.3"
-          python-version: ${{ inputs.python-version }}
-          enable-cache: true
-      
+          channels: conda-forge
+
       - name: Install dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
         run: |
-          eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
-          
           # Verify numpy version (for debugging)
           python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
-          
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -82,31 +77,23 @@ jobs:
           if [ -f pre-requirements.txt ]; then
             # Exclude numpy from requirements to avoid overwriting
             grep -v numpy pre-requirements.txt > pre-requirements-filtered.txt || true
-            uv pip install --system --no-build-isolation -r pre-requirements-filtered.txt
+            pip install --no-build-isolation -r pre-requirements-filtered.txt
           fi
           
           # Filter out numpy from requirements.txt
           if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
             grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt > requirements-filtered.txt || true
-            uv pip install --system --no-build-isolation -r requirements-filtered.txt
+            pip install --no-build-isolation -r requirements-filtered.txt
           fi
           
-          uv pip install --system pytest
-          uv pip install --system nbval
-          uv pip install --system nbconvert
-
       - name: Clean pycache
         run: |
           find . -type d -name "__pycache__" -exec rm -rf {} +
           
       - name: Execute notebooks
         run: |
-          eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
-          uv run jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
 
       - name: Validate notebooks
         run: |
-          eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
-          uv run pytest --nbval "${{ matrix.notebooks }}"
+          pytest --nbval "${{ matrix.notebooks }}"
