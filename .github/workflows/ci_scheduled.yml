@@ -46,7 +46,9 @@ jobs:
           init-shell: >-
             bash
           create-args: >-
+            -c conda-forge
             python=${{ inputs.python-version }}
+            numpy
             hstcal
             jupyter
             pytest
@@ -59,6 +61,8 @@ jobs:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
         run: |
+          # Verify numpy version (for debugging)
+          python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -71,10 +75,21 @@ jobs:
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
           if [ -f pre-requirements.txt ]; then
-            pip install -r pre-requirements.txt
+            # Exclude numpy from requirements to avoid overwriting
+            grep -v numpy pre-requirements.txt > pre-requirements-filtered.txt || true
+            pip install --no-build-isolation -r pre-requirements-filtered.txt
           fi
-          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-
+          
+          # Filter out numpy from requirements.txt
+          if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
+            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt > requirements-filtered.txt || true
+            pip install --no-build-isolation -r requirements-filtered.txt
+          fi
+          
+      - name: Clean pycache
+        run: |
+          find . -type d -name "__pycache__" -exec rm -rf {} +
+          
       - name: Execute notebooks
         run: |
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
