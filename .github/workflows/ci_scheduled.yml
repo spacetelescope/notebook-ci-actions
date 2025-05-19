@@ -56,7 +56,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
           enable-cache: true
 
-      - name: Install pip dependencies
+      - name: Install dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
@@ -77,8 +77,13 @@ jobs:
           if [ -f pre-requirements.txt ]; then
             uv pip install --system -r pre-requirements.txt
           fi
+          # Install numpy first to ensure it's available for builds
+          uv pip install --system "numpy<1.24"
           uv pip install --system -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-
+          uv pip install --system pytest
+          uv pip install --system nbval
+          uv pip install --system nbconvert
+          
       - name: Execute notebooks
         run: |
           eval "$(micromamba shell hook -s posix)"
