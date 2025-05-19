@@ -39,7 +39,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-
       - name: Set up micromamba and install dependencies
         uses: mamba-org/setup-micromamba@v1
         with:
@@ -48,7 +47,7 @@ jobs:
             -c conda-forge
             python=${{ inputs.python-version }}
             numpy<1.24
-            ginga>=4.1.0
+            ginga=3.4.0
             hstcal
             jupyter
             pytest
@@ -62,6 +61,13 @@ jobs:
           python-version: ${{ inputs.python-version }}
           enable-cache: true
       
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+       
       - name: Install dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
@@ -72,6 +78,9 @@ jobs:
           
           # Force the correct numpy version
           uv pip install --system --no-build-isolation "numpy<1.24"
+          
+          # Install specific ginga version known to work with these notebooks
+          micromamba install -c conda-forge ginga=3.4.0
           
           # Verify numpy version (for debugging)
           python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
@@ -93,12 +102,15 @@ jobs:
             uv pip install --system --no-build-isolation -r pre-requirements-filtered.txt
           fi
           
-          # Filter out numpy and replace ginga==4.0.1 with ginga>=4.1.0 from requirements.txt
+          # Filter out numpy and handle ginga package versions correctly
           if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
             # Fix numpy and ginga in requirements
-            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | sed 's/ginga==4.0.1/ginga>=4.1.0/g' > requirements-filtered.txt || true
+            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | sed 's/ginga==4.0.1/ginga==4.0.1/g' > requirements-filtered.txt || true
             uv pip install --system --no-build-isolation -r requirements-filtered.txt
           fi
+          
+          # Install specific packages needed for notebooks that might have compatibility issues
+          uv pip install --system --no-build-isolation stwcs drizzlepac
           
           uv pip install --system pytest
           uv pip install --system nbval
