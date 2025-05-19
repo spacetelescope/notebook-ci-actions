@@ -61,8 +61,6 @@ jobs:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
         run: |
-          eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
