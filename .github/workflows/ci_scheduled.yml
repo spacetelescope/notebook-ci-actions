@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up micromamba and install hstcal & jupyter
+      - name: Set up micromamba and install dependencies
         uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: hstcal-env
@@ -44,6 +44,9 @@ jobs:
             python=${{ inputs.python-version }}
             hstcal
             jupyter
+            pytest
+            nbval
+            nbconvert
           channels: conda-forge
 
       - name: Set up Python ${{ inputs.python-version }}
@@ -53,7 +56,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
           enable-cache: true
 
-      - name: Install dependencies
+      - name: Install pip dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
@@ -75,9 +78,6 @@ jobs:
             uv pip install --system -r pre-requirements.txt
           fi
           uv pip install --system -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-          uv pip install --system pytest
-          uv pip install --system nbval
-          uv pip install --system nbconvert
 
       - name: Execute notebooks
         run: |
@@ -87,4 +87,6 @@ jobs:
 
       - name: Validate notebooks
         run: |
+          eval "$(micromamba shell hook -s posix)"
+          micromamba activate hstcal-env
           uv run pytest --nbval "${{ matrix.notebooks }}"
