@@ -103,7 +103,7 @@ jobs:
           fi
           
           # Install specific packages needed for notebooks that might have compatibility issues
-          uv pip install --system --no-build-isolation stwcs drizzlepac
+
           
           uv pip install --system pytest
           uv pip install --system nbval
