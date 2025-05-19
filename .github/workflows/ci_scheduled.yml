@@ -106,6 +106,7 @@ jobs:
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
+          uv pip install --system numpy -I
 
           
       - name: Clean pycache
