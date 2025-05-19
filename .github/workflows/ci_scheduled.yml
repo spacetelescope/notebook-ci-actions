@@ -70,10 +70,6 @@ jobs:
           eval "$(micromamba shell hook -s posix)"
           micromamba activate hstcal-env
           
-          # Make sure we have a consistent numpy installation from micromamba only
-          # Avoid using pip for numpy to prevent binary compatibility issues
-          micromamba install -c conda-forge numpy=1.26.0 ginga=3.4.0
-          
           # Verify numpy version (for debugging)
           python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
           
@@ -94,21 +90,10 @@ jobs:
             uv pip install --system --no-build-isolation -r pre-requirements-filtered.txt
           fi
           
-          # Filter out numpy and handle ginga package versions correctly
-          if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
-            # Fix numpy and ginga in requirements - replace broken ginga==4.0.1 with working version
-            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | grep -v ginga > requirements-filtered.txt || true
-            uv pip install --system --no-build-isolation -r requirements-filtered.txt
-          fi
-          
-          # Install specific packages needed for notebooks that might have compatibility issues
-
           
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
-
-         
 
           
       - name: Clean pycache
