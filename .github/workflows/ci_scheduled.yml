@@ -44,7 +44,7 @@ jobs:
             -c conda-forge
             python=${{ inputs.python-version }}
             numpy<1.24
-            ginga
+            ginga>=4.1.0
             hstcal
             jupyter
             pytest
