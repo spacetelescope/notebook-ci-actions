@@ -75,11 +75,10 @@ jobs:
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
           if [ -f pre-requirements.txt ]; then
-            uv pip install --system -r pre-requirements.txt
+            uv pip install --system --no-build-isolation -r pre-requirements.txt
           fi
-          # Install numpy first to ensure it's available for builds
-          uv pip install --system "numpy<1.24"
-          uv pip install --system -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          uv pip install --system --no-build-isolation "numpy<1.24"
+          uv pip install --system --no-build-isolation -r $(dirname ${{ matrix.notebooks }})/requirements.txt
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
