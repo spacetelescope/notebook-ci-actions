@@ -45,6 +45,9 @@ jobs:
           python-version: ${{ inputs.python-version }}
           enable-cache: true
           
+      - name: Create virtual environment
+        run: uv venv
+        
       - name: Install dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
