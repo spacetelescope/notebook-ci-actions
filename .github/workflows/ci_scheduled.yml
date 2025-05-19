@@ -46,13 +46,15 @@ jobs:
           create-args: >-
             -c conda-forge
             python=${{ inputs.python-version }}
-            numpy<1.24
+            numpy=1.23.5
             ginga=3.4.0
             hstcal
             jupyter
             pytest
             nbval
             nbconvert
+            stwcs
+            drizzlepac
       
       - name: Set up Python ${{ inputs.python-version }}
         uses: astral-sh/setup-uv@v6.0.1
@@ -77,10 +79,7 @@ jobs:
           micromamba activate hstcal-env
           
           # Force the correct numpy version
-          uv pip install --system --no-build-isolation "numpy<1.24"
-          
-          # Install specific ginga version known to work with these notebooks
-          micromamba install -c conda-forge ginga=3.4.0
+          micromamba install -c conda-forge numpy=1.23.5 ginga=3.4.0
           
           # Verify numpy version (for debugging)
           python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
