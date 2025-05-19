@@ -43,7 +43,7 @@ jobs:
           create-args: >-
             -c conda-forge
             python=${{ inputs.python-version }}
-            "numpy<1.24"
+            numpy < 1.24
             hstcal
             jupyter
             pytest
