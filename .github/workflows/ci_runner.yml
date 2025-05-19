@@ -62,6 +62,7 @@ jobs:
             pytest
             nbval
             nbconvert
+            bandit
 
       
       - name: Set up Python ${{ inputs.python-version }}
@@ -103,6 +104,7 @@ jobs:
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
+          uv pip install --system bandit
 
       - name: Monitor memory and disk usage every 10 seconds
         run: |
