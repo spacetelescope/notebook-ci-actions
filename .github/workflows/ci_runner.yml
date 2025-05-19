@@ -41,18 +41,22 @@ jobs:
       fail-fast: false
       matrix:
         notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
             
-      - name: Add conda to system path
-        run: |
-          echo $CONDA/bin >> $GITHUB_PATH
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: mamba-org/setup-micromamba@v2.0.4
+        with:
+          init-shell: >-
+            bash
+          create-args: >-
+            python=${{ inputs.python-version }}
+            ${{ github.repository == 'spacetelescope/hst_notebooks' && 'hstcal' || '' }}
         
       - name: Install dependencies
         run: |
@@ -77,10 +81,6 @@ jobs:
           pip install nbval
           pip install nbconvert
           pip install bandit
-          if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda create --yes --solver=classic -n hstcal -c conda-forge hstcal          
-          fi
 
       - name: Monitor memory and disk usage every 10 seconds
         run: |
@@ -98,11 +98,6 @@ jobs:
 
       - name: Validate notebooks
         run: |
-         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda init
-            conda activate hstcal
-         fi
          export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
          export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
@@ -111,11 +106,6 @@ jobs:
       - name: Execute notebooks
         id: execute
         run: |
-         if [ "${GITHUB_REPOSITORY}" == "spacetelescope/hst_notebooks" ]; then
-            source /usr/share/miniconda/etc/profile.d/conda.sh
-            conda init
-            conda activate hstcal
-         fi        
           export CASJOBS_PW=${{ secrets.CASJOBS_PW }}
           export CASJOBS_USERID=${{ secrets.CASJOBS_USERID }}
           if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebooks }}; then

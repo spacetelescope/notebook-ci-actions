@@ -42,15 +42,12 @@ jobs:
       #- run: | 
       #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4 ## needed for caching
+      - name: Set up Python ${{ inputs.python-version }}
+        uses: astral-sh/setup-uv@v6.0.1
         with:
-          python-version: ${{inputs.python-version}}
-          cache: 'pip'
-      - name: Add conda to system path
-        run: |
-          # $CONDA is an environment variable pointing to the root of the miniconda directory
-          echo $CONDA/bin >> $GITHUB_PATH
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
       - name: Install dependencies
         run: |
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
@@ -60,13 +57,13 @@ jobs:
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
-          pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-          pip install pytest
-          pip install nbval
-          pip install nbconvert
+          uv pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          uv pip install pytest
+          uv pip install nbval
+          uv pip install nbconvert
       - name: Execute notebooks
         run: |
-          jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+          uv run jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
       - name: Validate notebooks
         run: |
-          pytest --nbval "${{ matrix.notebooks }}"
+          uv run pytest --nbval "${{ matrix.notebooks }}"

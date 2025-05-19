@@ -47,19 +47,21 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v4
+      uses: astral-sh/setup-uv@v6.0.1
       with:
+        version: "0.7.3"
         python-version: ${{ inputs.python-version }}
+        enable-cache: true
         
     - name: Install dependencies
       continue-on-error: true
+      env:
+        PYDEVD_DISABLE_FILE_VALIDATION: 1
+        SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
       run: |
-        export PYDEVD_DISABLE_FILE_VALIDATION=1
-        export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
-        python -m pip install --upgrade pip
-        pip install pytest
-        pip install nbval
-        pip install nbconvert
+        uv pip install pytest
+        uv pip install nbval
+        uv pip install nbconvert
         echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
         ls $(dirname ${{ matrix.notebook }})
         echo ---
@@ -72,19 +74,20 @@ jobs:
           ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
         fi
         if [ -f pre-requirements.txt ]; then
-          pip install -r pre-requirements.txt
+          uv pip install -r pre-requirements.txt
         fi
-        pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
+        uv pip install -r $(dirname ${{ matrix.notebook }})/requirements.txt
 
 
     - name: Execute notebook
       id: execute
+      env:
+        PYDEVD_DISABLE_FILE_VALIDATION: 1
+        SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
       run: |
-        export PYDEVD_DISABLE_FILE_VALIDATION=1
-        export SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL=True
         if [ "${{ matrix.notebook }}" != "notebooks/preimaging/preimaging_01_mirage.ipynb" ]; then
-          if ! jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
-            python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
+          if ! uv run jupyter nbconvert --to notebook --execute --inplace ${{ matrix.notebook }}; then
+            uv run python .github/scripts/insert_failure_message.py ${{ matrix.notebook }}
           fi
         fi
     - name: Archive executed notebooks
@@ -133,19 +136,21 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Python ${{ inputs.python-version }}
-      uses: actions/setup-python@v4
+      uses: astral-sh/setup-uv@v6.0.1
       with:
+        version: "0.7.3"
         python-version: ${{ inputs.python-version }}
+        enable-cache: true
         
     - name: Install dependencies
       run: |
-        pip install jupyter-book
+        uv pip install jupyter-book
 
     - name: Build HTML
       run: |
         git fetch
         git checkout origin/gh-storage -- notebooks/
-        jupyter-book build .
+        uv run jupyter-book build .
         
 
     # Push the book's HTML to github-pages
