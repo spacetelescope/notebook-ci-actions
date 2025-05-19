@@ -35,24 +35,30 @@ jobs:
             notebooks: ${{ fromJson(needs.gather-notebooks.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v3
-      #- run: | 
-      #      pip install -r ${${{ matrix.notebooks }}%/*}/requirements.txt
-      - uses: actions/checkout@v3
+
+      - name: Set up micromamba and install hstcal
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: hstcal-env
+          create-args: >-
+            python=${{ inputs.python-version }}
+            hstcal
+          channels: conda-forge
+
       - name: Set up Python ${{ inputs.python-version }}
         uses: astral-sh/setup-uv@v6.0.1
         with:
           version: "0.7.3"
           python-version: ${{ inputs.python-version }}
           enable-cache: true
-          
-      - name: Create virtual environment
-        run: uv venv
-        
+
       - name: Install dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
         run: |
+          eval "$(micromamba shell hook -s posix)"
+          micromamba activate hstcal-env
           echo "Path to req's: $(dirname ${{ matrix.notebooks }})/requirements.txt"
           ls $(dirname ${{ matrix.notebooks }})
           echo ---
@@ -65,12 +71,12 @@ jobs:
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
           if [ -f pre-requirements.txt ]; then
-            uv pip install -r pre-requirements.txt
+            uv pip install --system -r pre-requirements.txt
           fi
-          uv pip install -r $(dirname ${{ matrix.notebooks }})/requirements.txt
-          uv pip install pytest
-          uv pip install nbval
-          uv pip install nbconvert
+          uv pip install --system -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          uv pip install --system pytest
+          uv pip install --system nbval
+          uv pip install --system nbconvert
           
       - name: Execute notebooks
         run: |
