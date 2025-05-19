@@ -95,6 +95,10 @@ jobs:
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
+
+      - name: Clean pycache
+        run: |
+          find . -type d -name "__pycache__" -exec rm -rf {} +
           
       - name: Execute notebooks
         run: |
