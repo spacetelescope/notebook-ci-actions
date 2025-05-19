@@ -84,12 +84,12 @@ jobs:
             chmod +x $(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
             ./$(dirname "${{ matrix.notebooks }}")/pre-requirements.sh
           fi
-          if [ -f pre-requirements.txt ]; then
-            # Exclude numpy from requirements to avoid overwriting
-            grep -v numpy pre-requirements.txt > pre-requirements-filtered.txt || true
-            uv pip install --system --no-build-isolation -r pre-requirements-filtered.txt
+          if [ -f $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt ]; then
+            uv pip install --system --no-build-isolation -r $(dirname "${{ matrix.notebooks }}")/pre-requirements.txt
           fi
-          
+          if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
+            uv pip install --system --no-build-isolation -r $(dirname ${{ matrix.notebooks }})/requirements.txt
+          fi         
           
           uv pip install --system pytest
           uv pip install --system nbval
