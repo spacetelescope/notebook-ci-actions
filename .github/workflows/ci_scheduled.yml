@@ -117,8 +117,12 @@ jobs:
           
       - name: Execute notebooks
         run: |
+          eval "$(micromamba shell hook -s posix)"
+          micromamba activate hstcal-env
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
 
       - name: Validate notebooks
         run: |
+          eval "$(micromamba shell hook -s posix)"
+          micromamba activate hstcal-env
           pytest --nbval "${{ matrix.notebooks }}"
