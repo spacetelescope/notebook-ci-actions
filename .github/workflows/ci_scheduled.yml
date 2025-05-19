@@ -105,7 +105,7 @@ jobs:
           # Filter out numpy and handle ginga package versions correctly
           if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
             # Fix numpy and ginga in requirements
-            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | sed 's/ginga==4.0.1/ginga==4.0.1/g' > requirements-filtered.txt || true
+            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | sed 's/ginga==4.0.1/ginga==3.4.0/g' > requirements-filtered.txt || true
             uv pip install --system --no-build-isolation -r requirements-filtered.txt
           fi
           
