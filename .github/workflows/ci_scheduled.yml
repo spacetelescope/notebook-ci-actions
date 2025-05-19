@@ -36,13 +36,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up micromamba and install hstcal
+      - name: Set up micromamba and install hstcal & jupyter
         uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: hstcal-env
           create-args: >-
             python=${{ inputs.python-version }}
             hstcal
+            jupyter
           channels: conda-forge
 
       - name: Set up Python ${{ inputs.python-version }}
@@ -77,10 +78,13 @@ jobs:
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
-          
+
       - name: Execute notebooks
         run: |
+          eval "$(micromamba shell hook -s posix)"
+          micromamba activate hstcal-env
           uv run jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
+
       - name: Validate notebooks
         run: |
           uv run pytest --nbval "${{ matrix.notebooks }}"
