@@ -63,13 +63,6 @@ jobs:
           python-version: ${{ inputs.python-version }}
           enable-cache: true
       
-      - name: Set up Python ${{ inputs.python-version }}
-        uses: astral-sh/setup-uv@v6.0.1
-        with:
-          version: "0.7.3"
-          python-version: ${{ inputs.python-version }}
-          enable-cache: true
-       
       - name: Install dependencies
         env:
           PYDEVD_DISABLE_FILE_VALIDATION: 1
@@ -78,7 +71,8 @@ jobs:
           eval "$(micromamba shell hook -s posix)"
           micromamba activate hstcal-env
           
-          # Force the correct numpy version
+          # Make sure we have a consistent numpy installation from micromamba only
+          # Avoid using pip for numpy to prevent binary compatibility issues
           micromamba install -c conda-forge numpy=1.23.5 ginga=3.4.0
           
           # Verify numpy version (for debugging)
@@ -103,8 +97,8 @@ jobs:
           
           # Filter out numpy and handle ginga package versions correctly
           if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
-            # Fix numpy and ginga in requirements
-            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | sed 's/ginga==4.0.1/ginga==3.4.0/g' > requirements-filtered.txt || true
+            # Fix numpy and ginga in requirements - replace broken ginga==4.0.1 with working version
+            grep -v numpy $(dirname ${{ matrix.notebooks }})/requirements.txt | grep -v ginga > requirements-filtered.txt || true
             uv pip install --system --no-build-isolation -r requirements-filtered.txt
           fi
           
@@ -114,6 +108,7 @@ jobs:
           uv pip install --system pytest
           uv pip install --system nbval
           uv pip install --system nbconvert
+
           
       - name: Clean pycache
         run: |
