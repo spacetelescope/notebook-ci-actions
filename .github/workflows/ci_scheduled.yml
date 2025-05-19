@@ -42,7 +42,7 @@ jobs:
       - name: Set up micromamba and install dependencies
         uses: mamba-org/setup-micromamba@v1
         with:
-          environment-name: hstcal-env
+          environment-name: hstcal
           create-args: >-
             -c conda-forge
             python=${{ inputs.python-version }}
@@ -68,7 +68,7 @@ jobs:
           SKLEARN_ALLOW_DEPRECATED_SKLEARN_PACKAGE_INSTALL: True
         run: |
           eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
+          micromamba activate hstcal
           
           # Verify numpy version (for debugging)
           python -c "import numpy; print(f'NumPy version: {numpy.__version__}')"
@@ -103,11 +103,11 @@ jobs:
       - name: Execute notebooks
         run: |
           eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
+          micromamba activate hstcal
           jupyter nbconvert --template classic --to html --execute "${{ matrix.notebooks }}"
 
       - name: Validate notebooks
         run: |
           eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal-env
+          micromamba activate hstcal
           pytest --nbval "${{ matrix.notebooks }}"
