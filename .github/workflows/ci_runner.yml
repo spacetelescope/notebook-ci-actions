@@ -52,6 +52,7 @@ jobs:
       - name: Set up Python ${{ inputs.python-version }}
         uses: mamba-org/setup-micromamba@v2.0.4
         with:
+          environment-name: hstcal
           init-shell: >-
             bash
           create-args: >-
