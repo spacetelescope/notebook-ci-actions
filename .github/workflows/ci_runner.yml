@@ -56,7 +56,7 @@ jobs:
           create-args: >-
             -c conda-forge
             python=${{ inputs.python-version }}
-            setuptools
+            setuptools=59.5.0 #Some functinality in HSTCAL is deprecated in newer versions of setuptools (hstcal should probably fix)
             numpy=1.26.0
             hstcal
             jupyter
