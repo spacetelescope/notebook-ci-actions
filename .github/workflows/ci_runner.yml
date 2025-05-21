@@ -63,6 +63,7 @@ jobs:
             nbval
             nbconvert
             bandit
+            setuptools
 
       
       - name: Set up Python ${{ inputs.python-version }}
