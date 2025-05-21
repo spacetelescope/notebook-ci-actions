@@ -56,6 +56,7 @@ jobs:
           create-args: >-
             -c conda-forge
             python=${{ inputs.python-version }}
+            setuptools
             numpy=1.26.0
             hstcal
             jupyter
@@ -63,7 +64,7 @@ jobs:
             nbval
             nbconvert
             bandit
-            setuptools
+            
 
       
       - name: Set up Python ${{ inputs.python-version }}
