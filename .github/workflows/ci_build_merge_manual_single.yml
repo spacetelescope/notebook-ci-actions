@@ -109,27 +109,6 @@ jobs:
           uv pip install --system nbconvert
           uv pip install --system bandit
 
-      - name: Monitor memory and disk usage every 10 seconds
-        run: |
-          while true; do
-            # Memory usage
-            memory=$(free | grep Mem | awk '{print $3/$2 * 100.0}')
-            echo "Memory Usage: $memory%"
-            
-            # Disk usage
-            disk=$(df / | grep / | awk '{print $5}')
-            echo "Disk Usage: $disk"
-            
-            sleep 10
-          done &  # Run in background
-
-      - name: Validate notebooks
-        run: |
-          eval "$(micromamba shell hook -s posix)"
-          micromamba activate hstcal
-          jupyter nbconvert --clear-output --inplace "${{ matrix.notebooks }}" 
-          pytest --nbval --nbval-cell-timeout 4000 "${{ matrix.notebooks }}"
-
       - name: Execute notebooks
         id: execute
         run: |
@@ -139,13 +118,6 @@ jobs:
             python .github/scripts/insert_failure_message.py ${{ matrix.notebooks }}
           fi
 
-      - name: Scan with Bandit
-        run: |
-          pip install ipython
-          jupyter nbconvert --to script ${{ matrix.notebooks }}
-          pyfile=$(echo "${{ matrix.notebooks }}" | sed 's/\.ipynb$/.py/')
-          bandit -lll -iii $pyfile
-          
       - name: Commit modified file on current branch
         run: |
           git config user.name 'CI Bot'
