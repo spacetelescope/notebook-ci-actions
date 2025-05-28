@@ -41,7 +41,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        notebooks: ${{ fromJson(needs.find_notebooks.outputs.matrix) }}
+        notebooks: ${{ fromJson(needs.find_notebooks.outputs.notebook_list) }}
     defaults:
       run:
         shell: bash -leo pipefail {0}
