@@ -86,7 +86,7 @@ case "$REPO_NAME" in
             log_warning "No HST-specific tools found in notebooks"
         fi
         ;;
-    "jwst_notebooks")
+    "jwst-pipeline-notebooks")
         log_info "JWST repository - checking for pipeline requirements..."
         if grep -r "jwst\|jdaviz\|stdatamodels" notebooks/ >/dev/null 2>&1; then
             log_success "JWST-specific tools detected in notebooks"

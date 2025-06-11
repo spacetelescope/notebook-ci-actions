@@ -38,7 +38,7 @@ REPO_CONFIGS[jdat_notebooks]="python-version:3.11,execution-mode:full,special:cr
 REPO_CONFIGS[mast_notebooks]="python-version:3.11,execution-mode:full,special:mast-api"
 REPO_CONFIGS[hst_notebooks]="python-version:3.11,execution-mode:full,special:hstcal"
 REPO_CONFIGS[hello_universe]="python-version:3.11,execution-mode:validation-only,special:educational"
-REPO_CONFIGS[jwst_notebooks]="python-version:3.11,execution-mode:full,special:jwst-pipeline,post-script:scripts/jdaviz_image_replacement.sh"
+REPO_CONFIGS[jwst-pipeline-notebooks]="python-version:3.11,execution-mode:full,special:jwst-pipeline,post-script:scripts/jdaviz_image_replacement.sh"
 
 # Check if we're in the right directory
 if [ ! -d ".git" ]; then
@@ -201,7 +201,7 @@ case "$REPO_NAME" in
         sed -i 's/security-scan: true/security-scan: false/g' .github/workflows/notebook-ci-*.yml
         log_success "Disabled security scanning for educational repository"
         ;;
-    "jwst_notebooks")
+    "jwst-pipeline-notebooks")
         # Ensure jdaviz post-processing is enabled
         if [ ! -f "scripts/jdaviz_image_replacement.sh" ]; then
             log_warning "jdaviz_image_replacement.sh script not found"
