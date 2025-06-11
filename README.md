@@ -11,6 +11,7 @@ This repository contains a collection of reusable GitHub Actions workflows desig
   - [Deprecation Manager (`ci_deprecation_manager.yml`)](#deprecation-manager-ci_deprecation_manageryml)
 - [Scripts](#scripts)
 - [Usage Examples](#usage-examples)
+- [Example Caller Workflows](#example-caller-workflows)
 - [Prerequisites](#prerequisites)
 - [Contributing](#contributing)
 
@@ -83,6 +84,7 @@ These workflows are designed to support notebook-based projects with comprehensi
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `python-version` | string | ❌ | `"3.11"` | Python version for building |
+| `post-run-script` | string | ❌ | - | Path to a post-processing script to run after building HTML (e.g., `jdaviz_image_replacement.sh`) |
 
 #### Secrets
 
@@ -96,7 +98,8 @@ These workflows are designed to support notebook-based projects with comprehensi
 2. **Environment Setup**: Configure `uv` with specified Python version
 3. **JupyterBook Installation**: Install JupyterBook and dependencies
 4. **Build**: Generate HTML documentation from notebooks
-5. **Deploy**: Deploy built documentation to GitHub Pages
+5. **Post-Processing**: Run optional post-processing script on generated HTML
+6. **Deploy**: Deploy built documentation to GitHub Pages
 
 ### Deprecation Manager (`ci_deprecation_manager.yml`)
 
@@ -181,6 +184,7 @@ jobs:
     uses: your-org/dev-actions/.github/workflows/ci_html_builder.yml@main
     with:
       python-version: "3.11"
+      post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional post-processing
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -205,11 +209,41 @@ on:
 
 jobs:
   deprecate:
-    uses: your-org/dev-actions/.github/workflows/ci_deprecation_manager.yml@main
-    with:
+    uses: your-org/dev-actions/.github/workflows/ci_deprecation_manager.yml@main    with:
       notebook-path: ${{ inputs.notebook_path }}
       removal-date: ${{ inputs.removal_date }}
 ```
+
+## 📁 Example Caller Workflows
+
+This repository includes a collection of example workflows in the `examples/workflows/` directory that demonstrate how to use these reusable workflows in your own repositories. These examples cover common patterns and use cases:
+
+### 🔗 Available Examples
+
+- **`notebook-ci-pr.yml`** - Lightweight validation for pull requests
+- **`notebook-ci-main.yml`** - Full CI pipeline for main branch deployments  
+- **`notebook-ci-on-demand.yml`** - Manual testing with configurable options
+- **`notebook-deprecation.yml`** - Notebook lifecycle management
+- **`docs-only.yml`** - Documentation-only rebuilds
+
+### 🚀 Quick Start
+
+1. **Copy examples to your repository:**
+   ```bash
+   cp examples/workflows/*.yml your-repo/.github/workflows/
+   ```
+
+2. **Update workflow references:**
+   ```yaml
+   # Change from:
+   uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@main
+   # To your actual organization:
+   uses: spacetelescope/dev-actions/.github/workflows/ci_pipeline.yml@main
+   ```
+
+3. **Configure repository secrets** (see [Prerequisites](#prerequisites))
+
+For detailed setup instructions and customization options, see the [`examples/README.md`](examples/README.md) file.
 
 ## 📋 Prerequisites
 

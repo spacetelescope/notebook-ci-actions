@@ -1,0 +1,36 @@
+# Example workflow for running full notebook CI on main branch pushes
+# Copy this file to your repository's .github/workflows/ directory
+
+name: Notebook CI - Main Branch
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'notebooks/**'
+      - '*.yml'
+      - '*.yaml'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+
+jobs:
+  full-ci-pipeline:
+    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@main
+    with:
+      python-version: "3.11"
+      execution-mode: "full"
+      build-html: true
+      security-scan: true
+    secrets:
+      CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+      CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+
+  build-and-deploy-docs:
+    needs: full-ci-pipeline
+    if: success()
+    uses: your-org/dev-actions/.github/workflows/ci_html_builder.yml@main
+    with:
+      python-version: "3.11"
+      post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
