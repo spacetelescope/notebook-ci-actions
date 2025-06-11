@@ -157,7 +157,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.
 ## 🎯 Next Steps
 
 ### Immediate Actions
-1. **Create `notebook-ci-actions` repository** in `spacetelescope` organization
+1. **Move to `notebook-ci-actions` repository** in `spacetelescope` organization
 2. **Copy workflows and scripts** from this development repository
 3. **Set up initial release tags** (v1.0.0, v1)
 4. **Test migration** on one repository (recommend starting with `hello_universe`)
