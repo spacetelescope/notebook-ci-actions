@@ -279,6 +279,7 @@ uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@main
 
 - **📚 [Semantic Versioning Guide](docs/semantic-versioning.md)** - Comprehensive versioning documentation
 - **🚀 [Migration Guide](docs/migration-guide.md)** - How to update caller workflows for new versions
+- **📋 [Repository Migration Checklist](docs/repository-migration-checklist.md)** - Complete checklist for migrating STScI notebook repositories
 
 ## 📋 Prerequisites
 
