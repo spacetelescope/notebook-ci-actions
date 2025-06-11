@@ -13,6 +13,7 @@ This repository contains a collection of reusable GitHub Actions workflows desig
 - [Usage Examples](#usage-examples)
 - [Example Caller Workflows](#example-caller-workflows)
 - [Prerequisites](#prerequisites)
+- [Versioning & Releases](#versioning--releases)
 - [Contributing](#contributing)
 
 ## 🎯 Overview
@@ -244,6 +245,40 @@ This repository includes a collection of example workflows in the `examples/work
 3. **Configure repository secrets** (see [Prerequisites](#prerequisites))
 
 For detailed setup instructions and customization options, see the [`examples/README.md`](examples/README.md) file.
+
+## 🏷️ Versioning & Releases
+
+This repository uses semantic versioning for stable, predictable releases of workflow updates.
+
+### Version Format: `MAJOR.MINOR.PATCH`
+
+- **MAJOR** - Breaking changes requiring caller workflow updates
+- **MINOR** - New backwards-compatible features  
+- **PATCH** - Backwards-compatible bug fixes
+
+### Using Versions in Your Workflows
+
+```yaml
+# Recommended: Pin to major version (gets bug fixes automatically)
+uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1
+
+# Conservative: Pin to exact version (most stable)
+uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1.2.3
+
+# Development: Use main branch (not recommended for production)
+uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@main
+```
+
+### Release Process
+
+1. **PR Labels**: Add version labels to PRs (`version:major`, `version:minor`, `version:patch`)
+2. **Automated Release**: Merging PR triggers automatic version bump and release
+3. **Tag Management**: Major version tags (v1, v2) are automatically updated
+
+### Documentation
+
+- **📚 [Semantic Versioning Guide](docs/semantic-versioning.md)** - Comprehensive versioning documentation
+- **🚀 [Migration Guide](docs/migration-guide.md)** - How to update caller workflows for new versions
 
 ## 📋 Prerequisites
 
