@@ -15,7 +15,7 @@ on:
 
 jobs:
   validate-notebooks:
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
     with:
       python-version: "3.11"
       execution-mode: "validation-only"
@@ -26,7 +26,7 @@ jobs:
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
 
   build-docs-preview:
-    uses: your-org/dev-actions/.github/workflows/ci_html_builder.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional

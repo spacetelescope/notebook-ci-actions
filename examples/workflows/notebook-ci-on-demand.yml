@@ -42,7 +42,7 @@ on:
 
 jobs:
   on-demand-ci:
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
     with:
       python-version: ${{ inputs.python-version }}
       execution-mode: ${{ inputs.execution-mode }}
@@ -55,7 +55,7 @@ jobs:
 
   build-docs-on-demand:
     if: inputs.build-documentation == true
-    uses: your-org/dev-actions/.github/workflows/ci_html_builder.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
     with:
       python-version: ${{ inputs.python-version }}
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional

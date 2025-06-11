@@ -1,6 +1,6 @@
 # Migration Guide for Versioned Workflows
 
-This guide explains how to update caller workflows when new versions of the dev-actions workflows are released.
+This guide explains how to update caller workflows when new versions of the notebook-ci-actions workflows are released.
 
 ## 📋 Table of Contents
 
@@ -34,19 +34,19 @@ grep -r "dev-actions" .github/workflows/
 #### For Patch/Minor Updates (Safe)
 ```yaml
 # From:
-uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1.0.0
+uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.0
 
 # To (automatic updates within v1.x.x):
-uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1
+uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
 ```
 
 #### For Major Updates (Breaking Changes)
 ```yaml
 # From:
-uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1
+uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
 
 # To (requires manual verification):
-uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v2
 ```
 
 ## 🚀 Migration Examples
@@ -63,7 +63,7 @@ uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v2
 # Optional: Add new feature
 jobs:
   build-docs:
-    uses: your-org/dev-actions/.github/workflows/ci_html_builder.yml@v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@v1
     with:
       python-version: "3.11"
       post-run-script: "scripts/custom-processing.sh"  # New optional feature
@@ -80,7 +80,7 @@ jobs:
 ```yaml
 jobs:
   ci:
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
     with:
       python-version: "3.11"
       execution-mode: "full"
@@ -92,7 +92,7 @@ jobs:
 ```yaml
 jobs:
   ci:
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v2
     with:
       python-version: "3.11"
       validation-level: "comprehensive"  # New required input
@@ -101,7 +101,7 @@ jobs:
   
   build-docs:
     needs: ci
-    uses: your-org/dev-actions/.github/workflows/ci_html_builder.yml@v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@v2
     with:
       python-version: "3.11"
 ```
@@ -176,7 +176,7 @@ jobs:
     - name: Migrate Workflows
       run: |
         # Download migration script
-        curl -sSL https://raw.githubusercontent.com/your-org/dev-actions/main/scripts/migrate.sh | bash -s ${{ github.event.inputs.target_version }}
+        curl -sSL https://raw.githubusercontent.com/spacetelescope/notebook-ci-actions/main/scripts/migrate.sh | bash -s ${{ github.event.inputs.target_version }}
         
     - name: Create PR
       uses: peter-evans/create-pull-request@v5
@@ -223,7 +223,7 @@ on:
 
 jobs:
   test-migration:
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@${{ github.event.inputs.test_version }}
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@${{ github.event.inputs.test_version }}
     with:
       # Test with your parameters
       python-version: "3.11"
@@ -237,12 +237,12 @@ jobs:
   # Test on feature branches first
   test-env:
     if: github.ref != 'refs/heads/main'
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v2
     
   # Deploy to main after testing
   prod-env:
     if: github.ref == 'refs/heads/main'
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1  # Keep stable version initially
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1  # Keep stable version initially
 ```
 
 ## 🔙 Rollback Strategy
@@ -252,7 +252,7 @@ jobs:
 # If issues occur, quickly revert to previous version
 jobs:
   ci:
-    uses: your-org/dev-actions/.github/workflows/ci_pipeline.yml@v1  # Rollback to v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1  # Rollback to v1
     with:
       # Revert to old parameters
       python-version: "3.11"
