@@ -60,10 +60,6 @@ cp examples/workflows/notebook-ci-main.yml your-repo/.github/workflows/
 Update the `uses` field in each workflow to point to your organization's notebook-ci-actions repository:
 
 ```yaml
-# Change this:
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
-
-# To this (example):
 uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
 ```
 
