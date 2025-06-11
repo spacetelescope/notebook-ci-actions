@@ -36,7 +36,8 @@ This project successfully created a comprehensive centralized GitHub Actions wor
 
 ### 6. Repository-Specific Configurations
 Complete migration configurations for all 5 target repositories:
-- **`jdat_notebooks`**: CRDS cache, large data downloads, conda environments
+
+- **`jdat_notebooks`**: CRDS cache, large data downloads, micromamba environments
 - **`mast_notebooks`**: MAST API access, archive data requirements, authentication
 - **`hst_notebooks`**: `hstcal` environment, HST data files, STScI software stack
 - **`hello_universe`**: Educational content focus, simplified requirements
@@ -58,7 +59,7 @@ Complete migration configurations for all 5 target repositories:
 
 ### Workflow Features
 - **Universal compatibility**: Works with all STScI notebook repositories
-- **Environment flexibility**: Supports both `uv` and `micromamba` package managers
+- **Dual package managers**: `uv` for fast Python package management, `micromamba` for conda environments
 - **Repository detection**: Automatic detection and configuration for specific repositories
 - **Security scanning**: Integrated security analysis with `bandit`
 - **Artifact management**: Automated upload of failed notebooks for debugging

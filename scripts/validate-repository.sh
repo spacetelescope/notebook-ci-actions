@@ -131,6 +131,23 @@ dep_files=("requirements.txt" "pyproject.toml" "environment.yml" "setup.py")
 found_deps=false
 for dep_file in "${dep_files[@]}"; do
     if [ -f "$dep_file" ]; then
+        log_success "Found dependency file: $dep_file"
+        found_deps=true
+        
+        # Additional checks for specific files
+        case "$dep_file" in
+            "environment.yml")
+                if grep -q "conda-forge\|bioconda" "$dep_file" 2>/dev/null; then
+                    log_info "Conda channels detected - micromamba will be used"
+                else
+                    log_info "Standard environment.yml found"
+                fi
+                ;;
+            "requirements.txt"|"pyproject.toml")
+                log_info "Python package file detected - uv will be primary package manager"
+                ;;
+        esac
+    if [ -f "$dep_file" ]; then
         log_success "Found $dep_file"
         found_deps=true
     fi

@@ -116,7 +116,7 @@ echo "Migration branch created. Run migration checklist next."
 - [ ] **Special requirements**: 
   - [ ] CRDS cache requirements
   - [ ] Large data downloads
-  - [ ] Conda environment needs
+  - [ ] Micromamba environment needs
 
 #### ✅ Migration Steps
 - [ ] **Step 1**: Create migration branch
@@ -494,7 +494,7 @@ ls -la .github/workflows/
 ```
 
 #### Issue 3: Environment Setup Failures
-**Symptoms**: `conda environment creation failed` or `hstcal not found`
+**Symptoms**: `micromamba environment creation failed` or `hstcal not found`
 **Solution**:
 ```yaml
 # For HST repositories, ensure the workflow detects the repo correctly

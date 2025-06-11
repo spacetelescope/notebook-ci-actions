@@ -26,6 +26,30 @@ These workflows are designed to support notebook-based projects with comprehensi
 - **Deprecation Management**: Systematic handling of deprecated notebooks
 - **Artifact Management**: Handling of failed notebooks and build artifacts
 
+## 🔧 Package Manager Strategy
+
+These workflows use a **dual package manager approach** for optimal performance and compatibility:
+
+### Primary: uv (Fast Python Package Manager)
+- **Used for**: Python package installation and virtual environment management  
+- **Benefits**: 10-100x faster than pip, built in Rust, reliable dependency resolution
+- **Default for**: All repositories unless specific conda packages are required
+
+### Secondary: micromamba (Conda-Compatible)
+- **Used for**: Repositories requiring conda-specific packages or environments
+- **Benefits**: Fast conda-compatible package manager, smaller footprint than conda/mamba  
+- **Automatic detection**: Special handling for `hst_notebooks` (hstcal environment)
+
+### Repository-Specific Package Management
+
+| Repository | Primary Manager | Special Requirements | Environment Type |
+|------------|----------------|---------------------|------------------|
+| **jdat_notebooks** | uv | CRDS, astronomical tools | Python + uv |
+| **mast_notebooks** | uv | astroquery, MAST tools | Python + uv |  
+| **hst_notebooks** | micromamba | hstcal, STScI stack | Conda environment |
+| **hello_universe** | uv | Basic packages only | Python + uv |
+| **jwst_notebooks** | uv | JWST pipeline, jdaviz | Python + uv |
+
 ## 🔧 Workflows
 
 ### CI Pipeline (`ci_pipeline.yml`)
@@ -40,7 +64,7 @@ These workflows are designed to support notebook-based projects with comprehensi
 - 🔒 Security scanning with `bandit`
 - 📦 Artifact upload on failures
 - 🐍 Multiple Python version support
-- 🔧 Support for both `uv` and `micromamba` environments
+- 🔧 Dual package manager support: `uv` (primary) and `micromamba` (for conda environments)
 
 #### Inputs
 
@@ -61,7 +85,7 @@ These workflows are designed to support notebook-based projects with comprehensi
 
 #### Workflow Steps
 
-1. **Environment Setup**: Sets up Python environment with `uv` and/or `micromamba`
+1. **Environment Setup**: Sets up Python environment with `uv` (primary) and `micromamba` (for conda environments)
 2. **Dependency Installation**: Installs validation tools (`jupyter`, `nbval`, `nbconvert`, `bandit`)
 3. **Notebook Validation**: Validates notebooks using pytest with nbval
 4. **Notebook Execution**: Executes notebooks in-place with timeout controls
@@ -301,13 +325,13 @@ your-repo/
 The workflows automatically install the following dependencies:
 
 - **Python**: Specified version (default: 3.11)
-- **uv**: Fast Python package manager
+- **uv**: Fast Python package manager (primary package manager)
+- **micromamba**: Conda-compatible package manager (for repositories requiring conda environments)
 - **jupyter**: Jupyter notebook environment
 - **nbval**: Notebook validation plugin for pytest
 - **nbconvert**: Notebook conversion tools
 - **bandit**: Security linter for Python
 - **jupyter-book**: Documentation building tool
-- **micromamba**: Conda-compatible package manager (for specific repositories)
 
 ### GitHub Repository Settings
 
@@ -316,6 +340,39 @@ For the HTML builder workflow to work properly:
 1. **GitHub Pages**: Enable GitHub Pages in repository settings
 2. **Actions Permissions**: Ensure GitHub Actions can write to the repository
 3. **Secrets**: Configure required secrets (like `GITHUB_TOKEN`)
+
+## 🔧 Package Manager Strategy
+
+### Dual Package Manager Approach
+
+These workflows use a **dual package manager strategy** to provide optimal performance and compatibility:
+
+#### Primary: UV (Fast Python Package Manager)
+- **Used for**: Python package installation and virtual environment management
+- **Benefits**: 10-100x faster than pip, built in Rust, reliable dependency resolution
+- **Default for**: All repositories unless specific conda packages are required
+
+#### Secondary: Micromamba (Conda-Compatible)
+- **Used for**: Repositories requiring conda-specific packages or environments
+- **Benefits**: Fast conda-compatible package manager, smaller footprint than conda/mamba
+- **Automatic detection**: Special handling for `hst_notebooks` (hstcal environment)
+
+### Repository-Specific Package Management
+
+| Repository | Primary Manager | Special Packages | Environment |
+|------------|----------------|------------------|-------------|
+| **jdat_notebooks** | uv | CRDS, astronomical tools | Python + uv |
+| **mast_notebooks** | uv | astroquery, MAST tools | Python + uv |  
+| **hst_notebooks** | micromamba | hstcal, STScI stack | Conda + micromamba |
+| **hello_universe** | uv | Basic packages only | Python + uv |
+| **jwst_notebooks** | uv | JWST pipeline, jdaviz | Python + uv |
+
+### Environment Setup Process
+
+1. **UV Setup**: Always configured for fast Python package management
+2. **Micromamba Setup**: Configured when conda packages are needed
+3. **Repository Detection**: Automatic detection of repository-specific needs
+4. **Package Installation**: Uses appropriate manager based on requirements
 
 ## 🤝 Contributing
 

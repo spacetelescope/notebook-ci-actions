@@ -50,7 +50,7 @@ jobs:
         python-version: ${{ inputs.python-version }}
         enable-cache: true
 
-    - name: Set up micromamba
+    - name: Set up micromamba for HST environment
       if: ${{ github.repository == 'spacetelescope/hst_notebooks' }}
       uses: mamba-org/setup-micromamba@v2.0.4
       with:
@@ -59,7 +59,8 @@ jobs:
           python=${{ inputs.python-version }}
           hstcal
 
-    - name: Set up micromamba
+    - name: Set up micromamba for standard environment
+      if: ${{ github.repository != 'spacetelescope/hst_notebooks' }}
       uses: mamba-org/setup-micromamba@v2.0.4
       with:
         init-shell: bash
