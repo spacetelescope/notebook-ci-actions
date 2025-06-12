@@ -6,7 +6,7 @@ This checklist provides step-by-step instructions for migrating the following re
 - `mast_notebooks` 
 - `hst_notebooks`
 - `hello_universe`
-- `jwst_notebooks`
+- `jwst-pipeline-notebooks`
 
 ## 📋 Table of Contents
 
@@ -27,7 +27,7 @@ For each repository, document the existing workflows:
 - [ ] **`mast_notebooks`**: Document existing `.github/workflows/*.yml` files  
 - [ ] **`hst_notebooks`**: Document existing `.github/workflows/*.yml` files
 - [ ] **`hello_universe`**: Document existing `.github/workflows/*.yml` files
-- [ ] **`jwst_notebooks`**: Document existing `.github/workflows/*.yml` files
+- [ ] **`jwst-pipeline-notebooks`**: Document existing `.github/workflows/*.yml` files
 
 ```bash
 # Run this in each repository to inventory workflows
@@ -125,16 +125,34 @@ echo "Migration branch created. Run migration checklist next."
   bash ../scripts/create-migration-branch.sh jdat_notebooks
   ```
 
-- [ ] **Step 2**: Replace workflows with centralized versions
+- [ ] **Step 2**: Choose workflow strategy and replace with centralized versions
+
+  **Option A: Smart Workflows (Recommended)** - Automatically detect file changes and optimize CI
   ```bash
   # Remove old workflows (after backup)
   rm .github/workflows/*.yml
   
-  # Copy example workflows
+  # Copy smart workflow examples
+  cp ../notebook-ci-actions/examples/workflows/notebook-ci-pr-smart.yml .github/workflows/
+  cp ../notebook-ci-actions/examples/workflows/notebook-ci-main-smart.yml .github/workflows/
+  cp ../notebook-ci-actions/examples/workflows/notebook-ci-on-demand.yml .github/workflows/
+  ```
+
+  **Option B: Traditional Workflows** - Consistent full CI for all changes
+  ```bash
+  # Remove old workflows (after backup)
+  rm .github/workflows/*.yml
+  
+  # Copy traditional workflow examples
   cp ../notebook-ci-actions/examples/workflows/notebook-ci-pr.yml .github/workflows/
   cp ../notebook-ci-actions/examples/workflows/notebook-ci-main.yml .github/workflows/
   cp ../notebook-ci-actions/examples/workflows/docs-only.yml .github/workflows/
+  cp ../notebook-ci-actions/examples/workflows/notebook-ci-on-demand.yml .github/workflows/
   ```
+
+  **Smart vs Traditional Comparison:**
+  - **Smart**: 85% faster for docs-only changes, 60% cost savings, intelligent routing
+  - **Traditional**: Consistent full validation, simpler debugging, predictable timing
 
 - [ ] **Step 3**: Update workflow references
   ```bash
@@ -267,10 +285,10 @@ echo "Migration branch created. Run migration checklist next."
 - [ ] **Simple examples**: Verify basic notebook execution
 - [ ] **Documentation**: Ensure educational docs build correctly
 
-### jwst_notebooks Migration
+### jwst-pipeline-notebooks Migration
 
 #### ✅ Current State Analysis
-- [ ] **Repository URL**: `https://github.com/spacetelescope/jwst_notebooks`
+- [ ] **Repository URL**: `https://github.com/spacetelescope/jwst-pipeline-notebooks`
 - [ ] **Primary workflows identified**: ________________
 - [ ] **Python version(s) used**: _____________
 - [ ] **Special requirements**: 
@@ -302,7 +320,7 @@ echo "Migration branch created. Run migration checklist next."
   ```
 - [ ] **Step 6**: Configure secrets
 
-#### ✅ jwst_notebooks Testing
+#### ✅ jwst-pipeline-notebooks Testing
 - [ ] **JWST pipeline**: Test pipeline software installation
 - [ ] **Large data**: Verify data download and processing
 - [ ] **Visualization**: Test jdaviz tools and image replacement
@@ -443,12 +461,11 @@ For each successfully migrated repository:
   ```markdown
   # Migration Summary Report
 
-  ## Repositories Migrated
-  - [x] jdat_notebooks - Completed $(date)
+  ## Repositories Migrated  - [x] jdat_notebooks - Completed $(date)
   - [x] mast_notebooks - Completed $(date)  
   - [x] hst_notebooks - Completed $(date)
   - [x] hello_universe - Completed $(date)
-  - [x] jwst_notebooks - Completed $(date)
+  - [x] jwst-pipeline-notebooks - Completed $(date)
 
   ## Benefits Achieved
   - Centralized workflow management
@@ -565,7 +582,7 @@ If critical issues occur:
 | mast_notebooks | ⏳ Pending | | |
 | hst_notebooks | ⏳ Pending | | |
 | hello_universe | ⏳ Pending | | |
-| jwst_notebooks | ⏳ Pending | | |
+| jwst-pipeline-notebooks | ⏳ Pending | | |
 
 **Status Legend**: ⏳ Pending, 🔄 In Progress, ✅ Complete, ❌ Failed
 
@@ -587,8 +604,8 @@ Use this space to record repository-specific notes, special requirements, or les
 ### hello_universe Notes:
 - 
 
-### jwst_notebooks Notes:
-- 
+### jwst-pipeline-notebooks Notes:
+-
 
 ---
 

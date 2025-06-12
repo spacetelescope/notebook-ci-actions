@@ -32,7 +32,7 @@ Features:
 - Repository-specific migration tools and validation
 - Comprehensive documentation and migration guides
 
-Supports: jdat_notebooks, mast_notebooks, hst_notebooks, hello_universe, jwst_notebooks"
+Supports: jdat_notebooks, mast_notebooks, hst_notebooks, hello_universe, jwst-pipeline-notebooks"
 
 git push origin main
 ```
@@ -100,7 +100,7 @@ git push origin migrate-to-centralized-actions
 2. **Week 2**: mast_notebooks (standard configuration)  
 3. **Week 3**: jdat_notebooks (moderate complexity)
 4. **Week 4**: hst_notebooks (micromamba environment)
-5. **Week 5**: jwst_notebooks (highest complexity)
+5. **Week 5**: jwst-pipeline-notebooks (highest complexity)
 
 ### Phase 3: Monitoring and Optimization
 - [ ] Monitor workflow execution times

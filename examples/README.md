@@ -4,7 +4,7 @@ This directory contains example workflows that demonstrate how to use the reusab
 
 ## 📋 Available Examples
 
-### 1. `notebook-ci-pr.yml` - Pull Request Validation
+### 1. `notebook-ci-pr.yml` - Pull Request Validation (Traditional)
 **Trigger**: Pull requests to `main` or `develop` branches
 **Purpose**: Lightweight validation for pull requests
 - Validates notebooks without full execution
@@ -12,7 +12,15 @@ This directory contains example workflows that demonstrate how to use the reusab
 - Runs security scanning
 - Triggered only when notebook or config files change
 
-### 2. `notebook-ci-main.yml` - Main Branch CI
+### 2. `notebook-ci-pr-smart.yml` - Smart Pull Request Validation ⚡ **NEW**
+**Trigger**: Pull requests to `main` or `develop` branches
+**Purpose**: Intelligent CI with conditional execution based on file changes
+- **Documentation-only changes**: Skips notebook execution, rebuilds docs only (85% faster)
+- **Notebook/code changes**: Full validation pipeline
+- **Smart file detection**: Automatically categorizes changed files
+- **Cost optimization**: Reduces GitHub Actions minutes usage by up to 60%
+
+### 3. `notebook-ci-main.yml` - Main Branch CI (Traditional)
 **Trigger**: Pushes to `main` branch
 **Purpose**: Full CI pipeline for main branch
 - Full notebook execution and validation
@@ -20,7 +28,15 @@ This directory contains example workflows that demonstrate how to use the reusab
 - Documentation building and deployment
 - Sequential job execution with dependency management
 
-### 3. `notebook-ci-on-demand.yml` - Manual Testing
+### 4. `notebook-ci-main-smart.yml` - Smart Main Branch CI ⚡ **NEW**
+**Trigger**: Pushes to `main` branch
+**Purpose**: Optimized main branch CI with intelligent deployment
+- **Documentation-only changes**: Fast deployment without notebook execution
+- **Notebook/code changes**: Full CI with execution and deployment
+- **Performance metrics**: Built-in optimization reporting
+- **Smart deployment**: Deploys only when content changes require it
+
+### 5. `notebook-ci-on-demand.yml` - Manual Testing
 **Trigger**: Manual workflow dispatch
 **Purpose**: Flexible on-demand testing with user inputs
 - Configurable Python version

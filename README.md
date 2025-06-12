@@ -6,7 +6,11 @@ This repository contains a collection of reusable GitHub Actions workflows desig
 
 - [Overview](#overview)
 - [Workflows](#workflows)
-  - [CI Pipeline (`ci_pipeline.yml`)](#ci-pipeline-ci_pipelineyml)
+  - [CI Pipeline (`ci_pipeli| **jdat_notebooks** | uv | CRDS, astronomical tools | Python + uv |
+| **mast_notebooks** | uv | astroquery, MAST tools | Python + uv |  
+| **hst_notebooks** | micromamba | hstcal, STScI stack | Conda environment |
+| **hello_universe** | uv | Basic packages only | Python + uv |
+| **jwst-pipeline-notebooks** | uv | JWST pipeline, jdaviz | Python + uv |l`)](#ci-pipeline-ci_pipelineyml)
   - [HTML Builder (`ci_html_builder.yml`)](#html-builder-ci_html_builderyml)
   - [Deprecation Manager (`ci_deprecation_manager.yml`)](#deprecation-manager-ci_deprecation_manageryml)
 - [Scripts](#scripts)
@@ -48,7 +52,7 @@ These workflows use a **dual package manager approach** for optimal performance 
 | **mast_notebooks** | uv | astroquery, MAST tools | Python + uv |  
 | **hst_notebooks** | micromamba | hstcal, STScI stack | Conda environment |
 | **hello_universe** | uv | Basic packages only | Python + uv |
-| **jwst_notebooks** | uv | JWST pipeline, jdaviz | Python + uv |
+| **jwst-pipeline-notebooks** | uv | JWST pipeline, jdaviz | Python + uv |
 
 ## 🔧 Workflows
 
@@ -365,7 +369,7 @@ These workflows use a **dual package manager strategy** to provide optimal perfo
 | **mast_notebooks** | uv | astroquery, MAST tools | Python + uv |  
 | **hst_notebooks** | micromamba | hstcal, STScI stack | Conda + micromamba |
 | **hello_universe** | uv | Basic packages only | Python + uv |
-| **jwst_notebooks** | uv | JWST pipeline, jdaviz | Python + uv |
+| **jwst-pipeline-notebooks** | uv | JWST pipeline, jdaviz | Python + uv |
 
 ### Environment Setup Process
 

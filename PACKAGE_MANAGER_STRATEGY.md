@@ -36,7 +36,7 @@ The workflows automatically detect repository requirements and configure the app
 | `mast_notebooks` | **uv** | - | astroquery, MAST APIs |
 | `hst_notebooks` | **micromamba** | uv (validation tools) | hstcal, STScI stack |
 | `hello_universe` | **uv** | - | basic packages only |
-| `jwst_notebooks` | **uv** | - | JWST pipeline, jdaviz |
+| `jwst-pipeline-notebooks` | **uv** | - | JWST pipeline, jdaviz |
 
 ### Environment Setup Logic
 
@@ -68,7 +68,7 @@ uv pip install jupyter nbval nbconvert bandit
 # Repository-specific packages via uv when possible
 uv pip install astropy photutils specutils  # jdat_notebooks
 uv pip install astroquery                   # mast_notebooks  
-uv pip install jwst jdaviz                  # jwst_notebooks
+uv pip install jwst jdaviz                  # jwst-pipeline-notebooks
 ```
 
 ### Conda Package Installation (micromamba)

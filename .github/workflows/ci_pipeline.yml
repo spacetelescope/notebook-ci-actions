@@ -67,11 +67,37 @@ jobs:
         create-args: >-
           python=${{ inputs.python-version }}
 
+    - name: Detect docs-only changes
+      id: detect_docs_only
+      if: github.event_name == 'pull_request'
+      run: |
+        # Get list of changed files in the PR
+        git fetch origin ${{ github.event.pull_request.base.ref }}
+        CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+        echo "Changed files: $CHANGED_FILES"
+        DOCS_ONLY=true
+        for file in $CHANGED_FILES; do
+          case "$file" in
+            *.md|*.yml|*.yaml|*.html|*.css|*.js|_config.yml|_toc.yml)
+              # docs/static/config files, allow
+              ;;
+            *)
+              # Any other file disables docs-only mode
+              DOCS_ONLY=false
+              break
+              ;;
+          esac
+        done
+        echo "DOCS_ONLY=$DOCS_ONLY" >> $GITHUB_ENV
+        echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
+
     - name: Install Validation Dependencies
+      if: env.DOCS_ONLY != 'true'
       run: |
         uv pip install jupyter nbval nbconvert bandit
 
     - name: Validate Notebook
+      if: env.DOCS_ONLY != 'true'
       run: |
         if [[ "${{ inputs.single-filename }}" != "" ]]; then
           uv run pytest --nbval --nbval-cell-timeout=4000 "${{ inputs.single-filename }}"
@@ -82,6 +108,7 @@ jobs:
         fi
 
     - name: Execute Notebook
+      if: env.DOCS_ONLY != 'true'
       run: |
         if [[ "${{ inputs.single-filename }}" != "" ]]; then
           uv run jupyter nbconvert --to notebook --execute --inplace "${{ inputs.single-filename }}"
@@ -92,7 +119,7 @@ jobs:
         fi
 
     - name: Security Scan
-      if: inputs.security-scan == true
+      if: env.DOCS_ONLY != 'true' && inputs.security-scan == true
       run: |
         find notebooks/ -name '*.ipynb' | while read nb; do
           uv run jupyter nbconvert --to script "$nb"

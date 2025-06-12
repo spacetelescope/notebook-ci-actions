@@ -41,7 +41,7 @@ Complete migration configurations for all 5 target repositories:
 - **`mast_notebooks`**: MAST API access, archive data requirements, authentication
 - **`hst_notebooks`**: `hstcal` environment, HST data files, STScI software stack
 - **`hello_universe`**: Educational content focus, simplified requirements
-- **`jwst_notebooks`**: JWST pipeline software, jdaviz tools, CRDS references, image replacement
+- **`jwst-pipeline-notebooks`**: JWST pipeline software, jdaviz tools, CRDS references, image replacement
 
 ## 🏗️ Technical Architecture
 
@@ -73,7 +73,7 @@ Complete migration configurations for all 5 target repositories:
 | **mast_notebooks** | Python 3.11, full execution, HTML building | MAST API access, authentication | ✅ Ready |
 | **hst_notebooks** | Python 3.11, micromamba environment | Auto-detected hstcal setup | ✅ Ready |
 | **hello_universe** | Python 3.11, simplified config | Disabled security scanning | ✅ Ready |
-| **jwst_notebooks** | Python 3.11, full execution | jdaviz post-processing script | ✅ Ready |
+| **jwst-pipeline-notebooks** | Python 3.11, full execution | jdaviz post-processing script | ✅ Ready |
 
 ## 🚀 Usage Instructions
 
@@ -117,7 +117,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.
 - Comprehensive release notes generation
 
 ### Repository-Specific Intelligence
-- Automatic detection of repository type (hst_notebooks, jwst_notebooks, etc.)
+- Automatic detection of repository type (hst_notebooks, jwst-pipeline-notebooks, etc.)
 - Dynamic configuration based on repository needs
 - Special handling for micromamba environments
 - Custom post-processing scripts (jdaviz image replacement)
@@ -167,7 +167,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.
 2. **mast_notebooks** (standard configuration)
 3. **jdat_notebooks** (CRDS and CasJobs complexity)
 4. **hst_notebooks** (micromamba environment)
-5. **jwst_notebooks** (most complex, jdaviz post-processing)
+5. **jwst-pipeline-notebooks** (most complex, jdaviz post-processing)
 
 ### Ongoing Maintenance
 - **Monitor workflow performance** and optimization opportunities
@@ -178,7 +178,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.
 ## 🏷️ Version Information
 
 - **Implementation Version**: 1.0.0
-- **Target Repositories**: 5 (jdat_notebooks, mast_notebooks, hst_notebooks, hello_universe, jwst_notebooks)
+- **Target Repositories**: 5 (jdat_notebooks, mast_notebooks, hst_notebooks, hello_universe, jwst-pipeline-notebooks)
 - **Workflow Count**: 3 core workflows + 5 example workflows
 - **Documentation Pages**: 4 comprehensive guides
 - **Automation Scripts**: 2 complete migration tools
