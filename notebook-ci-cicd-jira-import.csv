@@ -1,0 +1,90 @@
+Summary,Issue Type,Parent,Description,Epic Link,Assignee,Labels,Story Points
+Test centralized workflows in notebook-ci-testing for jdat_notebooks,Story,,"Acceptance Criteria:
+- Workflow caller is set up in notebook-ci-testing for jdat_notebooks.
+- Both PR and main branch CI run successfully, including docs-only and full CI paths.
+- Notebook execution and documentation build are validated.
+- All test results and issues are documented.",SPB-2592,gough,"NotebookCICD, bromine",
+Set up workflow caller in notebook-ci-testing for jdat_notebooks,Task,Test centralized workflows in notebook-ci-testing for jdat_notebooks,Set up the workflow caller for jdat_notebooks.,,gough,"NotebookCICD, bromine",5
+Run PR and main branch CI tests (full and docs-only paths) for jdat_notebooks,Task,Test centralized workflows in notebook-ci-testing for jdat_notebooks,Run PR and main branch CI tests for jdat_notebooks.,,gough,"NotebookCICD, bromine",5
+Validate notebook execution and documentation build for jdat_notebooks,Task,Test centralized workflows in notebook-ci-testing for jdat_notebooks,Validate notebook execution and documentation build.,,gough,"NotebookCICD, bromine",5
+Document test results and issues for jdat_notebooks,Task,Test centralized workflows in notebook-ci-testing for jdat_notebooks,Document test results and issues.,,gough,"NotebookCICD, bromine",5
+
+Test centralized workflows in notebook-ci-testing for hst_notebooks,Story,,"Acceptance Criteria:
+- Workflow caller is set up in notebook-ci-testing for hst_notebooks.
+- PR and main branch CI run successfully, including micromamba/conda logic.
+- HST-specific environment setup and notebook execution are validated.
+- All test results and issues are documented.",SPB-2592,gough,"NotebookCICD, bromine",
+Set up workflow caller in notebook-ci-testing for hst_notebooks,Task,Test centralized workflows in notebook-ci-testing for hst_notebooks,Set up the workflow caller for hst_notebooks.,,gough,"NotebookCICD, bromine",5
+Run PR and main branch CI tests (including micromamba/conda logic) for hst_notebooks,Task,Test centralized workflows in notebook-ci-testing for hst_notebooks,Run PR and main branch CI tests for hst_notebooks.,,gough,"NotebookCICD, bromine",5
+Validate HST-specific environment setup and notebook execution,Task,Test centralized workflows in notebook-ci-testing for hst_notebooks,Validate HST-specific environment setup and notebook execution.,,gough,"NotebookCICD, bromine",5
+Document test results and issues for hst_notebooks,Task,Test centralized workflows in notebook-ci-testing for hst_notebooks,Document test results and issues.,,gough,"NotebookCICD, bromine",5
+
+Test centralized workflows in notebook-ci-testing for mast_notebooks,Story,,"Acceptance Criteria:
+- Workflow caller is set up in notebook-ci-testing for mast_notebooks.
+- PR and main branch CI run successfully, including docs-only and full CI paths.
+- MAST-specific package installation and notebook execution are validated.
+- All test results and issues are documented.",SPB-2592,gough,"NotebookCICD, bromine",
+Set up workflow caller in notebook-ci-testing for mast_notebooks,Task,Test centralized workflows in notebook-ci-testing for mast_notebooks,Set up the workflow caller for mast_notebooks.,,gough,"NotebookCICD, bromine",5
+Run PR and main branch CI tests (full and docs-only paths) for mast_notebooks,Task,Test centralized workflows in notebook-ci-testing for mast_notebooks,Run PR and main branch CI tests for mast_notebooks.,,gough,"NotebookCICD, bromine",5
+Validate MAST-specific package installation and notebook execution,Task,Test centralized workflows in notebook-ci-testing for mast_notebooks,Validate MAST-specific package installation and notebook execution.,,gough,"NotebookCICD, bromine",5
+Document test results and issues for mast_notebooks,Task,Test centralized workflows in notebook-ci-testing for mast_notebooks,Document test results and issues.,,gough,"NotebookCICD, bromine",5
+
+Test centralized workflows in notebook-ci-testing for hello_universe,Story,,"Acceptance Criteria:
+- Workflow caller is set up in notebook-ci-testing for hello_universe.
+- PR and main branch CI run successfully (lightweight/educational config).
+- Fast builds and minimal dependencies are validated.
+- All test results and issues are documented.",SPB-2592,gough,"NotebookCICD, bromine",
+Set up workflow caller in notebook-ci-testing for hello_universe,Task,Test centralized workflows in notebook-ci-testing for hello_universe,Set up the workflow caller for hello_universe.,,gough,"NotebookCICD, bromine",5
+Run PR and main branch CI tests (lightweight/educational config) for hello_universe,Task,Test centralized workflows in notebook-ci-testing for hello_universe,Run PR and main branch CI tests for hello_universe.,,gough,"NotebookCICD, bromine",5
+Validate fast builds and minimal dependencies for hello_universe,Task,Test centralized workflows in notebook-ci-testing for hello_universe,Validate fast builds and minimal dependencies.,,gough,"NotebookCICD, bromine",5
+Document test results and issues for hello_universe,Task,Test centralized workflows in notebook-ci-testing for hello_universe,Document test results and issues.,,gough,"NotebookCICD, bromine",5
+
+Test centralized workflows in notebook-ci-testing for jwst-pipeline-notebooks,Story,,"Acceptance Criteria:
+- Workflow caller is set up in notebook-ci-testing for jwst-pipeline-notebooks.
+- PR and main branch CI run successfully, including docs-only and full CI paths.
+- JWST pipeline and jdaviz integration are validated.
+- All test results and issues are documented.",SPB-2592,gough,"NotebookCICD, bromine",
+Set up workflow caller in notebook-ci-testing for jwst-pipeline-notebooks,Task,Test centralized workflows in notebook-ci-testing for jwst-pipeline-notebooks,Set up the workflow caller for jwst-pipeline-notebooks.,,gough,"NotebookCICD, bromine",5
+Run PR and main branch CI tests (full and docs-only paths) for jwst-pipeline-notebooks,Task,Test centralized workflows in notebook-ci-testing for jwst-pipeline-notebooks,Run PR and main branch CI tests for jwst-pipeline-notebooks.,,gough,"NotebookCICD, bromine",5
+Validate JWST pipeline and jdaviz integration,Task,Test centralized workflows in notebook-ci-testing for jwst-pipeline-notebooks,Validate JWST pipeline and jdaviz integration.,,gough,"NotebookCICD, bromine",5
+Document test results and issues for jwst-pipeline-notebooks,Task,Test centralized workflows in notebook-ci-testing for jwst-pipeline-notebooks,Document test results and issues.,,gough,"NotebookCICD, bromine",5
+
+Deploy centralized workflows to jdat_notebooks,Story,,"Acceptance Criteria:
+- Workflow references are updated to production location.
+- First production runs (PR and main) are monitored.
+- Successful notebook validation and docs deployment are confirmed.",SPB-2592,gough,"NotebookCICD, bromine",
+Update workflow references to production location for jdat_notebooks,Task,Deploy centralized workflows to jdat_notebooks,Update workflow references to production location.,,gough,"NotebookCICD, bromine",5
+Monitor first production runs (PR and main) for jdat_notebooks,Task,Deploy centralized workflows to jdat_notebooks,Monitor first production runs (PR and main).,,gough,"NotebookCICD, bromine",5
+Confirm successful notebook validation and docs deployment for jdat_notebooks,Task,Deploy centralized workflows to jdat_notebooks,Confirm successful notebook validation and docs deployment.,,gough,"NotebookCICD, bromine",5
+
+Deploy centralized workflows to hst_notebooks,Story,,"Acceptance Criteria:
+- Workflow references are updated to production location.
+- First production runs (including conda/micromamba setup) are monitored.
+- Successful HST environment setup and deployment are confirmed.",SPB-2592,gough,"NotebookCICD, bromine",
+Update workflow references to production location for hst_notebooks,Task,Deploy centralized workflows to hst_notebooks,Update workflow references to production location.,,gough,"NotebookCICD, bromine",5
+Monitor first production runs (including conda/micromamba setup) for hst_notebooks,Task,Deploy centralized workflows to hst_notebooks,Monitor first production runs (including conda/micromamba setup).,,gough,"NotebookCICD, bromine",5
+Confirm successful HST environment setup and deployment for hst_notebooks,Task,Deploy centralized workflows to hst_notebooks,Confirm successful HST environment setup and deployment.,,gough,"NotebookCICD, bromine",5
+
+Deploy centralized workflows to mast_notebooks,Story,,"Acceptance Criteria:
+- Workflow references are updated to production location.
+- First production runs are monitored.
+- Successful MAST-specific deployment is confirmed.",SPB-2592,gough,"NotebookCICD, bromine",
+Update workflow references to production location for mast_notebooks,Task,Deploy centralized workflows to mast_notebooks,Update workflow references to production location.,,gough,"NotebookCICD, bromine",5
+Monitor first production runs for mast_notebooks,Task,Deploy centralized workflows to mast_notebooks,Monitor first production runs.,,gough,"NotebookCICD, bromine",5
+Confirm successful MAST-specific deployment for mast_notebooks,Task,Deploy centralized workflows to mast_notebooks,Confirm successful MAST-specific deployment.,,gough,"NotebookCICD, bromine",5
+
+Deploy centralized workflows to hello_universe,Story,,"Acceptance Criteria:
+- Workflow references are updated to production location.
+- First production runs (educational config) are monitored.
+- Successful lightweight deployment is confirmed.",SPB-2592,gough,"NotebookCICD, bromine",
+Update workflow references to production location for hello_universe,Task,Deploy centralized workflows to hello_universe,Update workflow references to production location.,,gough,"NotebookCICD, bromine",5
+Monitor first production runs (educational config) for hello_universe,Task,Deploy centralized workflows to hello_universe,Monitor first production runs (educational config).,,gough,"NotebookCICD, bromine",5
+Confirm successful lightweight deployment for hello_universe,Task,Deploy centralized workflows to hello_universe,Confirm successful lightweight deployment.,,gough,"NotebookCICD, bromine",5
+
+Deploy centralized workflows to jwst-pipeline-notebooks,Story,,"Acceptance Criteria:
+- Workflow references are updated to production location.
+- First production runs (pipeline/jdaviz) are monitored.
+- Successful JWST pipeline deployment is confirmed.",SPB-2592,gough,"NotebookCICD, bromine",
+Update workflow references to production location for jwst-pipeline-notebooks,Task,Deploy centralized workflows to jwst-pipeline-notebooks,Update workflow references to production location.,,gough,"NotebookCICD, bromine",5
+Monitor first production runs (pipeline/jdaviz) for jwst-pipeline-notebooks,Task,Deploy centralized workflows to jwst-pipeline-notebooks,Monitor first production runs (pipeline/jdaviz).,,gough,"NotebookCICD, bromine",5
+Confirm successful JWST pipeline deployment for jwst-pipeline-notebooks,Task,Deploy centralized workflows to jwst-pipeline-notebooks,Confirm successful JWST pipeline deployment.,,gough,"NotebookCICD, bromine",5

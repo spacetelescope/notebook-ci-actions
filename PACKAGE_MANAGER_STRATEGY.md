@@ -84,7 +84,7 @@ micromamba install -c conda-forge hstcal stsci
 When migrating to the centralized workflows:
 
 1. **Dependencies Review**: Determine if your repository needs conda-specific packages
-2. **Environment Files**: Keep existing `environment.yml` for conda packages, `requirements.txt` for pip packages
+2. **Environment Files**: Keep existing `requirements.txt` for pip packages, `_config.yml` and `_toc.yml` for Jupyter Book configuration
 3. **Testing**: The workflows will automatically use the appropriate package manager
 4. **Performance**: Expect faster builds due to uv's speed for Python packages
 
@@ -119,14 +119,14 @@ When migrating to the centralized workflows:
 The validation script checks for appropriate dependency files:
 
 ```bash
-# Detects conda requirements
-if [ -f "environment.yml" ]; then
-    log_info "Conda environment detected - micromamba will be used"
-fi
-
 # Detects Python package requirements  
 if [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
     log_info "Python packages detected - uv will be primary manager"
+fi
+
+# Detects Jupyter Book configuration
+if [ -f "_config.yml" ] && [ -f "_toc.yml" ]; then
+    log_info "Jupyter Book configuration detected"
 fi
 ```
 

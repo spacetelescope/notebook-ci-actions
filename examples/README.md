@@ -12,7 +12,7 @@ This directory contains example workflows that demonstrate how to use the reusab
 - Runs security scanning
 - Triggered only when notebook or config files change
 
-### 2. `notebook-ci-pr-smart.yml` - Smart Pull Request Validation ⚡ **NEW**
+### 2. `notebook-ci-pr-smart.yml` - Smart Pull Request Validation ⚡ **ENHANCED**
 **Trigger**: Pull requests to `main` or `develop` branches
 **Purpose**: Intelligent CI with conditional execution based on file changes
 - **Documentation-only changes**: Skips notebook execution, rebuilds docs only (85% faster)
@@ -20,7 +20,15 @@ This directory contains example workflows that demonstrate how to use the reusab
 - **Smart file detection**: Automatically categorizes changed files
 - **Cost optimization**: Reduces GitHub Actions minutes usage by up to 60%
 
-### 3. `notebook-ci-main.yml` - Main Branch CI (Traditional)
+### 3. `notebook-ci-pr-selective.yml` - Selective Directory Validation ⚡ **NEW**
+**Trigger**: Pull requests to `main` or `develop` branches
+**Purpose**: Directory-specific validation for repositories with organized notebook subdirectories
+- **Directory-specific requirements**: Only validates notebooks in directories with changed requirements.txt
+- **Parallel validation**: Multiple directories validated simultaneously
+- **Granular control**: Changes in `notebooks/data_analysis/requirements.txt` only affect that directory
+- **Maximum efficiency**: Combines smart detection with selective execution
+
+### 4. `notebook-ci-main.yml` - Main Branch CI (Traditional)
 **Trigger**: Pushes to `main` branch
 **Purpose**: Full CI pipeline for main branch
 - Full notebook execution and validation
@@ -28,7 +36,7 @@ This directory contains example workflows that demonstrate how to use the reusab
 - Documentation building and deployment
 - Sequential job execution with dependency management
 
-### 4. `notebook-ci-main-smart.yml` - Smart Main Branch CI ⚡ **NEW**
+### 5. `notebook-ci-main-smart.yml` - Smart Main Branch CI ⚡ **ENHANCED**
 **Trigger**: Pushes to `main` branch
 **Purpose**: Optimized main branch CI with intelligent deployment
 - **Documentation-only changes**: Fast deployment without notebook execution
@@ -36,7 +44,15 @@ This directory contains example workflows that demonstrate how to use the reusab
 - **Performance metrics**: Built-in optimization reporting
 - **Smart deployment**: Deploys only when content changes require it
 
-### 5. `notebook-ci-on-demand.yml` - Manual Testing
+### 6. `notebook-ci-main-selective.yml` - Selective Directory Execution ⚡ **NEW**
+**Trigger**: Pushes to `main` branch
+**Purpose**: Directory-specific execution and deployment for organized repositories
+- **Selective execution**: Only executes notebooks in directories with changes
+- **Parallel processing**: Multiple directories processed simultaneously
+- **Full execution**: Unlike PR validation, actually executes notebooks in affected directories
+- **Smart deployment**: Deploys after successful selective execution or full repository CI
+
+### 7. `notebook-ci-on-demand.yml` - Manual Testing
 **Trigger**: Manual workflow dispatch
 **Purpose**: Flexible on-demand testing with user inputs
 - Configurable Python version
@@ -44,19 +60,49 @@ This directory contains example workflows that demonstrate how to use the reusab
 - Optional single notebook testing
 - Toggleable security scanning and documentation building
 
-### 4. `notebook-deprecation.yml` - Deprecation Management
+### 8. `notebook-deprecation.yml` - Deprecation Management
 **Trigger**: Manual dispatch + scheduled runs
 **Purpose**: Notebook lifecycle management
 - Manual notebook deprecation marking
 - Automated cleanup of expired notebooks
 - Daily scheduled maintenance
 
-### 5. `docs-only.yml` - Documentation Deployment
+### 9. `docs-only.yml` - Documentation Deployment
 **Trigger**: Manual dispatch + documentation file changes
 **Purpose**: Documentation-only rebuilds
 - Rebuild docs without running full CI
 - Configurable post-processing scripts
 - Triggered by documentation file changes
+
+## 🎯 **Choosing the Right Workflow**
+
+### **For Traditional Repositories** (flat notebook structure):
+- **PR Validation**: Use `notebook-ci-pr.yml` or `notebook-ci-pr-smart.yml`
+- **Main Branch**: Use `notebook-ci-main.yml` or `notebook-ci-main-smart.yml`
+
+### **For Organized Repositories** (directory-based structure):
+```
+notebooks/
+├── data_analysis/
+│   ├── requirements.txt
+│   └── *.ipynb
+├── visualization/
+│   ├── requirements.txt
+│   └── *.ipynb
+└── modeling/
+    ├── requirements.txt
+    └── *.ipynb
+```
+- **PR Validation**: Use `notebook-ci-pr-selective.yml`
+- **Main Branch**: Use `notebook-ci-main-selective.yml`
+
+### **Performance Comparison**
+
+| Workflow Type | Documentation Change | Single Directory Change | Root Requirements Change |
+|---------------|---------------------|-------------------------|-------------------------|
+| **Traditional** | 15-25 minutes | 15-25 minutes | 15-25 minutes |
+| **Smart** | 2-5 minutes | 15-25 minutes | 15-25 minutes |
+| **Selective** | 2-5 minutes | 5-10 minutes | 15-25 minutes |
 
 ## 🚀 How to Use These Examples
 

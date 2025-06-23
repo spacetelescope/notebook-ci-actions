@@ -39,6 +39,20 @@ on:
         required: false
         default: true
         type: boolean
+      skip-deprecated:
+        description: 'Skip deprecated notebooks'
+        required: false
+        default: true
+        type: boolean
+      post-processing:
+        description: 'Post-processing options'
+        required: false
+        default: 'jdaviz'
+        type: choice
+        options:
+          - 'none'
+          - 'jdaviz'
+          - 'full'
 
 jobs:
   on-demand-ci:
@@ -49,15 +63,21 @@ jobs:
       single-filename: ${{ inputs.single-notebook }}
       build-html: ${{ inputs.build-documentation }}
       security-scan: ${{ inputs.run-security-scan }}
+      skip-deprecated: ${{ inputs.skip-deprecated }}
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
 
+  # Enhanced post-processing based on selection
   build-docs-on-demand:
     if: inputs.build-documentation == true
     uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
     with:
       python-version: ${{ inputs.python-version }}
-      post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional
+      post-run-script: ${{ 
+        inputs.post-processing == 'jdaviz' && 'scripts/jdaviz_image_replacement.sh' ||
+        inputs.post-processing == 'full' && 'scripts/full_post_processing.sh' ||
+        '' 
+      }}
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}

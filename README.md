@@ -5,16 +5,14 @@ This repository contains a collection of reusable GitHub Actions workflows desig
 ## 📋 Table of Contents
 
 - [Overview](#overview)
+- [Quick Start: Local Testing](#quick-start-local-testing) 🚀 **NEW**
 - [Workflows](#workflows)
-  - [CI Pipeline (`ci_pipeli| **jdat_notebooks** | uv | CRDS, astronomical tools | Python + uv |
-| **mast_notebooks** | uv | astroquery, MAST tools | Python + uv |  
-| **hst_notebooks** | micromamba | hstcal, STScI stack | Conda environment |
-| **hello_universe** | uv | Basic packages only | Python + uv |
-| **jwst-pipeline-notebooks** | uv | JWST pipeline, jdaviz | Python + uv |l`)](#ci-pipeline-ci_pipelineyml)
+  - [CI Pipeline (`ci_pipeline.yml`)](#ci-pipeline-ci_pipelineyml)
   - [HTML Builder (`ci_html_builder.yml`)](#html-builder-ci_html_builderyml)
   - [Deprecation Manager (`ci_deprecation_manager.yml`)](#deprecation-manager-ci_deprecation_manageryml)
 - [Scripts](#scripts)
 - [Usage Examples](#usage-examples)
+- [Local Testing](#local-testing) ⚡ **NEW**
 - [Example Caller Workflows](#example-caller-workflows)
 - [Prerequisites](#prerequisites)
 - [Versioning & Releases](#versioning--releases)
@@ -29,6 +27,41 @@ These workflows are designed to support notebook-based projects with comprehensi
 - **Security Scanning**: Automated security analysis of notebook code
 - **Deprecation Management**: Systematic handling of deprecated notebooks
 - **Artifact Management**: Handling of failed notebooks and build artifacts
+
+## 🚀 Quick Start: Local Testing
+
+**New to local testing?** Get started in 3 commands:
+
+```bash
+# 1. Validate workflows (30 seconds)
+./scripts/validate-workflows.sh
+
+# 2. Test notebooks locally (2-5 minutes)
+./scripts/test-local-ci.sh
+
+# 3. Full workflow simulation with Docker (optional)
+./scripts/test-with-act.sh pull_request
+```
+
+**Benefits**: Save 70-80% on GitHub Actions costs, get immediate feedback, test offline
+
+**📚 Detailed Guides**:
+- **[Quick Start Guide](QUICK_START.md)** - 5-minute setup and essential commands
+- **[Testing Decision Tree](TESTING_DECISION_TREE.md)** - Choose the right testing approach
+- **[Complete Testing Guide](docs/local-testing-guide.md)** - Comprehensive documentation
+
+**Repository-Specific Quick Setup**:
+```bash
+# JDAT Notebooks (JWST/CRDS)
+export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"
+./scripts/test-local-ci.sh
+
+# Educational repos (faster testing)
+RUN_SECURITY_SCAN=false ./scripts/test-local-ci.sh
+
+# HST Notebooks (validation only)
+EXECUTION_MODE=validation-only ./scripts/test-local-ci.sh
+```
 
 ## 🔧 Package Manager Strategy
 
@@ -273,6 +306,76 @@ This repository includes a collection of example workflows in the `examples/work
 
 For detailed setup instructions and customization options, see the [`examples/README.md`](examples/README.md) file.
 
+## 🧪 Local Testing ⚡ **NEW**
+
+Test GitHub Actions workflows locally before pushing changes to reduce CI costs and speed up development.
+
+### Quick Start
+
+```bash
+# 1. Validate workflow syntax and structure
+./scripts/validate-workflows.sh
+
+# 2. Simulate CI pipeline locally
+./scripts/test-local-ci.sh
+
+# 3. Test workflows with Act (requires Docker)
+./scripts/test-with-act.sh pull_request
+```
+
+### Available Testing Scripts
+
+| Script | Purpose | Requirements |
+|--------|---------|-------------|
+| `validate-workflows.sh` | Validate YAML syntax and structure | Python 3 |
+| `test-local-ci.sh` | Simulate CI pipeline execution | Python 3, uv |
+| `test-with-act.sh` | Run workflows with Act | Docker, Act |
+
+### Local CI Simulation
+
+```bash
+# Basic validation (fast)
+EXECUTION_MODE=validation-only ./scripts/test-local-ci.sh
+
+# Full execution test
+EXECUTION_MODE=full ./scripts/test-local-ci.sh
+
+# Test single notebook
+SINGLE_NOTEBOOK=notebooks/example.ipynb ./scripts/test-local-ci.sh
+
+# Repository-specific testing (e.g., for JDAT notebooks)
+export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"
+export CRDS_PATH="/tmp/crds_cache"
+./scripts/test-local-ci.sh
+```
+
+### Act-based Workflow Testing
+
+```bash
+# Test different event types
+./scripts/test-with-act.sh pull_request
+./scripts/test-with-act.sh push
+./scripts/test-with-act.sh workflow_dispatch
+
+# Test specific workflow file
+./scripts/test-with-act.sh pull_request .github/workflows/notebook-ci-pr.yml
+
+# Dry run validation
+DRY_RUN=true ./scripts/test-with-act.sh pull_request
+```
+
+### Benefits
+
+- **💰 Cost Reduction**: Avoid consuming GitHub Actions minutes during development
+- **⚡ Faster Feedback**: Test changes immediately without waiting for GitHub runners
+- **🐛 Better Debugging**: Access to local environment for detailed troubleshooting
+- **🔒 Safe Testing**: Test with secrets and sensitive data locally
+
+### Documentation
+
+- **📚 [Complete Local Testing Guide](docs/local-testing-guide.md)** - Comprehensive testing methods and tools
+- **🛠️ [Scripts Documentation](scripts/README.md)** - Detailed script usage and examples
+
 ## 🏷️ Versioning & Releases
 
 This repository uses semantic versioning for stable, predictable releases of workflow updates.
@@ -400,10 +503,30 @@ These workflows use a **dual package manager strategy** to provide optimal perfo
 
 Before submitting changes:
 
-1. Test workflows in a fork or test repository
-2. Verify all input parameters work as expected
-3. Ensure error conditions are handled gracefully
-4. Test with different Python versions and notebook structures
+1. **Local Testing** (Recommended):
+   ```bash
+   # Validate workflow syntax
+   ./scripts/validate-workflows.sh
+   
+   # Test CI pipeline locally
+   ./scripts/test-local-ci.sh
+   
+   # Test with Act (Docker-based GitHub Actions runner)
+   ./scripts/test-with-act.sh pull_request
+   ```
+
+2. **GitHub Testing**:
+   - Test workflows in a fork or test repository
+   - Use manual workflow dispatch for controlled testing
+   - Create test PRs to verify automatic triggers
+
+3. **Verification Checklist**:
+   - ✅ Verify all input parameters work as expected
+   - ✅ Ensure error conditions are handled gracefully
+   - ✅ Test with different Python versions and notebook structures
+   - ✅ Validate with repository-specific configurations
+
+For detailed local testing instructions, see [`docs/local-testing-guide.md`](docs/local-testing-guide.md).
 
 ---
 

@@ -127,7 +127,7 @@ esac
 
 # Check 5: Dependencies
 log_info "Checking dependency files..."
-dep_files=("requirements.txt" "pyproject.toml" "environment.yml" "setup.py")
+dep_files=("requirements.txt" "pyproject.toml" "setup.py")
 found_deps=false
 for dep_file in "${dep_files[@]}"; do
     if [ -f "$dep_file" ]; then
@@ -136,22 +136,25 @@ for dep_file in "${dep_files[@]}"; do
         
         # Additional checks for specific files
         case "$dep_file" in
-            "environment.yml")
-                if grep -q "conda-forge\|bioconda" "$dep_file" 2>/dev/null; then
-                    log_info "Conda channels detected - micromamba will be used"
-                else
-                    log_info "Standard environment.yml found"
-                fi
-                ;;
             "requirements.txt"|"pyproject.toml")
                 log_info "Python package file detected - uv will be primary package manager"
                 ;;
+            "setup.py")
+                log_info "Setup.py detected - repository may need modernization to pyproject.toml"
+                ;;
         esac
-    if [ -f "$dep_file" ]; then
-        log_success "Found $dep_file"
-        found_deps=true
     fi
 done
+
+# Check for Jupyter Book configuration
+if [ -f "_config.yml" ] && [ -f "_toc.yml" ]; then
+    log_success "Jupyter Book configuration found (_config.yml, _toc.yml)"
+    found_deps=true
+elif [ -f "_config.yml" ] || [ -f "_toc.yml" ]; then
+    log_warning "Partial Jupyter Book configuration found - both _config.yml and _toc.yml are recommended"
+    found_deps=true
+fi
+
 if [ "$found_deps" = false ]; then
     log_warning "No dependency files found (requirements.txt, pyproject.toml, etc.)"
 fi
