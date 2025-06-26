@@ -78,6 +78,7 @@ jobs:
         if: ${{ github.repository == 'spacetelescope/hst_notebooks' }}
         uses: mamba-org/setup-micromamba@v2.0.4
         with:
+          environment-name: ci-env
           init-shell: bash
           create-args: >-
             python=${{ inputs.python-version }}
@@ -87,6 +88,7 @@ jobs:
         if: ${{ github.repository != 'spacetelescope/hst_notebooks' }}
         uses: mamba-org/setup-micromamba@v2.0.4
         with:
+          environment-name: ci-env
           init-shell: bash
           create-args: >-
             python=${{ inputs.python-version }}
