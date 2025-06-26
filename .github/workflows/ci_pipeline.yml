@@ -149,10 +149,34 @@ jobs:
             rm -f "$py_file"
           fi
 
-      - name: Upload Notebook Artifacts if Failure
-        if: failure()
-        uses: actions/upload-artifact@v4
+      - name: Push executed notebooks to gh-storage branch
+        if: (success() && inputs.build-html == true) || github.event_name == 'pull_request'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git fetch origin gh-storage || git checkout --orphan gh-storage
+          git checkout gh-storage || git checkout --orphan gh-storage
+          rsync -av --delete notebooks/ notebooks/
+          git add notebooks/
+          git commit -m "Update executed notebooks [skip ci]" || echo "No changes to commit"
+          git push origin gh-storage
+
+  build-docs:
+    needs: validate-and-execute
+    if: needs.validate-and-execute.result == 'success' && inputs.build-html == true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
         with:
-          name: failed-notebooks
-          path: notebooks/
+          ref: gh-storage
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+      - name: Build JupyterBook documentation
+        run: |
+          jupyter-book build . --path-output /tmp/local-ci-build
 
