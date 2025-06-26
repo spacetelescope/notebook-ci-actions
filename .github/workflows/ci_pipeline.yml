@@ -28,17 +28,10 @@ on:
         required: false
 
 jobs:
-  validate-and-execute:
+  set-matrix:
     runs-on: ubuntu-24.04
     outputs:
       matrix_notebooks: ${{ steps.set-matrix.outputs.matrix_notebooks }}
-    strategy:
-      fail-fast: false
-      matrix:
-        notebook: ${{ fromJson(steps.set-matrix.outputs.matrix_notebooks) }}
-    defaults:
-      run:
-        shell: bash -leo pipefail {0}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,6 +44,21 @@ jobs:
             NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1]')
             echo "matrix_notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
           fi
+
+  validate-and-execute:
+    needs: set-matrix
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJson(needs.set-matrix.outputs.matrix_notebooks) }}
+    defaults:
+      run:
+        shell: bash -leo pipefail {0}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - id: list_notebooks
         run: |
           NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1]')
