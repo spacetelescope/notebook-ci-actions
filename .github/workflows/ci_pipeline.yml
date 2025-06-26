@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        notebook: []
+        notebook: ${{ inputs.single-filename != '' && fromJson('["' + inputs.single-filename + '"]') || fromJson(steps.list_notebooks.outputs.notebooks) }}
     defaults:
       run:
         shell: bash -leo pipefail {0}
@@ -42,7 +42,14 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
+    - id: list_notebooks
+      run: |
+        NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1]')
+        echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
+    - name: Set matrix if full run
+      if: ${{ inputs.execution-mode == 'full' && inputs.single-filename == '' }}
+      run: |
+        echo "::set-output name=matrix::{\"include\":$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map({notebook: .})')}"
     - name: Set up uv
       uses: astral-sh/setup-uv@v6.0.1
       with:
