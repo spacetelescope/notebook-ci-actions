@@ -30,11 +30,24 @@ on:
 jobs:
   validate-and-execute:
     runs-on: ubuntu-24.04
-
+    outputs:
+      matrix_notebooks: ${{ steps.set-matrix.outputs.matrix_notebooks }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: set-matrix
+        run: |
+          if [ -n "${{ inputs.single-filename }}" ]; then
+            echo "matrix_notebooks=[\"${{ inputs.single-filename }}\"]" >> $GITHUB_OUTPUT
+          else
+            NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1]')
+            echo "matrix_notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
+          fi
     strategy:
       fail-fast: false
       matrix:
-        notebook: ${{ inputs.single-filename != '' && fromJson('["' + inputs.single-filename + '"]') || fromJson(steps.list_notebooks.outputs.notebooks) }}
+        notebook: ${{ fromJson(needs.validate-and-execute.outputs.matrix_notebooks) }}
     defaults:
       run:
         shell: bash -leo pipefail {0}
