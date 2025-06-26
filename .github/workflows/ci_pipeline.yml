@@ -141,10 +141,13 @@ jobs:
       - name: Security Scan
         if: env.DOCS_ONLY != 'true' && inputs.security-scan == true
         run: |
-          find notebooks/ -name '*.ipynb' | while read nb; do
-            uv run jupyter nbconvert --to script "$nb"
-          done
-          uv run bandit -r notebooks/
+          nb="${{ matrix.notebook }}"
+          uv run jupyter nbconvert --to script "$nb"
+          py_file="${nb%.ipynb}.py"
+          if [ -f "$py_file" ]; then
+            uv run bandit "$py_file"
+            rm -f "$py_file"
+          fi
 
       - name: Upload Notebook Artifacts if Failure
         if: failure()
