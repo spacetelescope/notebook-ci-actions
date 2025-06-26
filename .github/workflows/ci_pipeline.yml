@@ -149,16 +149,22 @@ jobs:
             rm -f "$py_file"
           fi
 
-      - name: Push executed notebooks to gh-storage branch
+      - name: Push executed notebook to gh-storage branch
         if: (success() && inputs.build-html == true) || github.event_name == 'pull_request'
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git fetch origin gh-storage || git checkout --orphan gh-storage
           git checkout gh-storage || git checkout --orphan gh-storage
-          rsync -av --delete notebooks/ notebooks/
-          git add notebooks/
-          git commit -m "Update executed notebooks [skip ci]" || echo "No changes to commit"
+          nb_path="${{ matrix.notebook }}"
+          nb_dir=$(dirname "$nb_path")
+          mkdir -p "$nb_dir"
+          cp "$nb_path" "$nb_path"
+          git add "$nb_path"
+          git commit -m "Update executed notebook $nb_path [skip ci]" || echo "No changes to commit"
+          for i in 1 2 3; do
+            git pull --rebase origin gh-storage && break || sleep 2
+          done
           git push origin gh-storage
 
   build-docs:
