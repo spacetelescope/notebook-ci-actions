@@ -179,16 +179,16 @@ jobs:
           if [ ${#AFFECTED_DIRECTORIES[@]} -eq 0 ]; then
             affected_dirs_json="[]"
           else
-            affected_dirs_json=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s .)
+            affected_dirs_json=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s -c .)
           fi
           if [ ${#CHANGED_NOTEBOOKS[@]} -eq 0 ]; then
             changed_notebooks_json="[]"
           else
-            changed_notebooks_json=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s .)
+            changed_notebooks_json=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s -c .)
           fi
           # Output as compact JSON (no pretty print)
-          echo "affected-directories=$(echo $affected_dirs_json | jq -c .)" >> $GITHUB_OUTPUT
-          echo "changed-notebooks=$(echo $changed_notebooks_json | jq -c .)" >> $GITHUB_OUTPUT
+          echo "affected-directories=$affected_dirs_json" >> $GITHUB_OUTPUT
+          echo "changed-notebooks=$changed_notebooks_json" >> $GITHUB_OUTPUT
 
       - name: Install Validation Dependencies
         if: env.DOCS_ONLY != 'true'
