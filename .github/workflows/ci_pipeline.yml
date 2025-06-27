@@ -41,7 +41,7 @@ jobs:
           if [ -n "${{ inputs.single-filename }}" ]; then
             echo "matrix_notebooks=[\"${{ inputs.single-filename }}\"]" >> $GITHUB_OUTPUT
           else
-            NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1]')
+            NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
             echo "matrix_notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
           fi
 
