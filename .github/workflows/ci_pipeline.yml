@@ -123,6 +123,73 @@ jobs:
           echo "DOCS_ONLY=$DOCS_ONLY" >> $GITHUB_ENV
           echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
 
+          # Enhanced: Detect affected directories and changed notebooks, output as compact JSON
+          NOTEBOOKS_CHANGED=false
+          REQUIREMENTS_CHANGED=false
+          DOCS_CONFIG_CHANGED=false
+          declare -a AFFECTED_DIRECTORIES
+          declare -a CHANGED_NOTEBOOKS
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              notebooks/*.ipynb)
+                NOTEBOOKS_CHANGED=true
+                CHANGED_NOTEBOOKS+=("$file")
+                dir=$(dirname "$file")
+                if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                  AFFECTED_DIRECTORIES+=("$dir")
+                fi
+                ;;
+              notebooks/*/requirements.txt)
+                REQUIREMENTS_CHANGED=true
+                dir=$(dirname "$file")
+                if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                  AFFECTED_DIRECTORIES+=("$dir")
+                fi
+                ;;
+              notebooks/*.py|notebooks/*.R)
+                NOTEBOOKS_CHANGED=true
+                dir=$(dirname "$file")
+                if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                  AFFECTED_DIRECTORIES+=("$dir")
+                fi
+                ;;
+              requirements.txt|pyproject.toml|setup.py)
+                REQUIREMENTS_CHANGED=true
+                AFFECTED_DIRECTORIES=("notebooks")
+                ;;
+              _config.yml|_toc.yml)
+                DOCS_CONFIG_CHANGED=true
+                ;;
+              *.yml|*.yaml)
+                if [[ "$file" == .github/workflows/* ]]; then
+                  :
+                else
+                  DOCS_CONFIG_CHANGED=true
+                fi
+                ;;
+              scripts/*|*.html|*.css|*.js|*.md|*.rst)
+                DOCS_CONFIG_CHANGED=true
+                ;;
+              *)
+                ;;
+            esac
+          done <<< "$CHANGED_FILES"
+
+          if [ ${#AFFECTED_DIRECTORIES[@]} -eq 0 ]; then
+            affected_dirs_json="[]"
+          else
+            affected_dirs_json=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s .)
+          fi
+          if [ ${#CHANGED_NOTEBOOKS[@]} -eq 0 ]; then
+            changed_notebooks_json="[]"
+          else
+            changed_notebooks_json=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s .)
+          fi
+          # Output as compact JSON (no pretty print)
+          echo "affected-directories=$(echo $affected_dirs_json | jq -c .)" >> $GITHUB_OUTPUT
+          echo "changed-notebooks=$(echo $changed_notebooks_json | jq -c .)" >> $GITHUB_OUTPUT
+
       - name: Install Validation Dependencies
         if: env.DOCS_ONLY != 'true'
         run: |
