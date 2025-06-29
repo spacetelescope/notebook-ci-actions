@@ -236,14 +236,7 @@ jobs:
         with:
           environment-name: ci-env
           init-shell: bash
-          create-args: >-
-            python=${{ inputs.python-version }}
-            pip
-            jupyter
-            nbval
-            nbconvert
-            bandit
-            pytest
+          create-args: "python=${{ inputs.python-version }} pip jupyter nbval nbconvert bandit pytest"
           cache-environment: true
 
       - name: Set up custom conda environment
@@ -252,9 +245,6 @@ jobs:
           echo "🔧 Setting up custom conda environment: ${{ inputs.conda-environment }}"
           # Create environment with specified conda environment packages
           micromamba install -n ci-env ${{ inputs.conda-environment }} -y
-          create-args: >-
-            python=${{ inputs.python-version }}
-            ${{ inputs.conda-environment }}
 
       - name: Install requirements
         run: |
@@ -352,11 +342,7 @@ jobs:
         with:
           environment-name: docs-env
           init-shell: bash
-          create-args: >-
-            python=${{ inputs.python-version }}
-            pip
-            jupyter-book
-            sphinx
+          create-args: "python=${{ inputs.python-version }} pip jupyter-book sphinx"
           cache-environment: true
 
       - name: Install documentation dependencies
