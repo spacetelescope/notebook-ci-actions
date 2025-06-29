@@ -231,19 +231,27 @@ jobs:
             echo "deprecated=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Set up Python environment
-        uses: astral-sh/setup-uv@v6.0.1
-        with:
-          version: "0.7.3"
-          python-version: ${{ inputs.python-version }}
-          enable-cache: true
-
-      - name: Set up Conda environment
-        if: inputs.conda-environment != ''
+      - name: Set up Python environment with micromamba
         uses: mamba-org/setup-micromamba@v2.0.4
         with:
           environment-name: ci-env
           init-shell: bash
+          create-args: >-
+            python=${{ inputs.python-version }}
+            pip
+            jupyter
+            nbval
+            nbconvert
+            bandit
+            pytest
+          cache-environment: true
+
+      - name: Set up custom conda environment
+        if: inputs.conda-environment != ''
+        run: |
+          echo "🔧 Setting up custom conda environment: ${{ inputs.conda-environment }}"
+          # Create environment with specified conda environment packages
+          micromamba install -n ci-env ${{ inputs.conda-environment }} -y
           create-args: >-
             python=${{ inputs.python-version }}
             ${{ inputs.conda-environment }}
@@ -253,44 +261,51 @@ jobs:
           notebook="${{ matrix.notebook }}"
           nb_dir=$(dirname "$notebook")
           
-          # Install base dependencies
-          uv pip install --system jupyter nbval nbconvert bandit pytest
+          # Activate the micromamba environment
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate ci-env
           
           # Install custom requirements if specified
           if [ -n "${{ inputs.custom-requirements }}" ]; then
             echo "Installing custom requirements: ${{ inputs.custom-requirements }}"
-            uv pip install --system -r "${{ inputs.custom-requirements }}"
+            pip install -r "${{ inputs.custom-requirements }}"
           elif [ -f "$nb_dir/requirements.txt" ]; then
             echo "Installing directory-specific requirements: $nb_dir/requirements.txt"
-            uv pip install --system -r "$nb_dir/requirements.txt"
+            pip install -r "$nb_dir/requirements.txt"
           elif [ -f "requirements.txt" ]; then
             echo "Installing root requirements.txt"
-            uv pip install --system -r requirements.txt
+            pip install -r requirements.txt
           fi
 
       - name: Validate notebook
         if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
         run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate ci-env
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
-          uv run --system pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
         run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate ci-env
           echo "🛡️ Security scanning: ${{ matrix.notebook }}"
           notebook="${{ matrix.notebook }}"
-          uv run --system jupyter nbconvert --to script "$notebook"
+          jupyter nbconvert --to script "$notebook"
           py_file="${notebook%.ipynb}.py"
           if [ -f "$py_file" ]; then
-            uv run --system bandit "$py_file" || echo "Security warnings found"
+            bandit "$py_file" || echo "Security warnings found"
             rm -f "$py_file"
           fi
 
       - name: Execute notebook
         if: inputs.enable-execution == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'execute')
         run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
-          uv run --system jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
 
       - name: Store executed notebook to gh-storage
         if: |
@@ -332,19 +347,29 @@ jobs:
           ref: ${{ inputs.execution-mode == 'merge' && 'gh-storage' || 'main' }}
           fetch-depth: 0
           
-      - name: Set up Python environment
-        uses: astral-sh/setup-uv@v6.0.1
+      - name: Set up Python environment with micromamba
+        uses: mamba-org/setup-micromamba@v2.0.4
         with:
-          version: "0.7.3"
-          python-version: ${{ inputs.python-version }}
-          enable-cache: true
+          environment-name: docs-env
+          init-shell: bash
+          create-args: >-
+            python=${{ inputs.python-version }}
+            pip
+            jupyter-book
+            sphinx
+          cache-environment: true
 
       - name: Install documentation dependencies
         run: |
-          uv pip install --system jupyter-book sphinx
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate docs-env
+          # Additional packages if needed
+          pip install --upgrade jupyter-book sphinx
           
       - name: Build JupyterBook documentation
         run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate docs-env
           echo "📖 Building JupyterBook documentation"
           jupyter-book build . --path-output /tmp/notebook-ci-build
           
