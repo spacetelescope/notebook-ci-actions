@@ -125,7 +125,7 @@ jobs:
   full-notebook-ci:
     needs: detect-changes
     if: needs.detect-changes.outputs.notebooks-changed == 'true'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
     with:
       python-version: "3.11"
       execution-mode: "full"  # Full execution for main branch
@@ -156,7 +156,7 @@ jobs:
       (needs.full-notebook-ci.result == 'success' || 
        needs.full-notebook-ci.result == 'skipped' || 
        needs.docs-only-rebuild.result == 'success')
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional, adjust per repo
@@ -204,5 +204,5 @@ jobs:
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔗 Useful Links" >> $GITHUB_STEP_SUMMARY
-          echo "- [Workflow Documentation](https://github.com/spacetelescope/notebook-ci-actions)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Workflow Documentation](https://github.com/mgrough-970/dev-actions)" >> $GITHUB_STEP_SUMMARY
           echo "- [Repository Documentation](https://spacetelescope.github.io/${{ github.event.repository.name }})" >> $GITHUB_STEP_SUMMARY

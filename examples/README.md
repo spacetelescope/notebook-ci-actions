@@ -122,7 +122,7 @@ cp examples/workflows/notebook-ci-main.yml your-repo/.github/workflows/
 Update the `uses` field in each workflow to point to your organization's notebook-ci-actions repository:
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main
 ```
 
 ### Step 3: Configure Repository Secrets
@@ -164,13 +164,13 @@ If you need post-processing (like jdaviz image replacement):
 ```yaml
 jobs:
   ci-pipeline:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main
     # ... configuration
   
   deploy-docs:
     needs: ci-pipeline
     if: success()
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@main
     # ... configuration
 ```
 
@@ -178,11 +178,11 @@ jobs:
 ```yaml
 jobs:
   validate-notebooks:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main
     # ... configuration
   
   build-docs:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@main
     # ... configuration
 ```
 
@@ -191,7 +191,7 @@ jobs:
 jobs:
   build-docs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@main
     # ... configuration
 ```
 
@@ -234,7 +234,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main
     with:
       python-version: ${{ matrix.python-version }}
 ```

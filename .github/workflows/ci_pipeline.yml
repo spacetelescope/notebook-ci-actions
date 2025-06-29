@@ -28,108 +28,232 @@ on:
         required: false
 
 jobs:
-  validate-and-execute:
+  set-matrix:
     runs-on: ubuntu-24.04
+    outputs:
+      matrix_notebooks: ${{ steps.set-matrix.outputs.matrix_notebooks }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: set-matrix
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            BASE_REF=$(jq -r .pull_request.base.ref < "$GITHUB_EVENT_PATH")
+            HEAD_REF=$(jq -r .pull_request.head.ref < "$GITHUB_EVENT_PATH")
+            git fetch origin "$BASE_REF"
+            CHANGED_NOTEBOOKS=$(git diff --name-only origin/$BASE_REF...HEAD | grep '.ipynb$' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
+            echo "matrix_notebooks=$CHANGED_NOTEBOOKS" >> $GITHUB_OUTPUT
+          elif [ -n "${{ inputs.single-filename }}" ]; then
+            echo "matrix_notebooks=[\"${{ inputs.single-filename }}\"]" >> $GITHUB_OUTPUT
+          else
+            NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
+            echo "matrix_notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
+          fi
 
+  validate-and-execute:
+    needs: set-matrix
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        notebook: []
+        notebook: ${{ fromJson(needs.set-matrix.outputs.matrix_notebooks) }}
     defaults:
       run:
         shell: bash -leo pipefail {0}
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: list_notebooks
+        run: |
+          NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1]')
+          echo "notebooks=$NOTEBOOKS" >> $GITHUB_OUTPUT
+      - name: Set matrix if full run
+        if: ${{ inputs.execution-mode == 'full' && inputs.single-filename == '' }}
+        run: |
+          echo "matrix={\"include\":$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map({notebook: .})')}" >> $GITHUB_OUTPUT
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
 
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v6.0.1
-      with:
-        version: "0.7.3"
-        python-version: ${{ inputs.python-version }}
-        enable-cache: true
+      - name: Set up micromamba for HST environment
+        if: ${{ github.repository == 'spacetelescope/hst_notebooks' }}
+        uses: mamba-org/setup-micromamba@v2.0.4
+        with:
+          environment-name: ci-env
+          init-shell: bash
+          create-args: >-
+            python=${{ inputs.python-version }}
+            hstcal
 
-    - name: Set up micromamba for HST environment
-      if: ${{ github.repository == 'spacetelescope/hst_notebooks' }}
-      uses: mamba-org/setup-micromamba@v2.0.4
-      with:
-        init-shell: bash
-        create-args: >-
-          python=${{ inputs.python-version }}
-          hstcal
+      - name: Set up micromamba for standard environment
+        if: ${{ github.repository != 'spacetelescope/hst_notebooks' }}
+        uses: mamba-org/setup-micromamba@v2.0.4
+        with:
+          environment-name: ci-env
+          init-shell: bash
+          create-args: >-
+            python=${{ inputs.python-version }}
 
-    - name: Set up micromamba for standard environment
-      if: ${{ github.repository != 'spacetelescope/hst_notebooks' }}
-      uses: mamba-org/setup-micromamba@v2.0.4
-      with:
-        init-shell: bash
-        create-args: >-
-          python=${{ inputs.python-version }}
-
-    - name: Detect docs-only changes
-      id: detect_docs_only
-      if: github.event_name == 'pull_request'
-      run: |
-        # Get list of changed files in the PR
-        git fetch origin ${{ github.event.pull_request.base.ref }}
-        CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
-        echo "Changed files: $CHANGED_FILES"
-        DOCS_ONLY=true
-        for file in $CHANGED_FILES; do
-          case "$file" in
-            *.md|*.yml|*.yaml|*.html|*.css|*.js|_config.yml|_toc.yml)
-              # docs/static/config files, allow
-              ;;
-            *)
-              # Any other file disables docs-only mode
-              DOCS_ONLY=false
-              break
-              ;;
-          esac
-        done
-        echo "DOCS_ONLY=$DOCS_ONLY" >> $GITHUB_ENV
-        echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
-
-    - name: Install Validation Dependencies
-      if: env.DOCS_ONLY != 'true'
-      run: |
-        uv pip install jupyter nbval nbconvert bandit
-
-    - name: Validate Notebook
-      if: env.DOCS_ONLY != 'true'
-      run: |
-        if [[ "${{ inputs.single-filename }}" != "" ]]; then
-          uv run pytest --nbval --nbval-cell-timeout=4000 "${{ inputs.single-filename }}"
-        else
-          find notebooks/ -name '*.ipynb' | while read nb; do
-            uv run pytest --nbval --nbval-cell-timeout=4000 "$nb"
+      - name: Detect docs-only changes
+        id: detect_docs_only
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get list of changed files in the PR
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)
+          echo "Changed files: $CHANGED_FILES"
+          DOCS_ONLY=true
+          for file in $CHANGED_FILES; do
+            case "$file" in
+              *.md|*.yml|*.yaml|*.html|*.css|*.js|_config.yml|_toc.yml)
+                # docs/static/config files, allow
+                ;;
+              *)
+                # Any other file disables docs-only mode
+                DOCS_ONLY=false
+                break
+                ;;
+            esac
           done
-        fi
+          echo "DOCS_ONLY=$DOCS_ONLY" >> $GITHUB_ENV
+          echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
 
-    - name: Execute Notebook
-      if: env.DOCS_ONLY != 'true'
-      run: |
-        if [[ "${{ inputs.single-filename }}" != "" ]]; then
-          uv run jupyter nbconvert --to notebook --execute --inplace "${{ inputs.single-filename }}"
-        else
-          find notebooks/ -name '*.ipynb' | while read nb; do
-            uv run jupyter nbconvert --to notebook --execute --inplace "$nb"
-          done
-        fi
+          # Enhanced: Detect affected directories and changed notebooks, output as compact JSON
+          NOTEBOOKS_CHANGED=false
+          REQUIREMENTS_CHANGED=false
+          DOCS_CONFIG_CHANGED=false
+          declare -a AFFECTED_DIRECTORIES
+          declare -a CHANGED_NOTEBOOKS
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            case "$file" in
+              notebooks/*.ipynb)
+                NOTEBOOKS_CHANGED=true
+                CHANGED_NOTEBOOKS+=("$file")
+                dir=$(dirname "$file")
+                if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                  AFFECTED_DIRECTORIES+=("$dir")
+                fi
+                ;;
+              notebooks/*/requirements.txt)
+                REQUIREMENTS_CHANGED=true
+                dir=$(dirname "$file")
+                if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                  AFFECTED_DIRECTORIES+=("$dir")
+                fi
+                ;;
+              notebooks/*.py|notebooks/*.R)
+                NOTEBOOKS_CHANGED=true
+                dir=$(dirname "$file")
+                if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                  AFFECTED_DIRECTORIES+=("$dir")
+                fi
+                ;;
+              requirements.txt|pyproject.toml|setup.py)
+                REQUIREMENTS_CHANGED=true
+                AFFECTED_DIRECTORIES=("notebooks")
+                ;;
+              _config.yml|_toc.yml)
+                DOCS_CONFIG_CHANGED=true
+                ;;
+              *.yml|*.yaml)
+                if [[ "$file" == .github/workflows/* ]]; then
+                  :
+                else
+                  DOCS_CONFIG_CHANGED=true
+                fi
+                ;;
+              scripts/*|*.html|*.css|*.js|*.md|*.rst)
+                DOCS_CONFIG_CHANGED=true
+                ;;
+              *)
+                ;;
+            esac
+          done <<< "$CHANGED_FILES"
 
-    - name: Security Scan
-      if: env.DOCS_ONLY != 'true' && inputs.security-scan == true
-      run: |
-        find notebooks/ -name '*.ipynb' | while read nb; do
+          if [ ${#AFFECTED_DIRECTORIES[@]} -eq 0 ]; then
+            affected_dirs_json="[]"
+          else
+            affected_dirs_json=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s -c .)
+          fi
+          if [ ${#CHANGED_NOTEBOOKS[@]} -eq 0 ]; then
+            changed_notebooks_json="[]"
+          else
+            changed_notebooks_json=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s -c .)
+          fi
+          # Output as compact JSON (no pretty print)
+          echo "affected-directories=$affected_dirs_json" >> $GITHUB_OUTPUT
+          echo "changed-notebooks=$changed_notebooks_json" >> $GITHUB_OUTPUT
+
+      - name: Install Validation Dependencies
+        if: env.DOCS_ONLY != 'true'
+        run: |
+          uv pip install jupyter nbval nbconvert bandit
+
+      - name: Install per-notebook requirements
+        if: env.DOCS_ONLY != 'true'
+        run: |
+          nb_dir=$(dirname "${{ matrix.notebook }}")
+          if [ -f "$nb_dir/requirements.txt" ]; then
+            echo "Installing requirements for $nb_dir"
+            uv pip install -r "$nb_dir/requirements.txt"
+          fi
+      - name: Validate Notebook
+        if: env.DOCS_ONLY != 'true'
+        run: |
+          uv run pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+      - name: Execute Notebook
+        if: env.DOCS_ONLY != 'true'
+        run: |
+          uv run jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+      - name: Security Scan
+        if: env.DOCS_ONLY != 'true' && inputs.security-scan == true
+        run: |
+          nb="${{ matrix.notebook }}"
           uv run jupyter nbconvert --to script "$nb"
-        done
-        uv run bandit -r notebooks/
+          py_file="${nb%.ipynb}.py"
+          if [ -f "$py_file" ]; then
+            uv run bandit "$py_file"
+            rm -f "$py_file"
+          fi
 
-    - name: Upload Notebook Artifacts if Failure
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: failed-notebooks
-        path: notebooks/
+      - name: Push executed notebook to gh-storage branch
+        if: (success() && inputs.build-html == true) || github.event_name == 'pull_request'
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git fetch origin gh-storage || git checkout --orphan gh-storage
+          git checkout gh-storage || git checkout --orphan gh-storage
+          nb_path="${{ matrix.notebook }}"
+          git checkout gh-storage || git checkout --orphan gh-storage
+          git add "$nb_path"
+          git commit -m "Update executed notebook $nb_path [skip ci]" || echo "No changes to commit"
+          for i in 1 2 3; do
+            git pull --rebase origin gh-storage && break || sleep 2
+          done
+          git push --force origin gh-storage
+
+  build-docs:
+    needs: validate-and-execute
+    if: needs.validate-and-execute.result == 'success' && inputs.build-html == true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-storage
+          fetch-depth: 0
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+      - name: Build JupyterBook documentation
+        run: |
+          jupyter-book build . --path-output /tmp/local-ci-build
 

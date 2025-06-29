@@ -11,6 +11,7 @@ This directory contains automation scripts for migrating STScI notebook reposito
   - [test-local-ci.sh](#test-local-cish)
   - [validate-workflows.sh](#validate-workflowssh)
   - [test-with-act.sh](#test-with-actsh)
+  - [test-on-demand-modes.sh](#test-on-demand-modessh)
 - [Usage Examples](#usage-examples)
 - [Repository-Specific Configurations](#repository-specific-configurations)
 - [Troubleshooting](#troubleshooting)
@@ -231,6 +232,59 @@ DRY_RUN=true ./test-with-act.sh pull_request
 # Verbose execution
 VERBOSE=true ./test-with-act.sh push
 ```
+
+### `test-on-demand-modes.sh` ⚡ **NEW**
+
+**Purpose**: Local testing for on-demand workflow modes
+
+**Usage**:
+```bash
+./test-on-demand-modes.sh [ACTION_TYPE] [SINGLE_NOTEBOOK] [OPTIONS]
+```
+
+**Available Action Types**:
+- `validate-all` - Validate all notebooks
+- `execute-all` - Execute all notebooks  
+- `security-scan-all` - Security scan all files
+- `validate-single` - Validate single notebook
+- `execute-single` - Execute single notebook
+- `full-pipeline-all` - Complete CI pipeline for all notebooks
+- `full-pipeline-single` - Complete CI pipeline for single notebook
+- `build-html-only` - Build HTML documentation only
+- `deprecate-notebook` - Test notebook deprecation
+- `performance-test` - Performance benchmarking
+
+**Examples**:
+```bash
+# Quick validation test
+./test-on-demand-modes.sh validate-all
+
+# Test single notebook execution
+./test-on-demand-modes.sh execute-single notebooks/example/demo.ipynb
+
+# Performance test with conda environment
+CONDA_ENVIRONMENT=hstcal ./test-on-demand-modes.sh performance-test
+
+# Test with Act (GitHub Actions local runner)
+TEST_METHOD=act ./test-on-demand-modes.sh validate-all
+
+# Enable debug logging
+ENABLE_DEBUG=true ./test-on-demand-modes.sh execute-single notebooks/debug.ipynb
+```
+
+**Environment Variables**:
+- `PYTHON_VERSION=3.11` - Python version to use
+- `CONDA_ENVIRONMENT=hstcal` - Conda environment name
+- `ENABLE_DEBUG=true` - Enable debug logging
+- `TEST_METHOD=local|act` - Testing method (default: local)
+
+**Features**:
+- ✅ Tests all on-demand workflow modes locally
+- ✅ Supports both local simulation and Act-based testing
+- ✅ Repository-specific environment detection
+- ✅ Performance benchmarking and optimization insights
+- ✅ Comprehensive error handling and debugging
+- ✅ Compatible with HST, JWST, and standard Python repositories
 
 ## 💡 Usage Examples
 
@@ -645,6 +699,23 @@ git commit -m "Rollback: Restore original workflows"
 git checkout main
 git branch -D migrate-to-centralized-actions
 ```
+
+## 🆕 Recent Updates (December 2024)
+
+**New Features:**
+- Enhanced `migrate-to-unified.sh` script with better auto-detection
+- Improved error handling and validation in all scripts
+- Repository-specific optimization recommendations
+- Better integration with the unified workflow system
+- Performance monitoring and benchmarking tools
+
+**Breaking Changes:**
+- `migrate-repository.sh` has been superseded by `migrate-to-unified.sh`
+- New unified workflow system requires different configuration patterns
+- Updated validation criteria for repository readiness assessment
+
+**Migration Path:**
+All repositories should now use the unified system. See `migrate-to-unified.sh` for automated migration.
 
 ## 🚀 Advanced Usage
 

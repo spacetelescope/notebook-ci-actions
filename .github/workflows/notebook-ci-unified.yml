@@ -1,0 +1,537 @@
+name: Unified Notebook CI/CD Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      # Execution Configuration
+      execution-mode:
+        description: 'Execution mode: pr, merge, scheduled, on-demand'
+        required: true
+        type: string
+      trigger-event:
+        description: 'Specific trigger: validate, execute, security, html, deprecate'
+        required: false
+        type: string
+        default: 'all'
+      
+      # Environment Configuration
+      python-version:
+        description: 'Python version to use'
+        required: false
+        type: string
+        default: '3.11'
+      conda-environment:
+        description: 'Custom conda environment (hstcal, stenv, etc.)'
+        required: false
+        type: string
+      custom-requirements:
+        description: 'Path to custom requirements file'
+        required: false
+        type: string
+      
+      # Notebook Selection
+      single-notebook:
+        description: 'Single notebook path for targeted execution'
+        required: false
+        type: string
+      affected-directories:
+        description: 'JSON array of affected directories (auto-detected or manual)'
+        required: false
+        type: string
+        default: '[]'
+      
+      # Feature Flags
+      enable-validation:
+        description: 'Enable pytest nbval validation'
+        required: false
+        type: boolean
+        default: true
+      enable-security:
+        description: 'Enable bandit security testing'
+        required: false
+        type: boolean
+        default: true
+      enable-execution:
+        description: 'Enable notebook execution'
+        required: false
+        type: boolean
+        default: true
+      enable-storage:
+        description: 'Enable storing outputs to gh-storage'
+        required: false
+        type: boolean
+        default: true
+      enable-html-build:
+        description: 'Enable HTML documentation build'
+        required: false
+        type: boolean
+        default: false
+      
+      # Post-processing
+      post-processing-script:
+        description: 'Optional post-processing script path'
+        required: false
+        type: string
+      
+      # Deprecation
+      deprecation-days:
+        description: 'Days until deprecation (default: 60)'
+        required: false
+        type: number
+        default: 60
+
+    secrets:
+      CASJOBS_USERID:
+        required: false
+      CASJOBS_PW:
+        required: false
+
+jobs:
+  # Change Detection and Matrix Setup
+  setup-matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix-notebooks: ${{ steps.setup.outputs.matrix-notebooks }}
+      affected-dirs: ${{ steps.setup.outputs.affected-dirs }}
+      skip-execution: ${{ steps.setup.outputs.skip-execution }}
+      docs-only: ${{ steps.setup.outputs.docs-only }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup matrix and detect changes
+        id: setup
+        run: |
+          # Initialize variables
+          SKIP_EXECUTION=false
+          DOCS_ONLY=false
+          MATRIX_NOTEBOOKS="[]"
+          AFFECTED_DIRS="${{ inputs.affected-directories }}"
+          
+          case "${{ inputs.execution-mode }}" in
+            "pr")
+              echo "🔄 PR Mode: Detecting changed files"
+              if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+                BASE_REF=$(jq -r .pull_request.base.ref < "$GITHUB_EVENT_PATH")
+                git fetch origin "$BASE_REF"
+                CHANGED_FILES=$(git diff --name-only origin/$BASE_REF...HEAD)
+              else
+                CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+              fi
+              
+              # Detect docs-only changes
+              DOCS_ONLY=true
+              NOTEBOOKS_CHANGED=false
+              declare -a CHANGED_NOTEBOOKS
+              declare -a AFFECTED_DIRECTORIES
+              
+              while IFS= read -r file; do
+                [[ -z "$file" ]] && continue
+                case "$file" in
+                  notebooks/*.ipynb)
+                    NOTEBOOKS_CHANGED=true
+                    DOCS_ONLY=false
+                    CHANGED_NOTEBOOKS+=("$file")
+                    dir=$(dirname "$file")
+                    if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                      AFFECTED_DIRECTORIES+=("$dir")
+                    fi
+                    ;;
+                  notebooks/*/requirements.txt|requirements.txt|pyproject.toml)
+                    NOTEBOOKS_CHANGED=true
+                    DOCS_ONLY=false
+                    dir=$(dirname "$file")
+                    if [[ "$file" == "requirements.txt" || "$file" == "pyproject.toml" ]]; then
+                      AFFECTED_DIRECTORIES=("notebooks")
+                    elif [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                      AFFECTED_DIRECTORIES+=("$dir")
+                    fi
+                    ;;
+                  *.md|*.html|*.css|*.js|_config.yml|_toc.yml)
+                    # Keep DOCS_ONLY=true, but enable HTML build
+                    ;;
+                  *)
+                    DOCS_ONLY=false
+                    ;;
+                esac
+              done <<< "$CHANGED_FILES"
+              
+              if [ "$DOCS_ONLY" = "true" ]; then
+                echo "📚 Docs-only changes detected"
+                SKIP_EXECUTION=true
+              elif [ ${#CHANGED_NOTEBOOKS[@]} -gt 0 ]; then
+                MATRIX_NOTEBOOKS=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s -c .)
+                AFFECTED_DIRS=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s -c .)
+              fi
+              ;;
+              
+            "merge")
+              echo "🚀 Merge Mode: Full repository processing"  
+              MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
+              AFFECTED_DIRS='["notebooks"]'
+              ;;
+              
+            "scheduled")
+              echo "⏰ Scheduled Mode: All notebooks validation"
+              MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
+              AFFECTED_DIRS='["notebooks"]'
+              ;;
+              
+            "on-demand")
+              echo "🎯 On-demand Mode"
+              if [ -n "${{ inputs.single-notebook }}" ]; then
+                MATRIX_NOTEBOOKS='["${{ inputs.single-notebook }}"]'
+                AFFECTED_DIRS='["$(dirname "${{ inputs.single-notebook }}")"]'
+              else
+                MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
+                AFFECTED_DIRS='["notebooks"]'
+              fi
+              ;;
+          esac
+          
+          echo "matrix-notebooks=$MATRIX_NOTEBOOKS" >> $GITHUB_OUTPUT
+          echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
+          echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
+          echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
+          
+          echo "📊 Matrix Setup Complete:"
+          echo "  Notebooks: $MATRIX_NOTEBOOKS"
+          echo "  Affected Dirs: $AFFECTED_DIRS"
+          echo "  Skip Execution: $SKIP_EXECUTION"
+          echo "  Docs Only: $DOCS_ONLY"
+
+  # Main Notebook Processing
+  process-notebooks:
+    needs: setup-matrix
+    if: needs.setup-matrix.outputs.skip-execution != 'true' && needs.setup-matrix.outputs.matrix-notebooks != '[]'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+    env:
+      CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+      CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Check if notebook is deprecated
+        id: deprecation-check
+        run: |
+          notebook="${{ matrix.notebook }}"
+          
+          # Check for deprecation markers in notebook
+          if grep -q "DEPRECATED\|deprecated\|DEPRECATION" "$notebook"; then
+            echo "⚠️ Notebook marked as deprecated: $notebook"
+            echo "deprecated=true" >> $GITHUB_OUTPUT
+          else
+            echo "deprecated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Python environment
+        uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+
+      - name: Set up Conda environment
+        if: inputs.conda-environment != ''
+        uses: mamba-org/setup-micromamba@v2.0.4
+        with:
+          environment-name: ci-env
+          init-shell: bash
+          create-args: >-
+            python=${{ inputs.python-version }}
+            ${{ inputs.conda-environment }}
+
+      - name: Install requirements
+        run: |
+          notebook="${{ matrix.notebook }}"
+          nb_dir=$(dirname "$notebook")
+          
+          # Install base dependencies
+          uv pip install jupyter nbval nbconvert bandit pytest
+          
+          # Install custom requirements if specified
+          if [ -n "${{ inputs.custom-requirements }}" ]; then
+            echo "Installing custom requirements: ${{ inputs.custom-requirements }}"
+            uv pip install -r "${{ inputs.custom-requirements }}"
+          elif [ -f "$nb_dir/requirements.txt" ]; then
+            echo "Installing directory-specific requirements: $nb_dir/requirements.txt"
+            uv pip install -r "$nb_dir/requirements.txt"
+          elif [ -f "requirements.txt" ]; then
+            echo "Installing root requirements.txt"
+            uv pip install -r requirements.txt
+          fi
+
+      - name: Validate notebook
+        if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
+        run: |
+          echo "🔍 Validating notebook: ${{ matrix.notebook }}"
+          uv run pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+
+      - name: Security scan
+        if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
+        run: |
+          echo "🛡️ Security scanning: ${{ matrix.notebook }}"
+          notebook="${{ matrix.notebook }}"
+          uv run jupyter nbconvert --to script "$notebook"
+          py_file="${notebook%.ipynb}.py"
+          if [ -f "$py_file" ]; then
+            uv run bandit "$py_file" || echo "Security warnings found"
+            rm -f "$py_file"
+          fi
+
+      - name: Execute notebook
+        if: inputs.enable-execution == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'execute')
+        run: |
+          echo "▶️ Executing notebook: ${{ matrix.notebook }}"
+          uv run jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+
+      - name: Store executed notebook to gh-storage
+        if: |
+          inputs.enable-storage == true && 
+          steps.deprecation-check.outputs.deprecated != 'true' &&
+          success() && 
+          (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'execute')
+        run: |
+          echo "💾 Storing executed notebook to gh-storage"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # Handle gh-storage branch
+          git fetch origin gh-storage || git checkout --orphan gh-storage
+          git checkout gh-storage || git checkout --orphan gh-storage
+          
+          notebook="${{ matrix.notebook }}"
+          git add "$notebook"
+          git commit -m "Update executed notebook $notebook [skip ci]" || echo "No changes to commit"
+          
+          # Retry push with backoff
+          for i in 1 2 3; do
+            git pull --rebase origin gh-storage && git push origin gh-storage && break || sleep 2
+          done
+
+  # HTML Documentation Build
+  build-documentation:
+    needs: [setup-matrix, process-notebooks]
+    if: |
+      always() && 
+      inputs.enable-html-build == true &&
+      (needs.setup-matrix.outputs.docs-only == 'true' || 
+       (needs.process-notebooks.result == 'success' && inputs.execution-mode == 'merge') ||
+       inputs.trigger-event == 'html')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.execution-mode == 'merge' && 'gh-storage' || 'main' }}
+          fetch-depth: 0
+          
+      - name: Set up Python environment
+        uses: astral-sh/setup-uv@v6.0.1
+        with:
+          version: "0.7.3"
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+
+      - name: Install documentation dependencies
+        run: |
+          uv pip install jupyter-book sphinx
+          
+      - name: Build JupyterBook documentation
+        run: |
+          echo "📖 Building JupyterBook documentation"
+          jupyter-book build . --path-output /tmp/notebook-ci-build
+          
+      - name: Run post-processing script
+        if: inputs.post-processing-script != ''
+        run: |
+          echo "🔧 Running post-processing script: ${{ inputs.post-processing-script }}"
+          if [ -f "${{ inputs.post-processing-script }}" ]; then
+            chmod +x "${{ inputs.post-processing-script }}"
+            "${{ inputs.post-processing-script }}"
+          else
+            echo "⚠️ Post-processing script not found: ${{ inputs.post-processing-script }}"
+          fi
+
+      - name: Deploy to GitHub Pages
+        if: inputs.execution-mode == 'merge'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: /tmp/notebook-ci-build/_build/html
+
+  # Deprecation Management
+  manage-deprecation:
+    needs: setup-matrix
+    if: inputs.trigger-event == 'deprecate' || inputs.execution-mode == 'scheduled'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Tag notebook for deprecation
+        if: inputs.trigger-event == 'deprecate' && inputs.single-notebook != ''
+        run: |
+          notebook="${{ inputs.single-notebook }}"
+          deprecation_date=$(date -d "+${{ inputs.deprecation-days }} days" +%Y-%m-%d)
+          
+          echo "🏷️ Tagging notebook for deprecation: $notebook"
+          echo "📅 Deprecation date: $deprecation_date"
+          
+          # Add deprecation banner to notebook
+          python3 << 'EOF'
+          import json
+          import sys
+          from datetime import datetime, timedelta
+          
+          notebook_path = "${{ inputs.single-notebook }}"
+          days = ${{ inputs.deprecation-days }}
+          
+          with open(notebook_path, 'r') as f:
+              nb = json.load(f)
+          
+          deprecation_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+          
+          # Add deprecation cell at the beginning
+          deprecation_cell = {
+              "cell_type": "markdown",
+              "metadata": {
+                  "tags": ["deprecated"]
+              },
+              "source": [
+                  f"<div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 10px 0;'>\n",
+                  f"<h3 style='color: #856404; margin-top: 0;'>⚠️ DEPRECATED NOTEBOOK</h3>\n",
+                  f"<p style='color: #856404; margin-bottom: 0;'>This notebook is scheduled for deprecation on <strong>{deprecation_date}</strong>. It may be moved to the deprecated branch after this date.</p>\n",
+                  f"</div>\n"
+              ]
+          }
+          
+          # Insert at the beginning
+          nb['cells'].insert(0, deprecation_cell)
+          
+          with open(notebook_path, 'w') as f:
+              json.dump(nb, f, indent=2)
+          
+          print(f"Added deprecation banner to {notebook_path}")
+          EOF
+          
+          # Commit the changes
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add "$notebook"
+          git commit -m "Mark notebook as deprecated: $notebook (expires: $deprecation_date)"
+          git push origin main
+
+      - name: Check for expired deprecations
+        if: inputs.execution-mode == 'scheduled'
+        run: |
+          echo "🔍 Checking for expired deprecated notebooks"
+          
+          # Find deprecated notebooks
+          python3 << 'EOF'
+          import json
+          import os
+          import subprocess
+          from datetime import datetime
+          from pathlib import Path
+          
+          def check_notebook_deprecation(notebook_path):
+              with open(notebook_path, 'r') as f:
+                  nb = json.load(f)
+              
+              for cell in nb['cells']:
+                  if cell['cell_type'] == 'markdown' and 'tags' in cell.get('metadata', {}):
+                      if 'deprecated' in cell['metadata']['tags']:
+                          source = ''.join(cell['source'])
+                          # Extract date from deprecation banner
+                          import re
+                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
+                          if date_match:
+                              dep_date = datetime.strptime(date_match.group(1), '%Y-%m-%d')
+                              if dep_date <= datetime.now():
+                                  return True, dep_date
+              return False, None
+          
+          deprecated_notebooks = []
+          
+          for notebook in Path('notebooks').rglob('*.ipynb'):
+              is_expired, dep_date = check_notebook_deprecation(notebook)
+              if is_expired:
+                  deprecated_notebooks.append(str(notebook))
+                  print(f"Found expired deprecated notebook: {notebook} (expired: {dep_date})")
+          
+          if deprecated_notebooks:
+              # Create deprecated branch if it doesn't exist
+              subprocess.run(['git', 'fetch', 'origin', 'deprecated'], capture_output=True)
+              result = subprocess.run(['git', 'checkout', 'deprecated'], capture_output=True)
+              if result.returncode != 0:
+                  subprocess.run(['git', 'checkout', '--orphan', 'deprecated'])
+                  subprocess.run(['git', 'rm', '-rf', '.'])
+              
+              # Copy deprecated notebooks
+              subprocess.run(['git', 'checkout', 'main'])
+              for notebook in deprecated_notebooks:
+                  subprocess.run(['git', 'checkout', 'deprecated'])
+                  subprocess.run(['mkdir', '-p', os.path.dirname(notebook)])
+                  subprocess.run(['git', 'checkout', 'main', '--', notebook])
+                  subprocess.run(['git', 'add', notebook])
+              
+              # Commit to deprecated branch
+              subprocess.run(['git', 'commit', '-m', f'Move {len(deprecated_notebooks)} expired notebooks to deprecated branch'])
+              subprocess.run(['git', 'push', 'origin', 'deprecated'])
+              
+              # Remove from main branch
+              subprocess.run(['git', 'checkout', 'main'])
+              for notebook in deprecated_notebooks:
+                  subprocess.run(['git', 'rm', notebook])
+              
+              subprocess.run(['git', 'commit', '-m', f'Remove {len(deprecated_notebooks)} deprecated notebooks from main'])
+              subprocess.run(['git', 'push', 'origin', 'main'])
+              
+              print(f"Moved {len(deprecated_notebooks)} notebooks to deprecated branch")
+          else:
+              print("No expired deprecated notebooks found")
+          EOF
+
+  # Summary and Status
+  workflow-summary:
+    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Generate workflow summary
+        run: |
+          echo "## 📊 Unified Notebook CI/CD Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Mode**: ${{ inputs.execution-mode }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ inputs.trigger-event }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Python**: ${{ inputs.python-version }}" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ inputs.conda-environment }}" ]; then
+            echo "- **Conda Environment**: ${{ inputs.conda-environment }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "### Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Matrix Setup**: ${{ needs.setup-matrix.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Notebook Processing**: ${{ needs.process-notebooks.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Documentation Build**: ${{ needs.build-documentation.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deprecation Management**: ${{ needs.manage-deprecation.result }}" >> $GITHUB_STEP_SUMMARY
+          
+          # Add performance insights
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Performance Insights" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.setup-matrix.outputs.docs-only }}" = "true" ]; then
+            echo "- ⚡ **Docs-only mode**: Skipped notebook execution for faster build" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ inputs.execution-mode }}" = "pr" ]; then
+            echo "- 🎯 **PR mode**: Only affected notebooks processed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- 🔄 **Full processing**: All notebooks validated and executed" >> $GITHUB_STEP_SUMMARY
+          fi

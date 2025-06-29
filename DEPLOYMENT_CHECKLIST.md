@@ -3,7 +3,7 @@
 ## 🚀 Pre-Deployment Setup
 
 ### Step 1: Create Production Repository
-- [ ] Create `spacetelescope/notebook-ci-actions` repository
+- [ ] Create `mgough-970/dev-actions` repository
 - [ ] Set up repository description: "Centralized GitHub Actions workflows for STScI notebook repositories"
 - [ ] Configure repository visibility (recommend: Public)
 - [ ] Add appropriate topics: `github-actions`, `jupyter-notebooks`, `stsci`, `workflows`
@@ -14,8 +14,8 @@
 git clone https://github.com/your-username/dev-actions.git
 
 # Create and setup production repository
-cd notebook-ci-actions
-git remote add origin https://github.com/spacetelescope/notebook-ci-actions.git
+cd dev-actions
+git remote add origin https://github.com/mgough-970/dev-actions.git
 
 # Copy all files (excluding .git)
 cp -r ../dev-actions/* .
@@ -85,10 +85,10 @@ git clone https://github.com/spacetelescope/hello_universe.git
 cd hello_universe
 
 # Run validation
-../notebook-ci-actions/scripts/validate-repository.sh hello_universe spacetelescope
+../dev-actions/scripts/validate-repository.sh hello_universe spacetelescope
 
 # Run migration
-../notebook-ci-actions/scripts/migrate-repository.sh hello_universe spacetelescope
+../dev-actions/scripts/migrate-repository.sh hello_universe spacetelescope
 
 # Test workflows
 git push origin migrate-to-centralized-actions
@@ -167,7 +167,7 @@ Track these metrics for successful deployment:
 - **STScI Contact**: [STScI Representative Name]
 
 ### Communication Channels
-- **Issues**: Create issues in `notebook-ci-actions` repository
+- **Issues**: Create issues in `dev-actions` repository
 - **Questions**: Use GitHub Discussions or appropriate Slack channels
 - **Urgent**: Direct contact with implementation team
 

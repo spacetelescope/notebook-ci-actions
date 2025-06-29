@@ -102,10 +102,10 @@ Complete migration configurations for all 5 target repositories:
 
 ```yaml
 # Use major version pinning (recommended)
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1
 
 # Or exact version for stability
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.0
+uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.0.0
 ```
 
 ## 🔧 Key Features Implemented

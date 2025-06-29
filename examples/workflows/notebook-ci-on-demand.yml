@@ -56,14 +56,13 @@ on:
 
 jobs:
   on-demand-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
     with:
       python-version: ${{ inputs.python-version }}
       execution-mode: ${{ inputs.execution-mode }}
       single-filename: ${{ inputs.single-notebook }}
       build-html: ${{ inputs.build-documentation }}
       security-scan: ${{ inputs.run-security-scan }}
-      skip-deprecated: ${{ inputs.skip-deprecated }}
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
@@ -71,7 +70,7 @@ jobs:
   # Enhanced post-processing based on selection
   build-docs-on-demand:
     if: inputs.build-documentation == true
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: ${{ inputs.python-version }}
       post-run-script: ${{ 

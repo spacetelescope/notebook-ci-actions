@@ -15,7 +15,7 @@ on:
 
 jobs:
   full-ci-pipeline:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
     with:
       python-version: "3.11"
       execution-mode: "full"
@@ -28,7 +28,7 @@ jobs:
   build-and-deploy-docs:
     needs: full-ci-pipeline
     if: success()
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional

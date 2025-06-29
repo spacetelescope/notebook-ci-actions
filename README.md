@@ -220,7 +220,7 @@ on:
 
 jobs:
   test-notebooks:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
     with:
       python-version: "3.11"
       execution-mode: "full"
@@ -243,7 +243,7 @@ on:
 
 jobs:
   build-and-deploy:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional post-processing
@@ -271,7 +271,7 @@ on:
 
 jobs:
   deprecate:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_deprecation_manager.yml@main    with:
+    uses: mgough-970/dev-actions/.github/workflows/ci_deprecation_manager.yml@dev-actions-v2    with:
       notebook-path: ${{ inputs.notebook_path }}
       removal-date: ${{ inputs.removal_date }}
 ```
@@ -297,9 +297,9 @@ This repository includes a collection of example workflows in the `examples/work
 
 2. **Update workflow references:**
    ```yaml   # Change from:
-   uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+   uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
    # To your actual organization:
-   uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+   uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
    ```
 
 3. **Configure repository secrets** (see [Prerequisites](#prerequisites))
@@ -390,13 +390,13 @@ This repository uses semantic versioning for stable, predictable releases of wor
 
 ```yaml
 # Recommended: Pin to major version (gets bug fixes automatically)
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1
 
 # Conservative: Pin to exact version (most stable)
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.2.3
+uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.2.3
 
 # Development: Use main branch (not recommended for production)
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
 ```
 
 ### Release Process

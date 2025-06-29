@@ -120,7 +120,7 @@ jobs:
   full-notebook-ci:
     needs: detect-changes
     if: needs.detect-changes.outputs.notebooks-changed == 'true'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
     with:
       python-version: "3.11"
       execution-mode: "validation-only"  # Safe for PR validation
@@ -134,7 +134,7 @@ jobs:
   docs-only-rebuild:
     needs: detect-changes
     if: needs.detect-changes.outputs.docs-only == 'true'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional, adjust per repo
@@ -145,7 +145,7 @@ jobs:
   build-docs-preview:
     needs: [detect-changes, full-notebook-ci, docs-only-rebuild]
     if: always() && (needs.full-notebook-ci.result == 'success' || needs.docs-only-rebuild.result == 'success' || (needs.full-notebook-ci.result == 'skipped' && needs.docs-only-rebuild.result == 'skipped'))
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional, adjust per repo
