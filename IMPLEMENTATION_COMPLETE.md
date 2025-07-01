@@ -35,14 +35,23 @@ The unified, reusable GitHub Actions CI/CD system for Jupyter notebooks has been
 - ✅ **Sample Notebooks** - Complete example implementations
 - ✅ **Documentation** - Comprehensive guides and references
 
+### Critical Bug Fixes
+
+- ✅ **PR Storage Checkout Error** - Fixed "local changes would be overwritten" error
+- ✅ **Stash Implementation** - Proper git stash handling for executed notebooks
+- ✅ **Branch Switching** - Clean branch operations without conflicts
+- ✅ **Execution Preservation** - Notebook outputs properly preserved during storage
+
 ## 🚀 Performance Improvements
 
 ### PR Storage Optimization
+
 - **Merge Conflicts**: Eliminated through force-push approach
 - **Isolation**: Only executed notebooks affected, no other files
 - **Reliability**: Consistent, predictable storage behavior
 
-### Merge Workflow Optimization  
+### Merge Workflow Optimization
+
 - **Execution Time**: 60-80% reduction in merge workflow duration
 - **Resource Usage**: Significantly reduced CPU and memory consumption
 - **Cost Efficiency**: Lower GitHub Actions compute costs

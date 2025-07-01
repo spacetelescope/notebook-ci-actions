@@ -314,29 +314,40 @@ jobs:
           notebook="${{ matrix.notebook }}"
           
           if [ "${{ inputs.execution-mode }}" = "pr" ]; then
-            echo "🔄 PR mode: Force-pushing only the executed notebook to gh-storage"
+            echo "🔄 PR mode: Force-pushing ONLY the executed notebook to gh-storage"
             
-            # Store the current branch for restoration
+            # Store current state
             current_branch=$(git branch --show-current)
             echo "📍 Current branch: $current_branch"
             
-            # Fetch or create gh-storage branch
-            if git fetch origin gh-storage 2>/dev/null; then
-              echo "📦 Found existing gh-storage branch"
+            # Create a backup copy of the executed notebook BEFORE any branch operations
+            temp_notebook="/tmp/executed_$(basename "$notebook")"
+            cp "$notebook" "$temp_notebook"
+            echo "📋 Backed up executed notebook to: $temp_notebook"
+            
+            # Stash the executed notebook changes to allow clean branch switch
+            git add "$notebook"
+            git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook"
+            echo "� Stashed executed notebook changes for clean branch switch"
+            
+            # Switch to gh-storage branch (create if doesn't exist)
+            if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+              echo "📦 Using existing gh-storage branch"
+              git fetch origin gh-storage
               git checkout gh-storage
-              git reset --hard origin/gh-storage
             else
               echo "🆕 Creating new gh-storage branch"
               git checkout --orphan gh-storage
-              git rm -rf . 2>/dev/null || true
+              git rm -rf . >/dev/null 2>&1 || true
             fi
             
-            # Copy only the executed notebook from the working directory
-            echo "📋 Copying executed notebook: $notebook"
+            # Create directory structure and copy ONLY the executed notebook from backup
+            echo "� Setting up directory: $(dirname "$notebook")"
             mkdir -p "$(dirname "$notebook")"
-            cp "$GITHUB_WORKSPACE/$notebook" "$notebook"
+            cp "$temp_notebook" "$notebook"
+            echo "📋 Copied executed notebook from backup: $notebook"
             
-            # Stage only this notebook file
+            # Stage ONLY this notebook file
             git add "$notebook"
             
             # Check if there are actual changes to commit
@@ -351,32 +362,50 @@ jobs:
               echo "🚀 Successfully force-pushed $notebook to gh-storage"
             fi
             
-            # Return to original branch
+            # Clean up backup file and return to original branch
+            rm -f "$temp_notebook"
             git checkout "$current_branch"
-            echo "🔄 Returned to branch: $current_branch"
+            
+            # Clean up stash if it exists
+            if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
+              git stash drop
+              echo "🧹 Cleaned up temporary stash"
+            fi
+            echo "🔄 Returned to original branch"
             
           else
-            echo "🔄 Merge/Execute mode: Standard gh-storage update"
+            echo "🔄 Merge/Execute mode: Adding notebook to gh-storage"
             
-            # Store the current branch for restoration
+            # Store current state
             current_branch=$(git branch --show-current)
             echo "📍 Current branch: $current_branch"
             
-            # Fetch or create gh-storage branch
-            if git fetch origin gh-storage 2>/dev/null; then
-              echo "📦 Found existing gh-storage branch"
+            # Create a backup copy of the executed notebook BEFORE any branch operations
+            temp_notebook="/tmp/executed_$(basename "$notebook")"
+            cp "$notebook" "$temp_notebook"
+            echo "📋 Backed up executed notebook to: $temp_notebook"
+            
+            # Stash the executed notebook changes to allow clean branch switch
+            git add "$notebook"
+            git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook"
+            echo "� Stashed executed notebook changes for clean branch switch"
+            
+            # Switch to gh-storage branch
+            if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+              echo "📦 Using existing gh-storage branch"
+              git fetch origin gh-storage
               git checkout gh-storage
-              git pull origin gh-storage || echo "⚠️ Pull failed, continuing"
             else
               echo "🆕 Creating new gh-storage branch"
               git checkout --orphan gh-storage
-              git rm -rf . 2>/dev/null || true
+              git rm -rf . >/dev/null 2>&1 || true
             fi
             
-            # Copy the executed notebook
-            echo "📋 Copying executed notebook: $notebook"
+            # Create directory structure and copy the executed notebook from backup
+            echo "� Setting up directory: $(dirname "$notebook")"  
             mkdir -p "$(dirname "$notebook")"
-            cp "$GITHUB_WORKSPACE/$notebook" "$notebook"
+            cp "$temp_notebook" "$notebook"
+            echo "📋 Copied executed notebook from backup: $notebook"
             
             # Stage and commit the notebook
             git add "$notebook"
@@ -386,22 +415,27 @@ jobs:
               echo "✅ Changes detected, committing notebook"
               git commit -m "Update executed notebook $notebook [skip ci]"
               
-              # Retry push with backoff for merge/execute modes
-              for i in 1 2 3; do
-                if git push origin gh-storage; then
-                  echo "🚀 Successfully pushed $notebook to gh-storage (attempt $i)"
-                  break
-                else
-                  echo "⚠️ Push failed (attempt $i), retrying..."
-                  git pull --rebase origin gh-storage || echo "Rebase failed, will retry"
-                  sleep $((i * 2))
-                fi
-              done
+              # Try regular push first, then force if needed
+              if git push origin gh-storage; then
+                echo "🚀 Successfully pushed $notebook to gh-storage"
+              else
+                echo "⚠️ Regular push failed, force pushing..."
+                git push --force origin gh-storage
+                echo "🚀 Force-pushed $notebook to gh-storage"  
+              fi
             fi
             
-            # Return to original branch
+            # Clean up backup file and return to original branch
+            rm -f "$temp_notebook"
             git checkout "$current_branch"
-            echo "🔄 Returned to branch: $current_branch"
+            
+            # Clean up stash if it exists
+            if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
+              git stash drop
+              echo "🧹 Cleaned up temporary stash"
+            fi
+            echo "🔄 Returned to original branch"
+          fi
           fi
 
   # HTML Documentation Build
