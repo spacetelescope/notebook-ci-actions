@@ -204,7 +204,10 @@ jobs:
   # Main Notebook Processing
   process-notebooks:
     needs: setup-matrix
-    if: needs.setup-matrix.outputs.skip-execution != 'true' && needs.setup-matrix.outputs.matrix-notebooks != '[]'
+    if: |
+      needs.setup-matrix.outputs.skip-execution != 'true' && 
+      needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
+      inputs.execution-mode != 'merge'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -403,19 +406,28 @@ jobs:
 
   # HTML Documentation Build
   build-documentation:
-    needs: [setup-matrix, process-notebooks]
+    needs: [setup-matrix]
     if: |
       always() && 
       inputs.enable-html-build == true &&
       (needs.setup-matrix.outputs.docs-only == 'true' || 
-       (needs.process-notebooks.result == 'success' && inputs.execution-mode == 'merge') ||
-       inputs.trigger-event == 'html')
+       inputs.execution-mode == 'merge' ||
+       inputs.trigger-event == 'html' ||
+       (needs.process-notebooks.result == 'success' && inputs.execution-mode != 'merge'))
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.execution-mode == 'merge' && 'gh-storage' || 'main' }}
+          ref: ${{ inputs.execution-mode == 'merge' && 'gh-storage' || github.ref }}
           fetch-depth: 0
+          
+      - name: Fetch executed notebooks from gh-storage
+        if: inputs.execution-mode == 'merge'
+        run: |
+          echo "📦 Fetching executed notebooks from gh-storage branch"
+          git fetch origin gh-storage
+          git checkout gh-storage
+          echo "✅ Switched to gh-storage branch with executed notebooks"
           
       - name: Set up Python environment with micromamba
         uses: mamba-org/setup-micromamba@v2.0.4
@@ -429,7 +441,7 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate docs-env
-          # Additional packages if needed
+          echo "📚 Installing documentation dependencies"
           pip install --upgrade jupyter-book sphinx
           
       - name: Build JupyterBook documentation
@@ -437,15 +449,24 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate docs-env
           echo "📖 Building JupyterBook documentation"
-          jupyter-book build . --path-output /tmp/notebook-ci-build
+          
+          # Ensure _build directory exists
+          mkdir -p _build
+          
+          # Build the documentation
+          jupyter-book build . --path-output _build
+          echo "✅ JupyterBook documentation built successfully"
           
       - name: Run post-processing script
         if: inputs.post-processing-script != ''
         run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate docs-env
           echo "🔧 Running post-processing script: ${{ inputs.post-processing-script }}"
           if [ -f "${{ inputs.post-processing-script }}" ]; then
             chmod +x "${{ inputs.post-processing-script }}"
             "${{ inputs.post-processing-script }}"
+            echo "✅ Post-processing completed"
           else
             echo "⚠️ Post-processing script not found: ${{ inputs.post-processing-script }}"
           fi
@@ -455,7 +476,9 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: /tmp/notebook-ci-build/_build/html
+          publish_dir: ./_build/html
+          cname: ${{ vars.PAGES_CNAME || '' }}
+          commit_message: "Deploy documentation from executed notebooks [skip ci]"
 
   # Deprecation Management
   manage-deprecation:
@@ -612,7 +635,11 @@ jobs:
           
           echo "### Results" >> $GITHUB_STEP_SUMMARY
           echo "- **Matrix Setup**: ${{ needs.setup-matrix.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Notebook Processing**: ${{ needs.process-notebooks.result }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.execution-mode }}" != "merge" ]; then
+            echo "- **Notebook Processing**: ${{ needs.process-notebooks.result }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Notebook Processing**: Skipped (using executed notebooks from gh-storage)" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "- **Documentation Build**: ${{ needs.build-documentation.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Deprecation Management**: ${{ needs.manage-deprecation.result }}" >> $GITHUB_STEP_SUMMARY
           
