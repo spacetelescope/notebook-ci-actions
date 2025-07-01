@@ -499,11 +499,11 @@ jobs:
           micromamba activate docs-env
           echo "📖 Building JupyterBook documentation"
           
-          # Ensure _build directory exists
-          mkdir -p _build
+          # Clean any existing build directory
+          rm -rf _build
           
-          # Build the documentation
-          jupyter-book build . --path-output _build
+          # Build the documentation (don't specify --path-output to use default _build location)
+          jupyter-book build .
           echo "✅ JupyterBook documentation built successfully"
           
       - name: Run post-processing script
