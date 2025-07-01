@@ -180,7 +180,13 @@ jobs:
               
             "on-demand")
               echo "🎯 On-demand Mode"
-              if [ -n "${{ inputs.single-notebook }}" ]; then
+              # Check if this is a documentation-only build
+              if [ "${{ inputs.trigger-event }}" = "html" ]; then
+                echo "📚 Documentation-only build: skipping notebook processing"
+                SKIP_EXECUTION=true
+                MATRIX_NOTEBOOKS='[]'
+                AFFECTED_DIRS='[]'
+              elif [ -n "${{ inputs.single-notebook }}" ]; then
                 MATRIX_NOTEBOOKS='["${{ inputs.single-notebook }}"]'
                 AFFECTED_DIRS='["$(dirname "${{ inputs.single-notebook }}")"]'
               else
@@ -467,11 +473,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.execution-mode == 'merge' && 'gh-storage' || github.ref }}
+          ref: ${{ (inputs.execution-mode == 'merge' || inputs.trigger-event == 'html') && 'gh-storage' || github.ref }}
           fetch-depth: 0
           
       - name: Fetch executed notebooks from gh-storage
-        if: inputs.execution-mode == 'merge'
+        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html'
         run: |
           echo "📦 Fetching executed notebooks from gh-storage branch"
           git fetch origin gh-storage
@@ -521,7 +527,7 @@ jobs:
           fi
 
       - name: Deploy to GitHub Pages
-        if: inputs.execution-mode == 'merge'
+        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
