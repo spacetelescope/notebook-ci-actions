@@ -364,14 +364,22 @@ jobs:
             
             # Clean up backup file and return to original branch
             rm -f "$temp_notebook"
-            git checkout "$current_branch"
+            
+            # Return to original branch (handle empty branch name)
+            if [ -n "$current_branch" ]; then
+              git checkout "$current_branch"
+              echo "🔄 Returned to original branch: $current_branch"
+            else
+              # Fallback to default branch if current_branch is empty
+              git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
+              echo "🔄 Returned to default branch (current_branch was empty)"
+            fi
             
             # Clean up stash if it exists
             if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
               git stash drop
               echo "🧹 Cleaned up temporary stash"
             fi
-            echo "🔄 Returned to original branch"
             
           else
             echo "🔄 Merge/Execute mode: Adding notebook to gh-storage"
@@ -427,15 +435,22 @@ jobs:
             
             # Clean up backup file and return to original branch
             rm -f "$temp_notebook"
-            git checkout "$current_branch"
+            
+            # Return to original branch (handle empty branch name)
+            if [ -n "$current_branch" ]; then
+              git checkout "$current_branch"
+              echo "🔄 Returned to original branch: $current_branch"
+            else
+              # Fallback to default branch if current_branch is empty
+              git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
+              echo "🔄 Returned to default branch (current_branch was empty)"
+            fi
             
             # Clean up stash if it exists
             if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
               git stash drop
               echo "🧹 Cleaned up temporary stash"
             fi
-            echo "🔄 Returned to original branch"
-          fi
           fi
 
   # HTML Documentation Build
