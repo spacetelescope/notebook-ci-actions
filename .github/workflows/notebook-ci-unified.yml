@@ -187,8 +187,31 @@ jobs:
                 MATRIX_NOTEBOOKS='[]'
                 AFFECTED_DIRS='[]'
               elif [ -n "${{ inputs.single-notebook }}" ]; then
-                MATRIX_NOTEBOOKS='["${{ inputs.single-notebook }}"]'
-                AFFECTED_DIRS='["$(dirname "${{ inputs.single-notebook }}")"]'
+                echo "📄 Single notebook specified: ${{ inputs.single-notebook }}"
+                
+                # Check if it's a full path or just a filename
+                if [[ "${{ inputs.single-notebook }}" == *"/"* ]]; then
+                  # Full path provided
+                  NOTEBOOK_PATH="${{ inputs.single-notebook }}"
+                  echo "📁 Full path provided: $NOTEBOOK_PATH"
+                else
+                  # Just filename provided - find the full path
+                  echo "🔍 Filename only provided, searching for: ${{ inputs.single-notebook }}"
+                  NOTEBOOK_PATH=$(find notebooks/ -name "${{ inputs.single-notebook }}" -type f | head -1)
+                  if [ -z "$NOTEBOOK_PATH" ]; then
+                    echo "❌ Notebook not found: ${{ inputs.single-notebook }}"
+                    echo "Available notebooks:"
+                    find notebooks/ -name '*.ipynb' | head -10
+                    exit 1
+                  fi
+                  echo "✅ Found notebook at: $NOTEBOOK_PATH"
+                fi
+                
+                MATRIX_NOTEBOOKS=$(echo "[$NOTEBOOK_PATH]" | jq -c .)
+                # Calculate the directory for the single notebook
+                SINGLE_NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")
+                AFFECTED_DIRS=$(echo "[$SINGLE_NOTEBOOK_DIR]" | jq -c .)
+                echo "📁 Calculated directory: $SINGLE_NOTEBOOK_DIR"
               else
                 MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
                 AFFECTED_DIRS='["notebooks"]'
@@ -271,9 +294,8 @@ jobs:
           elif [ -f "$nb_dir/requirements.txt" ]; then
             echo "Installing directory-specific requirements: $nb_dir/requirements.txt"
             pip install -r "$nb_dir/requirements.txt"
-          elif [ -f "requirements.txt" ]; then
-            echo "Installing root requirements.txt"
-            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found in $nb_dir - using base environment only"
           fi
 
       - name: Validate notebook
