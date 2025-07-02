@@ -589,6 +589,25 @@ jobs:
           git checkout gh-storage
           echo "✅ Switched to gh-storage branch with executed notebooks"
           
+          # Merge static content from main branch to include updated docs/HTML files
+          echo "🔄 Merging static documentation files from main branch"
+          
+          # Fetch the main branch first
+          git fetch origin main
+          
+          # Checkout specific files from main branch, ignore errors if files don't exist
+          git checkout origin/main -- docs/ 2>/dev/null || echo "ℹ️ No docs/ directory in main"
+          git checkout origin/main -- *.md 2>/dev/null || echo "ℹ️ No markdown files in main root"
+          git checkout origin/main -- _config.yml 2>/dev/null || echo "ℹ️ No _config.yml in main"
+          git checkout origin/main -- _toc.yml 2>/dev/null || echo "ℹ️ No _toc.yml in main"
+          git checkout origin/main -- *.html 2>/dev/null || echo "ℹ️ No HTML files in main root"
+          git checkout origin/main -- *.css 2>/dev/null || echo "ℹ️ No CSS files in main root"
+          git checkout origin/main -- *.js 2>/dev/null || echo "ℹ️ No JS files in main root"
+          
+          echo "✅ Static documentation files merged from main branch"
+          echo "📋 Current working directory contents:"
+          find . -name "*.html" -o -name "*.md" -o -name "_*.yml" -o -name "*.ipynb" | head -10
+          
       - name: Set up Python environment with micromamba
         uses: mamba-org/setup-micromamba@v2.0.4
         with:
