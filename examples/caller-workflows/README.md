@@ -1,12 +1,48 @@
 # Notebook CI/CD Caller Workflows
 
-This directory contains example caller workflows that repositories can use to integrate with the unified Notebook CI/CD system.
+This directory contains example caller workflows organized by repository type. Each repository subfolder contains four production-ready workflow files that can be copied directly to your repository's `.github/workflows/` directory.
+
+## 📁 Repository-Specific Examples
+
+Each repository folder contains four workflow types tailored for that specific repository:
+
+### Available Repository Examples
+
+- **`hellouniverse/`** - Basic educational notebook repository
+- **`jdat_notebooks/`** - JDAT (JWST Data Analysis Tools) notebooks with conda environments
+- **`mast_notebooks/`** - MAST (Mikulski Archive) notebooks with mission-specific filters
+- **`hst_notebooks/`** - Hubble Space Telescope notebooks with instrument filters
+- **`jwst_pipeline_notebooks/`** - JWST Pipeline notebooks with stage/instrument filters
+
+### Core Workflow Types (in each folder)
+
+- **`notebook-pr.yml`** - Pull request validation workflow
+- **`notebook-merge.yml`** - Main branch merge/push workflow  
+- **`notebook-scheduled.yml`** - Scheduled execution workflow
+- **`notebook-on-demand.yml`** - Manual/on-demand execution workflow
+
+## 🚀 Quick Setup
+
+1. **Choose your repository** from the examples above
+2. **Copy workflow files**: 
+   ```bash
+   cp examples/caller-workflows/your_repo_name/*.yml .github/workflows/
+   ```
+3. **Customize settings** in each workflow file as needed
+4. **Commit and push** to activate the workflows
+
+All workflows reference `spacetelescope/notebook-ci-actions@dev-actions-v2` and are production-ready.
 
 ## Quick Start
 
-1. **Copy the appropriate workflow files** to your repository's `.github/workflows/` directory
-2. **Customize the configuration** parameters as needed for your repository
-3. **Set up required secrets** in your repository settings
+1. **Choose your repository type** from the available examples above
+2. **Copy the appropriate workflow files** from that subfolder to your repository's `.github/workflows/` directory
+3. **Customize the configuration** parameters as needed for your specific repository
+4. **Set up required secrets** in your repository settings
+
+## Legacy Workflows (Deprecated)
+
+The files `notebook-pr.yml`, `notebook-merge.yml`, `notebook-scheduled.yml`, and `notebook-on-demand.yml` in this root directory are maintained for backward compatibility but are deprecated. Please use the repository-specific examples instead.
 
 ## Available Workflows
 

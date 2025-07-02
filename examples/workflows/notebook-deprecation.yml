@@ -22,7 +22,7 @@ on:
 
 jobs:
   deprecation-management:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'on-demand'
       trigger-event: 'deprecate'

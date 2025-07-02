@@ -199,7 +199,7 @@ with:
 name: HST Notebook CI
 jobs:
   hst-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -221,7 +221,7 @@ jobs:
 name: JWST Notebook CI
 jobs:
   jwst-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -243,7 +243,7 @@ jobs:
 name: Standard Notebook CI
 jobs:
   standard-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -261,7 +261,7 @@ jobs:
 name: Documentation CI
 jobs:
   docs-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -509,7 +509,7 @@ When migrating, map these configurations:
 
 ### Maintenance
 
-1. **Regular updates**: Keep workflow references current (`@v3` or specific tags)
+1. **Regular updates**: Keep workflow references current (`@{current version}` or specific tags)
 2. **Monitor deprecation**: Watch for deprecated configuration options
 3. **Performance review**: Periodically review and optimize configuration
 4. **Documentation updates**: Keep repository docs in sync with configuration

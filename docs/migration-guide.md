@@ -60,7 +60,7 @@ on:
 
 jobs:
   notebook-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'pr'
       python-version: '3.11'                # Adjust to your Python version
@@ -92,7 +92,7 @@ on:
 
 jobs:
   notebook-ci-and-deploy:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'merge'
       python-version: '3.11'                # Adjust to your Python version
@@ -118,7 +118,7 @@ on:
 
 jobs:
   weekly-validation:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'scheduled'
       python-version: '3.11'
@@ -132,7 +132,7 @@ jobs:
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
 
   deprecation-check:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
       execution-mode: 'scheduled'
       trigger-event: 'deprecate'

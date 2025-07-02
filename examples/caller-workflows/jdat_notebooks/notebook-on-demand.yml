@@ -1,0 +1,72 @@
+# On-demand workflow for jdat_notebooks repository
+# Copy this file to your repository's .github/workflows/ directory
+
+name: Notebook CI - On Demand
+
+on:
+  workflow_dispatch:
+    inputs:
+      execution_mode:
+        description: 'Execution mode'
+        required: false
+        default: 'cache_only'
+        type: choice
+        options:
+          - cache_only
+          - force_execute
+          - collect_only
+      notebook_pattern:
+        description: 'Notebook pattern (e.g., "**/imaging/**" or specific notebook)'
+        required: false
+        default: ''
+        type: string
+      python_version:
+        description: 'Python version'
+        required: false
+        default: '3.11'
+        type: choice
+        options:
+          - '3.9'
+          - '3.10'
+          - '3.11'
+      generate_docs:
+        description: 'Generate documentation'
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  notebook-ci:
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    with:
+      # Repository-specific configuration
+      notebook_path: 'notebooks'
+      python_version: ${{ inputs.python_version }}
+      
+      # On-demand execution settings
+      execution_mode: ${{ inputs.execution_mode }}
+      notebook_pattern: ${{ inputs.notebook_pattern }}
+      
+      # Environment settings (prefer conda for JDAT)
+      environment_file: 'requirements.txt'
+      conda_environment_file: 'environment.yml'
+      
+      # Security and validation
+      security_check: true
+      notebook_validation: true
+      
+      # Documentation generation
+      generate_docs: ${{ inputs.generate_docs }}
+      docs_artifact: 'jdat-on-demand-docs'
+      
+      # Artifact settings
+      artifact_retention_days: 30
+      
+      # Performance settings
+      timeout_minutes: 90
+      max_parallel: 2
+      
+      # JDAT-specific settings
+      collect_execution_stats: true
+      
+    secrets: inherit
