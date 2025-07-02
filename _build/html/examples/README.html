@@ -1,0 +1,873 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Example Caller Workflows &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/README';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/README.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Example Caller Workflows</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-examples">📋 Available Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-yml-pull-request-validation-traditional">1. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr.yml</span></code> - Pull Request Validation (Traditional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-smart-yml-smart-pull-request-validation-enhanced">2. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code> - Smart Pull Request Validation ⚡ <strong>ENHANCED</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-selective-yml-selective-directory-validation-new">3. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-selective.yml</span></code> - Selective Directory Validation ⚡ <strong>NEW</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-yml-main-branch-ci-traditional">4. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main.yml</span></code> - Main Branch CI (Traditional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-smart-yml-smart-main-branch-ci-enhanced">5. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code> - Smart Main Branch CI ⚡ <strong>ENHANCED</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-selective-yml-selective-directory-execution-new">6. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-selective.yml</span></code> - Selective Directory Execution ⚡ <strong>NEW</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-on-demand-yml-manual-testing">7. <code class="docutils literal notranslate"><span class="pre">notebook-ci-on-demand.yml</span></code> - Manual Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-deprecation-yml-deprecation-management">8. <code class="docutils literal notranslate"><span class="pre">notebook-deprecation.yml</span></code> - Deprecation Management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docs-only-yml-documentation-deployment">9. <code class="docutils literal notranslate"><span class="pre">docs-only.yml</span></code> - Documentation Deployment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-right-workflow">🎯 <strong>Choosing the Right Workflow</strong></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-traditional-repositories-flat-notebook-structure"><strong>For Traditional Repositories</strong> (flat notebook structure):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-organized-repositories-directory-based-structure"><strong>For Organized Repositories</strong> (directory-based structure):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison"><strong>Performance Comparison</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use-these-examples">🚀 How to Use These Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-copy-to-your-repository">Step 1: Copy to Your Repository</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-customize-the-workflow-reference">Step 2: Customize the Workflow Reference</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-configure-repository-secrets">Step 3: Configure Repository Secrets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-customize-paths-and-triggers">Step 4: Customize Paths and Triggers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-configure-post-processing-scripts">Step 5: Configure Post-Processing Scripts</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-patterns">📊 Workflow Patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sequential-vs-parallel-execution">Sequential vs Parallel Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditional-execution">Conditional Execution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customization-tips">🔧 Customization Tips</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-filtering">1. Path Filtering</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-protection">2. Branch Protection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-specific-configurations">3. Environment-Specific Configurations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-strategies">4. Matrix Strategies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">📝 Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🐛 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-steps">Debugging Steps:</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="example-caller-workflows">
+<h1>Example Caller Workflows<a class="headerlink" href="#example-caller-workflows" title="Link to this heading">#</a></h1>
+<p>This directory contains example workflows that demonstrate how to use the reusable GitHub Actions workflows in this repository. These examples show different patterns for calling the workflows based on various triggers and use cases.</p>
+<section id="available-examples">
+<h2>📋 Available Examples<a class="headerlink" href="#available-examples" title="Link to this heading">#</a></h2>
+<section id="notebook-ci-pr-yml-pull-request-validation-traditional">
+<h3>1. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr.yml</span></code> - Pull Request Validation (Traditional)<a class="headerlink" href="#notebook-ci-pr-yml-pull-request-validation-traditional" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Pull requests to <code class="docutils literal notranslate"><span class="pre">main</span></code> or <code class="docutils literal notranslate"><span class="pre">develop</span></code> branches
+<strong>Purpose</strong>: Lightweight validation for pull requests</p>
+<ul class="simple">
+<li><p>Validates notebooks without full execution</p></li>
+<li><p>Builds documentation preview</p></li>
+<li><p>Runs security scanning</p></li>
+<li><p>Triggered only when notebook or config files change</p></li>
+</ul>
+</section>
+<section id="notebook-ci-pr-smart-yml-smart-pull-request-validation-enhanced">
+<h3>2. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code> - Smart Pull Request Validation ⚡ <strong>ENHANCED</strong><a class="headerlink" href="#notebook-ci-pr-smart-yml-smart-pull-request-validation-enhanced" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Pull requests to <code class="docutils literal notranslate"><span class="pre">main</span></code> or <code class="docutils literal notranslate"><span class="pre">develop</span></code> branches
+<strong>Purpose</strong>: Intelligent CI with conditional execution based on file changes</p>
+<ul class="simple">
+<li><p><strong>Documentation-only changes</strong>: Skips notebook execution, rebuilds docs only (85% faster)</p></li>
+<li><p><strong>Notebook/code changes</strong>: Full validation pipeline</p></li>
+<li><p><strong>Smart file detection</strong>: Automatically categorizes changed files</p></li>
+<li><p><strong>Cost optimization</strong>: Reduces GitHub Actions minutes usage by up to 60%</p></li>
+</ul>
+</section>
+<section id="notebook-ci-pr-selective-yml-selective-directory-validation-new">
+<h3>3. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-selective.yml</span></code> - Selective Directory Validation ⚡ <strong>NEW</strong><a class="headerlink" href="#notebook-ci-pr-selective-yml-selective-directory-validation-new" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Pull requests to <code class="docutils literal notranslate"><span class="pre">main</span></code> or <code class="docutils literal notranslate"><span class="pre">develop</span></code> branches
+<strong>Purpose</strong>: Directory-specific validation for repositories with organized notebook subdirectories</p>
+<ul class="simple">
+<li><p><strong>Directory-specific requirements</strong>: Only validates notebooks in directories with changed requirements.txt</p></li>
+<li><p><strong>Parallel validation</strong>: Multiple directories validated simultaneously</p></li>
+<li><p><strong>Granular control</strong>: Changes in <code class="docutils literal notranslate"><span class="pre">notebooks/data_analysis/requirements.txt</span></code> only affect that directory</p></li>
+<li><p><strong>Maximum efficiency</strong>: Combines smart detection with selective execution</p></li>
+</ul>
+</section>
+<section id="notebook-ci-main-yml-main-branch-ci-traditional">
+<h3>4. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main.yml</span></code> - Main Branch CI (Traditional)<a class="headerlink" href="#notebook-ci-main-yml-main-branch-ci-traditional" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Pushes to <code class="docutils literal notranslate"><span class="pre">main</span></code> branch
+<strong>Purpose</strong>: Full CI pipeline for main branch</p>
+<ul class="simple">
+<li><p>Full notebook execution and validation</p></li>
+<li><p>Security scanning</p></li>
+<li><p>Documentation building and deployment</p></li>
+<li><p>Sequential job execution with dependency management</p></li>
+</ul>
+</section>
+<section id="notebook-ci-main-smart-yml-smart-main-branch-ci-enhanced">
+<h3>5. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code> - Smart Main Branch CI ⚡ <strong>ENHANCED</strong><a class="headerlink" href="#notebook-ci-main-smart-yml-smart-main-branch-ci-enhanced" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Pushes to <code class="docutils literal notranslate"><span class="pre">main</span></code> branch
+<strong>Purpose</strong>: Optimized main branch CI with intelligent deployment</p>
+<ul class="simple">
+<li><p><strong>Documentation-only changes</strong>: Fast deployment without notebook execution</p></li>
+<li><p><strong>Notebook/code changes</strong>: Full CI with execution and deployment</p></li>
+<li><p><strong>Performance metrics</strong>: Built-in optimization reporting</p></li>
+<li><p><strong>Smart deployment</strong>: Deploys only when content changes require it</p></li>
+</ul>
+</section>
+<section id="notebook-ci-main-selective-yml-selective-directory-execution-new">
+<h3>6. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-selective.yml</span></code> - Selective Directory Execution ⚡ <strong>NEW</strong><a class="headerlink" href="#notebook-ci-main-selective-yml-selective-directory-execution-new" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Pushes to <code class="docutils literal notranslate"><span class="pre">main</span></code> branch
+<strong>Purpose</strong>: Directory-specific execution and deployment for organized repositories</p>
+<ul class="simple">
+<li><p><strong>Selective execution</strong>: Only executes notebooks in directories with changes</p></li>
+<li><p><strong>Parallel processing</strong>: Multiple directories processed simultaneously</p></li>
+<li><p><strong>Full execution</strong>: Unlike PR validation, actually executes notebooks in affected directories</p></li>
+<li><p><strong>Smart deployment</strong>: Deploys after successful selective execution or full repository CI</p></li>
+</ul>
+</section>
+<section id="notebook-ci-on-demand-yml-manual-testing">
+<h3>7. <code class="docutils literal notranslate"><span class="pre">notebook-ci-on-demand.yml</span></code> - Manual Testing<a class="headerlink" href="#notebook-ci-on-demand-yml-manual-testing" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Manual workflow dispatch
+<strong>Purpose</strong>: Flexible on-demand testing with user inputs</p>
+<ul class="simple">
+<li><p>Configurable Python version</p></li>
+<li><p>Selectable execution modes</p></li>
+<li><p>Optional single notebook testing</p></li>
+<li><p>Toggleable security scanning and documentation building</p></li>
+</ul>
+</section>
+<section id="notebook-deprecation-yml-deprecation-management">
+<h3>8. <code class="docutils literal notranslate"><span class="pre">notebook-deprecation.yml</span></code> - Deprecation Management<a class="headerlink" href="#notebook-deprecation-yml-deprecation-management" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Manual dispatch + scheduled runs
+<strong>Purpose</strong>: Notebook lifecycle management</p>
+<ul class="simple">
+<li><p>Manual notebook deprecation marking</p></li>
+<li><p>Automated cleanup of expired notebooks</p></li>
+<li><p>Daily scheduled maintenance</p></li>
+</ul>
+</section>
+<section id="docs-only-yml-documentation-deployment">
+<h3>9. <code class="docutils literal notranslate"><span class="pre">docs-only.yml</span></code> - Documentation Deployment<a class="headerlink" href="#docs-only-yml-documentation-deployment" title="Link to this heading">#</a></h3>
+<p><strong>Trigger</strong>: Manual dispatch + documentation file changes
+<strong>Purpose</strong>: Documentation-only rebuilds</p>
+<ul class="simple">
+<li><p>Rebuild docs without running full CI</p></li>
+<li><p>Configurable post-processing scripts</p></li>
+<li><p>Triggered by documentation file changes</p></li>
+</ul>
+</section>
+</section>
+<section id="choosing-the-right-workflow">
+<h2>🎯 <strong>Choosing the Right Workflow</strong><a class="headerlink" href="#choosing-the-right-workflow" title="Link to this heading">#</a></h2>
+<section id="for-traditional-repositories-flat-notebook-structure">
+<h3><strong>For Traditional Repositories</strong> (flat notebook structure):<a class="headerlink" href="#for-traditional-repositories-flat-notebook-structure" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>PR Validation</strong>: Use <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code></p></li>
+<li><p><strong>Main Branch</strong>: Use <code class="docutils literal notranslate"><span class="pre">notebook-ci-main.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code></p></li>
+</ul>
+</section>
+<section id="for-organized-repositories-directory-based-structure">
+<h3><strong>For Organized Repositories</strong> (directory-based structure):<a class="headerlink" href="#for-organized-repositories-directory-based-structure" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>notebooks/
+├── data_analysis/
+│   ├── requirements.txt
+│   └── *.ipynb
+├── visualization/
+│   ├── requirements.txt
+│   └── *.ipynb
+└── modeling/
+    ├── requirements.txt
+    └── *.ipynb
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>PR Validation</strong>: Use <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-selective.yml</span></code></p></li>
+<li><p><strong>Main Branch</strong>: Use <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-selective.yml</span></code></p></li>
+</ul>
+</section>
+<section id="performance-comparison">
+<h3><strong>Performance Comparison</strong><a class="headerlink" href="#performance-comparison" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Workflow Type</p></th>
+<th class="head"><p>Documentation Change</p></th>
+<th class="head"><p>Single Directory Change</p></th>
+<th class="head"><p>Root Requirements Change</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Traditional</strong></p></td>
+<td><p>15-25 minutes</p></td>
+<td><p>15-25 minutes</p></td>
+<td><p>15-25 minutes</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Smart</strong></p></td>
+<td><p>2-5 minutes</p></td>
+<td><p>15-25 minutes</p></td>
+<td><p>15-25 minutes</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Selective</strong></p></td>
+<td><p>2-5 minutes</p></td>
+<td><p>5-10 minutes</p></td>
+<td><p>15-25 minutes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="how-to-use-these-examples">
+<h2>🚀 How to Use These Examples<a class="headerlink" href="#how-to-use-these-examples" title="Link to this heading">#</a></h2>
+<section id="step-1-copy-to-your-repository">
+<h3>Step 1: Copy to Your Repository<a class="headerlink" href="#step-1-copy-to-your-repository" title="Link to this heading">#</a></h3>
+<p>Copy the desired workflow files to your repository’s <code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code> directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy all examples</span>
+cp<span class="w"> </span>examples/workflows/*.yml<span class="w"> </span>your-repo/.github/workflows/
+
+<span class="c1"># Or copy specific examples</span>
+cp<span class="w"> </span>examples/workflows/notebook-ci-pr.yml<span class="w"> </span>your-repo/.github/workflows/
+cp<span class="w"> </span>examples/workflows/notebook-ci-main.yml<span class="w"> </span>your-repo/.github/workflows/
+</pre></div>
+</div>
+</section>
+<section id="step-2-customize-the-workflow-reference">
+<h3>Step 2: Customize the Workflow Reference<a class="headerlink" href="#step-2-customize-the-workflow-reference" title="Link to this heading">#</a></h3>
+<p>Update the <code class="docutils literal notranslate"><span class="pre">uses</span></code> field in each workflow to point to your organization’s notebook-ci-actions repository:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-configure-repository-secrets">
+<h3>Step 3: Configure Repository Secrets<a class="headerlink" href="#step-3-configure-repository-secrets" title="Link to this heading">#</a></h3>
+<p>Ensure your repository has the required secrets configured:</p>
+<p><strong>Required Secrets:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> - Usually available by default</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASJOBS_USERID</span></code> - Optional, for astronomical data access</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASJOBS_PW</span></code> - Optional, for astronomical data access</p></li>
+</ul>
+<p><strong>Setting up secrets:</strong></p>
+<ol class="arabic simple">
+<li><p>Go to your repository settings</p></li>
+<li><p>Navigate to “Secrets and variables” → “Actions”</p></li>
+<li><p>Add the required secrets</p></li>
+</ol>
+</section>
+<section id="step-4-customize-paths-and-triggers">
+<h3>Step 4: Customize Paths and Triggers<a class="headerlink" href="#step-4-customize-paths-and-triggers" title="Link to this heading">#</a></h3>
+<p>Modify the workflow triggers and paths to match your repository structure:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Customize paths to match your repo structure</span>
+<span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;notebooks/**&#39;</span><span class="w">           </span><span class="c1"># Your notebook directory</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span><span class="w">       </span><span class="c1"># Your dependency files</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;_config.yml&#39;</span><span class="w">           </span><span class="c1"># Your JupyterBook config</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-configure-post-processing-scripts">
+<h3>Step 5: Configure Post-Processing Scripts<a class="headerlink" href="#step-5-configure-post-processing-scripts" title="Link to this heading">#</a></h3>
+<p>If you need post-processing (like jdaviz image replacement):</p>
+<ol class="arabic simple">
+<li><p>Create your script in the repository (e.g., <code class="docutils literal notranslate"><span class="pre">scripts/jdaviz_image_replacement.sh</span></code>)</p></li>
+<li><p>Update the <code class="docutils literal notranslate"><span class="pre">post-run-script</span></code> parameter in the workflows</p></li>
+<li><p>Ensure the script is executable and handles the <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> directory</p></li>
+</ol>
+</section>
+</section>
+<section id="workflow-patterns">
+<h2>📊 Workflow Patterns<a class="headerlink" href="#workflow-patterns" title="Link to this heading">#</a></h2>
+<section id="sequential-vs-parallel-execution">
+<h3>Sequential vs Parallel Execution<a class="headerlink" href="#sequential-vs-parallel-execution" title="Link to this heading">#</a></h3>
+<p><strong>Sequential (recommended for resource-intensive tasks):</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ci-pipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main</span>
+<span class="w">    </span><span class="c1"># ... configuration</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="nt">deploy-docs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ci-pipeline</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">success()</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@main</span>
+<span class="w">    </span><span class="c1"># ... configuration</span>
+</pre></div>
+</div>
+<p><strong>Parallel (for independent tasks):</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">validate-notebooks</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main</span>
+<span class="w">    </span><span class="c1"># ... configuration</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="nt">build-docs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@main</span>
+<span class="w">    </span><span class="c1"># ... configuration</span>
+</pre></div>
+</div>
+</section>
+<section id="conditional-execution">
+<h3>Conditional Execution<a class="headerlink" href="#conditional-execution" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build-docs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.event_name == &#39;push&#39; &amp;&amp; github.ref == &#39;refs/heads/main&#39;</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@main</span>
+<span class="w">    </span><span class="c1"># ... configuration</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="customization-tips">
+<h2>🔧 Customization Tips<a class="headerlink" href="#customization-tips" title="Link to this heading">#</a></h2>
+<section id="path-filtering">
+<h3>1. Path Filtering<a class="headerlink" href="#path-filtering" title="Link to this heading">#</a></h3>
+<p>Use path filters to trigger workflows only when relevant files change:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;notebooks/**&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;_config.yml&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="branch-protection">
+<h3>2. Branch Protection<a class="headerlink" href="#branch-protection" title="Link to this heading">#</a></h3>
+<p>For production repositories, consider:</p>
+<ul class="simple">
+<li><p>Making the main branch CI workflow required for merges</p></li>
+<li><p>Using different Python versions for different branches</p></li>
+<li><p>Adding manual approval steps for deployments</p></li>
+</ul>
+</section>
+<section id="environment-specific-configurations">
+<h3>3. Environment-Specific Configurations<a class="headerlink" href="#environment-specific-configurations" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Development environment</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;validation-only&quot;</span>
+
+<span class="c1"># Production environment  </span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">  </span><span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="matrix-strategies">
+<h3>4. Matrix Strategies<a class="headerlink" href="#matrix-strategies" title="Link to this heading">#</a></h3>
+<p>For testing multiple Python versions:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test-matrix</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;3.9&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;3.10&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@main</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.python-version }}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>📝 Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use semantic versioning</strong> for workflow references (e.g., <code class="docutils literal notranslate"><span class="pre">&#64;v1.0.0</span></code> instead of <code class="docutils literal notranslate"><span class="pre">&#64;main</span></code>)</p></li>
+<li><p><strong>Test workflows in a fork</strong> before deploying to production</p></li>
+<li><p><strong>Use path filters</strong> to avoid unnecessary workflow runs</p></li>
+<li><p><strong>Set up branch protection rules</strong> requiring successful CI before merges</p></li>
+<li><p><strong>Monitor workflow usage</strong> to optimize resource consumption</p></li>
+<li><p><strong>Document any custom scripts</strong> or post-processing steps</p></li>
+</ol>
+</section>
+<section id="troubleshooting">
+<h2>🐛 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues">
+<h3>Common Issues:<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Workflow not triggering</strong>: Check path filters and branch names</p></li>
+<li><p><strong>Permission errors</strong>: Ensure <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> has necessary permissions</p></li>
+<li><p><strong>Script not found</strong>: Verify post-processing script paths and permissions</p></li>
+<li><p><strong>Dependency conflicts</strong>: Check Python version compatibility</p></li>
+</ol>
+</section>
+<section id="debugging-steps">
+<h3>Debugging Steps:<a class="headerlink" href="#debugging-steps" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Check the Actions tab in your repository for detailed logs</p></li>
+<li><p>Verify all required secrets are configured</p></li>
+<li><p>Test workflows with manual dispatch first</p></li>
+<li><p>Use the on-demand workflow for debugging specific issues</p></li>
+</ol>
+<p>For more help, refer to the main <a class="reference external" href="http://README.md">README.md</a> or create an issue in the notebook-ci-actions repository.</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-examples">📋 Available Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-yml-pull-request-validation-traditional">1. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr.yml</span></code> - Pull Request Validation (Traditional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-smart-yml-smart-pull-request-validation-enhanced">2. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code> - Smart Pull Request Validation ⚡ <strong>ENHANCED</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-selective-yml-selective-directory-validation-new">3. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-selective.yml</span></code> - Selective Directory Validation ⚡ <strong>NEW</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-yml-main-branch-ci-traditional">4. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main.yml</span></code> - Main Branch CI (Traditional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-smart-yml-smart-main-branch-ci-enhanced">5. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code> - Smart Main Branch CI ⚡ <strong>ENHANCED</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-selective-yml-selective-directory-execution-new">6. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-selective.yml</span></code> - Selective Directory Execution ⚡ <strong>NEW</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-on-demand-yml-manual-testing">7. <code class="docutils literal notranslate"><span class="pre">notebook-ci-on-demand.yml</span></code> - Manual Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-deprecation-yml-deprecation-management">8. <code class="docutils literal notranslate"><span class="pre">notebook-deprecation.yml</span></code> - Deprecation Management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docs-only-yml-documentation-deployment">9. <code class="docutils literal notranslate"><span class="pre">docs-only.yml</span></code> - Documentation Deployment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choosing-the-right-workflow">🎯 <strong>Choosing the Right Workflow</strong></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-traditional-repositories-flat-notebook-structure"><strong>For Traditional Repositories</strong> (flat notebook structure):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-organized-repositories-directory-based-structure"><strong>For Organized Repositories</strong> (directory-based structure):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison"><strong>Performance Comparison</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use-these-examples">🚀 How to Use These Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-copy-to-your-repository">Step 1: Copy to Your Repository</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-customize-the-workflow-reference">Step 2: Customize the Workflow Reference</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-configure-repository-secrets">Step 3: Configure Repository Secrets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-customize-paths-and-triggers">Step 4: Customize Paths and Triggers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-configure-post-processing-scripts">Step 5: Configure Post-Processing Scripts</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-patterns">📊 Workflow Patterns</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sequential-vs-parallel-execution">Sequential vs Parallel Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditional-execution">Conditional Execution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customization-tips">🔧 Customization Tips</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#path-filtering">1. Path Filtering</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-protection">2. Branch Protection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-specific-configurations">3. Environment-Specific Configurations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#matrix-strategies">4. Matrix Strategies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">📝 Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🐛 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-steps">Debugging Steps:</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

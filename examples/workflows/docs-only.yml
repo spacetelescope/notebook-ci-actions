@@ -35,9 +35,16 @@ on:
 
 jobs:
   deploy-documentation:
-    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
+    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
+      execution-mode: 'on-demand'
+      trigger-event: 'html'
       python-version: ${{ github.event.inputs.python-version || '3.11' }}
-      post-run-script: ${{ github.event.inputs.post-processing-script || 'scripts/jdaviz_image_replacement.sh' }}
+      enable-validation: false
+      enable-security: false
+      enable-execution: false
+      enable-storage: false
+      enable-html-build: true
+      post-run-script: ${{ github.event.inputs.post-processing-script }}
     secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

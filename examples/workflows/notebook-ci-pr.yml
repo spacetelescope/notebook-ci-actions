@@ -15,20 +15,16 @@ on:
 
 jobs:
   validate-notebooks:
-    uses: mgrough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
+    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
+      execution-mode: 'pr'
       python-version: "3.11"
-      execution-mode: "validation-only"
-      build-html: false
-      security-scan: true
+      enable-validation: true
+      enable-security: true
+      enable-execution: true
+      enable-storage: true
+      enable-html-build: false
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-
-  build-docs-preview:
-    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
-    with:
-      python-version: "3.11"
-      post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -172,10 +172,10 @@ jobs:
           Use this version in your workflows:
           ```yaml
           # Pin to major version (recommended)
-          uses: ${{ github.repository }}/.github/workflows/ci_pipeline.yml@${{ steps.version.outputs.major_version }}
+          uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.major_version }}
           
           # Pin to exact version (most stable)
-          uses: ${{ github.repository }}/.github/workflows/ci_pipeline.yml@${{ steps.version.outputs.new_tag }}
+          uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.new_tag }}
           ```
           
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.latest_version.outputs.latest_tag }}...${{ steps.version.outputs.new_tag }}
@@ -223,10 +223,10 @@ jobs:
               ### Usage in Workflows:
               \`\`\`yaml
               # Recommended: Pin to major version
-              uses: ${{ github.repository }}/.github/workflows/ci_pipeline.yml@v${{ needs.release.outputs.new_version }}
+              uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@v${{ needs.release.outputs.new_version }}
               
               # Conservative: Pin to exact version  
-              uses: ${{ github.repository }}/.github/workflows/ci_pipeline.yml@${{ needs.release.outputs.new_version }}
+              uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ needs.release.outputs.new_version }}
               \`\`\`
               
               [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.release.outputs.new_version }})`

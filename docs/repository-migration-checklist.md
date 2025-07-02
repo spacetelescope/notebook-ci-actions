@@ -167,7 +167,7 @@ echo "Migration branch created. Run migration checklist next."
   # In .github/workflows/notebook-ci-main.yml
   jobs:
     full-ci-pipeline:
-      uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1
+      uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1
       with:
         python-version: "3.11"  # Adjust as needed
         execution-mode: "full"
@@ -244,7 +244,7 @@ echo "Migration branch created. Run migration checklist next."
     execution-mode: "full"
     build-html: true
     security-scan: true
-    # The ci_pipeline.yml automatically detects hst_notebooks repo
+    # The notebook-ci-unified.yml automatically detects hst_notebooks repo
     # and sets up hstcal environment
   ```
 - [ ] **Step 5**: Configure secrets
@@ -313,7 +313,7 @@ echo "Migration branch created. Run migration checklist next."
   ```yaml
   # In HTML builder workflow
   build-and-deploy:
-    uses: mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@v1
+    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"
@@ -366,13 +366,13 @@ For each repository:
 - [ ] **Test with exact version first**
   ```yaml
   # Use exact version for initial testing
-  uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.0.0
+  uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1.0.0
   ```
 
 - [ ] **Graduate to major version pinning**
   ```yaml
   # Once stable, use major version pinning
-  uses: mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1
+  uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1
   ```
 
 - [ ] **Monitor for updates**
@@ -515,7 +515,7 @@ ls -la .github/workflows/
 **Solution**:
 ```yaml
 # For HST repositories, ensure the workflow detects the repo correctly
-# The ci_pipeline.yml automatically sets up hstcal for hst_notebooks
+# The notebook-ci-unified.yml automatically sets up hstcal for hst_notebooks
 
 # For custom environments, you may need to fork and modify workflows
 ```

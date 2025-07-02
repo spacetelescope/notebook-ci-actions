@@ -1,472 +1,389 @@
-# Troubleshooting Guide for Unified Notebook CI/CD
+# Troubleshooting Guide - Unified Notebook CI/CD System
 
-This guide helps you diagnose and resolve common issues with the unified notebook CI/CD system.
+This guide provides comprehensive troubleshooting information for the unified notebook CI/CD system.
 
-## Quick Diagnostics
+## 🚨 Common Issues and Solutions
 
-### 1. Workflow Not Triggering
+### Workflow Issues
+
+#### Issue: Workflow Not Triggering
 
 **Symptoms:**
-- PR created but no CI workflow runs
-- Push to main branch doesn't trigger deployment
-- Scheduled workflow doesn't run
+- PR or push doesn't trigger workflows
+- No actions appear in the Actions tab
 
-**Common Causes & Solutions:**
+**Solutions:**
+```bash
+# 1. Check workflow file syntax
+yamllint .github/workflows/*.yml
 
-#### File Paths Don't Match Triggers
+# 2. Verify paths configuration
+# Ensure your paths match your repository structure
+git ls-files | grep -E '\.(ipynb|py|txt|yml)$'
+
+# 3. Check branch configuration
+# Verify the target branches exist and match workflow configuration
+git branch -a
+```
+
+**Example Fix:**
 ```yaml
-# Check your trigger paths in the workflow file
+# In your workflow file, ensure paths are correct
 on:
   pull_request:
+    branches: [ main ]  # Change to 'master' if that's your default
     paths:
-      - 'notebooks/**'    # Must match your notebook location
-      - 'requirements.txt' # Must exist in root
+      - 'notebooks/**'       # Adjust to your notebook directory
+      - 'requirements*.txt'  # Include all requirements files
 ```
 
-**Solution:** Verify the `paths:` configuration matches your repository structure.
-
-#### Branch Name Mismatch
-```yaml
-on:
-  pull_request:
-    branches: [ main ]    # Must match your default branch
-```
-
-**Solution:** Update branch names if your default branch is `master` or something else.
-
-#### Workflow File Location
-**Problem:** Workflow file in wrong location
-
-**Solution:** Ensure caller workflows are in `.github/workflows/` directory:
-```
-.github/
-└── workflows/
-    ├── notebook-pr.yml
-    ├── notebook-merge.yml
-    └── notebook-scheduled.yml
-```
-
-### 2. Environment Setup Failures
+#### Issue: Permission Denied Errors
 
 **Symptoms:**
-- "Environment not found" errors
-- Package installation failures
-- Python version conflicts
+- `Error: Permission denied (publickey)`
+- `Error: Insufficient permissions to access workflow`
 
-**Common Causes & Solutions:**
+**Solutions:**
+```bash
+# 1. Verify GITHUB_TOKEN permissions
+# In repository settings: Settings → Actions → General
+# Set "Workflow permissions" to "Read and write permissions"
 
-#### Conda Environment Issues
-```yaml
-# Check conda environment name
-with:
-  conda-environment: 'hstcal'  # Must exist on conda-forge
+# 2. Check if repository is private
+# Private repos may need additional configuration
+
+# 3. Verify the workflow reference
+# Ensure you're using the correct organization and branch
+uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
 ```
 
-**Valid environments:**
-- `hstcal` - HST calibration tools
-- `stenv` - Space Telescope environment
-- `astropy` - General astronomy environment
+### Environment Issues
 
-**Solution:** Verify environment exists on conda-forge or use standard Python setup.
-
-#### Requirements File Not Found
-```yaml
-with:
-  custom-requirements: 'requirements.txt'  # File must exist
-```
-
-**Solution:** Check file path and ensure it exists in repository.
-
-#### Python Version Compatibility
-```yaml
-with:
-  python-version: '3.11'  # Must be supported
-```
-
-**Supported versions:** 3.8, 3.9, 3.10, 3.11, 3.12
-
-### 3. Notebook Execution Failures
+#### Issue: Python Environment Setup Failures
 
 **Symptoms:**
-- Notebooks fail to execute
-- Timeout errors during execution
-- Memory or resource errors
+- `ModuleNotFoundError` for basic packages
+- Conda environment creation fails
+- Package installation timeouts
 
-**Common Causes & Solutions:**
-
-#### Long-Running Notebooks
-**Problem:** Notebooks exceed timeout limits
-
-**Solution:** Configure longer timeouts in your notebooks:
-```python
-# Add to notebook cell
-import os
-os.environ['NBVAL_CELL_TIMEOUT'] = '600'  # 10 minutes
-```
-
-#### Missing Dependencies
-**Problem:** Notebooks require packages not in requirements
-
-**Solution:** Add missing packages to appropriate requirements.txt:
-```txt
-# In notebooks/your-directory/requirements.txt
-missing-package==1.0.0
-another-package>=2.0
-```
-
-#### Resource Limitations
-**Problem:** Notebooks require too much memory/CPU
-
-**Solution:** 
-1. Optimize notebooks for CI environment
-2. Use smaller datasets for testing
-3. Consider skipping resource-intensive cells in CI
-
-### 4. Validation Failures
-
-**Symptoms:**
-- pytest nbval failures
-- Notebook validation errors
-- Cell execution timeouts
-
-**Common Causes & Solutions:**
-
-#### Cell Output Mismatches
-**Problem:** Expected outputs don't match actual outputs
-
-**Solution:** Update notebook outputs or use nbval tags:
-```python
-# In notebook cell, add metadata tag
-{"tags": ["nbval-skip"]}  # Skip validation for this cell
-```
-
-#### Flaky Tests
-**Problem:** Tests pass locally but fail in CI
-
-**Solution:** Make notebooks deterministic:
-```python
-# Set random seeds
-import numpy as np
-np.random.seed(42)
-
-import random
-random.seed(42)
-```
-
-### 5. Storage and gh-storage Issues
-
-**Symptoms:**
-- Executed notebooks not stored
-- Git push failures to gh-storage
-- Conflicts when pushing outputs
-
-**Common Causes & Solutions:**
-
-#### Branch Permissions
-**Problem:** No permissions to create/push to gh-storage branch
-
-**Solution:** Ensure workflow has proper permissions:
+**Solutions:**
 ```yaml
-permissions:
-  contents: write  # Required for git operations
+# 1. Specify exact Python version
+python-version: '3.11'  # Not '3.11.x' or 'latest'
+
+# 2. For conda environments, use explicit names
+conda-environment: 'hstcal'  # Pre-defined environment
+# OR
+custom-requirements: 'environment.yml'  # Custom conda file
+
+# 3. For package conflicts, use exact versions
+# In requirements.txt:
+numpy==1.24.3
+matplotlib==3.7.1
 ```
 
-#### Deprecated Notebook Overwrite
-**Problem:** Deprecated notebooks being overwritten
+#### Issue: Conda Environment Detection
 
-**Solution:** Check notebook deprecation tags:
-```python
-# Notebook should have deprecation metadata
-# The workflow automatically detects and skips these
+**Symptoms:**
+- System uses pip instead of conda for hst_notebooks
+- `hstcal` environment not found
+
+**Solutions:**
+```yaml
+# The system auto-detects hst_notebooks repositories
+# For manual override:
+conda-environment: 'hstcal'
+
+# For custom conda environments:
+custom-requirements: 'environment.yml'
 ```
 
-#### Git Conflicts
-**Problem:** Multiple concurrent pushes to gh-storage
+### Notebook Execution Issues
 
-**Solution:** The workflow includes retry logic, but check for:
-- Multiple simultaneous PR builds
-- Manual pushes to gh-storage branch
+#### Issue: Notebook Execution Timeouts
 
-### 6. HTML Build Failures
+**Symptoms:**
+- Workflows cancelled after 6 hours
+- "Runner timeout" errors
+- Long-running data downloads
+
+**Solutions:**
+```yaml
+# 1. Use execution mode optimization
+execution-mode: 'pr'  # Faster validation for PRs
+
+# 2. For large datasets, consider validation-only
+enable-execution: false  # Skip execution, just validate syntax
+
+# 3. Use single notebook testing for debugging
+single-notebook: 'notebooks/problematic/example.ipynb'
+```
+
+#### Issue: Notebook Validation Failures
+
+**Symptoms:**
+- `nbval` failures on working notebooks
+- Cell execution order problems
+- Missing outputs in notebooks
+
+**Solutions:**
+```bash
+# 1. Clean notebook outputs locally
+pip install nbstripout
+nbstripout notebooks/**/*.ipynb
+
+# 2. Test notebooks locally first
+pytest --nbval notebooks/
+
+# 3. Check for cell execution dependencies
+# Ensure notebooks can run from top to bottom
+```
+
+### Storage and Output Issues
+
+#### Issue: gh-storage Upload Failures
+
+**Symptoms:**
+- "Failed to push to gh-storage branch"
+- "Branch not found" errors
+
+**Solutions:**
+```yaml
+# 1. Ensure storage is enabled correctly
+enable-storage: true
+
+# 2. Check repository permissions
+# Repository needs write access to create gh-storage branch
+
+# 3. For first-time setup, manually create branch
+git checkout --orphan gh-storage
+git rm -rf .
+echo "# Storage branch" > README.md
+git add README.md
+git commit -m "Initial storage branch"
+git push origin gh-storage
+```
+
+#### Issue: HTML Build Failures
 
 **Symptoms:**
 - JupyterBook build errors
-- Documentation deployment failures
-- Missing or broken documentation
+- Missing `_config.yml` or `_toc.yml`
+- Image not found errors
 
-**Common Causes & Solutions:**
-
-#### Missing Table of Contents
-**Problem:** No `_toc.yml` file
-
-**Solution:** Create basic table of contents:
-```yaml
-# _toc.yml
-format: jb-book
-root: index
-chapters:
-  - file: notebooks/README
-    sections:
-      - glob: notebooks/*/*.ipynb
-```
-
-#### JupyterBook Configuration Issues
-**Problem:** Invalid `_config.yml`
-
-**Solution:** Check configuration syntax:
-```yaml
-# _config.yml
-title: "Your Repository"
-author: "Your Name"
-logo: logo.png
-
-execute:
-  execute_notebooks: "off"  # Use pre-executed notebooks
-```
-
-#### Post-Processing Script Failures
-**Problem:** Custom post-processing script errors
-
-**Solution:** Debug script permissions and logic:
+**Solutions:**
 ```bash
-# Make script executable
-chmod +x scripts/your_script.sh
+# 1. Verify JupyterBook configuration
+ls -la _config.yml _toc.yml
 
-# Test script locally
-./scripts/your_script.sh
+# 2. Check notebook outputs
+# Ensure notebooks have been executed with outputs
+jupyter nbconvert --execute --inplace notebooks/*.ipynb
+
+# 3. For jdaviz images, ensure post-processing script exists
+ls -la scripts/jdaviz_image_replacement.sh
+chmod +x scripts/jdaviz_image_replacement.sh
 ```
 
-### 7. Secrets and Authentication
+### Security and Secrets Issues
+
+#### Issue: Missing Secrets
 
 **Symptoms:**
-- CASJOBS authentication failures
-- Permission denied errors
-- Secret not found errors
+- `Error: Secret 'CASJOBS_USERID' not found`
+- `Error: Secret 'CASJOBS_PW' not found`
 
-**Common Causes & Solutions:**
+**Solutions:**
+```bash
+# 1. Add secrets in repository settings
+# Navigate to: Settings → Secrets and variables → Actions
+# Click "New repository secret"
 
-#### Missing Repository Secrets
-**Problem:** Required secrets not configured
+# Required secrets:
+# - CASJOBS_USERID (if using CasJobs)
+# - CASJOBS_PW (if using CasJobs)
 
-**Solution:** Add secrets in repository settings:
-1. Go to Settings > Secrets and variables > Actions
-2. Add required secrets:
-   - `CASJOBS_USERID`
-   - `CASJOBS_PW`
-
-#### Incorrect Secret Names
-```yaml
-# Check secret names match exactly
+# 2. Verify secret names match workflow
+# In workflow file:
 secrets:
-  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}  # Must match exactly
-  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}          # Must match exactly
+  CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
+  CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
 ```
 
-### 8. Performance Issues
+#### Issue: Security Scan Failures
 
 **Symptoms:**
-- Slow workflow execution
-- Timeout errors
-- High resource usage
+- `bandit` security warnings
+- High severity security issues block deployment
 
-**Common Solutions:**
-
-#### Enable Selective Execution
+**Solutions:**
 ```yaml
-# For PR workflows, ensure selective execution is working
-execution-mode: 'pr'  # Only processes changed notebooks
+# 1. For educational repositories, disable security scanning
+enable-security: false
+
+# 2. For development, use lower security threshold
+# (This requires modifying the reusable workflow)
+
+# 3. Fix security issues in code
+# Review bandit output and address high-severity issues
 ```
 
-#### Optimize Feature Flags
+## 🔧 Debugging Strategies
+
+### Enable Debug Mode
+
 ```yaml
-# Disable unnecessary features
-with:
-  enable-security: false     # If security scanning not needed
-  enable-html-build: false   # If HTML not needed for PRs
+# Add to your workflow for verbose logging
+jobs:
+  debug-run:
+    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    with:
+      execution-mode: 'on-demand'
+      trigger-event: 'validate'  # Start with validation only
+      # Add other parameters...
 ```
 
-#### Use Appropriate Execution Mode
-```yaml
-# Use docs-only mode when appropriate
-# Automatically detected for documentation changes
-```
+### Local Testing
 
-## Debugging Tools
-
-### 1. Enable Debug Logging
-
-Add to repository variables:
-```
-ACTIONS_STEP_DEBUG=true
-ACTIONS_RUNNER_DEBUG=true
-```
-
-### 2. Check Workflow Logs
-
-1. Go to Actions tab in GitHub
-2. Click on failed workflow run
-3. Expand failed steps to see detailed logs
-4. Look for error messages and stack traces
-
-### 3. Validate YAML Syntax
-
-Use online YAML validators or local tools:
 ```bash
-# Using yq (if installed)
-yq eval '.github/workflows/notebook-pr.yml'
+# 1. Clone the actions repository
+git clone https://github.com/mgough-970/dev-actions.git
 
-# Using Python
-python -c "import yaml; yaml.safe_load(open('.github/workflows/notebook-pr.yml'))"
+# 2. Use local testing scripts
+cd your-repository
+../notebook-ci-actions/scripts/test-local-ci.sh
+
+# 3. Test specific notebooks
+jupyter nbconvert --execute --to notebook notebooks/example.ipynb
 ```
 
-### 4. Test Locally
+### Step-by-Step Debugging
 
-Run the test script to validate setup:
-```bash
-# From the unified CI/CD repository
-./scripts/test-unified-system.sh
-```
-
-## Common Error Messages
-
-### "Error: Unable to process file command 'output' successfully"
-
-**Cause:** Invalid JSON format in workflow outputs
-
-**Solution:** Check JSON formatting:
-```bash
-# JSON should be compact, no pretty-printing
-echo "matrix_notebooks=[\"notebook1.ipynb\",\"notebook2.ipynb\"]" >> $GITHUB_OUTPUT
-```
-
-### "Error: conda environment 'xyz' not found"
-
-**Cause:** Invalid conda environment name
-
-**Solution:** Use valid environment names:
 ```yaml
-conda-environment: 'hstcal'  # Valid
-# conda-environment: 'invalid-env'  # Invalid
+# Test each component separately using on-demand workflow
+on:
+  workflow_dispatch:
+    inputs:
+      debug_step:
+        type: choice
+        options: ['validate', 'execute', 'security', 'html']
+
+jobs:
+  debug:
+    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    with:
+      execution-mode: 'on-demand'
+      trigger-event: ${{ inputs.debug_step }}
 ```
 
-### "Error: requirements.txt not found"
+## 📊 Performance Optimization
 
-**Cause:** Specified requirements file doesn't exist
+### Workflow Performance Issues
 
-**Solution:** Check file paths:
+**Symptoms:**
+- Workflows take longer than expected
+- High GitHub Actions minutes usage
+- Frequent timeouts
+
+**Solutions:**
 ```yaml
-custom-requirements: 'requirements.txt'  # Must exist in repo root
-# custom-requirements: 'path/to/requirements.txt'  # Check path
+# 1. Use smart execution for PRs
+execution-mode: 'pr'  # Only processes changed files
+
+# 2. Optimize feature flags
+enable-validation: true   # Keep for safety
+enable-security: false   # Disable for faster PRs
+enable-execution: true   # Keep for testing
+enable-storage: false    # Disable for PRs, enable for main
+
+# 3. Use selective execution
+# System automatically detects docs-only changes
 ```
 
-### "Error: workflow exceeded timeout"
+### Resource Usage Optimization
 
-**Cause:** Workflow or notebooks take too long
+```yaml
+# For repositories with large notebooks or datasets
+execution-mode: 'validation-only'  # Skip execution on PRs
+enable-html-build: false          # Build only on main branch
 
-**Solution:** Optimize or increase timeouts:
-```python
-# In notebook
-import os
-os.environ['NBVAL_CELL_TIMEOUT'] = '1200'  # 20 minutes
+# For educational repositories
+enable-security: false    # Less critical for tutorials
+enable-storage: true      # Keep for examples
 ```
 
-## Migration-Specific Issues
+## 🆘 Emergency Procedures
 
-### Old Workflow Conflicts
+### Rollback to Previous Workflows
 
-**Problem:** Old and new workflows both running
-
-**Solution:** Remove old workflow files:
 ```bash
-# Remove old workflows
-rm .github/workflows/notebook-ci-pr-selective.yml
-rm .github/workflows/notebook-ci-main-selective.yml
-# etc.
+# If unified system causes critical issues
+cd your-repository
+
+# 1. Restore from backup (if using migration script)
+rm .github/workflows/*.yml
+cp .github/workflows-backup/*.yml .github/workflows/
+git add .github/workflows/
+git commit -m "Emergency rollback to previous workflows"
+git push origin main
+
+# 2. Or revert specific commits
+git log --oneline -10  # Find commit to revert
+git revert <commit-hash>
 ```
 
-### Configuration Mapping Issues
+### Disable Workflows Temporarily
 
-**Problem:** Old configuration doesn't map to new system
-
-**Solution:** Use migration mapping:
-
-| Old Setting | New Configuration |
-|-------------|-------------------|
-| Manual Python setup | `python-version: '3.11'` |
-| Hardcoded conda env | `conda-environment: 'hstcal'` |
-| Always-on features | Feature toggles |
-
-### Missing Features
-
-**Problem:** Feature from old system not available
-
-**Solution:** Check configuration options:
 ```yaml
-# Most features are now configurable
-with:
-  enable-validation: true
-  enable-security: true
-  enable-execution: true
-  enable-storage: true
-  enable-html-build: true
+# Add to the top of any workflow file to disable it
+name: Notebook CI - Disabled
+on: []  # Empty trigger list disables the workflow
+
+# Or rename the file
+mv .github/workflows/notebook-pr.yml .github/workflows/notebook-pr.yml.disabled
 ```
 
-## Getting Help
+## 📞 Getting Help
 
-### 1. Check Documentation
+### Information to Include
 
-- [Configuration Reference](configuration-reference.md)
-- [Migration Guide](migration-guide-unified.md)
-- [Main README](../README-unified.md)
+When reporting issues, include:
 
-### 2. Review Examples
+1. **Repository information:**
+   - Repository name and organization
+   - Repository type (hst_notebooks, jdat_notebooks, etc.)
+   - Default branch name
 
-Check example workflows in `examples/caller-workflows/`
+2. **Workflow information:**
+   - Workflow file names
+   - Execution mode used
+   - Feature flags enabled
 
-### 3. Test Systematically
+3. **Error information:**
+   - Complete error messages
+   - Workflow run URL
+   - Steps that failed
 
-1. Start with simplest configuration
-2. Add features one at a time
-3. Test each change with a draft PR
+4. **Environment information:**
+   - Python version specified
+   - Conda environment (if used)
+   - Custom requirements files
 
-### 4. Open Issues
+### Support Channels
 
-If problems persist:
-1. Check existing issues in the repository
-2. Gather relevant logs and configuration
-3. Open a new issue with detailed information
+- **GitHub Issues**: [Create issue in notebook-ci-actions](https://github.com/mgough-970/dev-actions/issues)
+- **Documentation**: Check `docs/` folder for detailed guides
+- **Migration Help**: Use `scripts/migrate-to-unified.sh` for automated setup
 
-### 5. Contact Support
+### Emergency Contact
 
-For urgent issues or assistance with migration:
-- Tag maintainers in issues
-- Provide full error logs
-- Include repository configuration details
+For critical production issues:
+- Create issue with `priority:high` label
+- Include "URGENT" in issue title
+- Provide comprehensive error information
 
-## Prevention Best Practices
+---
 
-### 1. Regular Testing
-
-- Test workflows with draft PRs before merging
-- Validate configuration changes
-- Monitor workflow performance
-
-### 2. Documentation
-
-- Document custom configurations
-- Keep repository README updated
-- Document any custom post-processing scripts
-
-### 3. Monitoring
-
-- Watch for deprecation warnings
-- Monitor execution times
-- Check for failed scheduled runs
-
-### 4. Gradual Migration
-
-- Migrate one workflow at a time
-- Test thoroughly before removing old workflows
-- Keep backups during migration
-
-This troubleshooting guide should help you resolve most common issues with the unified notebook CI/CD system. For specific problems not covered here, refer to the detailed logs and consider opening an issue for assistance.
+**Last Updated**: December 2024  
+**System Version**: Unified v1.0  
+**Compatibility**: All STScI notebook repositories
