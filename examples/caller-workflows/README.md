@@ -172,7 +172,7 @@ post-processing-script: 'scripts/custom_processing.sh'
 
 ### Getting Help
 
-1. Check the [main repository documentation](https://github.com/mgough-970/dev-actions)
+1. Check the [main repository documentation](https://github.com/spacetelescope/notebook-ci-actions)
 2. Review workflow run logs for specific error messages
 3. Open an issue in the notebook-ci-actions repository
 
@@ -194,7 +194,7 @@ post-processing-script: 'scripts/custom_processing.sh'
 ```yaml
 jobs:
   notebook-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -204,7 +204,7 @@ jobs:
 ```yaml
 jobs:
   notebook-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'merge'
       python-version: '3.11'

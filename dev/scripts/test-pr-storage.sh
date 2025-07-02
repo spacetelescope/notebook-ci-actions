@@ -119,7 +119,7 @@ set -euo pipefail
 notebook="notebooks/examples/basic-validation-test.ipynb"
 execution_mode="pr"
 github_event_number="123"
-github_repository="mgough-970/dev-actions"
+github_repository="spacetelescope/notebook-ci-actions"
 github_server_url="https://github.com"
 
 echo "💾 Simulating storage of executed notebook to gh-storage"

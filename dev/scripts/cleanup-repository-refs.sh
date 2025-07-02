@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Repository cleanup script - Update all references to new repository
-# Updates from mgough-970/dev-actions to mgough-970/dev-actions
+# Updates from spacetelescope/notebook-ci-actions to spacetelescope/notebook-ci-actions
 
 set -e
 
 echo "🧹 Cleaning up repository references..."
-echo "From: mgough-970/dev-actions"
-echo "To: mgough-970/dev-actions"
+echo "From: spacetelescope/notebook-ci-actions"
+echo "To: spacetelescope/notebook-ci-actions"
 echo "Branch: dev-actions-v2"
 echo ""
 
@@ -19,10 +19,10 @@ update_files() {
     echo "📋 Updating $description..."
     
     find . -name "$pattern" -not -path "./.git/*" | while read -r file; do
-        if grep -q "mgough-970/dev-actions" "$file" 2>/dev/null; then
+        if grep -q "spacetelescope/notebook-ci-actions" "$file" 2>/dev/null; then
             echo "  ✏️  $file"
             sed -i 's/spacetelescope\/notebook-ci-actions/mgough-970\/dev-actions/g' "$file"
-            sed -i 's/@dev-actions-v2/@dev-actions-v2/g' "$file"
+            sed -i 's/@v3/@v3/g' "$file"
         fi
     done
 }
@@ -54,14 +54,14 @@ fi
 if [ -f "IMPLEMENTATION_SUMMARY.md" ]; then
     echo "  ✏️  IMPLEMENTATION_SUMMARY.md"
     sed -i 's/spacetelescope\/notebook-ci-actions/mgough-970\/dev-actions/g' IMPLEMENTATION_SUMMARY.md
-    sed -i 's/@dev-actions-v2/@dev-actions-v2/g' IMPLEMENTATION_SUMMARY.md
+    sed -i 's/@v3/@v3/g' IMPLEMENTATION_SUMMARY.md
 fi
 
 echo ""
 echo "✅ Repository cleanup completed!"
 echo ""
 echo "📊 Summary of changes:"
-echo "  - Repository: mgough-970/dev-actions → mgough-970/dev-actions"
+echo "  - Repository: spacetelescope/notebook-ci-actions → spacetelescope/notebook-ci-actions"
 echo "  - Branch: main → dev-actions-v2"
 echo "  - Updated workflow files, documentation, and scripts"
 echo ""

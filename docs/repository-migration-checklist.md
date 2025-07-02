@@ -167,7 +167,7 @@ echo "Migration branch created. Run migration checklist next."
   # In .github/workflows/notebook-ci-main.yml
   jobs:
     full-ci-pipeline:
-      uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1
+      uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
       with:
         python-version: "3.11"  # Adjust as needed
         execution-mode: "full"
@@ -313,7 +313,7 @@ echo "Migration branch created. Run migration checklist next."
   ```yaml
   # In HTML builder workflow
   build-and-deploy:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"
@@ -366,13 +366,13 @@ For each repository:
 - [ ] **Test with exact version first**
   ```yaml
   # Use exact version for initial testing
-  uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1.0.0
+  uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1.0.0
   ```
 
 - [ ] **Graduate to major version pinning**
   ```yaml
   # Once stable, use major version pinning
-  uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@v1
+  uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
   ```
 
 - [ ] **Monitor for updates**
@@ -445,7 +445,7 @@ For each successfully migrated repository:
   ## GitHub Actions Workflows
 
   This repository uses centralized workflows from 
-  [notebook-ci-actions](https://github.com/mgough-970/dev-actions).
+  [notebook-ci-actions](https://github.com/spacetelescope/notebook-ci-actions).
 
   ### Available Workflows:
   - **PR Validation**: Runs on pull requests for quick validation
@@ -454,7 +454,7 @@ For each successfully migrated repository:
   - **Documentation**: Builds and deploys JupyterBook documentation
 
   For workflow documentation, see the 
-  [notebook-ci-actions repository](https://github.com/mgough-970/dev-actions).
+  [notebook-ci-actions repository](https://github.com/spacetelescope/notebook-ci-actions).
   ```
 
 - [ ] **Create migration summary report**

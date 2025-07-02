@@ -61,7 +61,7 @@ on:
 
 jobs:
   on-demand-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: ${{ inputs.execution-mode }}
       python-version: ${{ inputs.python-version }}

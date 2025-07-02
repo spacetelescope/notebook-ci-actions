@@ -46,7 +46,7 @@ on:
 
 jobs:
   hst-notebook-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -79,7 +79,7 @@ on:
 
 jobs:
   hst-deploy:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -182,7 +182,7 @@ on:
 
 jobs:
   jwst-notebook-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -227,7 +227,7 @@ on:
 
 jobs:
   docs-deploy:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -261,7 +261,7 @@ on:
 
 jobs:
   performance-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -290,7 +290,7 @@ on:
 
 jobs:
   security-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -307,7 +307,7 @@ jobs:
   execution-ci:
     needs: security-ci
     if: github.event.pull_request.draft == false
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -335,7 +335,7 @@ on:
 
 jobs:
   dev-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -356,7 +356,7 @@ on:
 
 jobs:
   prod-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -390,7 +390,7 @@ on:
 
 jobs:
   quick-validate:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'on-demand'
       trigger-event: 'validate'
@@ -414,7 +414,7 @@ on:
 
 jobs:
   emergency-docs:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'on-demand'
       trigger-event: 'html'
@@ -445,7 +445,7 @@ on:
 jobs:
   # This would be expanded to handle multiple notebooks
   deprecation-management:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: 'scheduled'
       trigger-event: 'deprecate'
@@ -553,7 +553,7 @@ jobs:
     strategy:
       matrix:
         mode: ['pr', 'merge', 'scheduled', 'on-demand']
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@main
     with:
       execution-mode: ${{ matrix.mode }}
       python-version: '3.11'

@@ -125,7 +125,7 @@ on:
 
 jobs:
   notebook-ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'pr'
       python-version: '$PYTHON_VERSION'$(if [[ -n "$CONDA_ENV" ]]; then echo "
@@ -169,7 +169,7 @@ on:
 
 jobs:
   notebook-ci-and-deploy:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'merge'
       python-version: '$PYTHON_VERSION'$(if [[ -n "$CONDA_ENV" ]]; then echo "
@@ -206,7 +206,7 @@ on:
 
 jobs:
   weekly-validation:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'scheduled'
       python-version: '$PYTHON_VERSION'$(if [[ -n "$CONDA_ENV" ]]; then echo "
@@ -222,7 +222,7 @@ jobs:
       CASJOBS_PW: \${{ secrets.CASJOBS_PW }}
 
   deprecation-check:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'scheduled'
       trigger-event: 'deprecate'
@@ -290,7 +290,7 @@ on:
 jobs:
   validate-all:
     if: inputs.action_type == 'validate-all'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'validate'
@@ -307,7 +307,7 @@ jobs:
 
   execute-all:
     if: inputs.action_type == 'execute-all'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'execute'
@@ -324,7 +324,7 @@ jobs:
 
   security-scan-all:
     if: inputs.action_type == 'security-scan-all'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'security'
@@ -341,7 +341,7 @@ jobs:
 
   validate-single:
     if: inputs.action_type == 'validate-single'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'validate'
@@ -359,7 +359,7 @@ jobs:
 
   execute-single:
     if: inputs.action_type == 'execute-single'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'execute'
@@ -377,7 +377,7 @@ jobs:
 
   full-pipeline-all:
     if: inputs.action_type == 'full-pipeline-all'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'all'
@@ -394,7 +394,7 @@ jobs:
 
   full-pipeline-single:
     if: inputs.action_type == 'full-pipeline-single'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'all'
@@ -412,7 +412,7 @@ jobs:
 
   build-html-only:
     if: inputs.action_type == 'build-html-only'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'html'
@@ -428,7 +428,7 @@ jobs:
 
   deprecate-notebook:
     if: inputs.action_type == 'deprecate-notebook'
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'deprecate'
@@ -524,8 +524,8 @@ If you need to rollback, restore files from \`$BACKUP_DIR/\` and remove the new 
 ## Support
 
 For questions or issues, see:
-- [Unified CI/CD Documentation](https://github.com/mgough-970/dev-actions)
-- [Migration Guide](https://github.com/mgough-970/dev-actions/blob/main/docs/migration-guide-unified.md)
+- [Unified CI/CD Documentation](https://github.com/spacetelescope/notebook-ci-actions)
+- [Migration Guide](https://github.com/spacetelescope/notebook-ci-actions/blob/main/docs/migration-guide-unified.md)
 EOF
     
     print_status "$GREEN" "Created: MIGRATION_SUMMARY.md"

@@ -118,14 +118,14 @@ echo "========================================"
 
 # Test PR workflow configuration
 if [[ -f "examples/caller-workflows/notebook-pr.yml" ]]; then
-    run_test "PR workflow uses unified workflow" "grep -q 'mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2' 'examples/caller-workflows/notebook-pr.yml'"
+    run_test "PR workflow uses unified workflow" "grep -q 'spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3' 'examples/caller-workflows/notebook-pr.yml'"
     run_test "PR workflow has execution-mode: pr" "grep -q \"execution-mode: 'pr'\" 'examples/caller-workflows/notebook-pr.yml'"
     run_test "PR workflow has CASJOBS secrets" "grep -q 'CASJOBS_USERID' 'examples/caller-workflows/notebook-pr.yml'"
 fi
 
 # Test merge workflow configuration
 if [[ -f "examples/caller-workflows/notebook-merge.yml" ]]; then
-    run_test "Merge workflow uses unified workflow" "grep -q 'mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2' 'examples/caller-workflows/notebook-merge.yml'"
+    run_test "Merge workflow uses unified workflow" "grep -q 'spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3' 'examples/caller-workflows/notebook-merge.yml'"
     run_test "Merge workflow has execution-mode: merge" "grep -q \"execution-mode: 'merge'\" 'examples/caller-workflows/notebook-merge.yml'"
     run_test "Merge workflow enables HTML build" "grep -q 'enable-html-build: true' 'examples/caller-workflows/notebook-merge.yml'"
 fi

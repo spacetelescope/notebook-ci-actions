@@ -20,7 +20,7 @@ The unified workflow system replaces multiple individual workflows with one powe
 
 ```bash
 # Clone the actions repository
-git clone https://github.com/mgough-970/dev-actions.git
+git clone https://github.com/spacetelescope/notebook-ci-actions.git
 
 # Run the automated migration script
 cd your-repository
@@ -52,7 +52,7 @@ on:
 
 jobs:
   validate-notebooks:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -74,7 +74,7 @@ on:
 
 jobs:
   build-docs:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -142,7 +142,7 @@ with:
 **Goal**: Validate notebooks in PRs without heavy processing
 
 ```yaml
-uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   enable-validation: true
@@ -157,7 +157,7 @@ with:
 **Goal**: Build and deploy notebook documentation on merge
 
 ```yaml
-uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'merge'
   enable-validation: true

@@ -7,7 +7,7 @@ A concise reference for using the unified notebook CI/CD system.
 ### Automated Setup (Recommended)
 ```bash
 # Clone the actions repository
-git clone https://github.com/mgough-970/dev-actions.git
+git clone https://github.com/spacetelescope/notebook-ci-actions.git
 
 # Navigate to your repository and run migration
 cd your-repository
@@ -32,7 +32,7 @@ cp examples/caller-workflows/notebook-on-demand.yml .github/workflows/
 
 ### Standard Python Repository
 ```yaml
-uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -45,7 +45,7 @@ with:
 
 ### HST Notebooks (Conda)
 ```yaml
-uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -59,7 +59,7 @@ with:
 
 ### Educational Repository
 ```yaml
-uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -202,7 +202,7 @@ on:
 
 jobs:
   ci:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -221,7 +221,7 @@ on:
 
 jobs:
   deploy:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -272,7 +272,7 @@ your-repository/
 - **System**: Unified Notebook CI/CD v1.0
 - **Last Updated**: December 2024
 - **Compatibility**: All STScI notebook repositories
-- **Workflow Version**: `@dev-actions-v2` (recommended)
+- **Workflow Version**: `@v3` (recommended)
 
 ---
 
