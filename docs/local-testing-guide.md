@@ -376,7 +376,7 @@ case "$REPO_NAME" in
         # Test hstcal environment
         python -c "import hstcal; print('hstcal OK')" || echo "⚠️ hstcal not available (expected in local environment)"
         ;;
-    "hello_universe")
+    "hellouniverse")
         echo "🌟 Testing Hello Universe configuration..."
         # Simplified testing
         ;;
