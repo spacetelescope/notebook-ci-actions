@@ -248,8 +248,8 @@ VERBOSE=true ./test-with-act.sh push
 - `security-scan-all` - Security scan all files
 - `validate-single` - Validate single notebook
 - `execute-single` - Execute single notebook
-- `full-pipeline-all` - Complete CI pipeline for all notebooks
-- `full-pipeline-single` - Complete CI pipeline for single notebook
+- `full-pipeline-all` - Complete CI pipeline: validate, execute, security test, store to gh-storage, and build documentation for all notebooks
+- `full-pipeline-single` - Complete CI pipeline: validate, execute, security test, store to gh-storage, and build documentation for single notebook
 - `build-html-only` - Build HTML documentation only
 - `deprecate-notebook` - Test notebook deprecation
 - `performance-test` - Performance benchmarking

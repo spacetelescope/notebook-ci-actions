@@ -350,6 +350,7 @@ jobs:
 
       - name: Validate notebook
         if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
+        continue-on-error: ${{ inputs.execution-mode == 'on-demand' }}
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
@@ -358,6 +359,7 @@ jobs:
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
+        continue-on-error: ${{ inputs.execution-mode == 'on-demand' }}
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
@@ -372,6 +374,7 @@ jobs:
 
       - name: Execute notebook
         if: inputs.enable-execution == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'execute')
+        continue-on-error: ${{ inputs.execution-mode == 'on-demand' }}
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
@@ -566,13 +569,14 @@ jobs:
 
   # HTML Documentation Build
   build-documentation:
-    needs: [setup-matrix]
+    needs: [setup-matrix, process-notebooks]
     if: |
       always() && 
       inputs.enable-html-build == true &&
       (needs.setup-matrix.outputs.docs-only == 'true' || 
        inputs.execution-mode == 'merge' ||
        inputs.trigger-event == 'html' ||
+       (inputs.execution-mode == 'on-demand' && (needs.process-notebooks.result == 'success' || needs.process-notebooks.result == 'failure')) ||
        (needs.process-notebooks.result == 'success' && inputs.execution-mode != 'merge'))
     runs-on: ubuntu-24.04
     steps:
@@ -607,6 +611,207 @@ jobs:
           echo "✅ Static documentation files merged from main branch"
           echo "📋 Current working directory contents:"
           find . -name "*.html" -o -name "*.md" -o -name "_*.yml" -o -name "*.ipynb" | head -10
+          
+      - name: Add failure warnings to notebooks
+        if: inputs.execution-mode == 'on-demand' && needs.process-notebooks.result == 'failure'
+        run: |
+          echo "⚠️ Adding failure warnings to notebooks that may have failed execution"
+          
+          # Get the list of notebooks that were processed
+          NOTEBOOKS='${{ needs.setup-matrix.outputs.matrix-notebooks }}'
+          
+          if [ "$NOTEBOOKS" != "[]" ] && [ "$NOTEBOOKS" != "null" ] && [ "$NOTEBOOKS" != "" ]; then
+            echo "$NOTEBOOKS" | jq -r '.[]' 2>/dev/null | while read -r notebook; do
+              if [ -f "$notebook" ]; then
+                echo "🔧 Adding warning banner to: $notebook"
+                
+                # Create a temporary Python script to add the warning banner
+                cat > add_warning.py << 'EOF'
+          import json
+          import sys
+          
+          notebook_path = sys.argv[1]
+          
+          try:
+              with open(notebook_path, 'r', encoding='utf-8') as f:
+                  nb = json.load(f)
+              
+              # Create warning banner cell
+              warning_cell = {
+                  "cell_type": "markdown",
+                  "metadata": {
+                      "tags": ["execution-warning"]
+                  },
+                  "source": [
+                      "<div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 10px 0; border-left: 4px solid #f39c12;'>\n",
+                      "<h3 style='color: #856404; margin-top: 0;'>⚠️ EXECUTION WARNING</h3>\n",
+                      "<p style='color: #856404; margin-bottom: 0;'><strong>This notebook may not execute properly in the current environment.</strong></p>\n",
+                      "<p style='color: #856404; margin-bottom: 0;'>Some cells may have failed during automated testing. Please review the notebook content and test manually before use.</p>\n",
+                      "<p style='color: #856404; margin-bottom: 0; font-size: 0.9em;'><em>Generated during CI/CD pipeline - some outputs may be incomplete or missing.</em></p>\n",
+                      "</div>\n"
+                  ]
+              }
+              
+              # Check if warning already exists
+              has_warning = False
+              for cell in nb.get('cells', []):
+                  if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
+                      if 'execution-warning' in cell['metadata']['tags']:
+                          has_warning = True
+                          break
+              
+              # Add warning at the beginning if not already present
+              if not has_warning:
+                  nb['cells'].insert(0, warning_cell)
+                  
+                  with open(notebook_path, 'w', encoding='utf-8') as f:
+                      json.dump(nb, f, indent=2, ensure_ascii=False)
+                  
+                  print(f"✅ Added execution warning to {notebook_path}")
+              else:
+                  print(f"ℹ️ Warning already exists in {notebook_path}")
+                  
+          except Exception as e:
+              print(f"❌ Error processing {notebook_path}: {e}")
+          EOF
+                
+                # Run the Python script to add warning
+                python add_warning.py "$notebook"
+                rm -f add_warning.py
+              else
+                echo "⚠️ Notebook not found: $notebook"
+              fi
+            done
+          else
+            echo "ℹ️ No notebooks to process for warnings"
+          fi
+
+      - name: Add deprecation warnings to notebooks
+        run: |
+          echo "🏷️ Checking for deprecated notebooks and adding deprecation warnings"
+          
+          # Find all notebooks in the current directory
+          find . -name "*.ipynb" -type f | while read -r notebook; do
+            if [ -f "$notebook" ]; then
+              echo "🔍 Checking for deprecation in: $notebook"
+              
+              # Create a temporary Python script to check and add deprecation warnings
+              cat > add_deprecation_warning.py << 'EOF'
+          import json
+          import sys
+          from datetime import datetime
+          import re
+          
+          notebook_path = sys.argv[1]
+          
+          try:
+              with open(notebook_path, 'r', encoding='utf-8') as f:
+                  nb = json.load(f)
+              
+              # Check if notebook has deprecation metadata or content
+              is_deprecated = False
+              deprecation_date = None
+              
+              # Method 1: Check for cells with deprecated tag
+              for cell in nb.get('cells', []):
+                  if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
+                      if 'deprecated' in cell['metadata']['tags']:
+                          is_deprecated = True
+                          # Try to extract date from existing deprecation content
+                          source = ''.join(cell.get('source', []))
+                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
+                          if date_match:
+                              deprecation_date = date_match.group(1)
+                          break
+              
+              # Method 2: Check notebook metadata for deprecation info
+              if not is_deprecated and 'metadata' in nb:
+                  nb_metadata = nb['metadata']
+                  if 'deprecated' in nb_metadata:
+                      is_deprecated = True
+                      if isinstance(nb_metadata['deprecated'], dict):
+                          deprecation_date = nb_metadata['deprecated'].get('date')
+                      elif isinstance(nb_metadata['deprecated'], str):
+                          # Try to parse as date
+                          if re.match(r'\d{4}-\d{2}-\d{2}', nb_metadata['deprecated']):
+                              deprecation_date = nb_metadata['deprecated']
+              
+              # Method 3: Text-based search (backward compatibility)
+              if not is_deprecated:
+                  for cell in nb.get('cells', []):
+                      source = ''.join(cell.get('source', []))
+                      if re.search(r'DEPRECATED|deprecated|DEPRECATION', source, re.IGNORECASE):
+                          is_deprecated = True
+                          # Try to extract date
+                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
+                          if date_match:
+                              deprecation_date = date_match.group(1)
+                          break
+              
+              if is_deprecated:
+                  print(f"📅 Found deprecated notebook: {notebook_path}")
+                  
+                  # Create deprecation warning banner
+                  if not deprecation_date:
+                      deprecation_date = "unspecified date"
+                      date_text = "This notebook is deprecated and may be removed in the future."
+                  else:
+                      try:
+                          dep_date = datetime.strptime(deprecation_date, '%Y-%m-%d')
+                          if dep_date <= datetime.now():
+                              date_text = f"This notebook was deprecated on <strong>{deprecation_date}</strong> and may be moved or removed."
+                          else:
+                              date_text = f"This notebook is scheduled for deprecation on <strong>{deprecation_date}</strong>."
+                      except:
+                          date_text = f"This notebook is deprecated (target date: {deprecation_date})."
+                  
+                  deprecation_warning_cell = {
+                      "cell_type": "markdown",
+                      "metadata": {
+                          "tags": ["deprecation-warning"]
+                      },
+                      "source": [
+                          "<div style='background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545;'>\n",
+                          "<h3 style='color: #721c24; margin-top: 0;'>🚨 DEPRECATED NOTEBOOK</h3>\n",
+                          f"<p style='color: #721c24; margin-bottom: 5px;'><strong>{date_text}</strong></p>\n",
+                          "<p style='color: #721c24; margin-bottom: 0;'>Please migrate to newer alternatives or contact maintainers before using this notebook in production.</p>\n",
+                          "<p style='color: #721c24; margin-bottom: 0; font-size: 0.9em;'><em>This warning was automatically generated during documentation build.</em></p>\n",
+                          "</div>\n"
+                      ]
+                  }
+                  
+                  # Check if deprecation warning already exists
+                  has_deprecation_warning = False
+                  for cell in nb.get('cells', []):
+                      if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
+                          if 'deprecation-warning' in cell['metadata']['tags']:
+                              has_deprecation_warning = True
+                              break
+                  
+                  # Add deprecation warning at the beginning if not already present
+                  if not has_deprecation_warning:
+                      nb['cells'].insert(0, deprecation_warning_cell)
+                      
+                      with open(notebook_path, 'w', encoding='utf-8') as f:
+                          json.dump(nb, f, indent=2, ensure_ascii=False)
+                      
+                      print(f"✅ Added deprecation warning to {notebook_path}")
+                  else:
+                      print(f"ℹ️ Deprecation warning already exists in {notebook_path}")
+              else:
+                  print(f"✅ No deprecation found in {notebook_path}")
+                  
+          except Exception as e:
+              print(f"❌ Error processing {notebook_path}: {e}")
+          EOF
+              
+              # Run the deprecation check and warning addition
+              python add_deprecation_warning.py "$notebook"
+              rm -f add_deprecation_warning.py
+            fi
+          done
+          
+          echo "✅ Deprecation warning check completed"
           
       - name: Set up Python environment with micromamba
         uses: mamba-org/setup-micromamba@v2.0.4
@@ -793,9 +998,186 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
+  # HTML Documentation Rebuild After Deprecation
+  rebuild-docs-after-deprecation:
+    needs: [setup-matrix, manage-deprecation]
+    if: |
+      always() &&
+      inputs.trigger-event == 'deprecate' &&
+      inputs.execution-mode == 'on-demand' &&
+      needs.manage-deprecation.result == 'success'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Python environment with micromamba
+        uses: mamba-org/setup-micromamba@v2.0.4
+        with:
+          environment-name: docs-env
+          init-shell: bash
+          create-args: "python=${{ inputs.python-version }} pip jupyter-book sphinx"
+          cache-environment: true
+
+      - name: Install documentation dependencies
+        run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate docs-env
+          echo "📚 Installing documentation dependencies"
+          pip install --upgrade jupyter-book sphinx
+          
+      - name: Add deprecation warnings to notebooks
+        run: |
+          echo "🏷️ Adding deprecation warnings to newly deprecated notebooks"
+          
+          # Find all notebooks in the current directory
+          find . -name "*.ipynb" -type f | while read -r notebook; do
+            if [ -f "$notebook" ]; then
+              echo "🔍 Checking for deprecation in: $notebook"
+              
+              # Create a temporary Python script to check and add deprecation warnings
+              cat > add_deprecation_warning.py << 'EOF'
+          import json
+          import sys
+          from datetime import datetime
+          import re
+          
+          notebook_path = sys.argv[1]
+          
+          try:
+              with open(notebook_path, 'r', encoding='utf-8') as f:
+                  nb = json.load(f)
+              
+              # Check if notebook has deprecation metadata or content
+              is_deprecated = False
+              deprecation_date = None
+              
+              # Method 1: Check for cells with deprecated tag
+              for cell in nb.get('cells', []):
+                  if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
+                      if 'deprecated' in cell['metadata']['tags']:
+                          is_deprecated = True
+                          # Try to extract date from existing deprecation content
+                          source = ''.join(cell.get('source', []))
+                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
+                          if date_match:
+                              deprecation_date = date_match.group(1)
+                          break
+              
+              # Method 2: Check notebook metadata for deprecation info
+              if not is_deprecated and 'metadata' in nb:
+                  nb_metadata = nb['metadata']
+                  if 'deprecated' in nb_metadata:
+                      is_deprecated = True
+                      if isinstance(nb_metadata['deprecated'], dict):
+                          deprecation_date = nb_metadata['deprecated'].get('date')
+                      elif isinstance(nb_metadata['deprecated'], str):
+                          # Try to parse as date
+                          if re.match(r'\d{4}-\d{2}-\d{2}', nb_metadata['deprecated']):
+                              deprecation_date = nb_metadata['deprecated']
+              
+              # Method 3: Text-based search (backward compatibility)
+              if not is_deprecated:
+                  for cell in nb.get('cells', []):
+                      source = ''.join(cell.get('source', []))
+                      if re.search(r'DEPRECATED|deprecated|DEPRECATION', source, re.IGNORECASE):
+                          is_deprecated = True
+                          # Try to extract date
+                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
+                          if date_match:
+                              deprecation_date = date_match.group(1)
+                          break
+              
+              if is_deprecated:
+                  print(f"📅 Found deprecated notebook: {notebook_path}")
+                  
+                  # Create deprecation warning banner
+                  if not deprecation_date:
+                      deprecation_date = "unspecified date"
+                      date_text = "This notebook is deprecated and may be removed in the future."
+                  else:
+                      try:
+                          dep_date = datetime.strptime(deprecation_date, '%Y-%m-%d')
+                          if dep_date <= datetime.now():
+                              date_text = f"This notebook was deprecated on <strong>{deprecation_date}</strong> and may be moved or removed."
+                          else:
+                              date_text = f"This notebook is scheduled for deprecation on <strong>{deprecation_date}</strong>."
+                      except:
+                          date_text = f"This notebook is deprecated (target date: {deprecation_date})."
+                  
+                  deprecation_warning_cell = {
+                      "cell_type": "markdown",
+                      "metadata": {
+                          "tags": ["deprecation-warning"]
+                      },
+                      "source": [
+                          "<div style='background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545;'>\n",
+                          "<h3 style='color: #721c24; margin-top: 0;'>🚨 DEPRECATED NOTEBOOK</h3>\n",
+                          f"<p style='color: #721c24; margin-bottom: 5px;'><strong>{date_text}</strong></p>\n",
+                          "<p style='color: #721c24; margin-bottom: 0;'>Please migrate to newer alternatives or contact maintainers before using this notebook in production.</p>\n",
+                          "<p style='color: #721c24; margin-bottom: 0; font-size: 0.9em;'><em>This warning was automatically generated during documentation build.</em></p>\n",
+                          "</div>\n"
+                      ]
+                  }
+                  
+                  # Check if deprecation warning already exists
+                  has_deprecation_warning = False
+                  for cell in nb.get('cells', []):
+                      if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
+                          if 'deprecation-warning' in cell['metadata']['tags']:
+                              has_deprecation_warning = True
+                              break
+                  
+                  # Add deprecation warning at the beginning if not already present
+                  if not has_deprecation_warning:
+                      nb['cells'].insert(0, deprecation_warning_cell)
+                      
+                      with open(notebook_path, 'w', encoding='utf-8') as f:
+                          json.dump(nb, f, indent=2, ensure_ascii=False)
+                      
+                      print(f"✅ Added deprecation warning to {notebook_path}")
+                  else:
+                      print(f"ℹ️ Deprecation warning already exists in {notebook_path}")
+              else:
+                  print(f"✅ No deprecation found in {notebook_path}")
+                  
+          except Exception as e:
+              print(f"❌ Error processing {notebook_path}: {e}")
+          EOF
+              
+              # Run the deprecation check and warning addition
+              python add_deprecation_warning.py "$notebook"
+              rm -f add_deprecation_warning.py
+            fi
+          done
+          
+          echo "✅ Deprecation warning check completed"
+          
+      - name: Build JupyterBook documentation with deprecation warnings
+        run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate docs-env
+          echo "📖 Building JupyterBook documentation with updated deprecation warnings"
+          
+          # Clean any existing build directory
+          rm -rf _build
+          
+          # Build the documentation (don't specify --path-output to use default _build location)
+          jupyter-book build .
+          echo "✅ JupyterBook documentation built successfully with deprecation warnings"
+
+      - name: Deploy updated documentation to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_build/html
+          cname: ${{ vars.PAGES_CNAME || '' }}
+          commit_message: "Deploy documentation with updated deprecation warnings [skip ci]"
+
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation, rebuild-docs-after-deprecation]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -835,6 +1217,9 @@ jobs:
           fi
           echo "| Documentation Build | ${{ needs.build-documentation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Deprecation Management | ${{ needs.manage-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ inputs.trigger-event }}" = "deprecate" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
+            echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
           echo "### 📝 Execution Details" >> $GITHUB_STEP_SUMMARY
@@ -904,6 +1289,11 @@ jobs:
                 ;;
               "deprecate")
                 echo "- **Operation**: Deprecation management" >> $GITHUB_STEP_SUMMARY
+                if [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ needs.rebuild-docs-after-deprecation.result }}" = "success" ]; then
+                  echo "- **Documentation**: ✅ Automatically rebuilt and deployed with deprecation warnings" >> $GITHUB_STEP_SUMMARY
+                elif [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
+                  echo "- **Documentation**: ⚠️ Rebuild was attempted but may have failed" >> $GITHUB_STEP_SUMMARY
+                fi
                 ;;
               *)
                 echo "- **Operation**: Notebook processing" >> $GITHUB_STEP_SUMMARY
@@ -914,7 +1304,15 @@ jobs:
             if [ "$PROCESS_RESULT" = "success" ]; then
               echo "- **Status**: ✅ SUCCESS - All operations completed without errors" >> $GITHUB_STEP_SUMMARY
             else
-              echo "- **Status**: ❌ FAILURE - Check job logs for error details" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: ❌ FAILURE - Some operations failed" >> $GITHUB_STEP_SUMMARY
+              if [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ needs.build-documentation.result }}" = "success" ]; then
+                echo "- **Documentation**: ⚠️ Generated with warnings - failed notebooks marked with execution warnings" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+            
+            # Add note about deprecation warnings in documentation
+            if [ "${{ needs.build-documentation.result }}" = "success" ]; then
+              echo "- **Documentation Warnings**: Deprecated notebooks automatically marked with deprecation banners" >> $GITHUB_STEP_SUMMARY
             fi
             
             # List specific notebooks if we can parse them

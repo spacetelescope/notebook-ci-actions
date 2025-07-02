@@ -205,7 +205,7 @@ jobs:
       enable-security: false
       enable-execution: false
       enable-storage: false
-      enable-html-build: false
+      enable-html-build: true  # Enable to automatically rebuild docs with deprecation warnings
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}

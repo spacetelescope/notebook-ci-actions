@@ -320,6 +320,44 @@ EOF
     log_success "HTML build test completed"
 }
 
+# Function to test storage functionality
+test_storage_mode() {
+    log_mode "Testing STORAGE mode"
+    
+    log_step "Testing notebook storage functionality"
+    
+    # Check if gh-storage branch exists
+    if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+        log_info "gh-storage branch exists on origin"
+        git fetch origin gh-storage
+    else
+        log_info "gh-storage branch does not exist - will be created during storage"
+    fi
+    
+    # Check for executed notebooks in working directory
+    if [ -d "notebooks" ]; then
+        log_info "Checking for notebooks that would be stored..."
+        find notebooks -name "*.ipynb" | head -3 | while read notebook; do
+            if [ -f "$notebook" ]; then
+                log_info "  - Would store: $notebook"
+            fi
+        done
+    else
+        log_warning "No notebooks directory found"
+    fi
+    
+    # Simulate storage logic check
+    log_info "Testing git configuration for storage..."
+    git config --get user.name >/dev/null || git config user.name "test-user"
+    git config --get user.email >/dev/null || git config user.email "test@example.com"
+    
+    # Check current branch
+    current_branch=$(git branch --show-current 2>/dev/null || echo "detached")
+    log_info "Current branch: $current_branch"
+    
+    log_success "Storage mode test completed"
+}
+
 # Function to simulate performance test mode
 test_performance_mode() {
     log_mode "Testing PERFORMANCE TEST mode"
@@ -450,10 +488,13 @@ test_locally() {
             ;;
         "full-pipeline-all")
             log_mode "Testing FULL PIPELINE (all notebooks)"
+            log_info "Full pipeline includes: validation, execution, security, storage, and HTML build"
             test_validate_mode ""
             test_execute_mode ""
             test_security_mode
+            test_storage_mode
             test_html_build_mode
+            log_success "Full pipeline test completed - all notebooks processed with storage and documentation"
             ;;
         "full-pipeline-single")
             if [ -z "$SINGLE_NOTEBOOK" ]; then
@@ -462,9 +503,13 @@ test_locally() {
                 exit 1
             fi
             log_mode "Testing FULL PIPELINE (single notebook)"
+            log_info "Full pipeline includes: validation, execution, security, storage, and HTML build"
             test_validate_mode "$SINGLE_NOTEBOOK"
             test_execute_mode "$SINGLE_NOTEBOOK"
             test_security_mode
+            test_storage_mode
+            test_html_build_mode
+            log_success "Full pipeline test completed - single notebook processed with storage and documentation"
             ;;
         "deprecate-notebook")
             log_mode "Testing DEPRECATION mode"
