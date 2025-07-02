@@ -779,127 +779,103 @@ jobs:
           NOTEBOOKS="${{ needs.setup-matrix.outputs.matrix-notebooks }}"
           AFFECTED_DIRS="${{ needs.setup-matrix.outputs.affected-dirs }}"
           
-          if [ "$NOTEBOOKS" = "null" ] || [ "$NOTEBOOKS" = "" ]; then
+          # Better notebook count logic
+          if [ "$NOTEBOOKS" = "null" ] || [ "$NOTEBOOKS" = "" ] || [ "$NOTEBOOKS" = "[]" ]; then
             NOTEBOOK_COUNT=0
           else
-            NOTEBOOK_COUNT=$(echo "$NOTEBOOKS" | jq length 2>/dev/null || echo "0")
+            # Try to get count, fallback to 0 if parsing fails
+            NOTEBOOK_COUNT=$(echo "$NOTEBOOKS" | jq -r 'length' 2>/dev/null)
+            if [ "$NOTEBOOK_COUNT" = "null" ] || [ -z "$NOTEBOOK_COUNT" ]; then
+              NOTEBOOK_COUNT=0
+            fi
           fi
           
-          # Show what directories were affected
+          # Show what directories were affected (only if there are any)
           if [ "$AFFECTED_DIRS" != "[]" ] && [ "$AFFECTED_DIRS" != "null" ] && [ "$AFFECTED_DIRS" != "" ]; then
             echo "**📁 Affected Directories:**" >> $GITHUB_STEP_SUMMARY
-            echo "$AFFECTED_DIRS" | jq -r '.[]' | while read -r dir; do
+            echo "$AFFECTED_DIRS" | jq -r '.[]' 2>/dev/null | while read -r dir; do
               echo "- \`$dir\`" >> $GITHUB_STEP_SUMMARY
-            done
+            done || echo "- Could not parse affected directories" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
           
-          # Execution summary based on workflow state
+          # Determine what actually happened based on job results rather than just notebook count
+          PROCESS_RESULT="${{ needs.process-notebooks.result }}"
+          
           if [ "${{ needs.setup-matrix.outputs.docs-only }}" = "true" ]; then
             echo "**📖 Documentation-Only Build**" >> $GITHUB_STEP_SUMMARY
-            echo "- No notebooks were executed in this run" >> $GITHUB_STEP_SUMMARY
-            echo "- Documentation built from existing executed notebooks in gh-storage branch" >> $GITHUB_STEP_SUMMARY
-            echo "- This typically occurs in merge workflows where notebooks were pre-executed in PR" >> $GITHUB_STEP_SUMMARY
+            echo "- No notebooks executed - documentation built from existing executed notebooks" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ needs.setup-matrix.outputs.skip-execution }}" = "true" ]; then
             echo "**⏭️ Execution Skipped**" >> $GITHUB_STEP_SUMMARY
-            echo "- No notebook processing was performed" >> $GITHUB_STEP_SUMMARY
-            echo "- Skip execution flag was enabled" >> $GITHUB_STEP_SUMMARY
-          elif [ "$NOTEBOOK_COUNT" = "0" ]; then
-            echo "**📋 No Notebooks Found**" >> $GITHUB_STEP_SUMMARY
-            echo "- No notebooks matched the selection criteria" >> $GITHUB_STEP_SUMMARY
-            echo "- This may be expected for documentation-only changes" >> $GITHUB_STEP_SUMMARY
-          else
-            # Show detailed execution results
+            echo "- No notebook processing performed (skip execution flag enabled)" >> $GITHUB_STEP_SUMMARY
+          elif [ "$PROCESS_RESULT" = "skipped" ] && [ "${{ inputs.execution-mode }}" = "merge" ]; then
+            echo "**� Merge Mode**" >> $GITHUB_STEP_SUMMARY
+            echo "- Notebook processing skipped in merge mode (using pre-executed notebooks)" >> $GITHUB_STEP_SUMMARY
+          elif [ "$PROCESS_RESULT" = "success" ] || [ "$PROCESS_RESULT" = "failure" ]; then
+            # We know notebooks were processed because the job ran
             echo "**🚀 Notebook Processing Results**" >> $GITHUB_STEP_SUMMARY
-            echo "- **Total Notebooks**: $NOTEBOOK_COUNT" >> $GITHUB_STEP_SUMMARY
+            
+            if [ "$NOTEBOOK_COUNT" -gt 0 ]; then
+              echo "- **Total Notebooks**: $NOTEBOOK_COUNT" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Notebooks Processed**: Job completed (count unavailable)" >> $GITHUB_STEP_SUMMARY
+            fi
             
             # Show what was actually done based on trigger event
             case "${{ inputs.trigger-event }}" in
               "validate")
-                echo "- **Operations**: Validation (syntax and structure checks)" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Notebook validation" >> $GITHUB_STEP_SUMMARY
                 ;;
               "execute")
-                echo "- **Operations**: Execution and output generation" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Notebook execution" >> $GITHUB_STEP_SUMMARY
                 ;;
               "security")
-                echo "- **Operations**: Security vulnerability scanning" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Security scanning" >> $GITHUB_STEP_SUMMARY
                 ;;
               "all")
-                echo "- **Operations**: Full pipeline (validation, execution, security, storage)" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Full pipeline (validation, execution, security)" >> $GITHUB_STEP_SUMMARY
                 ;;
               "html")
-                echo "- **Operations**: Documentation build only" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Documentation build" >> $GITHUB_STEP_SUMMARY
                 ;;
               "deprecate")
-                echo "- **Operations**: Deprecation status management" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Deprecation management" >> $GITHUB_STEP_SUMMARY
                 ;;
               *)
-                echo "- **Operations**: Standard notebook processing" >> $GITHUB_STEP_SUMMARY
+                echo "- **Operation**: Notebook processing" >> $GITHUB_STEP_SUMMARY
                 ;;
             esac
             
-            # Show overall result with details
-            PROCESS_RESULT="${{ needs.process-notebooks.result }}"
+            # Show result
             if [ "$PROCESS_RESULT" = "success" ]; then
-              echo "- **Overall Status**: ✅ **SUCCESS** - All notebooks processed without errors" >> $GITHUB_STEP_SUMMARY
-              if [ "${{ inputs.enable-storage }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "pr" ]; then
-                echo "- **Storage**: Executed notebook(s) successfully stored in gh-storage branch" >> $GITHUB_STEP_SUMMARY
-              fi
-            elif [ "$PROCESS_RESULT" = "failure" ]; then
-              echo "- **Overall Status**: ❌ **FAILURE** - One or more notebooks failed processing" >> $GITHUB_STEP_SUMMARY
-              echo "- **Action Required**: Check the 'Notebook Processing' job logs for specific error details" >> $GITHUB_STEP_SUMMARY
-              echo "- **Common Causes**: Execution errors, missing dependencies, security issues, or environment problems" >> $GITHUB_STEP_SUMMARY
-            elif [ "$PROCESS_RESULT" = "cancelled" ]; then
-              echo "- **Overall Status**: 🛑 **CANCELLED** - Processing was cancelled" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: ✅ SUCCESS - All operations completed without errors" >> $GITHUB_STEP_SUMMARY
             else
-              echo "- **Overall Status**: ⏭️ **SKIPPED** - Processing was skipped" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: ❌ FAILURE - Check job logs for error details" >> $GITHUB_STEP_SUMMARY
             fi
             
-            # List specific notebooks processed
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**📄 Processed Notebooks:**" >> $GITHUB_STEP_SUMMARY
-            if [ "$NOTEBOOK_COUNT" = "1" ]; then
-              SINGLE_NOTEBOOK=$(echo "$NOTEBOOKS" | jq -r '.[0]' 2>/dev/null || echo "Unknown")
-              echo "- \`$SINGLE_NOTEBOOK\`" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "$NOTEBOOKS" | jq -r '.[]' 2>/dev/null | while read -r notebook; do
-                echo "- \`$notebook\`" >> $GITHUB_STEP_SUMMARY
-              done 2>/dev/null || echo "- Unable to parse notebook list" >> $GITHUB_STEP_SUMMARY
+            # List specific notebooks if we can parse them
+            if [ "$NOTEBOOK_COUNT" -gt 0 ] && [ "$NOTEBOOKS" != "[]" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**📄 Processed Notebooks:**" >> $GITHUB_STEP_SUMMARY
+              if [ "$NOTEBOOK_COUNT" = "1" ]; then
+                SINGLE_NOTEBOOK=$(echo "$NOTEBOOKS" | jq -r '.[0]' 2>/dev/null)
+                if [ "$SINGLE_NOTEBOOK" != "null" ] && [ -n "$SINGLE_NOTEBOOK" ]; then
+                  echo "- \`$SINGLE_NOTEBOOK\`" >> $GITHUB_STEP_SUMMARY
+                fi
+              else
+                echo "$NOTEBOOKS" | jq -r '.[]' 2>/dev/null | while read -r notebook; do
+                  if [ -n "$notebook" ] && [ "$notebook" != "null" ]; then
+                    echo "- \`$notebook\`" >> $GITHUB_STEP_SUMMARY
+                  fi
+                done
+              fi
             fi
+          else
+            echo "**📋 No Processing Performed**" >> $GITHUB_STEP_SUMMARY
+            echo "- No notebooks matched selection criteria or processing was not required" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Mode-specific insights and next steps
-          echo "### 🎯 Mode-Specific Details" >> $GITHUB_STEP_SUMMARY
-          case "${{ inputs.execution-mode }}" in
-            "on-demand")
-              echo "**On-Demand Execution**" >> $GITHUB_STEP_SUMMARY
-              echo "- Manually triggered workflow for targeted notebook processing" >> $GITHUB_STEP_SUMMARY
-              echo "- Ideal for testing specific notebooks or debugging issues" >> $GITHUB_STEP_SUMMARY
-              if [ -n "${{ inputs.single-notebook }}" ]; then
-                echo "- Single notebook mode: targeted execution of specific file" >> $GITHUB_STEP_SUMMARY
-              fi
-              ;;
-            "pr")
-              echo "**Pull Request Mode**" >> $GITHUB_STEP_SUMMARY
-              echo "- Processing notebooks affected by pull request changes" >> $GITHUB_STEP_SUMMARY
-              echo "- Executed notebooks are stored in gh-storage branch for later documentation build" >> $GITHUB_STEP_SUMMARY
-              echo "- Only changed/affected notebooks are processed to optimize CI time" >> $GITHUB_STEP_SUMMARY
-              ;;
-            "merge")
-              echo "**Merge/Main Branch Mode**" >> $GITHUB_STEP_SUMMARY
-              echo "- Building documentation from pre-executed notebooks in gh-storage" >> $GITHUB_STEP_SUMMARY
-              echo "- No notebook execution occurs to avoid redundant processing" >> $GITHUB_STEP_SUMMARY
-              echo "- Final documentation is built and deployed" >> $GITHUB_STEP_SUMMARY
-              ;;
-            "scheduled")
-              echo "**Scheduled Execution**" >> $GITHUB_STEP_SUMMARY
-              echo "- Automated periodic processing of notebooks" >> $GITHUB_STEP_SUMMARY
-              echo "- Ensures notebooks stay current and functional over time" >> $GITHUB_STEP_SUMMARY
-              echo "- Typically runs full validation and execution pipeline" >> $GITHUB_STEP_SUMMARY
-              ;;
-          esac
           
           # Add error reporting section if there were failures
           if [ "${{ needs.setup-matrix.result }}" = "failure" ] || [ "${{ needs.process-notebooks.result }}" = "failure" ] || [ "${{ needs.build-documentation.result }}" = "failure" ]; then
