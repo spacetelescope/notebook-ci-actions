@@ -139,13 +139,20 @@ jobs:
                     fi
                     ;;
                   notebooks/*/requirements.txt|requirements.txt|pyproject.toml)
+                    echo "📦 Requirements file changed: $file"
                     NOTEBOOKS_CHANGED=true
                     DOCS_ONLY=false
                     dir=$(dirname "$file")
                     if [[ "$file" == "requirements.txt" || "$file" == "pyproject.toml" ]]; then
+                      # Root requirements file affects all notebooks
+                      echo "🌐 Root requirements file changed - affecting all notebooks"
                       AFFECTED_DIRECTORIES=("notebooks")
-                    elif [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
-                      AFFECTED_DIRECTORIES+=("$dir")
+                    else
+                      # Directory-specific requirements file
+                      echo "📁 Directory requirements file changed: $dir"
+                      if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                        AFFECTED_DIRECTORIES+=("$dir")
+                      fi
                     fi
                     ;;
                   *.md|*.html|*.css|*.js|_config.yml|_toc.yml)
@@ -157,12 +164,50 @@ jobs:
                 esac
               done <<< "$CHANGED_FILES"
               
+              # After processing all changed files, find notebooks in affected directories
+              if [ ${#AFFECTED_DIRECTORIES[@]} -gt 0 ]; then
+                echo "📁 Finding notebooks in affected directories: ${AFFECTED_DIRECTORIES[*]}"
+                declare -a ALL_AFFECTED_NOTEBOOKS
+                
+                for dir in "${AFFECTED_DIRECTORIES[@]}"; do
+                  echo "🔍 Searching for notebooks in: $dir"
+                  while IFS= read -r notebook; do
+                    [[ -z "$notebook" ]] && continue
+                    echo "📓 Found notebook: $notebook"
+                    ALL_AFFECTED_NOTEBOOKS+=("$notebook")
+                  done < <(find "$dir" -name '*.ipynb' -type f 2>/dev/null)
+                done
+                
+                # Combine explicitly changed notebooks with those in affected directories
+                # Remove duplicates by using associative array
+                declare -A UNIQUE_NOTEBOOKS
+                for notebook in "${CHANGED_NOTEBOOKS[@]}" "${ALL_AFFECTED_NOTEBOOKS[@]}"; do
+                  [[ -n "$notebook" ]] && UNIQUE_NOTEBOOKS["$notebook"]=1
+                done
+                
+                # Convert back to regular array
+                CHANGED_NOTEBOOKS=()
+                for notebook in "${!UNIQUE_NOTEBOOKS[@]}"; do
+                  CHANGED_NOTEBOOKS+=("$notebook")
+                done
+                
+                echo "📋 Total unique notebooks to process: ${#CHANGED_NOTEBOOKS[@]}"
+                for notebook in "${CHANGED_NOTEBOOKS[@]}"; do
+                  echo "  - $notebook"
+                done
+              fi
+              
               if [ "$DOCS_ONLY" = "true" ]; then
                 echo "📚 Docs-only changes detected"
                 SKIP_EXECUTION=true
               elif [ ${#CHANGED_NOTEBOOKS[@]} -gt 0 ]; then
                 MATRIX_NOTEBOOKS=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s -c .)
                 AFFECTED_DIRS=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s -c .)
+                echo "✅ Matrix populated with ${#CHANGED_NOTEBOOKS[@]} notebooks"
+              else
+                echo "⚠️ No notebooks found to process"
+                MATRIX_NOTEBOOKS="[]"
+                AFFECTED_DIRS="[]"
               fi
               ;;
               
