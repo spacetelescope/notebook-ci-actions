@@ -878,40 +878,50 @@ jobs:
       - name: Tag notebook for deprecation
         if: inputs.trigger-event == 'deprecate' && inputs.single-notebook != ''
         run: |
-          notebook="${{ inputs.single-notebook }}"
+          input_notebook="${{ inputs.single-notebook }}"
           deprecation_date=$(date -d "+${{ inputs.deprecation-days }} days" +%Y-%m-%d)
           
-          echo "🏷️ Tagging notebook for deprecation: $notebook"
+          echo "🏷️ Tagging notebook for deprecation: $input_notebook"
           echo "📅 Deprecation date: $deprecation_date"
           
-          # Check if notebook exists first
+          # Use path discovery logic like in setup-matrix
+          if [[ "$input_notebook" == *"/"* ]]; then
+            # Full path provided
+            notebook="$input_notebook"
+            echo "📁 Full path provided: $notebook"
+          else
+            # Just filename provided - find the full path
+            echo "🔍 Filename only provided, searching for: $input_notebook"
+            notebook=$(find notebooks/ -name "$input_notebook" -type f | head -1)
+            if [ -z "$notebook" ]; then
+              echo "❌ Notebook not found: $input_notebook"
+              echo "📂 Available notebooks:"
+              find notebooks/ -name '*.ipynb' | head -10
+              echo "💡 Tip: Provide either the filename or full path relative to repository root"
+              exit 1
+            fi
+            echo "✅ Found notebook at: $notebook"
+          fi
+          
+          # Final check that the resolved notebook exists
           if [ ! -f "$notebook" ]; then
-            echo "❌ Error: Notebook file not found: $notebook"
-            echo "📂 Current directory contents:"
-            find . -name "*.ipynb" -type f | head -10
-            echo "💡 Tip: Use the full path relative to repository root, e.g., 'notebooks/example.ipynb'"
+            echo "❌ Error: Resolved notebook file not found: $notebook"
             exit 1
           fi
           
           # Add deprecation banner to notebook
-          python3 << 'EOF'
+          python3 << EOF
           import json
           import sys
           from datetime import datetime, timedelta
           
-          notebook_path = "${{ inputs.single-notebook }}"
+          notebook_path = "$notebook"  # Use the resolved notebook path
           days = ${{ inputs.deprecation-days }}
           
-          # Verify file exists before processing
+          # Verify file exists before processing (should be guaranteed at this point)
           import os
           if not os.path.exists(notebook_path):
               print(f"❌ Error: File not found: {notebook_path}")
-              print("📂 Current directory:", os.getcwd())
-              print("📋 Available .ipynb files:")
-              for root, dirs, files in os.walk("."):
-                  for file in files:
-                      if file.endswith('.ipynb'):
-                          print(f"  {os.path.join(root, file)}")
               sys.exit(1)
           
           with open(notebook_path, 'r') as f:

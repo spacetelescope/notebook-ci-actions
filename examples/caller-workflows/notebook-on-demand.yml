@@ -26,7 +26,7 @@ on:
         default: 'validate-all'
       
       single_notebook:
-        description: 'Single notebook path (for single-notebook actions)'
+        description: 'Single notebook path or filename (for single-notebook actions) - supports both "notebook.ipynb" and "notebooks/path/notebook.ipynb"'
         required: false
         type: string
         
