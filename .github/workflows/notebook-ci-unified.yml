@@ -712,18 +712,26 @@ jobs:
               # Check if notebook has deprecation metadata or content
               is_deprecated = False
               deprecation_date = None
+              has_existing_warning = False
               
-              # Method 1: Check for cells with deprecated tag
+              # Method 1: Check for cells with deprecated tag OR existing deprecation-warning tag
               for cell in nb.get('cells', []):
                   if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
-                      if 'deprecated' in cell['metadata']['tags']:
+                      tags = cell['metadata']['tags']
+                      if 'deprecated' in tags:
                           is_deprecated = True
                           # Try to extract date from existing deprecation content
                           source = ''.join(cell.get('source', []))
                           date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
                           if date_match:
                               deprecation_date = date_match.group(1)
+                      elif 'deprecation-warning' in tags:
+                          # Already has a deprecation warning, don't add another
+                          has_existing_warning = True
+                          print(f"ℹ️ Deprecation warning already exists in {notebook_path}")
                           break
+                  if is_deprecated or has_existing_warning:
+                      break
               
               # Method 2: Check notebook metadata for deprecation info
               if not is_deprecated and 'metadata' in nb:
@@ -909,7 +917,7 @@ jobs:
             exit 1
           fi
           
-          # Add deprecation banner to notebook
+          # Add deprecation metadata to notebook (no visual banner - will be added during HTML build)
           python3 << EOF
           import json
           import sys
@@ -929,17 +937,28 @@ jobs:
           
           deprecation_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
           
-          # Add deprecation cell at the beginning
+          # Add deprecation metadata to notebook (no visual cell - will be added during HTML build)
+          if 'metadata' not in nb:
+              nb['metadata'] = {}
+          
+          nb['metadata']['deprecated'] = {
+              'status': 'deprecated',
+              'date': deprecation_date,
+              'message': f'This notebook is scheduled for deprecation on {deprecation_date}'
+          }
+          
+          # Also add a simple deprecation tag cell for backward compatibility
           deprecation_cell = {
               "cell_type": "markdown",
               "metadata": {
-                  "tags": ["deprecated"]
+                  "tags": ["deprecated"],
+                  "deprecation": {
+                      "date": deprecation_date,
+                      "status": "deprecated"
+                  }
               },
               "source": [
-                  f"<div style='background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 15px; margin: 10px 0;'>\n",
-                  f"<h3 style='color: #856404; margin-top: 0;'>⚠️ DEPRECATED NOTEBOOK</h3>\n",
-                  f"<p style='color: #856404; margin-bottom: 0;'>This notebook is scheduled for deprecation on <strong>{deprecation_date}</strong>. It may be moved to the deprecated branch after this date.</p>\n",
-                  f"</div>\n"
+                  f"<!-- DEPRECATED: This notebook is scheduled for deprecation on {deprecation_date} -->\n"
               ]
           }
           
@@ -949,7 +968,7 @@ jobs:
           with open(notebook_path, 'w') as f:
               json.dump(nb, f, indent=2)
           
-          print(f"✅ Added deprecation banner to {notebook_path}")
+          print(f"✅ Added deprecation metadata to {notebook_path}")
           EOF
           
           # Commit the changes to main branch
