@@ -281,7 +281,8 @@ jobs:
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
-      inputs.execution-mode != 'merge'
+      inputs.execution-mode != 'merge' &&
+      inputs.trigger-event != 'deprecate'
     runs-on: ubuntu-24.04
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
@@ -883,6 +884,15 @@ jobs:
           echo "🏷️ Tagging notebook for deprecation: $notebook"
           echo "📅 Deprecation date: $deprecation_date"
           
+          # Check if notebook exists first
+          if [ ! -f "$notebook" ]; then
+            echo "❌ Error: Notebook file not found: $notebook"
+            echo "📂 Current directory contents:"
+            find . -name "*.ipynb" -type f | head -10
+            echo "💡 Tip: Use the full path relative to repository root, e.g., 'notebooks/example.ipynb'"
+            exit 1
+          fi
+          
           # Add deprecation banner to notebook
           python3 << 'EOF'
           import json
@@ -891,6 +901,18 @@ jobs:
           
           notebook_path = "${{ inputs.single-notebook }}"
           days = ${{ inputs.deprecation-days }}
+          
+          # Verify file exists before processing
+          import os
+          if not os.path.exists(notebook_path):
+              print(f"❌ Error: File not found: {notebook_path}")
+              print("📂 Current directory:", os.getcwd())
+              print("📋 Available .ipynb files:")
+              for root, dirs, files in os.walk("."):
+                  for file in files:
+                      if file.endswith('.ipynb'):
+                          print(f"  {os.path.join(root, file)}")
+              sys.exit(1)
           
           with open(notebook_path, 'r') as f:
               nb = json.load(f)
@@ -917,7 +939,7 @@ jobs:
           with open(notebook_path, 'w') as f:
               json.dump(nb, f, indent=2)
           
-          print(f"Added deprecation banner to {notebook_path}")
+          print(f"✅ Added deprecation banner to {notebook_path}")
           EOF
           
           # Commit the changes
@@ -1210,8 +1232,10 @@ jobs:
           echo "| Job | Status | Duration |" >> $GITHUB_STEP_SUMMARY
           echo "|-----|--------|----------|" >> $GITHUB_STEP_SUMMARY
           echo "| Matrix Setup | ${{ needs.setup-matrix.result }} | - |" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ inputs.execution-mode }}" != "merge" ]; then
+          if [ "${{ inputs.execution-mode }}" != "merge" ] && [ "${{ inputs.trigger-event }}" != "deprecate" ]; then
             echo "| Notebook Processing | ${{ needs.process-notebooks.result }} | - |" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ inputs.trigger-event }}" = "deprecate" ]; then
+            echo "| Notebook Processing | Skipped (deprecation mode) | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Notebook Processing | Skipped (merge mode) | - |" >> $GITHUB_STEP_SUMMARY
           fi
