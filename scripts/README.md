@@ -811,6 +811,6 @@ To improve these scripts:
 
 ---
 
-**Last Updated**: June 11, 2025  
+**Last Updated**: July 2025  
 **Script Version**: 1.0.0  
 **Compatible with**: notebook-ci-actions v1.x
