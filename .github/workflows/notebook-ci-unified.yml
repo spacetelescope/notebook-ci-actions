@@ -207,10 +207,10 @@ jobs:
                   echo "✅ Found notebook at: $NOTEBOOK_PATH"
                 fi
                 
-                MATRIX_NOTEBOOKS=$(echo "[$NOTEBOOK_PATH]" | jq -c .)
+                MATRIX_NOTEBOOKS=$(echo "$NOTEBOOK_PATH" | jq -R -s -c 'split("\n")[:-1]')
                 # Calculate the directory for the single notebook
                 SINGLE_NOTEBOOK_DIR=$(dirname "$NOTEBOOK_PATH")
-                AFFECTED_DIRS=$(echo "[$SINGLE_NOTEBOOK_DIR]" | jq -c .)
+                AFFECTED_DIRS=$(echo "$SINGLE_NOTEBOOK_DIR" | jq -R -s -c 'split("\n")[:-1]')
                 echo "📁 Calculated directory: $SINGLE_NOTEBOOK_DIR"
               else
                 MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
