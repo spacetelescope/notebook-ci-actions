@@ -839,16 +839,16 @@ jobs:
           
           echo "### 📝 Execution Details" >> $GITHUB_STEP_SUMMARY
           
-          # Get the notebooks that were processed
-          NOTEBOOKS="${{ needs.setup-matrix.outputs.matrix-notebooks }}"
-          AFFECTED_DIRS="${{ needs.setup-matrix.outputs.affected-dirs }}"
+          # Get the notebooks that were processed (with proper JSON quoting)
+          NOTEBOOKS='${{ needs.setup-matrix.outputs.matrix-notebooks }}'
+          AFFECTED_DIRS='${{ needs.setup-matrix.outputs.affected-dirs }}'
           
-          # Better notebook count logic
+          # Better notebook count logic with robust error handling
           if [ "$NOTEBOOKS" = "null" ] || [ "$NOTEBOOKS" = "" ] || [ "$NOTEBOOKS" = "[]" ]; then
             NOTEBOOK_COUNT=0
           else
             # Try to get count, fallback to 0 if parsing fails
-            NOTEBOOK_COUNT=$(echo "$NOTEBOOKS" | jq -r 'length' 2>/dev/null)
+            NOTEBOOK_COUNT=$(echo "$NOTEBOOKS" | jq -r 'length' 2>/dev/null || echo "0")
             if [ "$NOTEBOOK_COUNT" = "null" ] || [ -z "$NOTEBOOK_COUNT" ]; then
               NOTEBOOK_COUNT=0
             fi
