@@ -952,12 +952,63 @@ jobs:
           print(f"✅ Added deprecation banner to {notebook_path}")
           EOF
           
-          # Commit the changes
+          # Commit the changes to main branch
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add "$notebook"
           git commit -m "Mark notebook as deprecated: $notebook (expires: $deprecation_date)"
           git push origin main
+          
+          echo "✅ Deprecated notebook committed to main branch"
+          
+          # Now copy the deprecated notebook to gh-storage branch
+          echo "📦 Copying deprecated notebook to gh-storage branch for documentation"
+          
+          # Create a backup copy of the deprecated notebook
+          temp_notebook="/tmp/deprecated_$(basename "$notebook")"
+          cp "$notebook" "$temp_notebook"
+          echo "📋 Backed up deprecated notebook to: $temp_notebook"
+          
+          # Switch to gh-storage branch (create if doesn't exist)
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            echo "📦 Using existing gh-storage branch"
+            git fetch origin gh-storage
+            git checkout gh-storage
+          else
+            echo "🆕 Creating new gh-storage branch"
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Create directory structure and copy the deprecated notebook from backup
+          echo "📁 Setting up directory: $(dirname "$notebook")"
+          mkdir -p "$(dirname "$notebook")"
+          cp "$temp_notebook" "$notebook"
+          echo "📋 Copied deprecated notebook from backup: $notebook"
+          
+          # Stage and commit the deprecated notebook to gh-storage
+          git add "$notebook"
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes detected in $notebook on gh-storage"
+          else
+            echo "✅ Changes detected, committing deprecated notebook to gh-storage"
+            git commit -m "Update deprecated notebook $notebook for documentation [skip ci]"
+            
+            # Try regular push first, then force if needed
+            if git push origin gh-storage; then
+              echo "🚀 Successfully pushed deprecated notebook to gh-storage"
+            else
+              echo "⚠️ Regular push failed, force pushing..."
+              git push --force origin gh-storage
+              echo "🚀 Force-pushed deprecated notebook to gh-storage"
+            fi
+          fi
+          
+          # Clean up backup file and return to main branch
+          rm -f "$temp_notebook"
+          git checkout main
+          echo "🔄 Returned to main branch"
+          echo "✅ Deprecated notebook successfully copied to gh-storage for documentation"
 
       - name: Check for expired deprecations
         if: inputs.execution-mode == 'scheduled'
