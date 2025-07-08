@@ -15,30 +15,19 @@ jobs:
   notebook-ci:
     uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
-      # Repository-specific configuration
-      notebook_path: 'notebooks'
-      python_version: '3.11'
+      # Required: execution mode
+      execution-mode: 'pr'
+      trigger-event: 'validate'
       
-      # PR-specific execution settings
-      execution_mode: 'cache_only'
-      notebook_pattern: ''
+      # Environment Configuration  
+      python-version: '3.11'
+      custom-requirements: 'requirements.txt'
       
-      # Environment settings
-      environment_file: 'requirements.txt'
-      conda_environment_file: ''
-      
-      # Security and validation
-      security_check: true
-      notebook_validation: true
-      
-      # No documentation generation for PRs
-      generate_docs: false
-      
-      # Artifact settings
-      artifact_retention_days: 7
-      
-      # Performance settings
-      timeout_minutes: 30
-      max_parallel: 3
+      # Feature flags (PRs typically only validate)
+      enable-validation: true
+      enable-security: true
+      enable-execution: false
+      enable-storage: false
+      enable-html-build: false
       
     secrets: inherit

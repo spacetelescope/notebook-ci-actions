@@ -52,7 +52,7 @@ on:
 
 jobs:
   validate-notebooks:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -74,7 +74,7 @@ on:
 
 jobs:
   build-docs:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -142,7 +142,7 @@ with:
 **Goal**: Validate notebooks in PRs without heavy processing
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   enable-validation: true
@@ -157,7 +157,7 @@ with:
 **Goal**: Build and deploy notebook documentation on merge
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'merge'
   enable-validation: true

@@ -351,16 +351,16 @@ jobs:
 
       - name: Validate notebook
         if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
-        continue-on-error: ${{ inputs.execution-mode == 'on-demand' }}
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
+          # Clear outputs to ensure clean validation
+          jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
           pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
-        continue-on-error: ${{ inputs.execution-mode == 'on-demand' }}
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
@@ -375,7 +375,6 @@ jobs:
 
       - name: Execute notebook
         if: inputs.enable-execution == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'execute')
-        continue-on-error: ${{ inputs.execution-mode == 'on-demand' }}
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
@@ -865,7 +864,7 @@ jobs:
           fi
 
       - name: Deploy to GitHub Pages
-        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html'
+        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html' || inputs.trigger-event == 'all'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

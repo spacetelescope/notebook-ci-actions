@@ -260,7 +260,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.y
 #### Development: Use Branch
 ```yaml
 # Use for testing only, not production
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 ```
 
 ### Version Range Examples
@@ -275,7 +275,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.y
 uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1.2.3
 
 # Testing environments - use latest
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 
 # Feature branches - use pre-release
 uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v2.0.0-beta.1

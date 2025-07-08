@@ -6,55 +6,48 @@ name: Notebook CI - On Demand
 on:
   workflow_dispatch:
     inputs:
-      execution_mode:
-        description: 'Execution mode'
+      trigger-event:
+        description: 'Execution trigger'
         required: false
-        default: 'cache_only'
+        default: 'validate'
         type: choice
         options:
-          - cache_only
-          - force_execute
-          - collect_only
-      notebook_pattern:
-        description: 'Notebook pattern (optional)'
+          - validate
+          - execute
+          - security
+          - html
+          - all
+      single-notebook:
+        description: 'Single notebook path (optional)'
         required: false
         default: ''
         type: string
-      generate_docs:
-        description: 'Generate documentation'
+      enable-storage:
+        description: 'Enable storing outputs to gh-storage'
         required: false
-        default: true
+        default: false
         type: boolean
 
 jobs:
   notebook-ci:
     uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
-      # Repository-specific configuration
-      notebook_path: 'notebooks'
-      python_version: '3.11'
+      # Required: execution mode
+      execution-mode: 'on-demand'
+      trigger-event: ${{ inputs.trigger-event }}
       
-      # On-demand execution settings
-      execution_mode: ${{ inputs.execution_mode }}
-      notebook_pattern: ${{ inputs.notebook_pattern }}
+      # Optional: target specific notebook
+      single-notebook: ${{ inputs.single-notebook }}
       
-      # Environment settings
-      environment_file: 'requirements.txt'
-      conda_environment_file: ''
+      # Environment Configuration  
+      python-version: '3.11'
+      custom-requirements: 'requirements.txt'
       
-      # Security and validation
-      security_check: true
-      notebook_validation: true
-      
-      # Documentation generation
-      generate_docs: ${{ inputs.generate_docs }}
-      docs_artifact: 'hellouniverse-on-demand-docs'
-      
-      # Artifact settings
-      artifact_retention_days: 14
-      
-      # Performance settings
-      timeout_minutes: 45
-      max_parallel: 3
+      # Feature flags
+      enable-validation: true
+      enable-security: true
+      enable-execution: ${{ inputs.trigger-event == 'execute' || inputs.trigger-event == 'all' }}
+      enable-storage: ${{ inputs.enable-storage && (inputs.trigger-event == 'execute' || inputs.trigger-event == 'all') }}
+      enable-html-build: ${{ inputs.trigger-event == 'html' || inputs.trigger-event == 'all' }}
       
     secrets: inherit

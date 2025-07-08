@@ -6,70 +6,49 @@ name: Notebook CI - On Demand
 on:
   workflow_dispatch:
     inputs:
-      execution_mode:
-        description: 'Execution mode'
+      trigger-event:
+        description: 'Execution trigger'
         required: false
-        default: 'cache_only'
+        default: 'validate'
         type: choice
         options:
-          - cache_only
-          - force_execute
-          - collect_only
-      notebook_pattern:
-        description: 'Notebook pattern (e.g., "HST/**" or "JWST/**")'
+          - validate
+          - execute
+          - security
+          - html
+          - all
+      single-notebook:
+        description: 'Single notebook path (optional)'
         required: false
         default: ''
         type: string
-      mission_filter:
-        description: 'Mission filter (optional)'
+      enable-storage:
+        description: 'Enable storing outputs to gh-storage'
         required: false
-        default: ''
-        type: choice
-        options:
-          - ''
-          - 'HST'
-          - 'JWST'
-          - 'Kepler'
-          - 'TESS'
-      generate_docs:
-        description: 'Generate documentation'
-        required: false
-        default: true
+        default: false
         type: boolean
 
 jobs:
   notebook-ci:
     uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
-      # Repository-specific configuration
-      notebook_path: 'notebooks'
-      python_version: '3.11'
+      # Required: execution mode
+      execution-mode: 'on-demand'
+      trigger-event: ${{ inputs.trigger-event }}
       
-      # On-demand execution settings
-      execution_mode: ${{ inputs.execution_mode }}
-      notebook_pattern: ${{ inputs.notebook_pattern || (inputs.mission_filter && format('**/{0}/**', inputs.mission_filter) || '') }}
+      # Optional: target specific notebook
+      single-notebook: ${{ inputs.single-notebook }}
       
-      # Environment settings
-      environment_file: 'requirements.txt'
-      conda_environment_file: 'environment.yml'
+      # Environment Configuration  
+      python-version: '3.11'
+      custom-requirements: 'requirements.txt'
+      conda-environment: 'environment.yml'
       
-      # Security and validation
-      security_check: true
-      notebook_validation: true
-      
-      # Documentation generation
-      generate_docs: ${{ inputs.generate_docs }}
-      docs_artifact: 'mast-on-demand-docs'
-      
-      # Artifact settings
-      artifact_retention_days: 30
-      
-      # Performance settings
-      timeout_minutes: 75
-      max_parallel: 3
-      
-      # MAST-specific settings
-      collect_execution_stats: true
-      archive_execution_results: true
+      # Feature flags
+      enable-validation: true
+      enable-security: true
+      enable-execution: ${{ inputs.trigger-event == 'execute' || inputs.trigger-event == 'all' }}
+      enable-storage: ${{ inputs.enable-storage && (inputs.trigger-event == 'execute' || inputs.trigger-event == 'all') }}
+      enable-html-build: ${{ inputs.trigger-event == 'html' || inputs.trigger-event == 'all' }}
       
     secrets: inherit

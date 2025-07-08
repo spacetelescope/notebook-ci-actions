@@ -18,7 +18,7 @@ All examples now use the **unified workflow** (`notebook-ci-unified.yml`) which 
 - Triggered only when notebook or config files change
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   enable-validation: true
@@ -38,7 +38,7 @@ with:
 - Uses executed notebooks from `gh-storage` branch
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'merge'
   enable-validation: true
@@ -58,7 +58,7 @@ with:
 - Debugging and troubleshooting
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'on-demand'
   trigger-event: 'execute'  # or 'validate', 'deprecate'
@@ -75,7 +75,7 @@ with:
 - Manages expired notebook cleanup
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'on-demand'
   trigger-event: 'deprecate'
@@ -92,7 +92,7 @@ with:
 - Fast deployment for documentation updates
 
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'on-demand'
   trigger-event: 'html'
@@ -152,12 +152,12 @@ See the main README for detailed migration instructions and the automated migrat
 ### Minimal Setup (Standard Repository)
 ```yaml
 # PR validation
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
 
 # Main branch deployment  
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'merge'
   enable-html-build: true
@@ -166,7 +166,7 @@ with:
 ### Advanced Setup (Documentation Repository)
 ```yaml
 # Full configuration with custom requirements
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'merge'
   python-version: '3.11'

@@ -4,44 +4,31 @@
 name: Notebook CI - Scheduled
 
 on:
-  # Run twice weekly: Wednesday and Sunday at 3 AM UTC
+  # Run weekly on Sundays at 2 AM UTC
   schedule:
-    - cron: '0 3 * * 3'  # Wednesday
-    - cron: '0 3 * * 0'  # Sunday
+    - cron: '0 2 * * 0'
 
 jobs:
   notebook-ci:
     uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
-      # Repository-specific configuration
-      notebook_path: 'notebooks'
-      python_version: '3.11'
+      # Required: execution mode
+      execution-mode: 'scheduled'
+      trigger-event: 'all'
       
-      # Scheduled execution settings
-      execution_mode: 'force_execute'
-      notebook_pattern: ''
+      # Environment Configuration  
+      python-version: '3.11'
+      custom-requirements: 'requirements.txt'
       
-      # Environment settings (prefer conda for JDAT)
-      environment_file: 'requirements.txt'
-      conda_environment_file: 'environment.yml'
       
-      # Security and validation
-      security_check: true
-      notebook_validation: true
+      # Feature flags (scheduled does everything)
+      enable-validation: true
+      enable-security: true
+      enable-execution: true
+      enable-storage: true
+      enable-html-build: true
       
-      # Documentation generation
-      generate_docs: true
-      docs_artifact: 'jdat-scheduled-docs'
-      
-      # Artifact settings
-      artifact_retention_days: 60
-      
-      # Performance settings (longer timeout for complex astronomical notebooks)
-      timeout_minutes: 120
-      max_parallel: 2
-      
-      # JDAT-specific settings
-      collect_execution_stats: true
-      allow_notebook_execution_errors: false
+      # Deprecation management for scheduled runs
+      deprecation-days: 60
       
     secrets: inherit

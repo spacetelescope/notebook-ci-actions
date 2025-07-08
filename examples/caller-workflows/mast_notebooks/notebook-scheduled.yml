@@ -4,44 +4,31 @@
 name: Notebook CI - Scheduled
 
 on:
-  # Run weekly on Mondays at 4 AM UTC
+  # Run weekly on Sundays at 2 AM UTC
   schedule:
-    - cron: '0 4 * * 1'
+    - cron: '0 2 * * 0'
 
 jobs:
   notebook-ci:
     uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
     with:
-      # Repository-specific configuration
-      notebook_path: 'notebooks'
-      python_version: '3.11'
+      # Required: execution mode
+      execution-mode: 'scheduled'
+      trigger-event: 'all'
       
-      # Scheduled execution settings
-      execution_mode: 'force_execute'
-      notebook_pattern: ''
+      # Environment Configuration  
+      python-version: '3.11'
+      custom-requirements: 'requirements.txt'
+      conda-environment: 'environment.yml'
       
-      # Environment settings
-      environment_file: 'requirements.txt'
-      conda_environment_file: 'environment.yml'
+      # Feature flags (scheduled does everything)
+      enable-validation: true
+      enable-security: true
+      enable-execution: true
+      enable-storage: true
+      enable-html-build: true
       
-      # Security and validation
-      security_check: true
-      notebook_validation: true
-      
-      # Documentation generation
-      generate_docs: true
-      docs_artifact: 'mast-scheduled-docs'
-      
-      # Artifact settings
-      artifact_retention_days: 45
-      
-      # Performance settings
-      timeout_minutes: 90
-      max_parallel: 3
-      
-      # MAST-specific settings
-      collect_execution_stats: true
-      archive_execution_results: true
-      allow_notebook_execution_errors: false
+      # Deprecation management for scheduled runs
+      deprecation-days: 60
       
     secrets: inherit
