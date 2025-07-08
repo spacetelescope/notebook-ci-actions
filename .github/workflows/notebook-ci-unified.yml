@@ -438,9 +438,15 @@ jobs:
               echo "✅ Changes detected, committing notebook"
               git commit -m "Update executed notebook $notebook from PR #${{ github.event.number }} [skip ci]"
               
-              # Force push to ensure clean update without conflicts
-              git push --force origin gh-storage
-              echo "🚀 Successfully force-pushed $notebook to gh-storage"
+              # Try regular push first, then pull-rebase-push if conflicts
+              if git push origin gh-storage; then
+                echo "🚀 Successfully pushed $notebook to gh-storage"
+              else
+                echo "⚠️ Push failed due to conflicts, attempting rebase..."
+                git pull --rebase origin gh-storage
+                git push origin gh-storage
+                echo "🚀 Successfully pushed $notebook to gh-storage after rebase"
+              fi
             fi
             
             # Clean up backup file and return to original branch
@@ -504,13 +510,14 @@ jobs:
               echo "✅ Changes detected, committing notebook"
               git commit -m "Update executed notebook $notebook [skip ci]"
               
-              # Try regular push first, then force if needed
+              # Try regular push first, then pull-rebase-push if conflicts
               if git push origin gh-storage; then
                 echo "🚀 Successfully pushed $notebook to gh-storage"
               else
-                echo "⚠️ Regular push failed, force pushing..."
-                git push --force origin gh-storage
-                echo "🚀 Force-pushed $notebook to gh-storage"  
+                echo "⚠️ Push failed due to conflicts, attempting rebase..."
+                git pull --rebase origin gh-storage
+                git push origin gh-storage
+                echo "🚀 Successfully pushed $notebook to gh-storage after rebase"
               fi
             fi
             
@@ -1012,13 +1019,14 @@ jobs:
             echo "✅ Changes detected, committing deprecated notebook to gh-storage"
             git commit -m "Update deprecated notebook $notebook for documentation [skip ci]"
             
-            # Try regular push first, then force if needed
+            # Try regular push first, then pull-rebase-push if conflicts
             if git push origin gh-storage; then
               echo "🚀 Successfully pushed deprecated notebook to gh-storage"
             else
-              echo "⚠️ Regular push failed, force pushing..."
-              git push --force origin gh-storage
-              echo "🚀 Force-pushed deprecated notebook to gh-storage"
+              echo "⚠️ Push failed due to conflicts, attempting rebase..."
+              git pull --rebase origin gh-storage
+              git push origin gh-storage
+              echo "🚀 Successfully pushed deprecated notebook to gh-storage after rebase"
             fi
           fi
           
