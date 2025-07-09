@@ -275,44 +275,8 @@ jobs:
             FILTERED_NOTEBOOKS=""
             while IFS= read -r notebook; do
               if [ -f "$notebook" ]; then
-                # Check if notebook has deprecation metadata using a temporary script
-                cat > /tmp/check_deprecated.py << 'EOF'
-            import json
-            import sys
-            import os
-
-            notebook_path = os.environ['NOTEBOOK_PATH']
-            try:
-                with open(notebook_path, 'r') as f:
-                    nb = json.load(f)
-                
-                # Check if notebook is deprecated
-                is_deprecated = False
-                
-                # Method 1: Check metadata
-                if 'metadata' in nb and 'deprecated' in nb.get('metadata', {}):
-                    is_deprecated = True
-                
-                # Method 2: Check for deprecation cells
-                if not is_deprecated:
-                    for cell in nb.get('cells', []):
-                        if cell.get('metadata', {}).get('tags', []):
-                            if 'deprecated' in cell.get('metadata', {}).get('tags', []):
-                                is_deprecated = True
-                                break
-                
-                if is_deprecated:
-                    print(f'⚠️ Skipping deprecated notebook: {notebook_path}')
-                    sys.exit(1)  # Deprecated - skip this notebook
-                else:
-                    sys.exit(0)  # Not deprecated - include this notebook
-                    
-            except Exception as e:
-                print(f'⚠️ Error checking notebook {notebook_path}: {e}')
-                sys.exit(0)  # On error, include the notebook (fail safe)
-            EOF
-                
-                NOTEBOOK_PATH="$notebook" python3 /tmp/check_deprecated.py
+                # Check if notebook has deprecation metadata
+                NOTEBOOK_PATH="$notebook" python3 -c "import json, sys, os; notebook_path = os.environ['NOTEBOOK_PATH']; nb = json.load(open(notebook_path, 'r')); is_deprecated = 'metadata' in nb and 'deprecated' in nb.get('metadata', {}) or any('deprecated' in cell.get('metadata', {}).get('tags', []) for cell in nb.get('cells', [])); print(f'⚠️ Skipping deprecated notebook: {notebook_path}') if is_deprecated else None; sys.exit(1 if is_deprecated else 0)"
                 
                 # Add to filtered list if not deprecated (exit code 0)
                 if [ $? -eq 0 ]; then
@@ -327,7 +291,6 @@ jobs:
             
             # Clean up temp files
             rm -f /tmp/notebooks_to_check.txt
-            rm -f /tmp/check_deprecated.py
             
             # Update the matrix with filtered notebooks
             if [ -n "$FILTERED_NOTEBOOKS" ]; then
