@@ -292,11 +292,58 @@ jobs:
             FILTERED_NOTEBOOKS=""
             while IFS= read -r notebook; do
               if [ -f "$notebook" ]; then
-                # Check if notebook has deprecation metadata
-                NOTEBOOK_PATH="$notebook" python3 -c "import json, sys, os; notebook_path = os.environ['NOTEBOOK_PATH']; nb = json.load(open(notebook_path, 'r')); is_deprecated = 'metadata' in nb and 'deprecated' in nb.get('metadata', {}) or any('deprecated' in cell.get('metadata', {}).get('tags', []) for cell in nb.get('cells', [])); print(f'⚠️ Skipping deprecated notebook: {notebook_path}') if is_deprecated else None; sys.exit(1 if is_deprecated else 0)"
+                # Check if notebook has deprecation metadata - use output instead of exit code
+                DEPRECATION_CHECK=$(NOTEBOOK_PATH="$notebook" python3 -c "
+import json, sys, os
+notebook_path = os.environ['NOTEBOOK_PATH']
+try:
+    with open(notebook_path, 'r', encoding='utf-8') as f:
+        nb = json.load(f)
+    
+    # Check for deprecation in multiple ways
+    is_deprecated = False
+    
+    # Method 1: Check notebook metadata
+    if 'metadata' in nb and 'deprecated' in nb.get('metadata', {}):
+        is_deprecated = True
+    
+    # Method 2: Check for cells with deprecated tags
+    if not is_deprecated:
+        for cell in nb.get('cells', []):
+            if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
+                if 'deprecated' in cell['metadata']['tags']:
+                    is_deprecated = True
+                    break
+    
+    # Method 3: Text-based search for backward compatibility
+    if not is_deprecated:
+        for cell in nb.get('cells', []):
+            source = ''.join(cell.get('source', []))
+            if 'DEPRECATED' in source or 'deprecated' in source:
+                is_deprecated = True
+                break
+    
+    # Output result - don't use exit codes
+    if is_deprecated:
+        print('DEPRECATED')
+    else:
+        print('ACTIVE')
+        
+except Exception as e:
+    print('ERROR')
+" 2>/dev/null)
                 
-                # Add to filtered list if not deprecated (exit code 0)
-                if [ $? -eq 0 ]; then
+                # Add to filtered list if not deprecated
+                if [ "$DEPRECATION_CHECK" = "ACTIVE" ]; then
+                  if [ -z "$FILTERED_NOTEBOOKS" ]; then
+                    FILTERED_NOTEBOOKS="\"$notebook\""
+                  else
+                    FILTERED_NOTEBOOKS="$FILTERED_NOTEBOOKS,\"$notebook\""
+                  fi
+                elif [ "$DEPRECATION_CHECK" = "DEPRECATED" ]; then
+                  echo "⚠️ Skipping deprecated notebook: $notebook"
+                else
+                  echo "⚠️ Error checking deprecation status for $notebook - including in execution"
                   if [ -z "$FILTERED_NOTEBOOKS" ]; then
                     FILTERED_NOTEBOOKS="\"$notebook\""
                   else
