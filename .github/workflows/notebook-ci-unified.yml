@@ -1091,15 +1091,47 @@ jobs:
           **Please review and approve if this deprecation is appropriate.**"
 
           # Create the PR (requires GITHUB_TOKEN with proper permissions)
-          gh pr create \
+          echo "🔄 Creating Pull Request for deprecation..."
+          
+          # First, create the PR without labels to avoid label errors
+          pr_url=$(gh pr create \
             --title "$pr_title" \
             --body "$pr_body" \
             --base main \
-            --head "$deprecation_branch" \
-            --label "deprecation,documentation"
+            --head "$deprecation_branch" 2>&1)
           
-          echo "✅ Created Pull Request for notebook deprecation"
-          echo "🔗 PR will be available at: https://github.com/${{ github.repository }}/pulls"
+          if [ $? -eq 0 ]; then
+            echo "✅ Created Pull Request for notebook deprecation"
+            echo "🔗 PR URL: $pr_url"
+            
+            # Try to add labels if they exist (non-blocking - wrapped in subshell to prevent script exit)
+            (
+              echo "🏷️ Attempting to add labels..."
+              
+              # Check what labels exist first
+              echo "📋 Checking available repository labels..."
+              AVAILABLE_LABELS=$(gh label list --json name --jq '.[].name' 2>/dev/null | tr '\n' ',' || echo "")
+              echo "Available labels: $AVAILABLE_LABELS"
+              
+              # Try adding each label individually with better error handling
+              for label in "deprecation" "documentation"; do
+                if echo "$AVAILABLE_LABELS" | grep -q "$label"; then
+                  if gh pr edit "$deprecation_branch" --add-label "$label" 2>/dev/null; then
+                    echo "✅ Added '$label' label"
+                  else
+                    echo "⚠️ Failed to add '$label' label (but continuing)"
+                  fi
+                else
+                  echo "ℹ️ Label '$label' not found in repository - skipping"
+                fi
+              done
+              
+              echo "✅ Label assignment completed (PR created successfully regardless of labels)"
+            ) || echo "⚠️ Label assignment section failed, but PR was created successfully"
+          else
+            echo "❌ Failed to create Pull Request: $pr_url"
+            exit 1
+          fi
           
           # Store deprecated notebook to gh-storage for immediate documentation update
           echo "📦 Storing deprecated notebook to gh-storage for documentation preview"
