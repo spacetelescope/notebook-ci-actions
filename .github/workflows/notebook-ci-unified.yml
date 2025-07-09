@@ -264,6 +264,77 @@ jobs:
               ;;
           esac
           
+          # Filter out deprecated notebooks during merge workflows
+          if [ "${{ inputs.execution-mode }}" = "merge" ] && [ "$MATRIX_NOTEBOOKS" != "[]" ]; then
+            echo "🔍 Checking for deprecated notebooks to skip execution..."
+            
+            # Create a temporary file with the current notebook list
+            echo "$MATRIX_NOTEBOOKS" | jq -r '.[]' > /tmp/notebooks_to_check.txt
+            
+            # Filter out deprecated notebooks
+            FILTERED_NOTEBOOKS=""
+            while IFS= read -r notebook; do
+              if [ -f "$notebook" ]; then
+                # Check if notebook has deprecation metadata
+                python3 << EOF
+import json
+import sys
+
+notebook_path = "$notebook"
+try:
+    with open(notebook_path, 'r') as f:
+        nb = json.load(f)
+    
+    # Check if notebook is deprecated
+    is_deprecated = False
+    
+    # Method 1: Check metadata
+    if 'metadata' in nb and 'deprecated' in nb.get('metadata', {}):
+        is_deprecated = True
+    
+    # Method 2: Check for deprecation cells
+    if not is_deprecated:
+        for cell in nb.get('cells', []):
+            if cell.get('metadata', {}).get('tags', []):
+                if 'deprecated' in cell.get('metadata', {}).get('tags', []):
+                    is_deprecated = True
+                    break
+    
+    if is_deprecated:
+        print(f"⚠️ Skipping deprecated notebook: $notebook")
+        sys.exit(1)  # Deprecated - skip this notebook
+    else:
+        sys.exit(0)  # Not deprecated - include this notebook
+        
+except Exception as e:
+    print(f"⚠️ Error checking notebook {notebook_path}: {e}")
+    sys.exit(0)  # On error, include the notebook (fail safe)
+EOF
+                
+                # Add to filtered list if not deprecated (exit code 0)
+                if [ $? -eq 0 ]; then
+                  if [ -z "$FILTERED_NOTEBOOKS" ]; then
+                    FILTERED_NOTEBOOKS="\"$notebook\""
+                  else
+                    FILTERED_NOTEBOOKS="$FILTERED_NOTEBOOKS,\"$notebook\""
+                  fi
+                fi
+              fi
+            done < /tmp/notebooks_to_check.txt
+            
+            # Clean up temp file
+            rm -f /tmp/notebooks_to_check.txt
+            
+            # Update the matrix with filtered notebooks
+            if [ -n "$FILTERED_NOTEBOOKS" ]; then
+              MATRIX_NOTEBOOKS="[$FILTERED_NOTEBOOKS]"
+              echo "✅ Filtered notebook matrix (deprecated notebooks skipped): $MATRIX_NOTEBOOKS"
+            else
+              MATRIX_NOTEBOOKS="[]"
+              echo "ℹ️ All notebooks are deprecated - no execution needed"
+            fi
+          fi
+          
           echo "matrix-notebooks=$MATRIX_NOTEBOOKS" >> $GITHUB_OUTPUT
           echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
           echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
@@ -889,6 +960,13 @@ jobs:
         with:
           fetch-depth: 0
           
+      - name: Install GitHub CLI
+        if: inputs.trigger-event == 'deprecate'
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh -y
+          echo "✅ GitHub CLI installed"
+          
       - name: Tag notebook for deprecation
         if: inputs.trigger-event == 'deprecate' && inputs.single-notebook != ''
         run: |
@@ -923,16 +1001,21 @@ jobs:
             exit 1
           fi
           
-          # Add deprecation metadata to notebook (no visual banner - will be added during HTML build)
+          # Create a deprecation branch
+          deprecation_branch="deprecate-$(basename "$notebook" .ipynb)-$(date +%Y%m%d-%H%M%S)"
+          echo "🌿 Creating deprecation branch: $deprecation_branch"
+          git checkout -b "$deprecation_branch"
+          
+          # Add deprecation metadata to notebook
           python3 << EOF
           import json
           import sys
           from datetime import datetime, timedelta
           
-          notebook_path = "$notebook"  # Use the resolved notebook path
+          notebook_path = "$notebook"
           days = ${{ inputs.deprecation-days }}
           
-          # Verify file exists before processing (should be guaranteed at this point)
+          # Verify file exists before processing
           import os
           if not os.path.exists(notebook_path):
               print(f"❌ Error: File not found: {notebook_path}")
@@ -943,7 +1026,7 @@ jobs:
           
           deprecation_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
           
-          # Add deprecation metadata to notebook (no visual cell - will be added during HTML build)
+          # Add deprecation metadata to notebook
           if 'metadata' not in nb:
               nb['metadata'] = {}
           
@@ -953,7 +1036,7 @@ jobs:
               'message': f'This notebook is scheduled for deprecation on {deprecation_date}'
           }
           
-          # Also add a simple deprecation tag cell for backward compatibility
+          # Add a deprecation tag cell for backward compatibility
           deprecation_cell = {
               "cell_type": "markdown",
               "metadata": {
@@ -977,24 +1060,70 @@ jobs:
           print(f"✅ Added deprecation metadata to {notebook_path}")
           EOF
           
-          # Commit the changes to main branch
+          # Commit the changes to the deprecation branch
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add "$notebook"
-          git commit -m "Mark notebook as deprecated: $notebook (expires: $deprecation_date)"
-          git push origin main
+          git commit -m "Mark notebook as deprecated: $notebook
+
+          This notebook is scheduled for deprecation on $deprecation_date.
           
-          echo "✅ Deprecated notebook committed to main branch"
+          - Added deprecation metadata to notebook
+          - Added deprecation tag cell
+          - Requires team review before merging
           
-          # Now copy the deprecated notebook to gh-storage branch
-          echo "📦 Copying deprecated notebook to gh-storage branch for documentation"
+          Closes #deprecation-request"
+          
+          # Push the deprecation branch
+          git push origin "$deprecation_branch"
+          echo "✅ Pushed deprecation branch: $deprecation_branch"
+          
+          # Create a Pull Request using GitHub CLI
+          pr_title="Deprecate notebook: $(basename "$notebook")"
+          pr_body="## 📋 Deprecation Request
+
+          **Notebook**: \`$notebook\`  
+          **Scheduled Deprecation Date**: $deprecation_date  
+          **Days until deprecation**: ${{ inputs.deprecation-days }}
+
+          ### Changes Made:
+          - ✅ Added deprecation metadata to notebook metadata
+          - ✅ Added deprecation tag cell at the beginning of the notebook
+          - ✅ Notebook will show deprecation warnings when rendered
+
+          ### Next Steps:
+          1. **Review** this deprecation request
+          2. **Merge** this PR to finalize the deprecation
+          3. **Automatic** HTML documentation will be rebuilt on merge
+          4. **GitHub Pages** will be updated with deprecation warnings
+
+          ### Notes:
+          - This notebook will continue to work but will show deprecation warnings
+          - On the scheduled date, automated processes may remove or archive the notebook
+          - Users will be directed to alternative notebooks or resources
+
+          **Please review and approve if this deprecation is appropriate.**"
+
+          # Create the PR (requires GITHUB_TOKEN with proper permissions)
+          gh pr create \
+            --title "$pr_title" \
+            --body "$pr_body" \
+            --base main \
+            --head "$deprecation_branch" \
+            --label "deprecation,documentation"
+          
+          echo "✅ Created Pull Request for notebook deprecation"
+          echo "🔗 PR will be available at: https://github.com/${{ github.repository }}/pulls"
+          
+          # Store deprecated notebook to gh-storage for immediate documentation update
+          echo "📦 Storing deprecated notebook to gh-storage for documentation preview"
           
           # Create a backup copy of the deprecated notebook
           temp_notebook="/tmp/deprecated_$(basename "$notebook")"
           cp "$notebook" "$temp_notebook"
           echo "📋 Backed up deprecated notebook to: $temp_notebook"
           
-          # Switch to gh-storage branch (create if doesn't exist)
+          # Switch to gh-storage branch
           if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
             echo "📦 Using existing gh-storage branch"
             git fetch origin gh-storage
@@ -1017,7 +1146,7 @@ jobs:
             echo "ℹ️ No changes detected in $notebook on gh-storage"
           else
             echo "✅ Changes detected, committing deprecated notebook to gh-storage"
-            git commit -m "Update deprecated notebook $notebook for documentation [skip ci]"
+            git commit -m "Update deprecated notebook $notebook for documentation preview [skip ci]"
             
             # Try regular push first, then pull-rebase-push if conflicts
             if git push origin gh-storage; then
@@ -1030,11 +1159,17 @@ jobs:
             fi
           fi
           
-          # Clean up backup file and return to main branch
+          # Clean up backup file and return to deprecation branch
           rm -f "$temp_notebook"
-          git checkout main
-          echo "🔄 Returned to main branch"
-          echo "✅ Deprecated notebook successfully copied to gh-storage for documentation"
+          git checkout "$deprecation_branch"
+          echo "🔄 Returned to deprecation branch: $deprecation_branch"
+          echo "✅ Deprecated notebook stored to gh-storage and PR created"
+          echo ""
+          echo "📝 Summary:"
+          echo "  - Deprecation branch created: $deprecation_branch"
+          echo "  - Pull Request created for team review"
+          echo "  - Notebook stored to gh-storage for documentation preview"
+          echo "  - HTML documentation will be rebuilt automatically on PR merge"
 
       - name: Check for expired deprecations
         if: inputs.execution-mode == 'scheduled'
@@ -1107,186 +1242,9 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
-  # HTML Documentation Rebuild After Deprecation
-  rebuild-docs-after-deprecation:
-    needs: [setup-matrix, manage-deprecation]
-    if: |
-      always() &&
-      inputs.trigger-event == 'deprecate' &&
-      inputs.execution-mode == 'on-demand' &&
-      needs.manage-deprecation.result == 'success'
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Set up Python environment with micromamba
-        uses: mamba-org/setup-micromamba@v2.0.4
-        with:
-          environment-name: docs-env
-          init-shell: bash
-          create-args: "python=${{ inputs.python-version }} pip jupyter-book sphinx"
-          cache-environment: false
-
-      - name: Install documentation dependencies
-        run: |
-          eval "$(micromamba shell hook --shell bash)"
-          micromamba activate docs-env
-          echo "📚 Installing documentation dependencies"
-          pip install --upgrade jupyter-book sphinx
-          
-      - name: Add deprecation warnings to notebooks
-        run: |
-          echo "🏷️ Adding deprecation warnings to newly deprecated notebooks"
-          
-          # Find all notebooks in the current directory
-          find . -name "*.ipynb" -type f | while read -r notebook; do
-            if [ -f "$notebook" ]; then
-              echo "🔍 Checking for deprecation in: $notebook"
-              
-              # Create a temporary Python script to check and add deprecation warnings
-              cat > add_deprecation_warning.py << 'EOF'
-          import json
-          import sys
-          from datetime import datetime
-          import re
-          
-          notebook_path = sys.argv[1]
-          
-          try:
-              with open(notebook_path, 'r', encoding='utf-8') as f:
-                  nb = json.load(f)
-              
-              # Check if notebook has deprecation metadata or content
-              is_deprecated = False
-              deprecation_date = None
-              
-              # Method 1: Check for cells with deprecated tag
-              for cell in nb.get('cells', []):
-                  if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
-                      if 'deprecated' in cell['metadata']['tags']:
-                          is_deprecated = True
-                          # Try to extract date from existing deprecation content
-                          source = ''.join(cell.get('source', []))
-                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
-                          if date_match:
-                              deprecation_date = date_match.group(1)
-                          break
-              
-              # Method 2: Check notebook metadata for deprecation info
-              if not is_deprecated and 'metadata' in nb:
-                  nb_metadata = nb['metadata']
-                  if 'deprecated' in nb_metadata:
-                      is_deprecated = True
-                      if isinstance(nb_metadata['deprecated'], dict):
-                          deprecation_date = nb_metadata['deprecated'].get('date')
-                      elif isinstance(nb_metadata['deprecated'], str):
-                          # Try to parse as date
-                          if re.match(r'\d{4}-\d{2}-\d{2}', nb_metadata['deprecated']):
-                              deprecation_date = nb_metadata['deprecated']
-              
-              # Method 3: Text-based search (backward compatibility)
-              if not is_deprecated:
-                  for cell in nb.get('cells', []):
-                      source = ''.join(cell.get('source', []))
-                      if re.search(r'DEPRECATED|deprecated|DEPRECATION', source, re.IGNORECASE):
-                          is_deprecated = True
-                          # Try to extract date
-                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
-                          if date_match:
-                              deprecation_date = date_match.group(1)
-                          break
-              
-              if is_deprecated:
-                  print(f"📅 Found deprecated notebook: {notebook_path}")
-                  
-                  # Create deprecation warning banner
-                  if not deprecation_date:
-                      deprecation_date = "unspecified date"
-                      date_text = "This notebook is deprecated and may be removed in the future."
-                  else:
-                      try:
-                          dep_date = datetime.strptime(deprecation_date, '%Y-%m-%d')
-                          if dep_date <= datetime.now():
-                              date_text = f"This notebook was deprecated on <strong>{deprecation_date}</strong> and may be moved or removed."
-                          else:
-                              date_text = f"This notebook is scheduled for deprecation on <strong>{deprecation_date}</strong>."
-                      except:
-                          date_text = f"This notebook is deprecated (target date: {deprecation_date})."
-                  
-                  deprecation_warning_cell = {
-                      "cell_type": "markdown",
-                      "metadata": {
-                          "tags": ["deprecation-warning"]
-                      },
-                      "source": [
-                          "<div style='background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545;'>\n",
-                          "<h3 style='color: #721c24; margin-top: 0;'>🚨 DEPRECATED NOTEBOOK</h3>\n",
-                          f"<p style='color: #721c24; margin-bottom: 5px;'><strong>{date_text}</strong></p>\n",
-                          "<p style='color: #721c24; margin-bottom: 0;'>Please migrate to newer alternatives or contact maintainers before using this notebook in production.</p>\n",
-                          "<p style='color: #721c24; margin-bottom: 0; font-size: 0.9em;'><em>This warning was automatically generated during documentation build.</em></p>\n",
-                          "</div>\n"
-                      ]
-                  }
-                  
-                  # Check if deprecation warning already exists
-                  has_deprecation_warning = False
-                  for cell in nb.get('cells', []):
-                      if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
-                          if 'deprecation-warning' in cell['metadata']['tags']:
-                              has_deprecation_warning = True
-                              break
-                  
-                  # Add deprecation warning at the beginning if not already present
-                  if not has_deprecation_warning:
-                      nb['cells'].insert(0, deprecation_warning_cell)
-                      
-                      with open(notebook_path, 'w', encoding='utf-8') as f:
-                          json.dump(nb, f, indent=2, ensure_ascii=False)
-                      
-                      print(f"✅ Added deprecation warning to {notebook_path}")
-                  else:
-                      print(f"ℹ️ Deprecation warning already exists in {notebook_path}")
-              else:
-                  print(f"✅ No deprecation found in {notebook_path}")
-                  
-          except Exception as e:
-              print(f"❌ Error processing {notebook_path}: {e}")
-          EOF
-              
-              # Run the deprecation check and warning addition
-              python add_deprecation_warning.py "$notebook"
-              rm -f add_deprecation_warning.py
-            fi
-          done
-          
-          echo "✅ Deprecation warning check completed"
-          
-      - name: Build JupyterBook documentation with deprecation warnings
-        run: |
-          eval "$(micromamba shell hook --shell bash)"
-          micromamba activate docs-env
-          echo "📖 Building JupyterBook documentation with updated deprecation warnings"
-          
-          # Clean any existing build directory
-          rm -rf _build
-          
-          # Build the documentation (don't specify --path-output to use default _build location)
-          jupyter-book build .
-          echo "✅ JupyterBook documentation built successfully with deprecation warnings"
-
-      - name: Deploy updated documentation to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_build/html
-          cname: ${{ vars.PAGES_CNAME || '' }}
-          commit_message: "Deploy documentation with updated deprecation warnings [skip ci]"
-
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation, rebuild-docs-after-deprecation]
+    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation]
     if: always()
     runs-on: ubuntu-24.04
     steps:
