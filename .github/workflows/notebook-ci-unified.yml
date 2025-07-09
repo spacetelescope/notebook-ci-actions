@@ -1,5 +1,22 @@
 name: Unified Notebook CI/CD Pipeline
 
+run-name: |
+  ${{
+    inputs.execution-mode == 'pr' && '🔄 PR Workflow' ||
+    inputs.execution-mode == 'merge' && '🚀 Merge Workflow' ||
+    inputs.execution-mode == 'scheduled' && '⏰ Scheduled Validation' ||
+    inputs.execution-mode == 'on-demand' && (
+      inputs.trigger-event == 'validate' && '🔍 On-Demand Validation' ||
+      inputs.trigger-event == 'execute' && '▶️ On-Demand Execution' ||
+      inputs.trigger-event == 'security' && '🛡️ Security Scan' ||
+      inputs.trigger-event == 'html' && '📖 Documentation Build' ||
+      inputs.trigger-event == 'deprecate' && '🏷️ Notebook Deprecation' ||
+      inputs.trigger-event == 'all' && '🎯 Full Pipeline' ||
+      '🎯 On-Demand Workflow'
+    ) ||
+    'Notebook CI/CD'
+  }}${{ inputs.single-notebook != '' && format(' - {0}', inputs.single-notebook) || '' }}
+
 on:
   workflow_call:
     inputs:
@@ -922,6 +939,8 @@ jobs:
     needs: setup-matrix
     if: inputs.trigger-event == 'deprecate' || inputs.execution-mode == 'scheduled'
     runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
