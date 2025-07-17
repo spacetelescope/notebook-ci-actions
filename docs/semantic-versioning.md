@@ -464,13 +464,5 @@ jobs:
 
 ---
 
-## 🏷️ Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| v1.0.0 | 2024-01-15 | Initial release |
-| v1.1.0 | 2024-02-01 | Added post-run script support |
-| v1.1.1 | 2024-02-15 | Fixed timeout handling |
-| v2.0.0 | 2024-03-01 | Breaking: Restructured inputs |
 
 For the latest version information, see the [Releases page](../../releases).
