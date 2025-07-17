@@ -566,7 +566,7 @@ jobs:
 
 This comprehensive example demonstrates how to configure the unified notebook CI/CD system for various repository types and use cases, providing templates that can be adapted to specific needs.
 
-## 🆕 Latest Updates (December 2024)
+## 🆕 Latest Updates
 
 This example has been updated to include the latest features and best practices:
 
