@@ -385,7 +385,10 @@ jobs:
             ENHANCED_MATRIX='{"include":['
             FIRST_ENTRY=true
             
-            echo "$MATRIX_NOTEBOOKS" | jq -r '.[]' 2>/dev/null | while read -r notebook; do
+            # Create a temporary file to store notebooks to avoid subshell issues
+            echo "$MATRIX_NOTEBOOKS" | jq -r '.[]' > /tmp/matrix_notebooks.txt 2>/dev/null
+            
+            while IFS= read -r notebook; do
               if [ -n "$notebook" ]; then
                 # Look up runner for this notebook in ci_config.txt
                 CUSTOM_RUNNER=$(grep "^${notebook}:" ci_config.txt 2>/dev/null | cut -d':' -f2 || echo "")
@@ -406,7 +409,10 @@ jobs:
                   ENHANCED_MATRIX="${ENHANCED_MATRIX},{\"notebook\":\"${notebook}\",\"runner\":\"${RUNNER}\"}"
                 fi
               fi
-            done
+            done < /tmp/matrix_notebooks.txt
+            
+            # Clean up temporary file
+            rm -f /tmp/matrix_notebooks.txt
             
             ENHANCED_MATRIX="${ENHANCED_MATRIX}]}"
             MATRIX_NOTEBOOKS="$ENHANCED_MATRIX"
