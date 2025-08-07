@@ -455,11 +455,7 @@ jobs:
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
-    runs-on: ${{ 
-      fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-latest' && 
-      fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 
-      'ubuntu-24.04' 
-      }}
+    runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-24.04' }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
       total-notebooks: ${{ steps.collect-results.outputs.total }}
@@ -532,7 +528,7 @@ jobs:
 
       - name: Install requirements
         run: |
-          notebook="${{ matrix }}"
+          notebook="${{ matrix.notebook }}"
           nb_dir=$(dirname "$notebook")
           
           # Activate the micromamba environment
@@ -555,18 +551,18 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-          echo "🔍 Validating notebook: ${{ matrix }}"
+          echo "🔍 Validating notebook: ${{ matrix.notebook }}"
           # Clear outputs to ensure clean validation
-          jupyter nbconvert --clear-output --inplace "${{ matrix }}"
-          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix }}"
+          jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
+          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-          echo "🛡️ Security scanning: ${{ matrix }}"
-          notebook="${{ matrix }}"
+          echo "🛡️ Security scanning: ${{ matrix.notebook }}"
+          notebook="${{ matrix.notebook }}"
           jupyter nbconvert --to script "$notebook"
           py_file="${notebook%.ipynb}.py"
           if [ -f "$py_file" ]; then
@@ -579,8 +575,8 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-          echo "▶️ Executing notebook: ${{ matrix }}"
-          jupyter nbconvert --to notebook --execute --inplace "${{ matrix }}"
+          echo "▶️ Executing notebook: ${{ matrix.notebook }}"
+          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
 
       - name: Store executed notebook to gh-storage
         if: |
