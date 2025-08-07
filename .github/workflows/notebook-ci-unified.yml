@@ -96,6 +96,13 @@ on:
         required: false
         type: number
         default: 60
+      
+      # Custom Runner Configuration
+      custom-runner-config:
+        description: 'Enable custom runner selection based on ci_config.txt'
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       CASJOBS_USERID:
@@ -370,6 +377,46 @@ jobs:
             fi
           fi
           
+          # Custom Runner Configuration
+          if [ "${{ inputs.custom-runner-config }}" = "true" ] && [ -f "ci_config.txt" ] && [ "$MATRIX_NOTEBOOKS" != "[]" ]; then
+            echo "🖥️ Custom runner configuration enabled - processing ci_config.txt"
+            
+            # Create enhanced matrix with runners
+            ENHANCED_MATRIX='{"include":['
+            FIRST_ENTRY=true
+            
+            echo "$MATRIX_NOTEBOOKS" | jq -r '.[]' 2>/dev/null | while read -r notebook; do
+              if [ -n "$notebook" ]; then
+                # Look up runner for this notebook in ci_config.txt
+                CUSTOM_RUNNER=$(grep "^${notebook}:" ci_config.txt 2>/dev/null | cut -d':' -f2 || echo "")
+                
+                if [ -n "$CUSTOM_RUNNER" ]; then
+                  echo "🎯 Found custom runner for $notebook: $CUSTOM_RUNNER"
+                  RUNNER="$CUSTOM_RUNNER"
+                else
+                  echo "🔧 No custom runner for $notebook, using default: ubuntu-latest"
+                  RUNNER="ubuntu-latest"
+                fi
+                
+                # Build JSON entry
+                if [ "$FIRST_ENTRY" = "true" ]; then
+                  ENHANCED_MATRIX="${ENHANCED_MATRIX}{\"notebook\":\"${notebook}\",\"runner\":\"${RUNNER}\"}"
+                  FIRST_ENTRY=false
+                else
+                  ENHANCED_MATRIX="${ENHANCED_MATRIX},{\"notebook\":\"${notebook}\",\"runner\":\"${RUNNER}\"}"
+                fi
+              fi
+            done
+            
+            ENHANCED_MATRIX="${ENHANCED_MATRIX}]}"
+            MATRIX_NOTEBOOKS="$ENHANCED_MATRIX"
+            echo "✅ Enhanced matrix with custom runners: $MATRIX_NOTEBOOKS"
+          elif [ "${{ inputs.custom-runner-config }}" = "true" ] && [ ! -f "ci_config.txt" ]; then
+            echo "⚠️ Custom runner config enabled but ci_config.txt not found - using default runners"
+          elif [ "${{ inputs.custom-runner-config }}" = "true" ] && [ "$MATRIX_NOTEBOOKS" = "[]" ]; then
+            echo "ℹ️ Custom runner config enabled but no notebooks to process"
+          fi
+          
           echo "matrix-notebooks=$MATRIX_NOTEBOOKS" >> $GITHUB_OUTPUT
           echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
           echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
@@ -389,7 +436,7 @@ jobs:
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner || 'ubuntu-24.04' }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
       total-notebooks: ${{ steps.collect-results.outputs.total }}
@@ -397,8 +444,7 @@ jobs:
       failed-notebooks: ${{ steps.collect-results.outputs.failed }}
     strategy:
       fail-fast: false
-      matrix:
-        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
     env:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
