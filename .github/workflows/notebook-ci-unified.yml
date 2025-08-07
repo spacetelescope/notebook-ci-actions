@@ -400,18 +400,25 @@ jobs:
                 
                 if [ -n "$CUSTOM_RUNNER" ]; then
                   echo "🎯 Found custom runner for $notebook: '$CUSTOM_RUNNER'"
-                  RUNNER="$CUSTOM_RUNNER"
+                  # For GitHub-hosted larger runners (runner groups), use group format
+                  if [[ "$CUSTOM_RUNNER" == jwst-pipeline-notebooks-* ]]; then
+                    RUNNER_VALUE="{\\\"group\\\":\\\"${CUSTOM_RUNNER}\\\"}"
+                  else
+                    # For regular runners, use simple string format
+                    RUNNER_VALUE="\\\"${CUSTOM_RUNNER}\\\""
+                  fi
                 else
                   echo "🔧 No custom runner for $notebook, using default: ubuntu-latest"
-                  RUNNER="ubuntu-latest"
+                  # ubuntu-latest uses simple string format
+                  RUNNER_VALUE="\\\"ubuntu-latest\\\""
                 fi
                 
                 # Build JSON entry for runner config
                 if [ "$FIRST_ENTRY" = "true" ]; then
-                  RUNNER_CONFIG="${RUNNER_CONFIG}\"${notebook}\":\"${RUNNER}\""
+                  RUNNER_CONFIG="${RUNNER_CONFIG}\"${notebook}\":${RUNNER_VALUE}"
                   FIRST_ENTRY=false
                 else
-                  RUNNER_CONFIG="${RUNNER_CONFIG},\"${notebook}\":\"${RUNNER}\""
+                  RUNNER_CONFIG="${RUNNER_CONFIG},\"${notebook}\":${RUNNER_VALUE}"
                 fi
               fi
             done < /tmp/matrix_notebooks.txt
@@ -488,9 +495,8 @@ jobs:
           echo "  Matrix Notebook: '${{ matrix.notebook }}'"
           echo "  Runner Config JSON: '${{ needs.setup-matrix.outputs.runner-config }}'"
           echo "  JSON Lookup Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] }}'"
-          echo "  Condition Check: NOT USED IN SIMPLIFIED VERSION"
-          echo "  Working Logic Result: NOT USED IN SIMPLIFIED VERSION" 
-          echo "  Original Logic Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}'"
+          echo "  Runner Assignment: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}'"
+          echo "  Format: Either string for regular runners or {group: name} object for GitHub-hosted larger runners"
           echo "  Runner Name: ${{ runner.name }}"
           echo "  Runner OS: ${{ runner.os }}"
           echo "  Runner Arch: ${{ runner.arch }}"
