@@ -446,16 +446,29 @@ jobs:
           echo "  Affected Dirs: $AFFECTED_DIRS"
           echo "  Skip Execution: $SKIP_EXECUTION"
           echo "  Docs Only: $DOCS_ONLY"
+          
+          # Debug: Test JSON validity
+          echo "🧪 Testing JSON validity:"
+          echo "$RUNNER_CONFIG" | jq '.' >/dev/null 2>&1 && echo "✅ Runner config JSON is valid" || echo "❌ Runner config JSON is invalid"
+          
+          # Debug: Show JSON keys
+          echo "🔑 Runner config keys:"
+          echo "$RUNNER_CONFIG" | jq -r 'keys[]' 2>/dev/null || echo "❌ Failed to extract keys"
 
   # Main Notebook Processing
   process-notebooks:
     needs: setup-matrix
+    environment: ci_env
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
-    runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-24.04' }}
+    runs-on: ${{ 
+      fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-24.04' && 
+      fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 
+      'ubuntu-24.04' 
+    }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
       total-notebooks: ${{ steps.collect-results.outputs.total }}
@@ -476,9 +489,12 @@ jobs:
       - name: Debug Runner Information
         run: |
           echo "🖥️ Runner Debug Information:"
-          echo "  Matrix Runner: '${{ matrix.runner }}'"
-          echo "  Matrix Runner Length: $(echo '${{ matrix.runner }}' | wc -c)"
-          echo "  Matrix Runner Hex: $(echo '${{ matrix.runner }}' | xxd -p)"
+          echo "  Matrix Notebook: '${{ matrix.notebook }}'"
+          echo "  Runner Config JSON: '${{ needs.setup-matrix.outputs.runner-config }}'"
+          echo "  JSON Lookup Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] }}'"
+          echo "  Condition Check: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-24.04' }}'"
+          echo "  Working Logic Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-24.04' && fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-24.04' }}'"
+          echo "  Original Logic Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-24.04' }}'"
           echo "  Runner Name: ${{ runner.name }}"
           echo "  Runner OS: ${{ runner.os }}"
           echo "  Runner Arch: ${{ runner.arch }}"
@@ -494,9 +510,12 @@ jobs:
           echo "  Available memory: $(free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}' || echo 'N/A')"
           echo "  Disk space: $(df -h . 2>/dev/null | tail -1 | awk '{print $4}' || echo 'N/A')"
           echo ""
-          echo "📝 Matrix Information:"
-          echo "  Notebook: ${{ matrix.notebook }}"
-          echo "  Expected Runner: $(echo '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] }}')"
+          echo "📝 JSON Lookup Test:"
+          echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq '.' || echo "❌ Invalid JSON"
+          echo "🔑 Available keys in runner config:"
+          echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq -r 'keys[]' || echo "❌ Failed to extract keys"
+          echo "🎯 Direct key test:"
+          echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq -r '.["${{ matrix.notebook }}"]' || echo "❌ Key lookup failed"
           
       - name: Check if notebook is deprecated
         id: deprecation-check
