@@ -468,7 +468,6 @@ jobs:
       fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-24.04' && 
       fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 
       'ubuntu-24.04' 
-    }} 
     }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
