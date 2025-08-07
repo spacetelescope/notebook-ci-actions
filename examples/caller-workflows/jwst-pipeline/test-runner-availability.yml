@@ -1,0 +1,33 @@
+# Test Runner Availability
+# This workflow tests if the custom runners are available and working
+
+name: Test Runner Availability
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner_label:
+        description: 'Runner label to test'
+        required: false
+        default: 'jwst-pipeline-notebooks-32gb'
+        type: choice
+        options:
+          - ubuntu-latest
+          - jwst-pipeline-notebooks-16gb
+          - jwst-pipeline-notebooks-32gb
+
+jobs:
+  test-runner:
+    runs-on: ${{ inputs.runner_label || 'ubuntu-latest' }}
+    steps:
+      - name: Test Runner
+        run: |
+          echo "🖥️ Testing Runner: ${{ inputs.runner_label || 'ubuntu-latest' }}"
+          echo "Runner Name: ${{ runner.name }}"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Runner Arch: ${{ runner.arch }}"
+          echo "Hostname: $(hostname)"
+          echo "CPU cores: $(nproc)"
+          echo "Memory: $(free -h | grep '^Mem:' | awk '{print $2}')"
+          echo "Disk space: $(df -h . | tail -1 | awk '{print $4}')"
+          echo "✅ Runner test completed successfully!"
