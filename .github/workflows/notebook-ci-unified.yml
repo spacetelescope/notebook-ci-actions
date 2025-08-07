@@ -402,15 +402,15 @@ jobs:
                   echo "🎯 Found custom runner for $notebook: '$CUSTOM_RUNNER'"
                   # For GitHub-hosted larger runners (runner groups), use group format
                   if [[ "$CUSTOM_RUNNER" == jwst-pipeline-notebooks-* ]]; then
-                    RUNNER_VALUE="{\\\"group\\\":\\\"${CUSTOM_RUNNER}\\\"}"
+                    RUNNER_VALUE="{\"group\":\"${CUSTOM_RUNNER}\"}"
                   else
                     # For regular runners, use simple string format
-                    RUNNER_VALUE="\\\"${CUSTOM_RUNNER}\\\""
+                    RUNNER_VALUE="\"${CUSTOM_RUNNER}\""
                   fi
                 else
                   echo "🔧 No custom runner for $notebook, using default: ubuntu-latest"
                   # ubuntu-latest uses simple string format
-                  RUNNER_VALUE="\\\"ubuntu-latest\\\""
+                  RUNNER_VALUE="\"ubuntu-latest\""
                 fi
                 
                 # Build JSON entry for runner config
