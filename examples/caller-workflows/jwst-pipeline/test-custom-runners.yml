@@ -58,7 +58,7 @@ jobs:
     uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2-pipeline
     with:
       # Execution Configuration
-      execution-mode: 'collect_only'  # Just collect, don't execute
+      execution-mode: 'on-demand'  # Use on-demand mode instead of collect_only
       
       # Repository Configuration
       python-version: '3.11'

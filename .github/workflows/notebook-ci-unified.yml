@@ -116,6 +116,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix-notebooks: ${{ steps.setup.outputs.matrix-notebooks }}
+      runner-config: ${{ steps.setup.outputs.runner-config }}
       affected-dirs: ${{ steps.setup.outputs.affected-dirs }}
       skip-execution: ${{ steps.setup.outputs.skip-execution }}
       docs-only: ${{ steps.setup.outputs.docs-only }}
@@ -381,8 +382,8 @@ jobs:
           if [ "${{ inputs.custom-runner-config }}" = "true" ] && [ "$MATRIX_NOTEBOOKS" != "[]" ]; then
             echo "🖥️ Custom runner configuration enabled"
             
-            # Create enhanced matrix with runners
-            ENHANCED_MATRIX='{"include":['
+            # Create runner config JSON mapping notebooks to runners
+            RUNNER_CONFIG='{'
             FIRST_ENTRY=true
             
             # Create a temporary file to store notebooks to avoid subshell issues
@@ -392,25 +393,25 @@ jobs:
               if [ -n "$notebook" ]; then
                 # Look up runner for this notebook in ci_config.txt
                 if [ -f "ci_config.txt" ]; then
-                  CUSTOM_RUNNER=$(grep "^${notebook}:" ci_config.txt 2>/dev/null | cut -d':' -f2 || echo "")
+                  CUSTOM_RUNNER=$(grep "^${notebook}:" ci_config.txt 2>/dev/null | cut -d':' -f2 | tr -d '[:space:]' || echo "")
                 else
                   CUSTOM_RUNNER=""
                 fi
                 
                 if [ -n "$CUSTOM_RUNNER" ]; then
-                  echo "🎯 Found custom runner for $notebook: $CUSTOM_RUNNER"
+                  echo "🎯 Found custom runner for $notebook: '$CUSTOM_RUNNER'"
                   RUNNER="$CUSTOM_RUNNER"
                 else
                   echo "🔧 No custom runner for $notebook, using default: ubuntu-latest"
                   RUNNER="ubuntu-latest"
                 fi
                 
-                # Build JSON entry
+                # Build JSON entry for runner config
                 if [ "$FIRST_ENTRY" = "true" ]; then
-                  ENHANCED_MATRIX="${ENHANCED_MATRIX}{\"notebook\":\"${notebook}\",\"runner\":\"${RUNNER}\"}"
+                  RUNNER_CONFIG="${RUNNER_CONFIG}\"${notebook}\":\"${RUNNER}\""
                   FIRST_ENTRY=false
                 else
-                  ENHANCED_MATRIX="${ENHANCED_MATRIX},{\"notebook\":\"${notebook}\",\"runner\":\"${RUNNER}\"}"
+                  RUNNER_CONFIG="${RUNNER_CONFIG},\"${notebook}\":\"${RUNNER}\""
                 fi
               fi
             done < /tmp/matrix_notebooks.txt
@@ -418,24 +419,30 @@ jobs:
             # Clean up temporary file
             rm -f /tmp/matrix_notebooks.txt
             
-            ENHANCED_MATRIX="${ENHANCED_MATRIX}]}"
-            MATRIX_NOTEBOOKS="$ENHANCED_MATRIX"
-            echo "✅ Enhanced matrix with custom runners: $MATRIX_NOTEBOOKS"
+            # Add default runner and close JSON
+            RUNNER_CONFIG="${RUNNER_CONFIG},\"default\":\"ubuntu-latest\"}"
+            echo "✅ Runner config: $RUNNER_CONFIG"
             
             if [ ! -f "ci_config.txt" ]; then
               echo "⚠️ Custom runner config enabled but ci_config.txt not found - using default runners"
             fi
           elif [ "${{ inputs.custom-runner-config }}" = "true" ] && [ "$MATRIX_NOTEBOOKS" = "[]" ]; then
             echo "ℹ️ Custom runner config enabled but no notebooks to process"
+            RUNNER_CONFIG='{"default":"ubuntu-latest"}'
+          else
+            # No custom runners - use default for all
+            RUNNER_CONFIG='{"default":"ubuntu-latest"}'
           fi
           
           echo "matrix-notebooks=$MATRIX_NOTEBOOKS" >> $GITHUB_OUTPUT
+          echo "runner-config=$RUNNER_CONFIG" >> $GITHUB_OUTPUT
           echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
           echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
           echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
           
           echo "📊 Matrix Setup Complete:"
           echo "  Notebooks: $MATRIX_NOTEBOOKS"
+          echo "  Runner Config: $RUNNER_CONFIG"
           echo "  Affected Dirs: $AFFECTED_DIRS"
           echo "  Skip Execution: $SKIP_EXECUTION"
           echo "  Docs Only: $DOCS_ONLY"
@@ -448,7 +455,11 @@ jobs:
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
-    runs-on: ${{ matrix.runner || 'ubuntu-24.04' }}
+    runs-on: ${{ 
+      fromJson(needs.setup-matrix.outputs.runner-config)[matrix] != 'ubuntu-latest' && 
+      fromJson(needs.setup-matrix.outputs.runner-config)[matrix] || 
+      'ubuntu-24.04' 
+      }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
       total-notebooks: ${{ steps.collect-results.outputs.total }}
@@ -468,7 +479,9 @@ jobs:
       - name: Debug Runner Information
         run: |
           echo "🖥️ Runner Debug Information:"
-          echo "  Matrix Runner: ${{ matrix.runner }}"
+          echo "  Matrix Runner: '${{ matrix.runner }}'"
+          echo "  Matrix Runner Length: $(echo '${{ matrix.runner }}' | wc -c)"
+          echo "  Matrix Runner Hex: $(echo '${{ matrix.runner }}' | xxd -p)"
           echo "  Runner Name: ${{ runner.name }}"
           echo "  Runner OS: ${{ runner.os }}"
           echo "  Runner Arch: ${{ runner.arch }}"
@@ -485,13 +498,13 @@ jobs:
           echo "  Disk space: $(df -h . 2>/dev/null | tail -1 | awk '{print $4}' || echo 'N/A')"
           echo ""
           echo "📝 Matrix Information:"
-          echo "  Notebook: ${{ matrix.notebook }}"
-          echo "  Expected Runner: ${{ matrix.runner }}"
+          echo "  Notebook: ${{ matrix }}"
+          echo "  Expected Runner: $(echo '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix] }}')"
           
       - name: Check if notebook is deprecated
         id: deprecation-check
         run: |
-          notebook="${{ matrix.notebook }}"
+          notebook="${{ matrix }}"
           
           # Check for deprecation markers in notebook
           if grep -q "DEPRECATED\|deprecated\|DEPRECATION" "$notebook"; then
@@ -518,7 +531,7 @@ jobs:
 
       - name: Install requirements
         run: |
-          notebook="${{ matrix.notebook }}"
+          notebook="${{ matrix }}"
           nb_dir=$(dirname "$notebook")
           
           # Activate the micromamba environment
@@ -541,18 +554,18 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-          echo "🔍 Validating notebook: ${{ matrix.notebook }}"
+          echo "🔍 Validating notebook: ${{ matrix }}"
           # Clear outputs to ensure clean validation
-          jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
-          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+          jupyter nbconvert --clear-output --inplace "${{ matrix }}"
+          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-          echo "🛡️ Security scanning: ${{ matrix.notebook }}"
-          notebook="${{ matrix.notebook }}"
+          echo "🛡️ Security scanning: ${{ matrix }}"
+          notebook="${{ matrix }}"
           jupyter nbconvert --to script "$notebook"
           py_file="${notebook%.ipynb}.py"
           if [ -f "$py_file" ]; then
@@ -565,8 +578,8 @@ jobs:
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-          echo "▶️ Executing notebook: ${{ matrix.notebook }}"
-          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+          echo "▶️ Executing notebook: ${{ matrix }}"
+          jupyter nbconvert --to notebook --execute --inplace "${{ matrix }}"
 
       - name: Store executed notebook to gh-storage
         if: |
