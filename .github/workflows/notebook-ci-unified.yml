@@ -456,8 +456,8 @@ jobs:
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
     runs-on: ${{ 
-      fromJson(needs.setup-matrix.outputs.runner-config)[matrix] != 'ubuntu-latest' && 
-      fromJson(needs.setup-matrix.outputs.runner-config)[matrix] || 
+      fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-latest' && 
+      fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 
       'ubuntu-24.04' 
       }}
     outputs:
@@ -467,7 +467,8 @@ jobs:
       failed-notebooks: ${{ steps.collect-results.outputs.failed }}
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+      matrix:
+        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
     env:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
@@ -498,13 +499,13 @@ jobs:
           echo "  Disk space: $(df -h . 2>/dev/null | tail -1 | awk '{print $4}' || echo 'N/A')"
           echo ""
           echo "📝 Matrix Information:"
-          echo "  Notebook: ${{ matrix }}"
-          echo "  Expected Runner: $(echo '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix] }}')"
+          echo "  Notebook: ${{ matrix.notebook }}"
+          echo "  Expected Runner: $(echo '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] }}')"
           
       - name: Check if notebook is deprecated
         id: deprecation-check
         run: |
-          notebook="${{ matrix }}"
+          notebook="${{ matrix.notebook }}"
           
           # Check for deprecation markers in notebook
           if grep -q "DEPRECATED\|deprecated\|DEPRECATION" "$notebook"; then
