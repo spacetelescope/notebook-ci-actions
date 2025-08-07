@@ -6,7 +6,7 @@ This guide helps you migrate from the existing selective notebook CI system to t
 
 The unified system consolidates multiple workflows into a single, configurable reusable workflow that's maintained centrally and called by minimal repository-specific workflows.
 
-## Key Benefits (Updated 2024)
+## Key Benefits 
 
 - **Single Source of Truth**: All logic maintained in the remote repository
 - **Minimal Local Files**: Only 2-4 small caller workflow files per repository
