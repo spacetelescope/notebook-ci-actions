@@ -458,7 +458,7 @@ jobs:
   # Main Notebook Processing
   process-notebooks:
     needs: setup-matrix
-    environment: ci_env
+    # environment: ci_env  # Temporarily removed to test runner assignment
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
