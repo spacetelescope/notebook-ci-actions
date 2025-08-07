@@ -464,7 +464,7 @@ jobs:
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
-    runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-latest' && fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}
+    runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
       total-notebooks: ${{ steps.collect-results.outputs.total }}
@@ -488,8 +488,8 @@ jobs:
           echo "  Matrix Notebook: '${{ matrix.notebook }}'"
           echo "  Runner Config JSON: '${{ needs.setup-matrix.outputs.runner-config }}'"
           echo "  JSON Lookup Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] }}'"
-          echo "  Condition Check: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-latest' }}'"
-          echo "  Working Logic Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] != 'ubuntu-latest' && fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}'"
+          echo "  Condition Check: NOT USED IN SIMPLIFIED VERSION"
+          echo "  Working Logic Result: NOT USED IN SIMPLIFIED VERSION" 
           echo "  Original Logic Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}'"
           echo "  Runner Name: ${{ runner.name }}"
           echo "  Runner OS: ${{ runner.os }}"
