@@ -16,7 +16,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     ## routine to gather only the changed python files and supply them to the matrix
     - name: changed-files
       id: get-changed-files
@@ -42,7 +42,7 @@ jobs:
         matrix:
             scripts: ${{ fromJson(needs.gather-scripts.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ inputs.python-version }}
         uses: actions/setup-python@v5 ## needed for caching
         with:
@@ -58,7 +58,7 @@ jobs:
           pip install numpy
           pip install pytz
       - name: Check-out notebook-ci-actions repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: spacetelescope/notebook-ci-actions
           path: temp_pep8checker

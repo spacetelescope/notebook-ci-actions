@@ -23,7 +23,7 @@ jobs:
       notebook_list: ${{ steps.find.outputs.notebook_list }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Find notebook files
       id: find
@@ -43,7 +43,7 @@ jobs:
         notebook: ${{fromJson(needs.find_notebooks.outputs.notebook_list)}}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v5
@@ -144,7 +144,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up Python ${{ inputs.python-version }}
       uses: actions/setup-python@v5
