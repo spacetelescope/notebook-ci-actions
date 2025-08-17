@@ -32,7 +32,7 @@ jobs:
         #method: # optional, default is local
         # (Linux and 'local' method only) override arguments for the linux .run installer. For example if you don't want samples use ["--toolkit"] double quotes required!
         #linux-local-args: # optional, default is ["--toolkit", "--samples"]
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - name: Set up Python 3.8.12
       uses: actions/setup-python@v5 ## needed for caching
       with:
