@@ -1,8 +1,0 @@
-format: jb-book
-root: README
-chapters:
-- file: notebooks/examples/basic-validation-test.ipynb
-- file: notebooks/examples/github-actions-summary-generation.ipynb
-- file: notebooks/testing/performance-test.ipynb
-- file: notebooks/testing/pr-storage-test.ipynb
-- file: notebooks/testing/security-test.ipynb

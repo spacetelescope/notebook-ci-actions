@@ -96,6 +96,13 @@ on:
         required: false
         type: number
         default: 60
+      
+      # Custom Runner Configuration
+      custom-runner-config:
+        description: 'Enable custom runner selection based on ci_config.txt'
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       CASJOBS_USERID:
@@ -109,6 +116,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       matrix-notebooks: ${{ steps.setup.outputs.matrix-notebooks }}
+      runner-config: ${{ steps.setup.outputs.runner-config }}
       affected-dirs: ${{ steps.setup.outputs.affected-dirs }}
       skip-execution: ${{ steps.setup.outputs.skip-execution }}
       docs-only: ${{ steps.setup.outputs.docs-only }}
@@ -370,26 +378,100 @@ jobs:
             fi
           fi
           
+          # Custom Runner Configuration
+          if [ "${{ inputs.custom-runner-config }}" = "true" ] && [ "$MATRIX_NOTEBOOKS" != "[]" ]; then
+            echo "🖥️ Custom runner configuration enabled"
+            
+            # Create runner config JSON mapping notebooks to runners
+            RUNNER_CONFIG='{'
+            FIRST_ENTRY=true
+            
+            # Create a temporary file to store notebooks to avoid subshell issues
+            echo "$MATRIX_NOTEBOOKS" | jq -r '.[]' > /tmp/matrix_notebooks.txt 2>/dev/null
+            
+            while IFS= read -r notebook; do
+              if [ -n "$notebook" ]; then
+                # Look up runner for this notebook in ci_config.txt
+                if [ -f "ci_config.txt" ]; then
+                  CUSTOM_RUNNER=$(grep "^${notebook}:" ci_config.txt 2>/dev/null | cut -d':' -f2 | tr -d '[:space:]' || echo "")
+                else
+                  CUSTOM_RUNNER=""
+                fi
+                
+                if [ -n "$CUSTOM_RUNNER" ]; then
+                  echo "🎯 Found custom runner for $notebook: '$CUSTOM_RUNNER'"
+                  # For GitHub-hosted larger runners (runner groups), use group format
+                  if [[ "$CUSTOM_RUNNER" == jwst-pipeline-notebooks-* ]]; then
+                    RUNNER_VALUE="{\"group\":\"${CUSTOM_RUNNER}\"}"
+                  else
+                    # For regular runners, use simple string format
+                    RUNNER_VALUE="\"${CUSTOM_RUNNER}\""
+                  fi
+                else
+                  echo "🔧 No custom runner for $notebook, using default: ubuntu-latest"
+                  # ubuntu-latest uses simple string format
+                  RUNNER_VALUE="\"ubuntu-latest\""
+                fi
+                
+                # Build JSON entry for runner config
+                if [ "$FIRST_ENTRY" = "true" ]; then
+                  RUNNER_CONFIG="${RUNNER_CONFIG}\"${notebook}\":${RUNNER_VALUE}"
+                  FIRST_ENTRY=false
+                else
+                  RUNNER_CONFIG="${RUNNER_CONFIG},\"${notebook}\":${RUNNER_VALUE}"
+                fi
+              fi
+            done < /tmp/matrix_notebooks.txt
+            
+            # Clean up temporary file
+            rm -f /tmp/matrix_notebooks.txt
+            
+            # Add default runner and close JSON
+            RUNNER_CONFIG="${RUNNER_CONFIG},\"default\":\"ubuntu-latest\"}"
+            echo "✅ Runner config: $RUNNER_CONFIG"
+            
+            if [ ! -f "ci_config.txt" ]; then
+              echo "⚠️ Custom runner config enabled but ci_config.txt not found - using default runners"
+            fi
+          elif [ "${{ inputs.custom-runner-config }}" = "true" ] && [ "$MATRIX_NOTEBOOKS" = "[]" ]; then
+            echo "ℹ️ Custom runner config enabled but no notebooks to process"
+            RUNNER_CONFIG='{"default":"ubuntu-latest"}'
+          else
+            # No custom runners - use default for all
+            RUNNER_CONFIG='{"default":"ubuntu-latest"}'
+          fi
+          
           echo "matrix-notebooks=$MATRIX_NOTEBOOKS" >> $GITHUB_OUTPUT
+          echo "runner-config=$RUNNER_CONFIG" >> $GITHUB_OUTPUT
           echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
           echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
           echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
           
           echo "📊 Matrix Setup Complete:"
           echo "  Notebooks: $MATRIX_NOTEBOOKS"
+          echo "  Runner Config: $RUNNER_CONFIG"
           echo "  Affected Dirs: $AFFECTED_DIRS"
           echo "  Skip Execution: $SKIP_EXECUTION"
           echo "  Docs Only: $DOCS_ONLY"
+          
+          # Debug: Test JSON validity
+          echo "🧪 Testing JSON validity:"
+          echo "$RUNNER_CONFIG" | jq '.' >/dev/null 2>&1 && echo "✅ Runner config JSON is valid" || echo "❌ Runner config JSON is invalid"
+          
+          # Debug: Show JSON keys
+          echo "🔑 Runner config keys:"
+          echo "$RUNNER_CONFIG" | jq -r 'keys[]' 2>/dev/null || echo "❌ Failed to extract keys"
 
   # Main Notebook Processing
   process-notebooks:
     needs: setup-matrix
+    # environment: ci_env  # Temporarily removed to test runner assignment
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
       inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}
     outputs:
       execution-results: ${{ steps.collect-results.outputs.results }}
       total-notebooks: ${{ steps.collect-results.outputs.total }}
@@ -406,6 +488,36 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          
+      - name: Debug Runner Information
+        run: |
+          echo "🖥️ Runner Debug Information:"
+          echo "  Matrix Notebook: '${{ matrix.notebook }}'"
+          echo "  Runner Config JSON: '${{ needs.setup-matrix.outputs.runner-config }}'"
+          echo "  JSON Lookup Result: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] }}'"
+          echo "  Runner Assignment: '${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}'"
+          echo "  Format: Either string for regular runners or {group: name} object for GitHub-hosted larger runners"
+          echo "  Runner Name: ${{ runner.name }}"
+          echo "  Runner OS: ${{ runner.os }}"
+          echo "  Runner Arch: ${{ runner.arch }}"
+          echo "  GitHub Actor: ${{ github.actor }}"
+          echo "  Repository: ${{ github.repository }}"
+          echo "  Workflow: ${{ github.workflow }}"
+          echo "  Job: ${{ github.job }}"
+          echo "  Run ID: ${{ github.run_id }}"
+          echo ""
+          echo "🔍 System Information:"
+          echo "  Hostname: $(hostname || echo 'N/A')"
+          echo "  Available CPU cores: $(nproc || echo 'N/A')"
+          echo "  Available memory: $(free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}' || echo 'N/A')"
+          echo "  Disk space: $(df -h . 2>/dev/null | tail -1 | awk '{print $4}' || echo 'N/A')"
+          echo ""
+          echo "📝 JSON Lookup Test:"
+          echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq '.' || echo "❌ Invalid JSON"
+          echo "🔑 Available keys in runner config:"
+          echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq -r 'keys[]' || echo "❌ Failed to extract keys"
+          echo "🎯 Direct key test:"
+          echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq -r '.["${{ matrix.notebook }}"]' || echo "❌ Key lookup failed"
           
       - name: Check if notebook is deprecated
         id: deprecation-check
