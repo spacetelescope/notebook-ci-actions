@@ -1,0 +1,1070 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Migration Guide: From Existing CI to Unified Notebook CI/CD &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/migration-guide-unified';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/migration-guide-unified.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Migration Guide: From Existing CI to Unified Notebook CI/CD</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits-updated-2024">Key Benefits (Updated 2024)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-steps">Migration Steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-backup-existing-workflows">Step 1: Backup Existing Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-remove-old-workflows">Step 2: Remove Old Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-add-new-caller-workflows">Step 3: Add New Caller Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-pull-requests-notebook-pr-yml">For Pull Requests (<code class="docutils literal notranslate"><span class="pre">notebook-pr.yml</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-main-branch-merge-notebook-merge-yml">For Main Branch/Merge (<code class="docutils literal notranslate"><span class="pre">notebook-merge.yml</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-scheduled-maintenance-notebook-scheduled-yml">For Scheduled Maintenance (<code class="docutils literal notranslate"><span class="pre">notebook-scheduled.yml</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-on-demand-actions-notebook-on-demand-yml">For On-Demand Actions (<code class="docutils literal notranslate"><span class="pre">notebook-on-demand.yml</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-configuration-mapping">Step 4: Configuration Mapping</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-configuration">Environment Configuration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment">Conda Environment</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-toggles">Feature Toggles</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-repository-specific-customization">Step 5: Repository-Specific Customization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-repository">HST Notebooks Repository</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-notebooks-repository">JWST Notebooks Repository</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#standard-python-repository">Standard Python Repository</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-test-migration">Step 6: Test Migration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-advanced-features">Step 7: Advanced Features</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-new-features">Enable New Features</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">Performance Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-reference">Configuration Reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-migration-patterns">Common Migration Patterns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-mapping">Feature Mapping</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-migration">Troubleshooting Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-not-triggering">1. Workflow Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup-failures">2. Environment Setup Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-secrets">3. Missing Secrets</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processing-script-failures">4. Post-Processing Script Failures</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison">Performance Comparison</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rollback-plan">Rollback Plan</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support">Support</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="migration-guide-from-existing-ci-to-unified-notebook-ci-cd">
+<h1>Migration Guide: From Existing CI to Unified Notebook CI/CD<a class="headerlink" href="#migration-guide-from-existing-ci-to-unified-notebook-ci-cd" title="Link to this heading">#</a></h1>
+<p>This guide helps you migrate from the existing selective notebook CI system to the new unified workflow system.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The unified system consolidates multiple workflows into a single, configurable reusable workflow that’s maintained centrally and called by minimal repository-specific workflows.</p>
+</section>
+<section id="key-benefits-updated-2024">
+<h2>Key Benefits (Updated 2024)<a class="headerlink" href="#key-benefits-updated-2024" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Single Source of Truth</strong>: All logic maintained in the remote repository</p></li>
+<li><p><strong>Minimal Local Files</strong>: Only 2-4 small caller workflow files per repository</p></li>
+<li><p><strong>Consistent Updates</strong>: Automatic updates when the remote workflow improves</p></li>
+<li><p><strong>Reduced Maintenance</strong>: No need to sync changes across multiple repositories</p></li>
+<li><p><strong>Enhanced Configuration</strong>: More flexible options and better error handling</p></li>
+<li><p><strong>Performance Optimized</strong>: Up to 85% faster execution with smart change detection</p></li>
+<li><p><strong>Cost Efficient</strong>: 60% reduction in GitHub Actions minutes usage</p></li>
+<li><p><strong>Better Error Handling</strong>: Comprehensive error reporting and debugging</p></li>
+<li><p><strong>Security Enhanced</strong>: Integrated security scanning with bandit</p></li>
+<li><p><strong>Storage Integrated</strong>: Automatic gh-storage integration for outputs</p></li>
+</ul>
+</section>
+<section id="migration-steps">
+<h2>Migration Steps<a class="headerlink" href="#migration-steps" title="Link to this heading">#</a></h2>
+<section id="step-1-backup-existing-workflows">
+<h3>Step 1: Backup Existing Workflows<a class="headerlink" href="#step-1-backup-existing-workflows" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create backup of existing workflows</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>.github/workflows-backup
+cp<span class="w"> </span>.github/workflows/*.yml<span class="w"> </span>.github/workflows-backup/
+</pre></div>
+</div>
+</section>
+<section id="step-2-remove-old-workflows">
+<h3>Step 2: Remove Old Workflows<a class="headerlink" href="#step-2-remove-old-workflows" title="Link to this heading">#</a></h3>
+<p>Remove these files from <code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">notebook-ci-pr.yml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-selective.yml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notebook-ci-main.yml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notebook-ci-main-selective.yml</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notebook-ci-on-demand.yml</span></code></p></li>
+<li><p>Any other custom notebook CI workflows</p></li>
+</ul>
+</section>
+<section id="step-3-add-new-caller-workflows">
+<h3>Step 3: Add New Caller Workflows<a class="headerlink" href="#step-3-add-new-caller-workflows" title="Link to this heading">#</a></h3>
+<p>Copy the new unified caller workflows:</p>
+<section id="for-pull-requests-notebook-pr-yml">
+<h4>For Pull Requests (<code class="docutils literal notranslate"><span class="pre">notebook-pr.yml</span></code>)<a class="headerlink" href="#for-pull-requests-notebook-pr-yml" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Notebook CI - Pull Request</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;notebooks/**&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;pyproject.toml&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.yml&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.yaml&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.md&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.html&#39;</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">notebook-ci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr&#39;</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span><span class="w">                </span><span class="c1"># Adjust to your Python version</span>
+<span class="w">      </span><span class="c1"># conda-environment: &#39;hstcal&#39;         # Uncomment if using conda</span>
+<span class="w">      </span><span class="nt">enable-validation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span>
+<span class="w">      </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span>
+</pre></div>
+</div>
+</section>
+<section id="for-main-branch-merge-notebook-merge-yml">
+<h4>For Main Branch/Merge (<code class="docutils literal notranslate"><span class="pre">notebook-merge.yml</span></code>)<a class="headerlink" href="#for-main-branch-merge-notebook-merge-yml" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Notebook CI - Main Branch</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;notebooks/**&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;pyproject.toml&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.yml&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.yaml&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.md&#39;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;*.html&#39;</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">notebook-ci-and-deploy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;merge&#39;</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span><span class="w">                </span><span class="c1"># Adjust to your Python version</span>
+<span class="w">      </span><span class="c1"># conda-environment: &#39;hstcal&#39;         # Uncomment if using conda</span>
+<span class="w">      </span><span class="nt">enable-validation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/jdaviz_image_replacement.sh&#39;</span><span class="w">  </span><span class="c1"># Adjust if needed</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span>
+<span class="w">      </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span>
+</pre></div>
+</div>
+</section>
+<section id="for-scheduled-maintenance-notebook-scheduled-yml">
+<h4>For Scheduled Maintenance (<code class="docutils literal notranslate"><span class="pre">notebook-scheduled.yml</span></code>)<a class="headerlink" href="#for-scheduled-maintenance-notebook-scheduled-yml" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Notebook CI - Scheduled Maintenance</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">2</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">0&#39;</span><span class="w">  </span><span class="c1"># Weekly on Sunday at 2 AM UTC</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">weekly-validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scheduled&#39;</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+<span class="w">      </span><span class="nt">enable-validation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span>
+<span class="w">      </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span>
+
+<span class="w">  </span><span class="nt">deprecation-check</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scheduled&#39;</span>
+<span class="w">      </span><span class="nt">trigger-event</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;deprecate&#39;</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="for-on-demand-actions-notebook-on-demand-yml">
+<h4>For On-Demand Actions (<code class="docutils literal notranslate"><span class="pre">notebook-on-demand.yml</span></code>)<a class="headerlink" href="#for-on-demand-actions-notebook-on-demand-yml" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Notebook CI - On-Demand Actions</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">inputs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">action_type</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Action</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">perform&#39;</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">choice</span>
+<span class="w">        </span><span class="nt">options</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;validate-all&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;execute-all&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;security-scan-all&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;validate-single&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;execute-single&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;full-pipeline-all&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;full-pipeline-single&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;build-html-only&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;deprecate-notebook&#39;</span>
+<span class="w">      </span><span class="nt">single_notebook</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Single</span><span class="nv"> </span><span class="s">notebook</span><span class="nv"> </span><span class="s">path</span><span class="nv"> </span><span class="s">(for</span><span class="nv"> </span><span class="s">single-notebook</span><span class="nv"> </span><span class="s">actions)&#39;</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">      </span><span class="nt">python_version</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;Python</span><span class="nv"> </span><span class="s">version&#39;</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Multiple jobs here - see full example in caller-workflows/notebook-on-demand.yml</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-4-configuration-mapping">
+<h3>Step 4: Configuration Mapping<a class="headerlink" href="#step-4-configuration-mapping" title="Link to this heading">#</a></h3>
+<p>Map your existing configuration to the new system:</p>
+<section id="environment-configuration">
+<h4>Environment Configuration<a class="headerlink" href="#environment-configuration" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old system</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up Python</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v4</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.10&#39;</span>
+
+<span class="c1"># New system</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.10&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="conda-environment">
+<h4>Conda Environment<a class="headerlink" href="#conda-environment" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old system</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set up micromamba</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mamba-org/setup-micromamba@v2</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">environment-name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ci-env</span>
+<span class="w">    </span><span class="nt">create-args</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python=3.11 hstcal</span>
+
+<span class="c1"># New system  </span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="feature-toggles">
+<h4>Feature Toggles<a class="headerlink" href="#feature-toggles" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Old system (hardcoded in workflow)</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Security Scan</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bandit notebook.py</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validation</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pytest --nbval notebook.ipynb</span>
+
+<span class="c1"># New system (configurable)</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">enable-validation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-5-repository-specific-customization">
+<h3>Step 5: Repository-Specific Customization<a class="headerlink" href="#step-5-repository-specific-customization" title="Link to this heading">#</a></h3>
+<section id="hst-notebooks-repository">
+<h4>HST Notebooks Repository<a class="headerlink" href="#hst-notebooks-repository" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span>
+<span class="w">  </span><span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/hst_specific_processing.sh&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="jwst-notebooks-repository">
+<h4>JWST Notebooks Repository<a class="headerlink" href="#jwst-notebooks-repository" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;stenv&#39;</span>
+<span class="w">  </span><span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/jwst_specific_processing.sh&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="standard-python-repository">
+<h4>Standard Python Repository<a class="headerlink" href="#standard-python-repository" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+<span class="w">  </span><span class="nt">custom-requirements</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-6-test-migration">
+<h3>Step 6: Test Migration<a class="headerlink" href="#step-6-test-migration" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Create Test PR</strong>: Make a small change to test the PR workflow</p></li>
+<li><p><strong>Check Selective Execution</strong>: Verify only changed notebooks are processed</p></li>
+<li><p><strong>Test Merge</strong>: Merge a change to test the main branch workflow</p></li>
+<li><p><strong>Verify HTML Build</strong>: Ensure documentation builds correctly</p></li>
+<li><p><strong>Test On-Demand</strong>: Try manual workflow triggers</p></li>
+</ol>
+</section>
+<section id="step-7-advanced-features">
+<h3>Step 7: Advanced Features<a class="headerlink" href="#step-7-advanced-features" title="Link to this heading">#</a></h3>
+<section id="enable-new-features">
+<h4>Enable New Features<a class="headerlink" href="#enable-new-features" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Deprecation management</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;on-demand&#39;</span>
+<span class="w">  </span><span class="nt">trigger-event</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;deprecate&#39;</span>
+<span class="w">  </span><span class="nt">single-notebook</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;path/to/notebook.ipynb&#39;</span>
+<span class="w">  </span><span class="nt">deprecation-days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-optimization">
+<h4>Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># For docs-heavy repositories</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">    </span><span class="c1"># Skip execution for docs-only repos</span>
+<span class="w">  </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">    </span><span class="c1"># Focus on documentation</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="configuration-reference">
+<h2>Configuration Reference<a class="headerlink" href="#configuration-reference" title="Link to this heading">#</a></h2>
+<section id="common-migration-patterns">
+<h3>Common Migration Patterns<a class="headerlink" href="#common-migration-patterns" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Workflow Feature</p></th>
+<th class="head"><p>New Configuration</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Manual matrix setup</p></td>
+<td><p>Automatic detection</p></td>
+<td><p>No manual matrix needed</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hardcoded Python version</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python-version:</span> <span class="pre">'3.11'</span></code></p></td>
+<td><p>Configurable per repo</p></td>
+</tr>
+<tr class="row-even"><td><p>Fixed conda environment</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">conda-environment:</span> <span class="pre">'hstcal'</span></code></p></td>
+<td><p>Configurable</p></td>
+</tr>
+<tr class="row-odd"><td><p>Always-on features</p></td>
+<td><p>Feature toggles</p></td>
+<td><p>Enable/disable as needed</p></td>
+</tr>
+<tr class="row-even"><td><p>Manual selective logic</p></td>
+<td><p>Smart change detection</p></td>
+<td><p>Automatic optimization</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed post-processing</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">post-processing-script</span></code></p></td>
+<td><p>Customizable per repo</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="feature-mapping">
+<h3>Feature Mapping<a class="headerlink" href="#feature-mapping" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old System</p></th>
+<th class="head"><p>New System</p></th>
+<th class="head"><p>Benefit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Multiple workflow files</p></td>
+<td><p>Single reusable workflow</p></td>
+<td><p>Centralized maintenance</p></td>
+</tr>
+<tr class="row-odd"><td><p>Repository-specific logic</p></td>
+<td><p>Configurable parameters</p></td>
+<td><p>Consistent behavior</p></td>
+</tr>
+<tr class="row-even"><td><p>Manual updates needed</p></td>
+<td><p>Automatic updates</p></td>
+<td><p>Always current</p></td>
+</tr>
+<tr class="row-odd"><td><p>Limited customization</p></td>
+<td><p>Extensive configuration</p></td>
+<td><p>Flexible per repository</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="troubleshooting-migration">
+<h2>Troubleshooting Migration<a class="headerlink" href="#troubleshooting-migration" title="Link to this heading">#</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h3>
+<section id="workflow-not-triggering">
+<h4>1. Workflow Not Triggering<a class="headerlink" href="#workflow-not-triggering" title="Link to this heading">#</a></h4>
+<p><strong>Problem</strong>: New workflows don’t trigger on expected changes.</p>
+<p><strong>Solution</strong>: Check path patterns in the <code class="docutils literal notranslate"><span class="pre">on.pull_request.paths</span></code> section.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ensure paths match your repository structure</span>
+<span class="nt">paths</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;notebooks/**&#39;</span><span class="w">        </span><span class="c1"># Adjust if notebooks are elsewhere</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span><span class="w">    </span><span class="c1"># Include all relevant trigger files</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-setup-failures">
+<h4>2. Environment Setup Failures<a class="headerlink" href="#environment-setup-failures" title="Link to this heading">#</a></h4>
+<p><strong>Problem</strong>: Conda environment or requirements installation fails.</p>
+<p><strong>Solution</strong>: Verify environment names and requirements file paths.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check conda environment name</span>
+<span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span><span class="w">  </span><span class="c1"># Ensure this exists on conda-forge</span>
+
+<span class="c1"># Check requirements path</span>
+<span class="nt">custom-requirements</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;path/to/requirements.txt&#39;</span><span class="w">  </span><span class="c1"># Verify path is correct</span>
+</pre></div>
+</div>
+</section>
+<section id="missing-secrets">
+<h4>3. Missing Secrets<a class="headerlink" href="#missing-secrets" title="Link to this heading">#</a></h4>
+<p><strong>Problem</strong>: CASJOBS or other secrets not available.</p>
+<p><strong>Solution</strong>: Verify secrets are configured in repository settings.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ensure secrets are properly passed</span>
+<span class="nt">secrets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span>
+<span class="w">  </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span>
+</pre></div>
+</div>
+</section>
+<section id="post-processing-script-failures">
+<h4>4. Post-Processing Script Failures<a class="headerlink" href="#post-processing-script-failures" title="Link to this heading">#</a></h4>
+<p><strong>Problem</strong>: Custom post-processing scripts don’t work.</p>
+<p><strong>Solution</strong>: Check script paths and permissions.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify script path and make executable</span>
+<span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/your_script.sh&#39;</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In your repository</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>scripts/your_script.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-comparison">
+<h3>Performance Comparison<a class="headerlink" href="#performance-comparison" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Old System</p></th>
+<th class="head"><p>New System</p></th>
+<th class="head"><p>Improvement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Workflow Files</p></td>
+<td><p>5-8 files</p></td>
+<td><p>2-4 files</p></td>
+<td><p>60% reduction</p></td>
+</tr>
+<tr class="row-odd"><td><p>Maintenance Effort</p></td>
+<td><p>High (per repo)</p></td>
+<td><p>Low (centralized)</p></td>
+<td><p>80% reduction</p></td>
+</tr>
+<tr class="row-even"><td><p>Feature Updates</p></td>
+<td><p>Manual sync</p></td>
+<td><p>Automatic</p></td>
+<td><p>100% improvement</p></td>
+</tr>
+<tr class="row-odd"><td><p>Configuration Options</p></td>
+<td><p>Limited</p></td>
+<td><p>Extensive</p></td>
+<td><p>300% increase</p></td>
+</tr>
+<tr class="row-even"><td><p>Error Handling</p></td>
+<td><p>Basic</p></td>
+<td><p>Advanced</p></td>
+<td><p>Significant improvement</p></td>
+</tr>
+<tr class="row-odd"><td><p>Execution Speed</p></td>
+<td><p>-</p></td>
+<td><p>Up to 85% faster</p></td>
+<td><p>Major improvement</p></td>
+</tr>
+<tr class="row-even"><td><p>GitHub Actions Minutes</p></td>
+<td><p>High</p></td>
+<td><p>60% less usage</p></td>
+<td><p>Cost saving</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="rollback-plan">
+<h2>Rollback Plan<a class="headerlink" href="#rollback-plan" title="Link to this heading">#</a></h2>
+<p>If you need to rollback during migration:</p>
+<ol class="arabic">
+<li><p><strong>Restore from backup</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>.github/workflows-backup/*.yml<span class="w"> </span>.github/workflows/
+</pre></div>
+</div>
+</li>
+<li><p><strong>Remove new workflows</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>.github/workflows/notebook-pr.yml
+rm<span class="w"> </span>.github/workflows/notebook-merge.yml
+rm<span class="w"> </span>.github/workflows/notebook-scheduled.yml
+rm<span class="w"> </span>.github/workflows/notebook-on-demand.yml
+</pre></div>
+</div>
+</li>
+<li><p><strong>Verify old workflows work</strong>: Test with a small PR</p></li>
+</ol>
+</section>
+<section id="support">
+<h2>Support<a class="headerlink" href="#support" title="Link to this heading">#</a></h2>
+<section id="getting-help">
+<h3>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Check the examples</strong>: Review <code class="docutils literal notranslate"><span class="pre">examples/caller-workflows/</span></code> for complete examples</p></li>
+<li><p><strong>Review logs</strong>: Check GitHub Actions logs for specific error messages</p></li>
+<li><p><strong>Open an issue</strong>: Create issue in the notebook-ci-actions repository</p></li>
+<li><p><strong>Ask for help</strong>: Contact the team for migration assistance</p></li>
+</ol>
+</section>
+<section id="best-practices">
+<h3>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Test thoroughly</strong>: Create test PRs before fully migrating</p></li>
+<li><p><strong>Start simple</strong>: Begin with basic configuration, add features gradually</p></li>
+<li><p><strong>Document changes</strong>: Update your repository’s README with new workflow info</p></li>
+<li><p><strong>Monitor performance</strong>: Check that new workflows meet your performance needs</p></li>
+</ul>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<p>After successful migration:</p>
+<ol class="arabic simple">
+<li><p><strong>Update documentation</strong>: Update your repository’s contributing guide</p></li>
+<li><p><strong>Train team</strong>: Ensure team members understand new workflow triggers</p></li>
+<li><p><strong>Monitor usage</strong>: Watch for any performance or functionality issues</p></li>
+<li><p><strong>Provide feedback</strong>: Share your experience to help improve the system</p></li>
+</ol>
+<p>The unified system provides a robust, maintainable foundation for notebook CI/CD that will serve your repository well into the future.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits-updated-2024">Key Benefits (Updated 2024)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-steps">Migration Steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-backup-existing-workflows">Step 1: Backup Existing Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-remove-old-workflows">Step 2: Remove Old Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-add-new-caller-workflows">Step 3: Add New Caller Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-pull-requests-notebook-pr-yml">For Pull Requests (<code class="docutils literal notranslate"><span class="pre">notebook-pr.yml</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-main-branch-merge-notebook-merge-yml">For Main Branch/Merge (<code class="docutils literal notranslate"><span class="pre">notebook-merge.yml</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-scheduled-maintenance-notebook-scheduled-yml">For Scheduled Maintenance (<code class="docutils literal notranslate"><span class="pre">notebook-scheduled.yml</span></code>)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-on-demand-actions-notebook-on-demand-yml">For On-Demand Actions (<code class="docutils literal notranslate"><span class="pre">notebook-on-demand.yml</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-configuration-mapping">Step 4: Configuration Mapping</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-configuration">Environment Configuration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment">Conda Environment</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-toggles">Feature Toggles</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-repository-specific-customization">Step 5: Repository-Specific Customization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-repository">HST Notebooks Repository</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-notebooks-repository">JWST Notebooks Repository</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#standard-python-repository">Standard Python Repository</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-test-migration">Step 6: Test Migration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-advanced-features">Step 7: Advanced Features</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-new-features">Enable New Features</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">Performance Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-reference">Configuration Reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-migration-patterns">Common Migration Patterns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-mapping">Feature Mapping</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-migration">Troubleshooting Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-not-triggering">1. Workflow Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup-failures">2. Environment Setup Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-secrets">3. Missing Secrets</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processing-script-failures">4. Post-Processing Script Failures</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison">Performance Comparison</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rollback-plan">Rollback Plan</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support">Support</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,759 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Selective Notebook Execution Based on Requirements Changes &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/selective-notebook-execution';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/selective-notebook-execution.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Selective Notebook Execution Based on Requirements Changes</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-challenge">Current Challenge</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-enhanced-file-detection-logic">Solution: Enhanced File Detection Logic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modified-workflow-structure">Modified Workflow Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits-of-selective-execution">Benefits of Selective Execution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-scenarios">Example Scenarios</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-1-requirements-change-in-single-directory">Scenario 1: Requirements Change in Single Directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-2-notebook-change-in-multiple-directories">Scenario 2: Notebook Change in Multiple Directories</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-3-root-requirements-change">Scenario 3: Root Requirements Change</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-requirements">Implementation Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="selective-notebook-execution-based-on-requirements-changes">
+<h1>Selective Notebook Execution Based on Requirements Changes<a class="headerlink" href="#selective-notebook-execution-based-on-requirements-changes" title="Link to this heading">#</a></h1>
+<p>This notebook demonstrates how to modify the smart workflow to run only notebooks in directories where requirements.txt files have changed.</p>
+<section id="current-challenge">
+<h2>Current Challenge<a class="headerlink" href="#current-challenge" title="Link to this heading">#</a></h2>
+<p>The current smart workflow treats any <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> change as requiring full CI for all notebooks. However, with directory-specific requirements files under <code class="docutils literal notranslate"><span class="pre">/notebooks</span></code>, we want more granular control:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>notebooks/
+├── data_analysis/
+│   ├── requirements.txt  ← Change here should only affect data_analysis notebooks
+│   ├── analysis1.ipynb
+│   └── analysis2.ipynb
+├── visualization/
+│   ├── requirements.txt  ← Change here should only affect visualization notebooks
+│   ├── plot1.ipynb
+│   └── plot2.ipynb
+└── modeling/
+    ├── requirements.txt  ← Change here should only affect modeling notebooks
+    ├── model1.ipynb
+    └── model2.ipynb
+</pre></div>
+</div>
+</section>
+<section id="solution-enhanced-file-detection-logic">
+<h2>Solution: Enhanced File Detection Logic<a class="headerlink" href="#solution-enhanced-file-detection-logic" title="Link to this heading">#</a></h2>
+<p>We need to modify the <code class="docutils literal notranslate"><span class="pre">detect-changes</span></code> job to:</p>
+<ol class="arabic simple">
+<li><p>Detect which specific directories have requirements changes</p></li>
+<li><p>Pass the affected directories to the CI pipeline</p></li>
+<li><p>Run notebooks selectively based on the changed directories</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enhanced file detection logic for the smart workflow</span>
+<span class="n">detect_changes_script</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1"># Get the list of changed files from the last commit</span>
+<span class="s1">echo &quot;Getting changed files from last commit...&quot;</span>
+<span class="s1">CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)</span>
+
+<span class="s1">echo &quot;Changed files:&quot;</span>
+<span class="s1">echo &quot;$CHANGED_FILES&quot;</span>
+
+<span class="s1"># Initialize flags and arrays</span>
+<span class="s1">NOTEBOOKS_CHANGED=false</span>
+<span class="s1">DOCS_CONFIG_CHANGED=false</span>
+<span class="s1">REQUIREMENTS_CHANGED=false</span>
+<span class="s1">DEPLOY_NEEDED=false</span>
+<span class="s1">AFFECTED_DIRECTORIES=()</span>
+<span class="s1">CHANGED_NOTEBOOKS=()</span>
+
+<span class="s1"># Check each changed file</span>
+<span class="s1">while IFS= read -r file; do</span>
+<span class="s1">  echo &quot;Checking file: $file&quot;</span>
+<span class="s1">  </span>
+<span class="s1">  case &quot;$file&quot; in</span>
+<span class="s1">    notebooks/*.ipynb)</span>
+<span class="s1">      echo &quot;  → Notebook file changed: $file&quot;</span>
+<span class="s1">      NOTEBOOKS_CHANGED=true</span>
+<span class="s1">      DEPLOY_NEEDED=true</span>
+<span class="s1">      CHANGED_NOTEBOOKS+=(&quot;$file&quot;)</span>
+<span class="s1">      </span>
+<span class="s1">      # Extract directory from notebook path</span>
+<span class="s1">      dir=$(dirname &quot;$file&quot;)</span>
+<span class="s1">      if [[ ! &quot; $</span><span class="si">{AFFECTED_DIRECTORIES[@]}</span><span class="s1"> &quot; =~ &quot; $dir &quot; ]]; then</span>
+<span class="s1">        AFFECTED_DIRECTORIES+=(&quot;$dir&quot;)</span>
+<span class="s1">      fi</span>
+<span class="s1">      ;;</span>
+<span class="s1">    notebooks/*/requirements.txt)</span>
+<span class="s1">      echo &quot;  → Requirements file changed: $file&quot;</span>
+<span class="s1">      REQUIREMENTS_CHANGED=true</span>
+<span class="s1">      DEPLOY_NEEDED=true</span>
+<span class="s1">      </span>
+<span class="s1">      # Extract directory from requirements path</span>
+<span class="s1">      dir=$(dirname &quot;$file&quot;)</span>
+<span class="s1">      echo &quot;  → Affected directory: $dir&quot;</span>
+<span class="s1">      if [[ ! &quot; $</span><span class="si">{AFFECTED_DIRECTORIES[@]}</span><span class="s1"> &quot; =~ &quot; $dir &quot; ]]; then</span>
+<span class="s1">        AFFECTED_DIRECTORIES+=(&quot;$dir&quot;)</span>
+<span class="s1">      fi</span>
+<span class="s1">      ;;</span>
+<span class="s1">    requirements.txt|pyproject.toml|setup.py)</span>
+<span class="s1">      echo &quot;  → Root requirements file changed: $file&quot;</span>
+<span class="s1">      REQUIREMENTS_CHANGED=true</span>
+<span class="s1">      DEPLOY_NEEDED=true</span>
+<span class="s1">      # Root requirements affect all notebooks</span>
+<span class="s1">      AFFECTED_DIRECTORIES=(&quot;notebooks&quot;)</span>
+<span class="s1">      ;;</span>
+<span class="s1">    _config.yml|_toc.yml)</span>
+<span class="s1">      echo &quot;  → Documentation config changed&quot;</span>
+<span class="s1">      DOCS_CONFIG_CHANGED=true</span>
+<span class="s1">      DEPLOY_NEEDED=true</span>
+<span class="s1">      ;;</span>
+<span class="s1">    *.md|*.rst)</span>
+<span class="s1">      echo &quot;  → Documentation file changed&quot;</span>
+<span class="s1">      DOCS_CONFIG_CHANGED=true</span>
+<span class="s1">      DEPLOY_NEEDED=true</span>
+<span class="s1">      ;;</span>
+<span class="s1">    *)</span>
+<span class="s1">      echo &quot;  → Other file type&quot;</span>
+<span class="s1">      ;;</span>
+<span class="s1">  esac</span>
+<span class="s1">done &lt;&lt;&lt; &quot;$CHANGED_FILES&quot;</span>
+
+<span class="s1"># Convert arrays to JSON for output</span>
+<span class="s1">affected_dirs_json=$(printf &#39;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39; &quot;$</span><span class="si">{AFFECTED_DIRECTORIES[@]}</span><span class="s1">&quot; | jq -R . | jq -s .)</span>
+<span class="s1">changed_notebooks_json=$(printf &#39;</span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39; &quot;$</span><span class="si">{CHANGED_NOTEBOOKS[@]}</span><span class="s1">&quot; | jq -R . | jq -s .)</span>
+
+<span class="s1">echo &quot;Affected directories: $affected_dirs_json&quot;</span>
+<span class="s1">echo &quot;Changed notebooks: $changed_notebooks_json&quot;</span>
+
+<span class="s1"># Determine workflow path</span>
+<span class="s1">if [ &quot;$NOTEBOOKS_CHANGED&quot; = &quot;true&quot; ] || [ &quot;$REQUIREMENTS_CHANGED&quot; = &quot;true&quot; ]; then</span>
+<span class="s1">  echo &quot;📔 Notebooks or requirements changed - Selective CI needed&quot;</span>
+<span class="s1">  echo &quot;notebooks-changed=true&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">  echo &quot;docs-only=false&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">  echo &quot;affected-directories=$affected_dirs_json&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">  echo &quot;changed-notebooks=$changed_notebooks_json&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">elif [ &quot;$DOCS_CONFIG_CHANGED&quot; = &quot;true&quot; ]; then</span>
+<span class="s1">  echo &quot;📚 Only documentation/config files changed - Docs rebuild only&quot;</span>
+<span class="s1">  echo &quot;notebooks-changed=false&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">  echo &quot;docs-only=true&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">else</span>
+<span class="s1">  echo &quot;📝 No significant changes detected - Skip CI&quot;</span>
+<span class="s1">  echo &quot;notebooks-changed=false&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">  echo &quot;docs-only=false&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">  DEPLOY_NEEDED=false</span>
+<span class="s1">fi</span>
+
+<span class="s1">echo &quot;deploy-needed=$DEPLOY_NEEDED&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Enhanced detection script created!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="modified-workflow-structure">
+<h2>Modified Workflow Structure<a class="headerlink" href="#modified-workflow-structure" title="Link to this heading">#</a></h2>
+<p>The enhanced workflow will have these outputs from the <code class="docutils literal notranslate"><span class="pre">detect-changes</span></code> job:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">notebooks-changed</span></code>: Boolean indicating if notebooks or requirements changed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs-only</span></code>: Boolean for documentation-only changes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">affected-directories</span></code>: JSON array of directories that need CI</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">changed-notebooks</span></code>: JSON array of specific notebooks that changed</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">deploy-needed</span></code>: Boolean for deployment requirement</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example of how the CI pipeline job would be modified</span>
+<span class="n">selective_ci_job</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1"># Selective notebook CI with directory-specific execution</span>
+<span class="s1">selective-notebook-ci:</span>
+<span class="s1">  needs: detect-changes</span>
+<span class="s1">  if: needs.detect-changes.outputs.notebooks-changed == &#39;true&#39;</span>
+<span class="s1">  strategy:</span>
+<span class="s1">    matrix:</span>
+<span class="s1">      directory: ${{ fromJson(needs.detect-changes.outputs.affected-directories) }}</span>
+<span class="s1">  uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main</span>
+<span class="s1">  with:</span>
+<span class="s1">    python-version: &quot;3.11&quot;</span>
+<span class="s1">    execution-mode: &quot;full&quot;</span>
+<span class="s1">    notebook-path: ${{ matrix.directory }}  # New parameter for directory-specific execution</span>
+<span class="s1">    build-html: false</span>
+<span class="s1">    security-scan: true</span>
+<span class="s1">  secrets:</span>
+<span class="s1">    CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}</span>
+<span class="s1">    CASJOBS_PW: ${{ secrets.CASJOBS_PW }}</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Selective CI job structure defined!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="benefits-of-selective-execution">
+<h2>Benefits of Selective Execution<a class="headerlink" href="#benefits-of-selective-execution" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Faster CI</strong>: Only affected notebooks run, reducing execution time</p></li>
+<li><p><strong>Resource Efficiency</strong>: Lower compute usage and cost</p></li>
+<li><p><strong>Parallel Execution</strong>: Different directories can run in parallel</p></li>
+<li><p><strong>Targeted Testing</strong>: Changes are tested in isolation</p></li>
+<li><p><strong>Better Debugging</strong>: Easier to identify which directory caused issues</p></li>
+</ol>
+</section>
+<section id="example-scenarios">
+<h2>Example Scenarios<a class="headerlink" href="#example-scenarios" title="Link to this heading">#</a></h2>
+<section id="scenario-1-requirements-change-in-single-directory">
+<h3>Scenario 1: Requirements Change in Single Directory<a class="headerlink" href="#scenario-1-requirements-change-in-single-directory" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Changed</span> <span class="n">files</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">notebooks</span><span class="o">/</span><span class="n">data_analysis</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+
+<span class="n">Result</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">affected</span><span class="o">-</span><span class="n">directories</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;notebooks/data_analysis&quot;</span><span class="p">]</span>
+<span class="o">-</span> <span class="n">Only</span> <span class="n">notebooks</span> <span class="ow">in</span> <span class="n">data_analysis</span><span class="o">/</span> <span class="n">directory</span> <span class="n">are</span> <span class="n">executed</span>
+<span class="o">-</span> <span class="n">Execution</span> <span class="n">time</span><span class="p">:</span> <span class="o">~</span><span class="mi">5</span><span class="o">-</span><span class="mi">10</span> <span class="n">minutes</span> <span class="n">instead</span> <span class="n">of</span> <span class="mi">20</span><span class="o">-</span><span class="mi">30</span> <span class="n">minutes</span>
+</pre></div>
+</div>
+</section>
+<section id="scenario-2-notebook-change-in-multiple-directories">
+<h3>Scenario 2: Notebook Change in Multiple Directories<a class="headerlink" href="#scenario-2-notebook-change-in-multiple-directories" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Changed</span> <span class="n">files</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">notebooks</span><span class="o">/</span><span class="n">data_analysis</span><span class="o">/</span><span class="n">analysis1</span><span class="o">.</span><span class="n">ipynb</span>
+<span class="o">-</span> <span class="n">notebooks</span><span class="o">/</span><span class="n">visualization</span><span class="o">/</span><span class="n">plot1</span><span class="o">.</span><span class="n">ipynb</span>
+
+<span class="n">Result</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">affected</span><span class="o">-</span><span class="n">directories</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;notebooks/data_analysis&quot;</span><span class="p">,</span> <span class="s2">&quot;notebooks/visualization&quot;</span><span class="p">]</span>
+<span class="o">-</span> <span class="n">Both</span> <span class="n">directories</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">parallel</span>
+<span class="o">-</span> <span class="n">Faster</span> <span class="n">than</span> <span class="n">sequential</span> <span class="n">execution</span>
+</pre></div>
+</div>
+</section>
+<section id="scenario-3-root-requirements-change">
+<h3>Scenario 3: Root Requirements Change<a class="headerlink" href="#scenario-3-root-requirements-change" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Changed</span> <span class="n">files</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span> <span class="p">(</span><span class="n">root</span> <span class="n">level</span><span class="p">)</span>
+
+<span class="n">Result</span><span class="p">:</span>
+<span class="o">-</span> <span class="n">affected</span><span class="o">-</span><span class="n">directories</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;notebooks&quot;</span><span class="p">]</span>
+<span class="o">-</span> <span class="n">All</span> <span class="n">notebooks</span> <span class="n">run</span> <span class="p">(</span><span class="n">safety</span> <span class="n">first</span> <span class="k">for</span> <span class="k">global</span> <span class="n">changes</span><span class="p">)</span>
+<span class="o">-</span> <span class="n">Same</span> <span class="n">behavior</span> <span class="k">as</span> <span class="n">current</span> <span class="n">workflow</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="implementation-requirements">
+<h2>Implementation Requirements<a class="headerlink" href="#implementation-requirements" title="Link to this heading">#</a></h2>
+<p>To implement this selective execution, we need:</p>
+<ol class="arabic simple">
+<li><p><strong>Enhanced CI Pipeline</strong>: Modify <code class="docutils literal notranslate"><span class="pre">ci_pipeline.yml</span></code> to accept a <code class="docutils literal notranslate"><span class="pre">notebook-path</span></code> parameter</p></li>
+<li><p><strong>Directory Structure</strong>: Ensure each notebook subdirectory has its own <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></p></li>
+<li><p><strong>Matrix Strategy</strong>: Use GitHub Actions matrix to run multiple directories in parallel</p></li>
+<li><p><strong>Error Handling</strong>: Graceful handling when directories don’t exist</p></li>
+<li><p><strong>Documentation</strong>: Clear guidelines for organizing notebook directories</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example directory structure validation</span>
+<span class="n">validation_script</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">#!/bin/bash</span>
+<span class="s1"># Validate notebook directory structure for selective execution</span>
+
+<span class="s1">echo &quot;Validating notebook directory structure...&quot;</span>
+
+<span class="s1"># Check if notebooks directory exists</span>
+<span class="s1">if [ ! -d &quot;notebooks&quot; ]; then</span>
+<span class="s1">  echo &quot;❌ No notebooks directory found&quot;</span>
+<span class="s1">  exit 1</span>
+<span class="s1">fi</span>
+
+<span class="s1"># Find all subdirectories in notebooks/</span>
+<span class="s1">subdirs=$(find notebooks -mindepth 1 -maxdepth 1 -type d)</span>
+
+<span class="s1">if [ -z &quot;$subdirs&quot; ]; then</span>
+<span class="s1">  echo &quot;ℹ️  No subdirectories found in notebooks/&quot;</span>
+<span class="s1">  echo &quot;ℹ️  Selective execution will treat entire notebooks/ as one unit&quot;</span>
+<span class="s1">else</span>
+<span class="s1">  echo &quot;📁 Found notebook subdirectories:&quot;</span>
+<span class="s1">  for dir in $subdirs; do</span>
+<span class="s1">    echo &quot;  - $dir&quot;</span>
+<span class="s1">    </span>
+<span class="s1">    # Check for requirements.txt in each subdirectory</span>
+<span class="s1">    if [ -f &quot;$dir/requirements.txt&quot; ]; then</span>
+<span class="s1">      echo &quot;    ✅ Has requirements.txt&quot;</span>
+<span class="s1">    else</span>
+<span class="s1">      echo &quot;    ⚠️  No requirements.txt (will use root requirements)&quot;</span>
+<span class="s1">    fi</span>
+<span class="s1">    </span>
+<span class="s1">    # Count notebooks in directory</span>
+<span class="s1">    notebook_count=$(find &quot;$dir&quot; -name &quot;*.ipynb&quot; | wc -l)</span>
+<span class="s1">    echo &quot;    📓 Contains $notebook_count notebook(s)&quot;</span>
+<span class="s1">  done</span>
+<span class="s1">fi</span>
+
+<span class="s1">echo &quot;✅ Validation complete&quot;</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Directory structure validation script created!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<p>To implement selective notebook execution:</p>
+<ol class="arabic simple">
+<li><p><strong>Modify the smart workflow</strong> with the enhanced detection logic</p></li>
+<li><p><strong>Update the CI pipeline</strong> to accept directory-specific parameters</p></li>
+<li><p><strong>Test with different scenarios</strong> to ensure reliability</p></li>
+<li><p><strong>Document the new structure</strong> for repository maintainers</p></li>
+<li><p><strong>Gradually roll out</strong> to repositories with appropriate directory structures</p></li>
+</ol>
+<p>This approach will significantly improve CI efficiency while maintaining the safety and reliability of the current system.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#current-challenge">Current Challenge</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-enhanced-file-detection-logic">Solution: Enhanced File Detection Logic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modified-workflow-structure">Modified Workflow Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits-of-selective-execution">Benefits of Selective Execution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-scenarios">Example Scenarios</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-1-requirements-change-in-single-directory">Scenario 1: Requirements Change in Single Directory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-2-notebook-change-in-multiple-directories">Scenario 2: Notebook Change in Multiple Directories</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-3-root-requirements-change">Scenario 3: Root Requirements Change</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-requirements">Implementation Requirements</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

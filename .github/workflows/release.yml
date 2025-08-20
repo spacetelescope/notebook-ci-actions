@@ -1,0 +1,234 @@
+name: Release and Version Management
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Type of version bump'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+      pre_release:
+        description: 'Create pre-release'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      
+    outputs:
+      new_version: ${{ steps.version.outputs.new_tag }}
+      changelog: ${{ steps.version.outputs.changelog }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Determine Version Bump from PR Labels
+      if: github.event_name == 'pull_request'
+      id: pr_version
+      uses: actions/github-script@v7
+      with:
+        result-encoding: string
+        script: |
+          const labels = context.payload.pull_request.labels.map(l => l.name);
+          
+          if (labels.includes('version:major') || labels.includes('breaking-change')) {
+            return 'major';
+          } else if (labels.includes('version:minor') || labels.includes('feature')) {
+            return 'minor';
+          } else if (labels.includes('version:patch') || labels.includes('bugfix')) {
+            return 'patch';
+          } else {
+            // Default to patch if no version label found
+            core.warning('No version label found, defaulting to patch');
+            return 'patch';
+          }
+
+    - name: Get Latest Version
+      id: latest_version
+      run: |
+        # Get the latest tag
+        latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "latest_tag=$latest_tag" >> $GITHUB_OUTPUT
+        
+        # Extract version numbers
+        version=${latest_tag#v}
+        IFS='.' read -r major minor patch <<< "$version"
+        echo "current_major=$major" >> $GITHUB_OUTPUT
+        echo "current_minor=$minor" >> $GITHUB_OUTPUT  
+        echo "current_patch=$patch" >> $GITHUB_OUTPUT
+
+    - name: Calculate New Version
+      id: version
+      run: |
+        major=${{ steps.latest_version.outputs.current_major }}
+        minor=${{ steps.latest_version.outputs.current_minor }}
+        patch=${{ steps.latest_version.outputs.current_patch }}
+        
+        # Determine bump type
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          bump_type="${{ github.event.inputs.version_bump }}"
+        else
+          bump_type="${{ steps.pr_version.outputs.result }}"
+        fi
+        
+        echo "Bump type: $bump_type"
+        
+        # Calculate new version
+        case $bump_type in
+          major)
+            major=$((major + 1))
+            minor=0
+            patch=0
+            ;;
+          minor)
+            minor=$((minor + 1))
+            patch=0
+            ;;
+          patch)
+            patch=$((patch + 1))
+            ;;
+        esac
+        
+        new_version="v$major.$minor.$patch"
+        
+        # Add pre-release suffix if requested
+        if [ "${{ github.event.inputs.pre_release }}" == "true" ]; then
+          new_version="$new_version-rc.1"
+        fi
+        
+        echo "New version: $new_version"
+        echo "new_tag=$new_version" >> $GITHUB_OUTPUT
+        echo "new_version=$new_version" >> $GITHUB_OUTPUT
+        echo "major_version=v$major" >> $GITHUB_OUTPUT
+
+    - name: Generate Changelog
+      id: changelog
+      run: |
+        # Get commits since last tag
+        last_tag=${{ steps.latest_version.outputs.latest_tag }}
+        
+        if [ "$last_tag" != "v0.0.0" ]; then
+          changelog=$(git log --pretty=format:"- %s (%h)" $last_tag..HEAD)
+        else
+          changelog=$(git log --pretty=format:"- %s (%h)")
+        fi
+        
+        # Save changelog to output
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        echo "$changelog" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Create Git Tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Create annotated tag
+        git tag -a ${{ steps.version.outputs.new_tag }} -m "Release ${{ steps.version.outputs.new_tag }}"
+        git push origin ${{ steps.version.outputs.new_tag }}
+
+    - name: Update Major Version Tag
+      if: github.event.inputs.pre_release != 'true'
+      run: |
+        major_version=${{ steps.version.outputs.major_version }}
+        
+        # Force update major version tag
+        git tag -fa $major_version -m "Update $major_version to ${{ steps.version.outputs.new_tag }}"
+        git push origin $major_version --force
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.new_tag }}
+        release_name: Release ${{ steps.version.outputs.new_tag }}
+        body: |
+          ## Changes in ${{ steps.version.outputs.new_tag }}
+          
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ### Workflow Usage
+          
+          Use this version in your workflows:
+          ```yaml
+          # Pin to major version (recommended)
+          uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.major_version }}
+          
+          # Pin to exact version (most stable)
+          uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.new_tag }}
+          ```
+          
+          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.latest_version.outputs.latest_tag }}...${{ steps.version.outputs.new_tag }}
+        draft: false
+        prerelease: ${{ github.event.inputs.pre_release == 'true' }}
+
+    - name: Update Example Workflows
+      run: |
+        # Update examples to reference new major version
+        major_version=${{ steps.version.outputs.major_version }}
+        
+        # Update all example workflow files
+        find examples/workflows -name "*.yml" -type f -exec sed -i "s|your-org/dev-actions/|${{ github.repository }}/|g" {} \;
+        find examples/workflows -name "*.yml" -type f -exec sed -i "s|@main|@$major_version|g" {} \;
+        
+        # Check if there are changes to commit
+        if git diff --quiet; then
+          echo "No changes to commit"
+        else
+          git add examples/workflows/
+          git commit -m "Update example workflows to use $major_version"
+          git push origin main
+        fi
+
+  notify:
+    needs: release
+    runs-on: ubuntu-latest
+    if: always() && needs.release.result == 'success'
+    
+    steps:
+    - name: Notify Success
+      uses: actions/github-script@v7
+      with:
+        script: |
+          // Create a comment on the PR if it was merged
+          if (context.eventName === 'pull_request') {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🎉 **Release Created Successfully!**
+              
+              **New Version:** \`${{ needs.release.outputs.new_version }}\`
+              
+              ### Usage in Workflows:
+              \`\`\`yaml
+              # Recommended: Pin to major version
+              uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@v${{ needs.release.outputs.new_version }}
+              
+              # Conservative: Pin to exact version  
+              uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ needs.release.outputs.new_version }}
+              \`\`\`
+              
+              [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ needs.release.outputs.new_version }})`
+            });
+          }
