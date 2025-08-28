@@ -20,7 +20,7 @@ jobs:
       test-notebook: ${{ steps.setup.outputs.test-notebook }}
       lookup-result: ${{ steps.setup.outputs.lookup-result }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       
       - name: Setup test data
         id: setup
