@@ -109,10 +109,7 @@ on:
         required: false
       CASJOBS_PW:
         required: false
-        
-permissions:
-  contents: write
-  
+
 jobs:
   # Change Detection and Matrix Setup
   setup-matrix:
@@ -472,7 +469,6 @@ jobs:
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
-      inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
     runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}
     outputs:
@@ -607,7 +603,7 @@ jobs:
           inputs.enable-storage == true && 
           steps.deprecation-check.outputs.deprecated != 'true' &&
           success() && 
-          (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.execution-mode == 'on-demand' || inputs.trigger-event == 'execute')
+          (inputs.execution-mode != 'pr' || inputs.execution-mode == 'merge' || inputs.execution-mode == 'on-demand' || inputs.trigger-event == 'execute')
         run: |
           echo "💾 Storing executed notebook to gh-storage"
           git config --global user.name "github-actions"
