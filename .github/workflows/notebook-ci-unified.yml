@@ -109,7 +109,10 @@ on:
         required: false
       CASJOBS_PW:
         required: false
-
+        
+permissions:
+  contents: write
+  
 jobs:
   # Change Detection and Matrix Setup
   setup-matrix:
@@ -1641,3 +1644,4 @@ jobs:
             echo "## ❌ Workflow failed" >> $GITHUB_STEP_SUMMARY
             echo "*Multiple critical failures occurred - see error details above*" >> $GITHUB_STEP_SUMMARY
           fi
+
