@@ -56,7 +56,7 @@ jobs:
           fetch-depth: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Set up Python ${{ inputs.python-version }}
-        uses: actions/setup-python@v5 ## needed for caching
+        uses: actions/setup-python@v6 ## needed for caching
         with:
           python-version: ${{ inputs.python-version }}
       #- name: Add conda to system path
