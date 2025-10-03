@@ -618,7 +618,7 @@ jobs:
         with:
           environment-name: ci-env
           init-shell: bash
-          create-args: "python=${{ inputs.python-version }} pip jupyter nbval nbconvert bandit pytest numpy"
+          create-args: "python=${{ inputs.python-version }} pip jupyter nbval nbconvert bandit pytest"
           cache-environment: false
 
       - name: Set up custom conda environment
@@ -633,43 +633,20 @@ jobs:
           notebook="${{ matrix.notebook }}"
           nb_dir=$(dirname "$notebook")
           
-          # Make NB_DIR available to all subsequent steps in this job
-          echo "NB_DIR=$nb_dir" >> $GITHUB_ENV
-          
           # Activate the micromamba environment
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
-
-
-          #---------------------------          
-          echo "Path to req's: $(dirname ${{ matrix.notebook }})/requirements.txt"
-          ls $(dirname ${{ matrix.notebook }})
-          echo ---
-          if [ -f $(dirname "${{ matrix.notebook }}")/pre-install.sh ]; then
-            chmod +x $(dirname "${{ matrix.notebook }}")/pre-install.sh
-            ./$(dirname "${{ matrix.notebook }}")/pre-install.sh
-          fi
-          if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.sh ]; then
-            chmod +x $(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-            ./$(dirname "${{ matrix.notebook }}")/pre-requirements.sh
-          fi
-          if [ -f $(dirname "${{ matrix.notebook }}")/pre-requirements.txt ]; then
-            uv pip install --system --no-build-isolation -r $(dirname "${{ matrix.notebook }}")/pre-requirements.txt
-          fi
-          if [ -f $(dirname ${{ matrix.notebooks }})/requirements.txt ]; then
-            uv pip install --system --no-build-isolation -r $(dirname ${{ matrix.notebook }})/requirements.txt
-          fi   
-          #---------------------------
+          
           # Install custom requirements if specified
-          #if [ -n "${{ inputs.custom-requirements }}" ]; then
-          #  echo "Installing custom requirements: ${{ inputs.custom-requirements }}"
-          #  pip install -r "${{ inputs.custom-requirements }}"
-          #elif [ -f "$nb_dir/requirements.txt" ]; then
-          #  echo "Installing directory-specific requirements: $nb_dir/requirements.txt"
-          #  pip install -r "$nb_dir/requirements.txt"
-          #else
-          #  echo "No requirements.txt found in $nb_dir - using base environment only"
-          #fi
+          if [ -n "${{ inputs.custom-requirements }}" ]; then
+            echo "Installing custom requirements: ${{ inputs.custom-requirements }}"
+            pip install -r "${{ inputs.custom-requirements }}"
+          elif [ -f "$nb_dir/requirements.txt" ]; then
+            echo "Installing directory-specific requirements: $nb_dir/requirements.txt"
+            pip install -r "$nb_dir/requirements.txt"
+          else
+            echo "No requirements.txt found in $nb_dir - using base environment only"
+          fi
 
       - name: Validate notebook
         if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
@@ -677,15 +654,9 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
-          
           # Clear outputs to ensure clean validation
           jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
-          
-          # Run pytest from the notebook's directory so relative file paths resolve
-          nb_file="$(basename "${{ matrix.notebook }}")"
-          pushd "$NB_DIR" >/dev/null
-          pytest --nbval --nbval-cell-timeout=4000 "$nb_file"
-          popd >/dev/null
+          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
@@ -707,10 +678,7 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
-          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}" \
-            --ExecutePreprocessor.timeout=1800 \
-            --ExecutePreprocessor.kernel_name=python3 \
-            --ExecutePreprocessor.cwd="$NB_DIR"
+          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
 
       - name: Store executed notebook to gh-storage
         if: |
@@ -1754,7 +1722,3 @@ jobs:
             echo "## ❌ Workflow failed" >> $GITHUB_STEP_SUMMARY
             echo "*Multiple critical failures occurred - see error details above*" >> $GITHUB_STEP_SUMMARY
           fi
-
-
-
-
