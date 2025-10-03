@@ -618,7 +618,7 @@ jobs:
         with:
           environment-name: ci-env
           init-shell: bash
-          create-args: "python=${{ inputs.python-version }} pip jupyter nbval nbconvert bandit pytest"
+          create-args: "python=${{ inputs.python-version }} pip jupyter nbval nbconvert bandit pytest numpy"
           cache-environment: false
 
       - name: Set up custom conda environment
@@ -1754,6 +1754,7 @@ jobs:
             echo "## ❌ Workflow failed" >> $GITHUB_STEP_SUMMARY
             echo "*Multiple critical failures occurred - see error details above*" >> $GITHUB_STEP_SUMMARY
           fi
+
 
 
 
