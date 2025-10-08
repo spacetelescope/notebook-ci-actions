@@ -120,6 +120,7 @@ jobs:
       affected-dirs: ${{ steps.setup.outputs.affected-dirs }}
       skip-execution: ${{ steps.setup.outputs.skip-execution }}
       docs-only: ${{ steps.setup.outputs.docs-only }}
+      non-notebook-files: ${{ steps.setup.outputs.non-notebook-files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -234,6 +235,8 @@ jobs:
                 MATRIX_NOTEBOOKS="[]"
                 AFFECTED_DIRS="[]"
               fi
+              # No non-notebook files collected in PR mode
+              NON_NOTEBOOK_FILES_JSON="[]"
               ;;
               
             "merge")
@@ -247,9 +250,10 @@ jobs:
               # Get changed files between parent commit and merge commit
               CHANGED_FILES=$(git diff --name-only $PARENT_SHA $MERGE_SHA)
               
-              # Process changed files to find notebooks and affected directories
+              # Process changed files to find notebooks, affected directories, and non-notebook files
               declare -a CHANGED_NOTEBOOKS
               declare -a AFFECTED_DIRECTORIES
+              declare -a NON_NOTEBOOK_FILES
               
               while IFS= read -r file; do
                 [[ -z "$file" ]] && continue
@@ -276,25 +280,26 @@ jobs:
                       fi
                     fi
                     ;;
+                  *.md|*.html|*.css|*.js|_config.yml|_toc.yml|notebooks/*.md|notebooks/*.html|notebooks/*.css|notebooks/*.js)
+                    # Documentation files - collect for gh-storage in merge mode
+                    echo "📄 Documentation file changed: $file"
+                    NON_NOTEBOOK_FILES+=("$file")
+                    ;;
                 esac
               done <<< "$CHANGED_FILES"
               
-              # After processing all changed files, find notebooks in affected directories
-              if [ ${#AFFECTED_DIRECTORIES[@]} -gt 0 ]; then
-                echo "📁 Finding notebooks in affected directories: ${AFFECTED_DIRECTORIES[*]}"
+              # For merge mode, process only explicitly changed notebooks and notebooks affected by requirements changes
+              if [ ${#AFFECTED_DIRECTORIES[@]} -gt 0 ] && [[ " ${AFFECTED_DIRECTORIES[*]} " =~ " notebooks " ]]; then
+                # If root requirements file changed, we need to process all notebooks
+                echo "🌐 Root requirements file changed - affecting all notebooks in merge"
                 declare -a ALL_AFFECTED_NOTEBOOKS
+                while IFS= read -r notebook; do
+                  [[ -z "$notebook" ]] && continue
+                  echo "📓 Found notebook affected by root requirements: $notebook"
+                  ALL_AFFECTED_NOTEBOOKS+=("$notebook")
+                done < <(find notebooks/ -name '*.ipynb' -type f 2>/dev/null)
                 
-                for dir in "${AFFECTED_DIRECTORIES[@]}"; do
-                  echo "🔍 Searching for notebooks in: $dir"
-                  while IFS= read -r notebook; do
-                    [[ -z "$notebook" ]] && continue
-                    echo "📓 Found notebook: $notebook"
-                    ALL_AFFECTED_NOTEBOOKS+=("$notebook")
-                  done < <(find "$dir" -name '*.ipynb' -type f 2>/dev/null)
-                done
-                
-                # Combine explicitly changed notebooks with those in affected directories
-                # Remove duplicates by using associative array
+                # Combine explicitly changed notebooks with those affected by root requirements
                 declare -A UNIQUE_NOTEBOOKS
                 for notebook in "${CHANGED_NOTEBOOKS[@]}" "${ALL_AFFECTED_NOTEBOOKS[@]}"; do
                   [[ -n "$notebook" ]] && UNIQUE_NOTEBOOKS["$notebook"]=1
@@ -305,12 +310,39 @@ jobs:
                 for notebook in "${!UNIQUE_NOTEBOOKS[@]}"; do
                   CHANGED_NOTEBOOKS+=("$notebook")
                 done
+              elif [ ${#AFFECTED_DIRECTORIES[@]} -gt 0 ]; then
+                # Directory-specific requirements files changed - find notebooks in those specific directories
+                echo "📁 Directory-specific requirements changed: ${AFFECTED_DIRECTORIES[*]}"
+                declare -a ALL_AFFECTED_NOTEBOOKS
                 
-                echo "📋 Total unique notebooks to process: ${#CHANGED_NOTEBOOKS[@]}"
-                for notebook in "${CHANGED_NOTEBOOKS[@]}"; do
-                  echo "  - $notebook"
+                for dir in "${AFFECTED_DIRECTORIES[@]}"; do
+                  if [ "$dir" != "notebooks" ]; then  # Skip if already handled above
+                    echo "🔍 Searching for notebooks affected by requirements in: $dir"
+                    while IFS= read -r notebook; do
+                      [[ -z "$notebook" ]] && continue
+                      echo "📓 Found notebook affected by directory requirements: $notebook"
+                      ALL_AFFECTED_NOTEBOOKS+=("$notebook")
+                    done < <(find "$dir" -name '*.ipynb' -type f 2>/dev/null)
+                  fi
+                done
+                
+                # Combine explicitly changed notebooks with those affected by directory requirements
+                declare -A UNIQUE_NOTEBOOKS
+                for notebook in "${CHANGED_NOTEBOOKS[@]}" "${ALL_AFFECTED_NOTEBOOKS[@]}"; do
+                  [[ -n "$notebook" ]] && UNIQUE_NOTEBOOKS["$notebook"]=1
+                done
+                
+                # Convert back to regular array
+                CHANGED_NOTEBOOKS=()
+                for notebook in "${!UNIQUE_NOTEBOOKS[@]}"; do
+                  CHANGED_NOTEBOOKS+=("$notebook")
                 done
               fi
+              
+              echo "📋 Total notebooks to process in merge: ${#CHANGED_NOTEBOOKS[@]}"
+              for notebook in "${CHANGED_NOTEBOOKS[@]}"; do
+                echo "  - $notebook"
+              done
               
               # Create JSON array of changed notebooks
               if [ ${#CHANGED_NOTEBOOKS[@]} -gt 0 ]; then
@@ -322,12 +354,22 @@ jobs:
                 MATRIX_NOTEBOOKS="[]"
                 AFFECTED_DIRS='["notebooks"]'
               fi
+              
+              # Handle non-notebook files for merge mode
+              if [ ${#NON_NOTEBOOK_FILES[@]} -gt 0 ]; then
+                echo "📄 Non-notebook files to store: ${NON_NOTEBOOK_FILES[*]}"
+                NON_NOTEBOOK_FILES_JSON=$(printf '%s\n' "${NON_NOTEBOOK_FILES[@]}" | jq -R . | jq -s -c .)
+                echo "✅ Found ${#NON_NOTEBOOK_FILES[@]} non-notebook files to store"
+              else
+                NON_NOTEBOOK_FILES_JSON="[]"
+              fi
               ;;
               
             "scheduled")
               echo "⏰ Scheduled Mode: All notebooks validation"
               MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
               AFFECTED_DIRS='["notebooks"]'
+              NON_NOTEBOOK_FILES_JSON="[]"
               ;;
               
             "on-demand")
@@ -368,6 +410,7 @@ jobs:
                 MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
                 AFFECTED_DIRS='["notebooks"]'
               fi
+              NON_NOTEBOOK_FILES_JSON="[]"
               ;;
           esac
           
@@ -528,6 +571,7 @@ jobs:
           echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
           echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
           echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
+          echo "non-notebook-files=${NON_NOTEBOOK_FILES_JSON:-[]}" >> $GITHUB_OUTPUT
           
           echo "📊 Matrix Setup Complete:"
           echo "  Notebooks: $MATRIX_NOTEBOOKS"
@@ -543,6 +587,116 @@ jobs:
           # Debug: Show JSON keys
           echo "🔑 Runner config keys:"
           echo "$RUNNER_CONFIG" | jq -r 'keys[]' 2>/dev/null || echo "❌ Failed to extract keys"
+
+  # Store Non-Notebook Files (for documentation files in merge mode)
+  store-non-notebook-files:
+    needs: setup-matrix
+    if: |
+      inputs.execution-mode == 'merge' && 
+      needs.setup-matrix.outputs.non-notebook-files != '[]' &&
+      inputs.enable-storage == true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Store non-notebook files to gh-storage
+        run: |
+          echo "📄 Storing merged non-notebook files to gh-storage for HTML build actions"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # Get the list of non-notebook files to store
+          NON_NOTEBOOK_FILES='${{ needs.setup-matrix.outputs.non-notebook-files }}'
+          echo "📋 Files to store: $NON_NOTEBOOK_FILES"
+          
+          # Store current state
+          current_branch=$(git branch --show-current)
+          echo "📍 Current branch: $current_branch"
+          
+          # Switch to gh-storage branch (create if doesn't exist)
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            echo "📦 Using existing gh-storage branch"
+            git fetch origin gh-storage
+            git checkout gh-storage
+          else
+            echo "🆕 Creating new gh-storage branch"
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Return to original branch to get the files
+          if [ -n "$current_branch" ]; then
+            git checkout "$current_branch"
+            echo "🔄 Switched back to: $current_branch"
+          else
+            git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
+            echo "🔄 Switched back to default branch"
+          fi
+          
+          # Create backup copies of the files
+          declare -a TEMP_FILES
+          echo "$NON_NOTEBOOK_FILES" | jq -r '.[]' | while read -r file; do
+            if [ -f "$file" ]; then
+              temp_file="/tmp/$(basename "$file")_$(echo "$file" | tr '/' '_')"
+              cp "$file" "$temp_file"
+              echo "📋 Backed up: $file -> $temp_file"
+              echo "$file:$temp_file" >> /tmp/file_mapping.txt
+            else
+              echo "⚠️ File not found: $file"
+            fi
+          done
+          
+          # Switch back to gh-storage branch
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            git checkout gh-storage
+          else
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Restore files from backup to gh-storage branch
+          if [ -f "/tmp/file_mapping.txt" ]; then
+            while IFS=: read -r original_file temp_file; do
+              if [ -f "$temp_file" ]; then
+                echo "📁 Setting up directory: $(dirname "$original_file")"
+                mkdir -p "$(dirname "$original_file")"
+                cp "$temp_file" "$original_file"
+                echo "✅ Restored: $original_file"
+                git add "$original_file"
+                rm -f "$temp_file"
+              fi
+            done < /tmp/file_mapping.txt
+            rm -f /tmp/file_mapping.txt
+          fi
+          
+          # Commit the changes if any
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes detected in non-notebook files"
+          else
+            echo "✅ Changes detected, committing non-notebook files"
+            git commit -m "Update merged non-notebook files for HTML build [skip ci]"
+            
+            # Try regular push first, then pull-rebase-push if conflicts
+            if git push origin gh-storage; then
+              echo "🚀 Successfully pushed non-notebook files to gh-storage"
+            else
+              echo "⚠️ Push failed due to conflicts, attempting rebase..."
+              git pull --rebase origin gh-storage
+              git push origin gh-storage
+              echo "🚀 Successfully pushed non-notebook files to gh-storage after rebase"
+            fi
+          fi
+          
+          # Return to original branch
+          if [ -n "$current_branch" ]; then
+            git checkout "$current_branch"
+            echo "🔄 Returned to original branch: $current_branch"
+          else
+            git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
+            echo "🔄 Returned to default branch"
+          fi
 
   # Main Notebook Processing
   process-notebooks:
@@ -687,158 +841,162 @@ jobs:
           success() && 
           (inputs.execution-mode != 'pr' || inputs.execution-mode == 'merge' || inputs.execution-mode == 'on-demand' || inputs.trigger-event == 'execute')
         run: |
-          echo "💾 Storing executed notebook to gh-storage"
+          echo "💾 Storing executed notebook to gh-storage with retry logic"
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           
           notebook="${{ matrix.notebook }}"
           
+          # Function to handle atomic git operations with retry logic
+          # This function ONLY touches the specified notebook file and leaves all other files untouched
+          push_notebook_atomic() {
+            local notebook_path="$1"
+            local commit_message="$2"
+            local max_retries=5
+            local retry_count=0
+            local base_delay=2
+            
+            echo "📝 Atomic storage: Will only modify $notebook_path, leaving all other files untouched"
+            
+            while [ $retry_count -lt $max_retries ]; do
+              echo "🔄 Attempt $((retry_count + 1))/$max_retries to store $notebook_path"
+              
+              # Add random jitter to reduce collision probability
+              local jitter=$(( RANDOM % 3 + 1 ))
+              local delay=$(( base_delay * (retry_count + 1) + jitter ))
+              
+              if [ $retry_count -gt 0 ]; then
+                echo "⏱️ Waiting ${delay}s before retry (attempt $((retry_count + 1)))"
+                sleep $delay
+              fi
+              
+              # Start fresh each time to avoid state issues
+              echo "� Fetching latest gh-storage state..."
+              if ! git fetch origin gh-storage; then
+                echo "⚠️ Failed to fetch gh-storage, continuing with local state"
+              fi
+              
+              # Reset to latest remote state
+              if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+                git reset --hard origin/gh-storage
+                echo "✅ Reset to latest gh-storage state (preserving all existing files)"
+              fi
+              
+              # Apply ONLY our single notebook change (preserve everything else)
+              echo "📁 Creating directory structure for: $(dirname "$notebook_path")"
+              mkdir -p "$(dirname "$notebook_path")"
+              
+              echo "📋 Copying ONLY the executed notebook: $notebook_path"
+              cp "/tmp/executed_$(basename "$notebook_path")" "$notebook_path"
+              
+              # Stage ONLY this specific notebook file
+              git add "$notebook_path"
+              
+              # Verify we're only changing the one file we intend to
+              staged_files=$(git diff --cached --name-only | wc -l)
+              if [ "$staged_files" -ne 1 ]; then
+                echo "⚠️ Warning: Expected to stage 1 file, but staged $staged_files files"
+                echo "Staged files:"
+                git diff --cached --name-only
+              else
+                echo "✅ Confirmed: Only staging the target notebook file"
+              fi
+              
+              # Check if there are changes to commit
+              if git diff --cached --quiet; then
+                echo "ℹ️ No changes detected in $notebook_path, storage operation complete"
+                return 0
+              fi
+              
+              # Commit ONLY the changes to this notebook (all other files untouched)
+              if git commit -m "$commit_message"; then
+                echo "✅ Committed changes for $notebook_path (all other files preserved)"
+                
+                # Try to push
+                if git push origin gh-storage; then
+                  echo "🚀 Successfully stored $notebook_path to gh-storage on attempt $((retry_count + 1))"
+                  echo "📦 All other files in gh-storage remain untouched"
+                  return 0
+                else
+                  echo "⚠️ Push failed on attempt $((retry_count + 1)), will retry..."
+                  # Reset the commit to try again
+                  git reset --soft HEAD~1
+                fi
+              else
+                echo "⚠️ Commit failed on attempt $((retry_count + 1))"
+              fi
+              
+              retry_count=$((retry_count + 1))
+            done
+            
+            echo "❌ Failed to store $notebook_path after $max_retries attempts"
+            return 1
+          }
+          
+          # Main execution logic
           if [ "${{ inputs.execution-mode }}" = "pr" ]; then
             echo "🔄 PR mode: Force-pushing ONLY the executed notebook to gh-storage"
-            
-            # Store current state
-            current_branch=$(git branch --show-current)
-            echo "📍 Current branch: $current_branch"
-            
-            # Create a backup copy of the executed notebook BEFORE any branch operations
-            temp_notebook="/tmp/executed_$(basename "$notebook")"
-            cp "$notebook" "$temp_notebook"
-            echo "📋 Backed up executed notebook to: $temp_notebook"
-            
-            # Stash the executed notebook changes to allow clean branch switch
-            git add "$notebook"
-            git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook"
-            echo "� Stashed executed notebook changes for clean branch switch"
-            
-            # Switch to gh-storage branch (create if doesn't exist)
-            if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
-              echo "📦 Using existing gh-storage branch"
-              git fetch origin gh-storage
-              git checkout gh-storage
-            else
-              echo "🆕 Creating new gh-storage branch"
-              git checkout --orphan gh-storage
-              git rm -rf . >/dev/null 2>&1 || true
-            fi
-            
-            # Create directory structure and copy ONLY the executed notebook from backup
-            echo "� Setting up directory: $(dirname "$notebook")"
-            mkdir -p "$(dirname "$notebook")"
-            cp "$temp_notebook" "$notebook"
-            echo "📋 Copied executed notebook from backup: $notebook"
-            
-            # Stage ONLY this notebook file
-            git add "$notebook"
-            
-            # Check if there are actual changes to commit
-            if git diff --cached --quiet; then
-              echo "ℹ️ No changes detected in $notebook"
-            else
-              echo "✅ Changes detected, committing notebook"
-              git commit -m "Update executed notebook $notebook from PR #${{ github.event.number }} [skip ci]"
-              
-              # Try regular push first, then pull-rebase-push if conflicts
-              if git push origin gh-storage; then
-                echo "🚀 Successfully pushed $notebook to gh-storage"
-              else
-                echo "⚠️ Push failed due to conflicts, attempting rebase..."
-                git pull --rebase origin gh-storage
-                git push origin gh-storage
-                echo "🚀 Successfully pushed $notebook to gh-storage after rebase"
-              fi
-            fi
-            
-            # Clean up backup file and return to original branch
-            rm -f "$temp_notebook"
-            
-            # Return to original branch (handle empty branch name)
-            if [ -n "$current_branch" ]; then
-              git checkout "$current_branch"
-              echo "🔄 Returned to original branch: $current_branch"
-            else
-              # Fallback to default branch if current_branch is empty
-              git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
-              echo "🔄 Returned to default branch (current_branch was empty)"
-            fi
-            
-            # Clean up stash if it exists
-            if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
-              git stash drop
-              echo "🧹 Cleaned up temporary stash"
-            fi
-            
+            commit_msg="Update executed notebook $notebook from PR #${{ github.event.number }} [skip ci]"
           else
             echo "🔄 Merge/Execute mode: Adding notebook to gh-storage"
-            
-            # Store current state
-            current_branch=$(git branch --show-current)
-            echo "📍 Current branch: $current_branch"
-            
-            # Create a backup copy of the executed notebook BEFORE any branch operations
-            temp_notebook="/tmp/executed_$(basename "$notebook")"
-            cp "$notebook" "$temp_notebook"
-            echo "📋 Backed up executed notebook to: $temp_notebook"
-            
-            # Stash the executed notebook changes to allow clean branch switch
-            git add "$notebook"
-            git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook"
-            echo "� Stashed executed notebook changes for clean branch switch"
-            
-            # Switch to gh-storage branch
-            if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
-              echo "📦 Using existing gh-storage branch"
-              git fetch origin gh-storage
-              git checkout gh-storage
-            else
-              echo "🆕 Creating new gh-storage branch"
-              git checkout --orphan gh-storage
-              git rm -rf . >/dev/null 2>&1 || true
-            fi
-            
-            # Create directory structure and copy the executed notebook from backup
-            echo "� Setting up directory: $(dirname "$notebook")"  
-            mkdir -p "$(dirname "$notebook")"
-            cp "$temp_notebook" "$notebook"
-            echo "📋 Copied executed notebook from backup: $notebook"
-            
-            # Stage and commit the notebook
-            git add "$notebook"
-            if git diff --cached --quiet; then
-              echo "ℹ️ No changes detected in $notebook"
-            else
-              echo "✅ Changes detected, committing notebook"
-              git commit -m "Update executed notebook $notebook [skip ci]"
-              
-              # Try regular push first, then pull-rebase-push if conflicts
-              if git push origin gh-storage; then
-                echo "🚀 Successfully pushed $notebook to gh-storage"
-              else
-                echo "⚠️ Push failed due to conflicts, attempting rebase..."
-                git pull --rebase origin gh-storage
-                git push origin gh-storage
-                echo "🚀 Successfully pushed $notebook to gh-storage after rebase"
-              fi
-            fi
-            
-            # Clean up backup file and return to original branch
-            rm -f "$temp_notebook"
-            
-            # Return to original branch (handle empty branch name)
-            if [ -n "$current_branch" ]; then
-              git checkout "$current_branch"
-              echo "🔄 Returned to original branch: $current_branch"
-            else
-              # Fallback to default branch if current_branch is empty
-              git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
-              echo "🔄 Returned to default branch (current_branch was empty)"
-            fi
-            
-            # Clean up stash if it exists
-            if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
-              git stash drop
-              echo "🧹 Cleaned up temporary stash"
-            fi
+            commit_msg="Update executed notebook $notebook [skip ci]"
           fi
+          
+          # Store current state
+          current_branch=$(git branch --show-current)
+          echo "📍 Current branch: $current_branch"
+          
+          # Create a backup copy of the executed notebook BEFORE any branch operations
+          temp_notebook="/tmp/executed_$(basename "$notebook")"
+          cp "$notebook" "$temp_notebook"
+          echo "📋 Backed up executed notebook to: $temp_notebook"
+          
+          # Stash the executed notebook changes to allow clean branch switch
+          git add "$notebook"
+          git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook" || echo "⚠️ Stash failed, continuing..."
+          echo "📦 Stashed executed notebook changes for clean branch switch"
+          
+          # Switch to gh-storage branch (create if doesn't exist)
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            echo "📦 Using existing gh-storage branch"
+            git fetch origin gh-storage
+            git checkout gh-storage || git checkout -B gh-storage origin/gh-storage
+          else
+            echo "🆕 Creating new gh-storage branch"
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Call the atomic push function with retry logic
+          if push_notebook_atomic "$notebook" "$commit_msg"; then
+            echo "✅ Successfully stored notebook to gh-storage"
+            exit_code=0
+          else
+            echo "❌ Failed to store notebook after all retry attempts"
+            exit_code=1
+          fi
+          
+          # Clean up backup file and return to original branch
+          rm -f "$temp_notebook"
+          
+          # Return to original branch (handle empty branch name)
+          if [ -n "$current_branch" ]; then
+            git checkout "$current_branch" || echo "⚠️ Failed to return to $current_branch"
+            echo "🔄 Returned to original branch: $current_branch"
+          else
+            # Fallback to default branch if current_branch is empty
+            git checkout "${{ github.ref_name }}" || git checkout main || git checkout master || echo "⚠️ Failed to return to original branch"
+            echo "🔄 Returned to default branch (current_branch was empty)"
+          fi
+          
+          # Clean up stash if it exists
+          if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
+            git stash drop || echo "⚠️ Failed to clean up stash"
+            echo "🧹 Cleaned up temporary stash"
+          fi
+          
+          # Exit with the result of the push operation
+          exit $exit_code
 
       - name: Record execution result
         if: always()
@@ -875,7 +1033,7 @@ jobs:
 
   # HTML Documentation Build
   build-documentation:
-    needs: [setup-matrix, process-notebooks]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files]
     if: |
       always() && 
       inputs.enable-html-build == true &&
@@ -1506,7 +1664,7 @@ jobs:
 
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -1545,6 +1703,10 @@ jobs:
             echo "| Notebook Processing | Skipped (deprecation mode) | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Notebook Processing | Skipped (merge mode) | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          # Show non-notebook file storage job only if it ran (merge mode only)
+          if [ "${{ needs.store-non-notebook-files.result }}" != "skipped" ]; then
+            echo "| Non-Notebook File Storage | ${{ needs.store-non-notebook-files.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "| Documentation Build | ${{ needs.build-documentation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Deprecation Management | ${{ needs.manage-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
