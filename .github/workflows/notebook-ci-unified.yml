@@ -1060,23 +1060,19 @@ jobs:
           git checkout gh-storage
           echo "✅ Switched to gh-storage branch with executed notebooks"
           
-          # Merge static content from main branch to include updated docs/HTML files
-          echo "🔄 Merging static documentation files from main branch"
+          # Fetch essential configuration files and targeted documentation from main branch
+          echo "🔄 Fetching documentation files from main branch based on _toc.yml"
           
           # Fetch the main branch first
           git fetch origin main
           
           # First, get essential JupyterBook configuration files from main
+          echo "📋 Fetching JupyterBook configuration files..."
           git checkout origin/main -- _config.yml 2>/dev/null || echo "ℹ️ No _config.yml in main"
           git checkout origin/main -- _toc.yml 2>/dev/null || echo "ℹ️ No _toc.yml in main"
-          git checkout origin/main -- docs/ 2>/dev/null || echo "ℹ️ No docs/ directory in main"
-          git checkout origin/main -- *.md 2>/dev/null || echo "ℹ️ No markdown files in main root"
-          git checkout origin/main -- *.html 2>/dev/null || echo "ℹ️ No HTML files in main root"
-          git checkout origin/main -- *.css 2>/dev/null || echo "ℹ️ No CSS files in main root"
-          git checkout origin/main -- *.js 2>/dev/null || echo "ℹ️ No JS files in main root"
           
-          # Parse _toc.yml from main branch to get specific documentation files needed
-          echo "📋 Parsing _toc.yml from main branch to identify required documentation files"
+          # Parse _toc.yml to get specific documentation files needed
+          echo "� Parsing _toc.yml to identify required documentation files"
           
           # Create a Python script to safely parse _toc.yml and extract only .md/.html files
           cat > parse_toc_files.py << 'EOF'
@@ -1189,7 +1185,7 @@ EOF
           # Clean up parsing script
           rm -f parse_toc_files.py
           
-          echo "✅ Static documentation files merged from main branch (executed notebooks preserved)"
+          echo "✅ Documentation files fetched from main branch (executed notebooks preserved)"
           echo "📋 Current working directory contents:"
           find . -name "*.html" -o -name "*.md" -o -name "_*.yml" -o -name "*.ipynb" | head -10
           
