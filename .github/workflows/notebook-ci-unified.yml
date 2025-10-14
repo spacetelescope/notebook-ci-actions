@@ -1115,7 +1115,7 @@ try:
 except Exception as e:
     print(f"Error parsing _toc.yml: {e}", file=sys.stderr)
     sys.exit(1)
-EOF
+          EOF
           
           # Parse _toc.yml and get list of documentation files to fetch
           if [ -f "_toc.yml" ]; then
