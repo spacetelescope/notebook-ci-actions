@@ -1072,7 +1072,7 @@ jobs:
           git checkout origin/main -- _toc.yml 2>/dev/null || echo "ℹ️ No _toc.yml in main"
           
           # Parse _toc.yml to get specific documentation files needed
-          echo "� Parsing _toc.yml to identify required documentation files"
+          echo "📖 Parsing _toc.yml to identify required documentation files"
           
           # Create a Python script to safely parse _toc.yml and extract only .md/.html files
           cat > parse_toc_files.py << 'EOF'
