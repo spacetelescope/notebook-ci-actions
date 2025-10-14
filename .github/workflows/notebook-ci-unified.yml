@@ -1076,35 +1076,35 @@ jobs:
           
           # Create a Python script to safely parse _toc.yml and extract only .md/.html files
           python3 -c "
-import yaml
-import os
-import sys
+          import yaml
+          import os
+          import sys
 
-def extract_doc_files_from_toc(toc_data, files_list, path=[]):
-    if isinstance(toc_data, dict):
-        if 'file' in toc_data:
-            file_path = toc_data['file']
-            if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
-                files_list.append(file_path)
-        for key, value in toc_data.items():
-            if key not in ['file']:
-                extract_doc_files_from_toc(value, files_list, path + [key])
-    elif isinstance(toc_data, list):
-        for item in toc_data:
-            extract_doc_files_from_toc(item, files_list, path)
+          def extract_doc_files_from_toc(toc_data, files_list, path=[]):
+              if isinstance(toc_data, dict):
+                  if 'file' in toc_data:
+                      file_path = toc_data['file']
+                      if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
+                          files_list.append(file_path)
+                  for key, value in toc_data.items():
+                      if key not in ['file']:
+                          extract_doc_files_from_toc(value, files_list, path + [key])
+              elif isinstance(toc_data, list):
+                  for item in toc_data:
+                      extract_doc_files_from_toc(item, files_list, path)
 
-try:
-    with open('_toc.yml', 'r', encoding='utf-8') as f:
-        toc = yaml.safe_load(f)
-    files_to_fetch = []
-    extract_doc_files_from_toc(toc, files_to_fetch)
-    files_to_fetch = sorted(list(set(files_to_fetch)))
-    for file_path in files_to_fetch:
-        print(file_path)
-except Exception as e:
-    print(f'Error parsing _toc.yml: {e}', file=sys.stderr)
-    sys.exit(1)
-" > toc_files.txt 2>/dev/null || echo "" > toc_files.txt
+          try:
+              with open('_toc.yml', 'r', encoding='utf-8') as f:
+                  toc = yaml.safe_load(f)
+              files_to_fetch = []
+              extract_doc_files_from_toc(toc, files_to_fetch)
+              files_to_fetch = sorted(list(set(files_to_fetch)))
+              for file_path in files_to_fetch:
+                  print(file_path)
+          except Exception as e:
+              print(f'Error parsing _toc.yml: {e}', file=sys.stderr)
+              sys.exit(1)
+          " > toc_files.txt 2>/dev/null || echo "" > toc_files.txt
           
           # Parse _toc.yml and get list of documentation files to fetch
           if [ -f "_toc.yml" ]; then
