@@ -1075,54 +1075,43 @@ jobs:
           echo "📖 Parsing _toc.yml to identify required documentation files"
           
           # Create a Python script to safely parse _toc.yml and extract only .md/.html files
-          cat > parse_toc_files.py << 'EOF'
+          python3 -c "
 import yaml
 import os
 import sys
 
 def extract_doc_files_from_toc(toc_data, files_list, path=[]):
-    """Recursively extract .md and .html file paths from _toc.yml structure"""
     if isinstance(toc_data, dict):
         if 'file' in toc_data:
             file_path = toc_data['file']
-            # Only include .md and .html files, never .ipynb files
             if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
                 files_list.append(file_path)
-                print(f"Found documentation file: {file_path}", file=sys.stderr)
-        # Recursively process nested structures
         for key, value in toc_data.items():
-            if key not in ['file']:  # Skip the file key we already processed
+            if key not in ['file']:
                 extract_doc_files_from_toc(value, files_list, path + [key])
     elif isinstance(toc_data, list):
         for item in toc_data:
             extract_doc_files_from_toc(item, files_list, path)
 
 try:
-    # Read _toc.yml from current directory (should be from main branch)
     with open('_toc.yml', 'r', encoding='utf-8') as f:
         toc = yaml.safe_load(f)
-    
     files_to_fetch = []
     extract_doc_files_from_toc(toc, files_to_fetch)
-    
-    # Remove duplicates and sort
     files_to_fetch = sorted(list(set(files_to_fetch)))
-    
-    print(f"Found {len(files_to_fetch)} documentation files to fetch from main branch:", file=sys.stderr)
     for file_path in files_to_fetch:
-        print(file_path)  # Output to stdout for shell processing
-        
+        print(file_path)
 except Exception as e:
-    print(f"Error parsing _toc.yml: {e}", file=sys.stderr)
+    print(f'Error parsing _toc.yml: {e}', file=sys.stderr)
     sys.exit(1)
-          EOF
+" > toc_files.txt 2>/dev/null || echo "" > toc_files.txt
           
           # Parse _toc.yml and get list of documentation files to fetch
           if [ -f "_toc.yml" ]; then
             echo "📖 _toc.yml found, parsing for documentation file references..."
             
-            # Get list of .md/.html files referenced in _toc.yml
-            DOC_FILES=$(python3 parse_toc_files.py 2>/dev/null || echo "")
+            # Get list of .md/.html files referenced in _toc.yml from the output file
+            DOC_FILES=$(cat toc_files.txt 2>/dev/null | tr '\n' '\n' || echo "")
             
             # Initialize arrays for tracking
             FETCHED_FILES=""
@@ -1182,8 +1171,8 @@ except Exception as e:
             echo "⚠️ No _toc.yml found - skipping documentation file fetch"
           fi
           
-          # Clean up parsing script
-          rm -f parse_toc_files.py
+          # Clean up temporary files
+          rm -f toc_files.txt
           
           echo "✅ Documentation files fetched from main branch (executed notebooks preserved)"
           echo "📋 Current working directory contents:"
