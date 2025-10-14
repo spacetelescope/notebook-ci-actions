@@ -1053,7 +1053,7 @@ jobs:
           
       - name: Fetch executed notebooks from gh-storage
         id: fetch-docs
-        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html'
+        if: always() && inputs.enable-html-build == true
         run: |
           echo "📦 Fetching executed notebooks from gh-storage branch"
           git fetch origin gh-storage
