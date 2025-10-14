@@ -1043,6 +1043,8 @@ jobs:
        (inputs.execution-mode == 'on-demand' && (needs.process-notebooks.result == 'success' || needs.process-notebooks.result == 'failure')) ||
        (needs.process-notebooks.result == 'success' && inputs.execution-mode != 'merge'))
     runs-on: ubuntu-24.04
+    outputs:
+      fetched-doc-files: ${{ steps.fetch-docs.outputs.doc-files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -1050,6 +1052,7 @@ jobs:
           fetch-depth: 0
           
       - name: Fetch executed notebooks from gh-storage
+        id: fetch-docs
         if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html'
         run: |
           echo "📦 Fetching executed notebooks from gh-storage branch"
@@ -1063,16 +1066,130 @@ jobs:
           # Fetch the main branch first
           git fetch origin main
           
-          # Checkout specific files from main branch, ignore errors if files don't exist
-          git checkout origin/main -- docs/ 2>/dev/null || echo "ℹ️ No docs/ directory in main"
-          git checkout origin/main -- *.md 2>/dev/null || echo "ℹ️ No markdown files in main root"
+          # First, get essential JupyterBook configuration files from main
           git checkout origin/main -- _config.yml 2>/dev/null || echo "ℹ️ No _config.yml in main"
           git checkout origin/main -- _toc.yml 2>/dev/null || echo "ℹ️ No _toc.yml in main"
+          git checkout origin/main -- docs/ 2>/dev/null || echo "ℹ️ No docs/ directory in main"
+          git checkout origin/main -- *.md 2>/dev/null || echo "ℹ️ No markdown files in main root"
           git checkout origin/main -- *.html 2>/dev/null || echo "ℹ️ No HTML files in main root"
           git checkout origin/main -- *.css 2>/dev/null || echo "ℹ️ No CSS files in main root"
           git checkout origin/main -- *.js 2>/dev/null || echo "ℹ️ No JS files in main root"
           
-          echo "✅ Static documentation files merged from main branch"
+          # Parse _toc.yml from main branch to get specific documentation files needed
+          echo "📋 Parsing _toc.yml from main branch to identify required documentation files"
+          
+          # Create a Python script to safely parse _toc.yml and extract only .md/.html files
+          cat > parse_toc_files.py << 'EOF'
+import yaml
+import os
+import sys
+
+def extract_doc_files_from_toc(toc_data, files_list, path=[]):
+    """Recursively extract .md and .html file paths from _toc.yml structure"""
+    if isinstance(toc_data, dict):
+        if 'file' in toc_data:
+            file_path = toc_data['file']
+            # Only include .md and .html files, never .ipynb files
+            if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
+                files_list.append(file_path)
+                print(f"Found documentation file: {file_path}", file=sys.stderr)
+        # Recursively process nested structures
+        for key, value in toc_data.items():
+            if key not in ['file']:  # Skip the file key we already processed
+                extract_doc_files_from_toc(value, files_list, path + [key])
+    elif isinstance(toc_data, list):
+        for item in toc_data:
+            extract_doc_files_from_toc(item, files_list, path)
+
+try:
+    # Read _toc.yml from current directory (should be from main branch)
+    with open('_toc.yml', 'r', encoding='utf-8') as f:
+        toc = yaml.safe_load(f)
+    
+    files_to_fetch = []
+    extract_doc_files_from_toc(toc, files_to_fetch)
+    
+    # Remove duplicates and sort
+    files_to_fetch = sorted(list(set(files_to_fetch)))
+    
+    print(f"Found {len(files_to_fetch)} documentation files to fetch from main branch:", file=sys.stderr)
+    for file_path in files_to_fetch:
+        print(file_path)  # Output to stdout for shell processing
+        
+except Exception as e:
+    print(f"Error parsing _toc.yml: {e}", file=sys.stderr)
+    sys.exit(1)
+EOF
+          
+          # Parse _toc.yml and get list of documentation files to fetch
+          if [ -f "_toc.yml" ]; then
+            echo "📖 _toc.yml found, parsing for documentation file references..."
+            
+            # Get list of .md/.html files referenced in _toc.yml
+            DOC_FILES=$(python3 parse_toc_files.py 2>/dev/null || echo "")
+            
+            # Initialize arrays for tracking
+            FETCHED_FILES=""
+            FAILED_FILES=""
+            
+            if [ -n "$DOC_FILES" ]; then
+              echo "📄 Fetching specific documentation files from main branch (preserving executed notebooks):"
+              
+              # Fetch each documentation file individually from main branch
+              while IFS= read -r doc_file; do
+                if [ -n "$doc_file" ]; then
+                  echo "  📝 Fetching: $doc_file"
+                  
+                  # Create directory structure if needed
+                  mkdir -p "$(dirname "$doc_file")" 2>/dev/null || true
+                  
+                  # Fetch ONLY this specific .md/.html file from main (never .ipynb files)
+                  if git show "origin/main:$doc_file" > "$doc_file" 2>/dev/null; then
+                    echo "    ✅ Successfully fetched: $doc_file"
+                    if [ -z "$FETCHED_FILES" ]; then
+                      FETCHED_FILES="$doc_file"
+                    else
+                      FETCHED_FILES="$FETCHED_FILES,$doc_file"
+                    fi
+                  else
+                    echo "    ⚠️ File not found in main branch: $doc_file"
+                    if [ -z "$FAILED_FILES" ]; then
+                      FAILED_FILES="$doc_file"
+                    else
+                      FAILED_FILES="$FAILED_FILES,$doc_file"
+                    fi
+                  fi
+                fi
+              done <<< "$DOC_FILES"
+              
+              echo "✅ Documentation files from _toc.yml successfully fetched from main branch"
+            else
+              echo "⚠️ No documentation files found in _toc.yml or parsing failed"
+            fi
+            
+            # Create JSON output for workflow summary
+            if [ -n "$FETCHED_FILES" ]; then
+              FETCHED_JSON=$(echo "$FETCHED_FILES" | tr ',' '\n' | jq -R . | jq -s -c .)
+            else
+              FETCHED_JSON="[]"
+            fi
+            
+            if [ -n "$FAILED_FILES" ]; then
+              FAILED_JSON=$(echo "$FAILED_FILES" | tr ',' '\n' | jq -R . | jq -s -c .)
+            else
+              FAILED_JSON="[]"
+            fi
+            
+            # Output for workflow summary
+            echo "doc-files={\"fetched\":$FETCHED_JSON,\"failed\":$FAILED_JSON}" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ No _toc.yml found - skipping documentation file fetch"
+          fi
+          
+          # Clean up parsing script
+          rm -f parse_toc_files.py
+          
+          echo "✅ Static documentation files merged from main branch (executed notebooks preserved)"
           echo "📋 Current working directory contents:"
           find . -name "*.html" -o -name "*.md" -o -name "_*.yml" -o -name "*.ipynb" | head -10
           
@@ -1828,6 +1945,39 @@ jobs:
           else
             echo "**📋 No Processing Performed**" >> $GITHUB_STEP_SUMMARY
             echo "- No notebooks matched selection criteria or processing was not required" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Show documentation files that were fetched from main branch
+          if [ "${{ needs.build-documentation.result }}" = "success" ]; then
+            DOC_FILES_INFO='${{ needs.build-documentation.outputs.fetched-doc-files }}'
+            
+            if [ -n "$DOC_FILES_INFO" ] && [ "$DOC_FILES_INFO" != "null" ]; then
+              echo "**📚 Documentation Files Updated**" >> $GITHUB_STEP_SUMMARY
+              
+              # Parse the fetched files JSON
+              FETCHED_FILES=$(echo "$DOC_FILES_INFO" | jq -r '.fetched[]?' 2>/dev/null || echo "")
+              FAILED_FILES=$(echo "$DOC_FILES_INFO" | jq -r '.failed[]?' 2>/dev/null || echo "")
+              
+              if [ -n "$FETCHED_FILES" ]; then
+                echo "- **Files fetched from main branch:**" >> $GITHUB_STEP_SUMMARY
+                echo "$FETCHED_FILES" | while IFS= read -r file; do
+                  if [ -n "$file" ] && [ "$file" != "null" ]; then
+                    echo "  - \`$file\`" >> $GITHUB_STEP_SUMMARY
+                  fi
+                done
+              fi
+              
+              if [ -n "$FAILED_FILES" ]; then
+                echo "- **Files not found in main branch:**" >> $GITHUB_STEP_SUMMARY
+                echo "$FAILED_FILES" | while IFS= read -r file; do
+                  if [ -n "$file" ] && [ "$file" != "null" ]; then
+                    echo "  - \`$file\` ⚠️" >> $GITHUB_STEP_SUMMARY
+                  fi
+                done
+              fi
+              
+              echo "- **Note**: Documentation files from _toc.yml were updated from main branch while preserving executed notebooks" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
