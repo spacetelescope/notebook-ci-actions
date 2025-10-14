@@ -1128,13 +1128,40 @@ jobs:
                   # Create directory structure if needed
                   mkdir -p "$(dirname "$doc_file")" 2>/dev/null || true
                   
-                  # Fetch ONLY this specific .md/.html file from main (never .ipynb files)
+                  # Try to fetch the file, with fallback extensions if no extension provided
+                  FETCHED=false
+                  ACTUAL_FILE=""
+                  
+                  # First, try the exact path as specified in _toc.yml
                   if git show "origin/main:$doc_file" > "$doc_file" 2>/dev/null; then
                     echo "    ✅ Successfully fetched: $doc_file"
+                    FETCHED=true
+                    ACTUAL_FILE="$doc_file"
+                  else
+                    # If file has no extension, try common extensions
+                    if [[ "$doc_file" != *.* ]]; then
+                      echo "    🔍 File not found, trying with extensions..."
+                      
+                      # Try .md extension
+                      if git show "origin/main:${doc_file}.md" > "$doc_file" 2>/dev/null; then
+                        echo "    ✅ Successfully fetched: ${doc_file}.md → $doc_file"
+                        FETCHED=true
+                        ACTUAL_FILE="${doc_file}.md"
+                      # Try .html extension
+                      elif git show "origin/main:${doc_file}.html" > "$doc_file" 2>/dev/null; then
+                        echo "    ✅ Successfully fetched: ${doc_file}.html → $doc_file"
+                        FETCHED=true
+                        ACTUAL_FILE="${doc_file}.html"
+                      fi
+                    fi
+                  fi
+                  
+                  # Track results
+                  if [ "$FETCHED" = true ]; then
                     if [ -z "$FETCHED_FILES" ]; then
-                      FETCHED_FILES="$doc_file"
+                      FETCHED_FILES="$ACTUAL_FILE"
                     else
-                      FETCHED_FILES="$FETCHED_FILES,$doc_file"
+                      FETCHED_FILES="$FETCHED_FILES,$ACTUAL_FILE"
                     fi
                   else
                     echo "    ⚠️ File not found in main branch: $doc_file"
