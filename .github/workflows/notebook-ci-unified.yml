@@ -698,9 +698,94 @@ jobs:
             echo "🔄 Returned to default branch"
           fi
 
+  # Jupyter Book Validation
+  validate-jupyter-book:
+    needs: setup-matrix
+    if: |
+      needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
+      (inputs.enable-validation == true || inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Python environment with micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: notebooks
+          create-args: >-
+            python=${{ inputs.python-version }}
+            jupyter-book
+          cache-environment: true
+          
+      - name: Validate notebook with Jupyter Book (errors only)
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: |
+          set -euo pipefail
+
+          annotate() {
+            awk -F: '
+              /^[^:]+:[0-9]+: (WARNING|ERROR):/ {
+                file=$1; line=$2; level=$3; sub(/^ /,"",level); msg=$0;
+                sub(/^[^:]+:[0-9]+: (WARNING|ERROR): /,"",msg);
+                if (level ~ /ERROR/) {
+                  print "::error file=",file,",line=",line,"::",msg
+                } else {
+                  print "::warning file=",file,",line=",line,"::",msg
+                }
+              }
+            '
+          }
+
+          echo "::group::Jupyter Book validation: $NOTEBOOK"
+          
+          if [ ! -f "$NOTEBOOK" ]; then
+            echo "::error::Notebook file not found: $NOTEBOOK"
+            exit 1
+          fi
+          
+          WORKDIR="$(mktemp -d)"
+          ext="${NOTEBOOK##*.}"
+          cp "$NOTEBOOK" "$WORKDIR/page.$ext"
+
+          cat > "$WORKDIR/_toc.yml" <<'YAML'
+          format: jb-book
+          root: page
+          YAML
+
+          cat > "$WORKDIR/_config.yml" <<'YAML'
+          execution:
+            execute_notebooks: "off"
+          sphinx:
+            config:
+              nb_execution_show_tb: true
+          YAML
+
+          set +e
+          OUTPUT_LOG="$WORKDIR/build.log"
+          jupyter-book build --keep-going "$WORKDIR" 2>&1 | tee "$OUTPUT_LOG"
+          jb_rc=${PIPESTATUS[0]}
+          set -e
+
+          cat "$OUTPUT_LOG" | annotate
+
+          if grep -q "ERROR:" "$OUTPUT_LOG"; then
+            echo "::error::Jupyter Book validation failed for $NOTEBOOK"
+            exit 1
+          fi
+          
+          echo "✅ Jupyter Book validation passed for $NOTEBOOK"
+          echo "::endgroup::"
+
   # Main Notebook Processing
   process-notebooks:
-    needs: setup-matrix
+    needs: [setup-matrix, validate-jupyter-book]
     # environment: ci_env  # Temporarily removed to test runner assignment
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
