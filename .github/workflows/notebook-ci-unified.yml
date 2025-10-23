@@ -703,6 +703,7 @@ jobs:
     needs: setup-matrix
     if: |
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
+      inputs.execution-mode == 'pr' &&
       (inputs.enable-validation == true || inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
     runs-on: ubuntu-24.04
     strategy:
@@ -785,7 +786,7 @@ jobs:
 
   # Main Notebook Processing
   process-notebooks:
-    needs: [setup-matrix, validate-jupyter-book]
+    needs: setup-matrix
     # environment: ci_env  # Temporarily removed to test runner assignment
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
