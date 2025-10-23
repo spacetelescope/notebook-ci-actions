@@ -120,6 +120,7 @@ jobs:
       affected-dirs: ${{ steps.setup.outputs.affected-dirs }}
       skip-execution: ${{ steps.setup.outputs.skip-execution }}
       docs-only: ${{ steps.setup.outputs.docs-only }}
+      non-notebook-files: ${{ steps.setup.outputs.non-notebook-files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -234,18 +235,141 @@ jobs:
                 MATRIX_NOTEBOOKS="[]"
                 AFFECTED_DIRS="[]"
               fi
+              # No non-notebook files collected in PR mode
+              NON_NOTEBOOK_FILES_JSON="[]"
               ;;
               
             "merge")
-              echo "🚀 Merge Mode: Full repository processing"  
-              MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
-              AFFECTED_DIRS='["notebooks"]'
+              echo "🚀 Merge Mode: Processing merged notebooks only"
+              # Get the list of files changed in the merge commit
+              # For merge commits, we compare with the first parent (previous commit on target branch)
+              MERGE_SHA=$(git rev-parse HEAD)
+              PARENT_SHA=$(git rev-parse HEAD^1)
+              echo "Merge commit: $MERGE_SHA, Parent commit: $PARENT_SHA"
+              
+              # Get changed files between parent commit and merge commit
+              CHANGED_FILES=$(git diff --name-only $PARENT_SHA $MERGE_SHA)
+              
+              # Process changed files to find notebooks, affected directories, and non-notebook files
+              declare -a CHANGED_NOTEBOOKS
+              declare -a AFFECTED_DIRECTORIES
+              declare -a NON_NOTEBOOK_FILES
+              
+              while IFS= read -r file; do
+                [[ -z "$file" ]] && continue
+                case "$file" in
+                  notebooks/*.ipynb)
+                    CHANGED_NOTEBOOKS+=("$file")
+                    dir=$(dirname "$file")
+                    if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                      AFFECTED_DIRECTORIES+=("$dir")
+                    fi
+                    ;;
+                  notebooks/*/requirements.txt|requirements.txt|pyproject.toml)
+                    echo "📦 Requirements file changed: $file"
+                    dir=$(dirname "$file")
+                    if [[ "$file" == "requirements.txt" || "$file" == "pyproject.toml" ]]; then
+                      # Root requirements file affects all notebooks
+                      echo "🌐 Root requirements file changed - affecting all notebooks"
+                      AFFECTED_DIRECTORIES=("notebooks")
+                    else
+                      # Directory-specific requirements file
+                      echo "📁 Directory requirements file changed: $dir"
+                      if [[ ! " ${AFFECTED_DIRECTORIES[*]} " =~ " $dir " ]]; then
+                        AFFECTED_DIRECTORIES+=("$dir")
+                      fi
+                    fi
+                    ;;
+                  *.md|*.html|*.css|*.js|_config.yml|_toc.yml|notebooks/*.md|notebooks/*.html|notebooks/*.css|notebooks/*.js)
+                    # Documentation files - collect for gh-storage in merge mode
+                    echo "📄 Documentation file changed: $file"
+                    NON_NOTEBOOK_FILES+=("$file")
+                    ;;
+                esac
+              done <<< "$CHANGED_FILES"
+              
+              # For merge mode, process only explicitly changed notebooks and notebooks affected by requirements changes
+              if [ ${#AFFECTED_DIRECTORIES[@]} -gt 0 ] && [[ " ${AFFECTED_DIRECTORIES[*]} " =~ " notebooks " ]]; then
+                # If root requirements file changed, we need to process all notebooks
+                echo "🌐 Root requirements file changed - affecting all notebooks in merge"
+                declare -a ALL_AFFECTED_NOTEBOOKS
+                while IFS= read -r notebook; do
+                  [[ -z "$notebook" ]] && continue
+                  echo "📓 Found notebook affected by root requirements: $notebook"
+                  ALL_AFFECTED_NOTEBOOKS+=("$notebook")
+                done < <(find notebooks/ -name '*.ipynb' -type f 2>/dev/null)
+                
+                # Combine explicitly changed notebooks with those affected by root requirements
+                declare -A UNIQUE_NOTEBOOKS
+                for notebook in "${CHANGED_NOTEBOOKS[@]}" "${ALL_AFFECTED_NOTEBOOKS[@]}"; do
+                  [[ -n "$notebook" ]] && UNIQUE_NOTEBOOKS["$notebook"]=1
+                done
+                
+                # Convert back to regular array
+                CHANGED_NOTEBOOKS=()
+                for notebook in "${!UNIQUE_NOTEBOOKS[@]}"; do
+                  CHANGED_NOTEBOOKS+=("$notebook")
+                done
+              elif [ ${#AFFECTED_DIRECTORIES[@]} -gt 0 ]; then
+                # Directory-specific requirements files changed - find notebooks in those specific directories
+                echo "📁 Directory-specific requirements changed: ${AFFECTED_DIRECTORIES[*]}"
+                declare -a ALL_AFFECTED_NOTEBOOKS
+                
+                for dir in "${AFFECTED_DIRECTORIES[@]}"; do
+                  if [ "$dir" != "notebooks" ]; then  # Skip if already handled above
+                    echo "🔍 Searching for notebooks affected by requirements in: $dir"
+                    while IFS= read -r notebook; do
+                      [[ -z "$notebook" ]] && continue
+                      echo "📓 Found notebook affected by directory requirements: $notebook"
+                      ALL_AFFECTED_NOTEBOOKS+=("$notebook")
+                    done < <(find "$dir" -name '*.ipynb' -type f 2>/dev/null)
+                  fi
+                done
+                
+                # Combine explicitly changed notebooks with those affected by directory requirements
+                declare -A UNIQUE_NOTEBOOKS
+                for notebook in "${CHANGED_NOTEBOOKS[@]}" "${ALL_AFFECTED_NOTEBOOKS[@]}"; do
+                  [[ -n "$notebook" ]] && UNIQUE_NOTEBOOKS["$notebook"]=1
+                done
+                
+                # Convert back to regular array
+                CHANGED_NOTEBOOKS=()
+                for notebook in "${!UNIQUE_NOTEBOOKS[@]}"; do
+                  CHANGED_NOTEBOOKS+=("$notebook")
+                done
+              fi
+              
+              echo "📋 Total notebooks to process in merge: ${#CHANGED_NOTEBOOKS[@]}"
+              for notebook in "${CHANGED_NOTEBOOKS[@]}"; do
+                echo "  - $notebook"
+              done
+              
+              # Create JSON array of changed notebooks
+              if [ ${#CHANGED_NOTEBOOKS[@]} -gt 0 ]; then
+                MATRIX_NOTEBOOKS=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s -c .)
+                AFFECTED_DIRS=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s -c .)
+                echo "✅ Matrix populated with ${#CHANGED_NOTEBOOKS[@]} notebooks"
+              else
+                echo "⚠️ No changed notebooks found to process"
+                MATRIX_NOTEBOOKS="[]"
+                AFFECTED_DIRS='["notebooks"]'
+              fi
+              
+              # Handle non-notebook files for merge mode
+              if [ ${#NON_NOTEBOOK_FILES[@]} -gt 0 ]; then
+                echo "📄 Non-notebook files to store: ${NON_NOTEBOOK_FILES[*]}"
+                NON_NOTEBOOK_FILES_JSON=$(printf '%s\n' "${NON_NOTEBOOK_FILES[@]}" | jq -R . | jq -s -c .)
+                echo "✅ Found ${#NON_NOTEBOOK_FILES[@]} non-notebook files to store"
+              else
+                NON_NOTEBOOK_FILES_JSON="[]"
+              fi
               ;;
               
             "scheduled")
               echo "⏰ Scheduled Mode: All notebooks validation"
               MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
               AFFECTED_DIRS='["notebooks"]'
+              NON_NOTEBOOK_FILES_JSON="[]"
               ;;
               
             "on-demand")
@@ -286,6 +410,7 @@ jobs:
                 MATRIX_NOTEBOOKS=$(find notebooks/ -name '*.ipynb' | jq -R -s -c 'split("\n")[:-1] | map(select(. != ""))')
                 AFFECTED_DIRS='["notebooks"]'
               fi
+              NON_NOTEBOOK_FILES_JSON="[]"
               ;;
           esac
           
@@ -446,6 +571,7 @@ jobs:
           echo "affected-dirs=$AFFECTED_DIRS" >> $GITHUB_OUTPUT  
           echo "skip-execution=$SKIP_EXECUTION" >> $GITHUB_OUTPUT
           echo "docs-only=$DOCS_ONLY" >> $GITHUB_OUTPUT
+          echo "non-notebook-files=${NON_NOTEBOOK_FILES_JSON:-[]}" >> $GITHUB_OUTPUT
           
           echo "📊 Matrix Setup Complete:"
           echo "  Notebooks: $MATRIX_NOTEBOOKS"
@@ -462,14 +588,208 @@ jobs:
           echo "🔑 Runner config keys:"
           echo "$RUNNER_CONFIG" | jq -r 'keys[]' 2>/dev/null || echo "❌ Failed to extract keys"
 
+  # Store Non-Notebook Files (for documentation files in merge mode)
+  store-non-notebook-files:
+    needs: setup-matrix
+    if: |
+      inputs.execution-mode == 'merge' && 
+      needs.setup-matrix.outputs.non-notebook-files != '[]' &&
+      inputs.enable-storage == true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Store non-notebook files to gh-storage
+        run: |
+          echo "📄 Storing merged non-notebook files to gh-storage for HTML build actions"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          
+          # Get the list of non-notebook files to store
+          NON_NOTEBOOK_FILES='${{ needs.setup-matrix.outputs.non-notebook-files }}'
+          echo "📋 Files to store: $NON_NOTEBOOK_FILES"
+          
+          # Store current state
+          current_branch=$(git branch --show-current)
+          echo "📍 Current branch: $current_branch"
+          
+          # Switch to gh-storage branch (create if doesn't exist)
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            echo "📦 Using existing gh-storage branch"
+            git fetch origin gh-storage
+            git checkout gh-storage
+          else
+            echo "🆕 Creating new gh-storage branch"
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Return to original branch to get the files
+          if [ -n "$current_branch" ]; then
+            git checkout "$current_branch"
+            echo "🔄 Switched back to: $current_branch"
+          else
+            git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
+            echo "🔄 Switched back to default branch"
+          fi
+          
+          # Create backup copies of the files
+          declare -a TEMP_FILES
+          echo "$NON_NOTEBOOK_FILES" | jq -r '.[]' | while read -r file; do
+            if [ -f "$file" ]; then
+              temp_file="/tmp/$(basename "$file")_$(echo "$file" | tr '/' '_')"
+              cp "$file" "$temp_file"
+              echo "📋 Backed up: $file -> $temp_file"
+              echo "$file:$temp_file" >> /tmp/file_mapping.txt
+            else
+              echo "⚠️ File not found: $file"
+            fi
+          done
+          
+          # Switch back to gh-storage branch
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            git checkout gh-storage
+          else
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Restore files from backup to gh-storage branch
+          if [ -f "/tmp/file_mapping.txt" ]; then
+            while IFS=: read -r original_file temp_file; do
+              if [ -f "$temp_file" ]; then
+                echo "📁 Setting up directory: $(dirname "$original_file")"
+                mkdir -p "$(dirname "$original_file")"
+                cp "$temp_file" "$original_file"
+                echo "✅ Restored: $original_file"
+                git add "$original_file"
+                rm -f "$temp_file"
+              fi
+            done < /tmp/file_mapping.txt
+            rm -f /tmp/file_mapping.txt
+          fi
+          
+          # Commit the changes if any
+          if git diff --cached --quiet; then
+            echo "ℹ️ No changes detected in non-notebook files"
+          else
+            echo "✅ Changes detected, committing non-notebook files"
+            git commit -m "Update merged non-notebook files for HTML build [skip ci]"
+            
+            # Try regular push first, then pull-rebase-push if conflicts
+            if git push origin gh-storage; then
+              echo "🚀 Successfully pushed non-notebook files to gh-storage"
+            else
+              echo "⚠️ Push failed due to conflicts, attempting rebase..."
+              git pull --rebase origin gh-storage
+              git push origin gh-storage
+              echo "🚀 Successfully pushed non-notebook files to gh-storage after rebase"
+            fi
+          fi
+          
+          # Return to original branch
+          if [ -n "$current_branch" ]; then
+            git checkout "$current_branch"
+            echo "🔄 Returned to original branch: $current_branch"
+          else
+            git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
+            echo "🔄 Returned to default branch"
+          fi
+
+  # Jupyter Book Validation
+  validate-jupyter-book:
+    needs: setup-matrix
+    if: |
+      needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
+      (inputs.enable-validation == true || inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Python environment with micromamba
+        uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: notebooks
+          create-args: >-
+            python=${{ inputs.python-version }}
+            jupyter-book
+          cache-environment: true
+          
+      - name: Validate notebook with Jupyter Book (errors only)
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: |
+          set -euo pipefail
+
+          annotate() {
+            awk -F: '
+              /^[^:]+:[0-9]+: (WARNING|ERROR):/ {
+                file=$1; line=$2; level=$3; sub(/^ /,"",level); msg=$0;
+                sub(/^[^:]+:[0-9]+: (WARNING|ERROR): /,"",msg);
+                if (level ~ /ERROR/) {
+                  print "::error file=",file,",line=",line,"::",msg
+                } else {
+                  print "::warning file=",file,",line=",line,"::",msg
+                }
+              }
+            '
+          }
+
+          echo "::group::Jupyter Book validation: $NOTEBOOK"
+          
+          if [ ! -f "$NOTEBOOK" ]; then
+            echo "::error::Notebook file not found: $NOTEBOOK"
+            exit 1
+          fi
+          
+          WORKDIR="$(mktemp -d)"
+          ext="${NOTEBOOK##*.}"
+          cp "$NOTEBOOK" "$WORKDIR/page.$ext"
+
+          cat > "$WORKDIR/_toc.yml" <<'YAML'
+          format: jb-book
+          root: page
+          YAML
+
+          cat > "$WORKDIR/_config.yml" <<'YAML'
+          execution:
+            execute_notebooks: "off"
+          sphinx:
+            config:
+              nb_execution_show_tb: true
+          YAML
+
+          set +e
+          OUTPUT_LOG="$WORKDIR/build.log"
+          jupyter-book build --keep-going "$WORKDIR" 2>&1 | tee "$OUTPUT_LOG"
+          jb_rc=${PIPESTATUS[0]}
+          set -e
+
+          cat "$OUTPUT_LOG" | annotate
+
+          if grep -q "ERROR:" "$OUTPUT_LOG"; then
+            echo "::error::Jupyter Book validation failed for $NOTEBOOK"
+            exit 1
+          fi
+          
+          echo "✅ Jupyter Book validation passed for $NOTEBOOK"
+          echo "::endgroup::"
+
   # Main Notebook Processing
   process-notebooks:
-    needs: setup-matrix
+    needs: [setup-matrix, validate-jupyter-book]
     # environment: ci_env  # Temporarily removed to test runner assignment
     if: |
       needs.setup-matrix.outputs.skip-execution != 'true' && 
       needs.setup-matrix.outputs.matrix-notebooks != '[]' &&
-      inputs.execution-mode != 'merge' &&
       inputs.trigger-event != 'deprecate'
     runs-on: ${{ fromJson(needs.setup-matrix.outputs.runner-config)[matrix.notebook] || 'ubuntu-latest' }}
     outputs:
@@ -604,160 +924,164 @@ jobs:
           inputs.enable-storage == true && 
           steps.deprecation-check.outputs.deprecated != 'true' &&
           success() && 
-          (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.execution-mode == 'on-demand' || inputs.trigger-event == 'execute')
+          (inputs.execution-mode != 'pr' || inputs.execution-mode == 'merge' || inputs.execution-mode == 'on-demand' || inputs.trigger-event == 'execute')
         run: |
-          echo "💾 Storing executed notebook to gh-storage"
+          echo "💾 Storing executed notebook to gh-storage with retry logic"
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           
           notebook="${{ matrix.notebook }}"
           
+          # Function to handle atomic git operations with retry logic
+          # This function ONLY touches the specified notebook file and leaves all other files untouched
+          push_notebook_atomic() {
+            local notebook_path="$1"
+            local commit_message="$2"
+            local max_retries=5
+            local retry_count=0
+            local base_delay=2
+            
+            echo "📝 Atomic storage: Will only modify $notebook_path, leaving all other files untouched"
+            
+            while [ $retry_count -lt $max_retries ]; do
+              echo "🔄 Attempt $((retry_count + 1))/$max_retries to store $notebook_path"
+              
+              # Add random jitter to reduce collision probability
+              local jitter=$(( RANDOM % 3 + 1 ))
+              local delay=$(( base_delay * (retry_count + 1) + jitter ))
+              
+              if [ $retry_count -gt 0 ]; then
+                echo "⏱️ Waiting ${delay}s before retry (attempt $((retry_count + 1)))"
+                sleep $delay
+              fi
+              
+              # Start fresh each time to avoid state issues
+              echo "� Fetching latest gh-storage state..."
+              if ! git fetch origin gh-storage; then
+                echo "⚠️ Failed to fetch gh-storage, continuing with local state"
+              fi
+              
+              # Reset to latest remote state
+              if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+                git reset --hard origin/gh-storage
+                echo "✅ Reset to latest gh-storage state (preserving all existing files)"
+              fi
+              
+              # Apply ONLY our single notebook change (preserve everything else)
+              echo "📁 Creating directory structure for: $(dirname "$notebook_path")"
+              mkdir -p "$(dirname "$notebook_path")"
+              
+              echo "📋 Copying ONLY the executed notebook: $notebook_path"
+              cp "/tmp/executed_$(basename "$notebook_path")" "$notebook_path"
+              
+              # Stage ONLY this specific notebook file
+              git add "$notebook_path"
+              
+              # Verify we're only changing the one file we intend to
+              staged_files=$(git diff --cached --name-only | wc -l)
+              if [ "$staged_files" -ne 1 ]; then
+                echo "⚠️ Warning: Expected to stage 1 file, but staged $staged_files files"
+                echo "Staged files:"
+                git diff --cached --name-only
+              else
+                echo "✅ Confirmed: Only staging the target notebook file"
+              fi
+              
+              # Check if there are changes to commit
+              if git diff --cached --quiet; then
+                echo "ℹ️ No changes detected in $notebook_path, storage operation complete"
+                return 0
+              fi
+              
+              # Commit ONLY the changes to this notebook (all other files untouched)
+              if git commit -m "$commit_message"; then
+                echo "✅ Committed changes for $notebook_path (all other files preserved)"
+                
+                # Try to push
+                if git push origin gh-storage; then
+                  echo "🚀 Successfully stored $notebook_path to gh-storage on attempt $((retry_count + 1))"
+                  echo "📦 All other files in gh-storage remain untouched"
+                  return 0
+                else
+                  echo "⚠️ Push failed on attempt $((retry_count + 1)), will retry..."
+                  # Reset the commit to try again
+                  git reset --soft HEAD~1
+                fi
+              else
+                echo "⚠️ Commit failed on attempt $((retry_count + 1))"
+              fi
+              
+              retry_count=$((retry_count + 1))
+            done
+            
+            echo "❌ Failed to store $notebook_path after $max_retries attempts"
+            return 1
+          }
+          
+          # Main execution logic
           if [ "${{ inputs.execution-mode }}" = "pr" ]; then
             echo "🔄 PR mode: Force-pushing ONLY the executed notebook to gh-storage"
-            
-            # Store current state
-            current_branch=$(git branch --show-current)
-            echo "📍 Current branch: $current_branch"
-            
-            # Create a backup copy of the executed notebook BEFORE any branch operations
-            temp_notebook="/tmp/executed_$(basename "$notebook")"
-            cp "$notebook" "$temp_notebook"
-            echo "📋 Backed up executed notebook to: $temp_notebook"
-            
-            # Stash the executed notebook changes to allow clean branch switch
-            git add "$notebook"
-            git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook"
-            echo "� Stashed executed notebook changes for clean branch switch"
-            
-            # Switch to gh-storage branch (create if doesn't exist)
-            if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
-              echo "📦 Using existing gh-storage branch"
-              git fetch origin gh-storage
-              git checkout gh-storage
-            else
-              echo "🆕 Creating new gh-storage branch"
-              git checkout --orphan gh-storage
-              git rm -rf . >/dev/null 2>&1 || true
-            fi
-            
-            # Create directory structure and copy ONLY the executed notebook from backup
-            echo "� Setting up directory: $(dirname "$notebook")"
-            mkdir -p "$(dirname "$notebook")"
-            cp "$temp_notebook" "$notebook"
-            echo "📋 Copied executed notebook from backup: $notebook"
-            
-            # Stage ONLY this notebook file
-            git add "$notebook"
-            
-            # Check if there are actual changes to commit
-            if git diff --cached --quiet; then
-              echo "ℹ️ No changes detected in $notebook"
-            else
-              echo "✅ Changes detected, committing notebook"
-              git commit -m "Update executed notebook $notebook from PR #${{ github.event.number }} [skip ci]"
-              
-              # Try regular push first, then pull-rebase-push if conflicts
-              if git push origin gh-storage; then
-                echo "🚀 Successfully pushed $notebook to gh-storage"
-              else
-                echo "⚠️ Push failed due to conflicts, attempting rebase..."
-                git pull --rebase origin gh-storage
-                git push origin gh-storage
-                echo "🚀 Successfully pushed $notebook to gh-storage after rebase"
-              fi
-            fi
-            
-            # Clean up backup file and return to original branch
-            rm -f "$temp_notebook"
-            
-            # Return to original branch (handle empty branch name)
-            if [ -n "$current_branch" ]; then
-              git checkout "$current_branch"
-              echo "🔄 Returned to original branch: $current_branch"
-            else
-              # Fallback to default branch if current_branch is empty
-              git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
-              echo "🔄 Returned to default branch (current_branch was empty)"
-            fi
-            
-            # Clean up stash if it exists
-            if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
-              git stash drop
-              echo "🧹 Cleaned up temporary stash"
-            fi
-            
+            commit_msg="Update executed notebook $notebook from PR #${{ github.event.number }} [skip ci]"
           else
             echo "🔄 Merge/Execute mode: Adding notebook to gh-storage"
-            
-            # Store current state
-            current_branch=$(git branch --show-current)
-            echo "📍 Current branch: $current_branch"
-            
-            # Create a backup copy of the executed notebook BEFORE any branch operations
-            temp_notebook="/tmp/executed_$(basename "$notebook")"
-            cp "$notebook" "$temp_notebook"
-            echo "📋 Backed up executed notebook to: $temp_notebook"
-            
-            # Stash the executed notebook changes to allow clean branch switch
-            git add "$notebook"
-            git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook"
-            echo "� Stashed executed notebook changes for clean branch switch"
-            
-            # Switch to gh-storage branch
-            if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
-              echo "📦 Using existing gh-storage branch"
-              git fetch origin gh-storage
-              git checkout gh-storage
-            else
-              echo "🆕 Creating new gh-storage branch"
-              git checkout --orphan gh-storage
-              git rm -rf . >/dev/null 2>&1 || true
-            fi
-            
-            # Create directory structure and copy the executed notebook from backup
-            echo "� Setting up directory: $(dirname "$notebook")"  
-            mkdir -p "$(dirname "$notebook")"
-            cp "$temp_notebook" "$notebook"
-            echo "📋 Copied executed notebook from backup: $notebook"
-            
-            # Stage and commit the notebook
-            git add "$notebook"
-            if git diff --cached --quiet; then
-              echo "ℹ️ No changes detected in $notebook"
-            else
-              echo "✅ Changes detected, committing notebook"
-              git commit -m "Update executed notebook $notebook [skip ci]"
-              
-              # Try regular push first, then pull-rebase-push if conflicts
-              if git push origin gh-storage; then
-                echo "🚀 Successfully pushed $notebook to gh-storage"
-              else
-                echo "⚠️ Push failed due to conflicts, attempting rebase..."
-                git pull --rebase origin gh-storage
-                git push origin gh-storage
-                echo "🚀 Successfully pushed $notebook to gh-storage after rebase"
-              fi
-            fi
-            
-            # Clean up backup file and return to original branch
-            rm -f "$temp_notebook"
-            
-            # Return to original branch (handle empty branch name)
-            if [ -n "$current_branch" ]; then
-              git checkout "$current_branch"
-              echo "🔄 Returned to original branch: $current_branch"
-            else
-              # Fallback to default branch if current_branch is empty
-              git checkout "${{ github.ref_name }}" || git checkout main || git checkout master
-              echo "🔄 Returned to default branch (current_branch was empty)"
-            fi
-            
-            # Clean up stash if it exists
-            if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
-              git stash drop
-              echo "🧹 Cleaned up temporary stash"
-            fi
+            commit_msg="Update executed notebook $notebook [skip ci]"
           fi
+          
+          # Store current state
+          current_branch=$(git branch --show-current)
+          echo "📍 Current branch: $current_branch"
+          
+          # Create a backup copy of the executed notebook BEFORE any branch operations
+          temp_notebook="/tmp/executed_$(basename "$notebook")"
+          cp "$notebook" "$temp_notebook"
+          echo "📋 Backed up executed notebook to: $temp_notebook"
+          
+          # Stash the executed notebook changes to allow clean branch switch
+          git add "$notebook"
+          git stash push -m "Temporary stash of executed notebook for gh-storage" -- "$notebook" || echo "⚠️ Stash failed, continuing..."
+          echo "📦 Stashed executed notebook changes for clean branch switch"
+          
+          # Switch to gh-storage branch (create if doesn't exist)
+          if git ls-remote --exit-code origin gh-storage >/dev/null 2>&1; then
+            echo "📦 Using existing gh-storage branch"
+            git fetch origin gh-storage
+            git checkout gh-storage || git checkout -B gh-storage origin/gh-storage
+          else
+            echo "🆕 Creating new gh-storage branch"
+            git checkout --orphan gh-storage
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          
+          # Call the atomic push function with retry logic
+          if push_notebook_atomic "$notebook" "$commit_msg"; then
+            echo "✅ Successfully stored notebook to gh-storage"
+            exit_code=0
+          else
+            echo "❌ Failed to store notebook after all retry attempts"
+            exit_code=1
+          fi
+          
+          # Clean up backup file and return to original branch
+          rm -f "$temp_notebook"
+          
+          # Return to original branch (handle empty branch name)
+          if [ -n "$current_branch" ]; then
+            git checkout "$current_branch" || echo "⚠️ Failed to return to $current_branch"
+            echo "🔄 Returned to original branch: $current_branch"
+          else
+            # Fallback to default branch if current_branch is empty
+            git checkout "${{ github.ref_name }}" || git checkout main || git checkout master || echo "⚠️ Failed to return to original branch"
+            echo "🔄 Returned to default branch (current_branch was empty)"
+          fi
+          
+          # Clean up stash if it exists
+          if git stash list | grep -q "Temporary stash of executed notebook for gh-storage"; then
+            git stash drop || echo "⚠️ Failed to clean up stash"
+            echo "🧹 Cleaned up temporary stash"
+          fi
+          
+          # Exit with the result of the push operation
+          exit $exit_code
 
       - name: Record execution result
         if: always()
@@ -794,7 +1118,7 @@ jobs:
 
   # HTML Documentation Build
   build-documentation:
-    needs: [setup-matrix, process-notebooks]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files]
     if: |
       always() && 
       inputs.enable-html-build == true &&
@@ -804,6 +1128,8 @@ jobs:
        (inputs.execution-mode == 'on-demand' && (needs.process-notebooks.result == 'success' || needs.process-notebooks.result == 'failure')) ||
        (needs.process-notebooks.result == 'success' && inputs.execution-mode != 'merge'))
     runs-on: ubuntu-24.04
+    outputs:
+      fetched-doc-files: ${{ steps.fetch-docs.outputs.doc-files }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -811,29 +1137,156 @@ jobs:
           fetch-depth: 0
           
       - name: Fetch executed notebooks from gh-storage
-        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html'
+        id: fetch-docs
+        if: always() && inputs.enable-html-build == true
         run: |
           echo "📦 Fetching executed notebooks from gh-storage branch"
           git fetch origin gh-storage
           git checkout gh-storage
           echo "✅ Switched to gh-storage branch with executed notebooks"
           
-          # Merge static content from main branch to include updated docs/HTML files
-          echo "🔄 Merging static documentation files from main branch"
+          # Fetch essential configuration files and targeted documentation from main branch
+          echo "🔄 Fetching documentation files from main branch based on _toc.yml"
           
           # Fetch the main branch first
           git fetch origin main
           
-          # Checkout specific files from main branch, ignore errors if files don't exist
-          git checkout origin/main -- docs/ 2>/dev/null || echo "ℹ️ No docs/ directory in main"
-          git checkout origin/main -- *.md 2>/dev/null || echo "ℹ️ No markdown files in main root"
+          # First, get essential JupyterBook configuration files from main
+          echo "📋 Fetching JupyterBook configuration files..."
           git checkout origin/main -- _config.yml 2>/dev/null || echo "ℹ️ No _config.yml in main"
           git checkout origin/main -- _toc.yml 2>/dev/null || echo "ℹ️ No _toc.yml in main"
-          git checkout origin/main -- *.html 2>/dev/null || echo "ℹ️ No HTML files in main root"
-          git checkout origin/main -- *.css 2>/dev/null || echo "ℹ️ No CSS files in main root"
-          git checkout origin/main -- *.js 2>/dev/null || echo "ℹ️ No JS files in main root"
           
-          echo "✅ Static documentation files merged from main branch"
+          # Parse _toc.yml to get specific documentation files needed
+          echo "📖 Parsing _toc.yml to identify required documentation files"
+          
+          # Create a Python script to safely parse _toc.yml and extract only .md/.html files
+          python3 -c "
+          import yaml
+          import os
+          import sys
+
+          def extract_doc_files_from_toc(toc_data, files_list, path=[]):
+              if isinstance(toc_data, dict):
+                  if 'file' in toc_data:
+                      file_path = toc_data['file']
+                      if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
+                          files_list.append(file_path)
+                  for key, value in toc_data.items():
+                      if key not in ['file']:
+                          extract_doc_files_from_toc(value, files_list, path + [key])
+              elif isinstance(toc_data, list):
+                  for item in toc_data:
+                      extract_doc_files_from_toc(item, files_list, path)
+
+          try:
+              with open('_toc.yml', 'r', encoding='utf-8') as f:
+                  toc = yaml.safe_load(f)
+              files_to_fetch = []
+              extract_doc_files_from_toc(toc, files_to_fetch)
+              files_to_fetch = sorted(list(set(files_to_fetch)))
+              for file_path in files_to_fetch:
+                  print(file_path)
+          except Exception as e:
+              print(f'Error parsing _toc.yml: {e}', file=sys.stderr)
+              sys.exit(1)
+          " > toc_files.txt 2>/dev/null || echo "" > toc_files.txt
+          
+          # Parse _toc.yml and get list of documentation files to fetch
+          if [ -f "_toc.yml" ]; then
+            echo "📖 _toc.yml found, parsing for documentation file references..."
+            
+            # Get list of .md/.html files referenced in _toc.yml from the output file
+            DOC_FILES=$(cat toc_files.txt 2>/dev/null | tr '\n' '\n' || echo "")
+            
+            # Initialize arrays for tracking
+            FETCHED_FILES=""
+            FAILED_FILES=""
+            
+            if [ -n "$DOC_FILES" ]; then
+              echo "📄 Fetching specific documentation files from main branch (preserving executed notebooks):"
+              
+              # Fetch each documentation file individually from main branch
+              while IFS= read -r doc_file; do
+                if [ -n "$doc_file" ]; then
+                  echo "  📝 Fetching: $doc_file"
+                  
+                  # Create directory structure if needed
+                  mkdir -p "$(dirname "$doc_file")" 2>/dev/null || true
+                  
+                  # Try to fetch the file, with fallback extensions if no extension provided
+                  FETCHED=false
+                  ACTUAL_FILE=""
+                  
+                  # First, try the exact path as specified in _toc.yml
+                  if git show "origin/main:$doc_file" > "$doc_file" 2>/dev/null; then
+                    echo "    ✅ Successfully fetched: $doc_file"
+                    FETCHED=true
+                    ACTUAL_FILE="$doc_file"
+                  else
+                    # If file has no extension, try common extensions
+                    if [[ "$doc_file" != *.* ]]; then
+                      echo "    🔍 File not found, trying with extensions..."
+                      
+                      # Try .md extension
+                      if git show "origin/main:${doc_file}.md" > "$doc_file" 2>/dev/null; then
+                        echo "    ✅ Successfully fetched: ${doc_file}.md → $doc_file"
+                        FETCHED=true
+                        ACTUAL_FILE="${doc_file}.md"
+                      # Try .html extension
+                      elif git show "origin/main:${doc_file}.html" > "$doc_file" 2>/dev/null; then
+                        echo "    ✅ Successfully fetched: ${doc_file}.html → $doc_file"
+                        FETCHED=true
+                        ACTUAL_FILE="${doc_file}.html"
+                      fi
+                    fi
+                  fi
+                  
+                  # Track results
+                  if [ "$FETCHED" = true ]; then
+                    if [ -z "$FETCHED_FILES" ]; then
+                      FETCHED_FILES="$ACTUAL_FILE"
+                    else
+                      FETCHED_FILES="$FETCHED_FILES,$ACTUAL_FILE"
+                    fi
+                  else
+                    echo "    ⚠️ File not found in main branch: $doc_file"
+                    if [ -z "$FAILED_FILES" ]; then
+                      FAILED_FILES="$doc_file"
+                    else
+                      FAILED_FILES="$FAILED_FILES,$doc_file"
+                    fi
+                  fi
+                fi
+              done <<< "$DOC_FILES"
+              
+              echo "✅ Documentation files from _toc.yml successfully fetched from main branch"
+            else
+              echo "⚠️ No documentation files found in _toc.yml or parsing failed"
+            fi
+            
+            # Create JSON output for workflow summary
+            if [ -n "$FETCHED_FILES" ]; then
+              FETCHED_JSON=$(echo "$FETCHED_FILES" | tr ',' '\n' | jq -R . | jq -s -c .)
+            else
+              FETCHED_JSON="[]"
+            fi
+            
+            if [ -n "$FAILED_FILES" ]; then
+              FAILED_JSON=$(echo "$FAILED_FILES" | tr ',' '\n' | jq -R . | jq -s -c .)
+            else
+              FAILED_JSON="[]"
+            fi
+            
+            # Output for workflow summary
+            echo "doc-files={\"fetched\":$FETCHED_JSON,\"failed\":$FAILED_JSON}" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ No _toc.yml found - skipping documentation file fetch"
+          fi
+          
+          # Clean up temporary files
+          rm -f toc_files.txt
+          
+          echo "✅ Documentation files fetched from main branch (executed notebooks preserved)"
           echo "📋 Current working directory contents:"
           find . -name "*.html" -o -name "*.md" -o -name "_*.yml" -o -name "*.ipynb" | head -10
           
@@ -1425,7 +1878,7 @@ jobs:
 
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -1464,6 +1917,10 @@ jobs:
             echo "| Notebook Processing | Skipped (deprecation mode) | - |" >> $GITHUB_STEP_SUMMARY
           else
             echo "| Notebook Processing | Skipped (merge mode) | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          # Show non-notebook file storage job only if it ran (merge mode only)
+          if [ "${{ needs.store-non-notebook-files.result }}" != "skipped" ]; then
+            echo "| Non-Notebook File Storage | ${{ needs.store-non-notebook-files.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "| Documentation Build | ${{ needs.build-documentation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           echo "| Deprecation Management | ${{ needs.manage-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
@@ -1585,6 +2042,39 @@ jobs:
           else
             echo "**📋 No Processing Performed**" >> $GITHUB_STEP_SUMMARY
             echo "- No notebooks matched selection criteria or processing was not required" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Show documentation files that were fetched from main branch
+          if [ "${{ needs.build-documentation.result }}" = "success" ]; then
+            DOC_FILES_INFO='${{ needs.build-documentation.outputs.fetched-doc-files }}'
+            
+            if [ -n "$DOC_FILES_INFO" ] && [ "$DOC_FILES_INFO" != "null" ]; then
+              echo "**📚 Documentation Files Updated**" >> $GITHUB_STEP_SUMMARY
+              
+              # Parse the fetched files JSON
+              FETCHED_FILES=$(echo "$DOC_FILES_INFO" | jq -r '.fetched[]?' 2>/dev/null || echo "")
+              FAILED_FILES=$(echo "$DOC_FILES_INFO" | jq -r '.failed[]?' 2>/dev/null || echo "")
+              
+              if [ -n "$FETCHED_FILES" ]; then
+                echo "- **Files fetched from main branch:**" >> $GITHUB_STEP_SUMMARY
+                echo "$FETCHED_FILES" | while IFS= read -r file; do
+                  if [ -n "$file" ] && [ "$file" != "null" ]; then
+                    echo "  - \`$file\`" >> $GITHUB_STEP_SUMMARY
+                  fi
+                done
+              fi
+              
+              if [ -n "$FAILED_FILES" ]; then
+                echo "- **Files not found in main branch:**" >> $GITHUB_STEP_SUMMARY
+                echo "$FAILED_FILES" | while IFS= read -r file; do
+                  if [ -n "$file" ] && [ "$file" != "null" ]; then
+                    echo "  - \`$file\` ⚠️" >> $GITHUB_STEP_SUMMARY
+                  fi
+                done
+              fi
+              
+              echo "- **Note**: Documentation files from _toc.yml were updated from main branch while preserving executed notebooks" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
