@@ -896,7 +896,7 @@ jobs:
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
           # Clear outputs to ensure clean validation
           jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
-          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+          pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
@@ -918,7 +918,7 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
-          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+          jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace "${{ matrix.notebook }}"
 
       - name: Store executed notebook to gh-storage
         if: |
