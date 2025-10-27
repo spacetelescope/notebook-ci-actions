@@ -1026,17 +1026,40 @@ jobs:
                   pass  # Ignore errors to not interrupt execution
           
           def execute_notebook_with_tracking(notebook_path):
+              # Convert to absolute path and verify file exists
+              if not os.path.isabs(notebook_path):
+                  notebook_path = os.path.abspath(notebook_path)
+              
+              if not os.path.exists(notebook_path):
+                  error_msg = f"Notebook file not found: {notebook_path}"
+                  update_cell_tracker(f"ERROR: {error_msg}")
+                  print(f"❌ {error_msg}")
+                  print(f"🔍 Current working directory: {os.getcwd()}")
+                  print(f"📁 Directory contents:")
+                  try:
+                      for item in os.listdir('.'):
+                          print(f"  - {item}")
+                  except:
+                      print("  Could not list directory contents")
+                  sys.exit(1)
+              
+              print(f"📝 Reading notebook: {notebook_path}")
+              
               # Read the notebook
               with open(notebook_path, 'r', encoding='utf-8') as f:
                   nb = nbformat.read(f, as_version=4)
               
               # Custom executor with cell tracking
+              # Set working directory to notebook directory for proper imports
+              notebook_dir = os.path.dirname(notebook_path)
               ep = ExecutePreprocessor(kernel_name='python3', timeout=None)
               
               update_cell_tracker("Starting notebook execution")
               
               total_cells = len([cell for cell in nb.cells if cell.cell_type == 'code'])
               current_cell_num = 0
+              
+              print(f"📊 Found {total_cells} code cells to execute")
               
               for cell_index, cell in enumerate(nb.cells):
                   if cell.cell_type == 'code':
@@ -1050,10 +1073,11 @@ jobs:
                       print(f"🔍 Executing: {cell_info}")
                       
                       try:
-                          # Execute just this cell
-                          ep.preprocess_cell(cell, {'metadata': {'path': os.path.dirname(notebook_path)}}, cell_index)
+                          # Execute just this cell with proper working directory
+                          ep.preprocess_cell(cell, {'metadata': {'path': notebook_dir}}, cell_index)
                       except Exception as e:
-                          update_cell_tracker(f"ERROR in Cell {current_cell_num}/{total_cells}: {str(e)[:100]}")
+                          error_info = f"ERROR in Cell {current_cell_num}/{total_cells}: {str(e)[:100]}"
+                          update_cell_tracker(error_info)
                           print(f"❌ Error in cell {current_cell_num}: {e}")
                           raise
               
