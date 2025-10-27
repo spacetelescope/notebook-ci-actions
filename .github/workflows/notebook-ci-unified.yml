@@ -1049,19 +1049,24 @@ jobs:
               with open(notebook_path, 'r', encoding='utf-8') as f:
                   nb = nbformat.read(f, as_version=4)
               
-              # Custom executor with cell tracking
               # Set working directory to notebook directory for proper imports
               notebook_dir = os.path.dirname(notebook_path)
+              
+              # Use the standard approach: execute the entire notebook but with cell tracking
               ep = ExecutePreprocessor(kernel_name='python3', timeout=None)
               
               update_cell_tracker("Starting notebook execution")
               
               total_cells = len([cell for cell in nb.cells if cell.cell_type == 'code'])
-              current_cell_num = 0
-              
               print(f"📊 Found {total_cells} code cells to execute")
               
-              for cell_index, cell in enumerate(nb.cells):
+              # Override the preprocess method to add cell tracking
+              original_preprocess_cell = ep.preprocess_cell
+              current_cell_num = 0
+              
+              def tracked_preprocess_cell(cell, resources, cell_index):
+                  nonlocal current_cell_num
+                  
                   if cell.cell_type == 'code':
                       current_cell_num += 1
                       
@@ -1071,17 +1076,22 @@ jobs:
                       
                       update_cell_tracker(cell_info)
                       print(f"🔍 Executing: {cell_info}")
-                      
-                      try:
-                          # Execute just this cell with proper working directory
-                          ep.preprocess_cell(cell, {'metadata': {'path': notebook_dir}}, cell_index)
-                      except Exception as e:
-                          error_info = f"ERROR in Cell {current_cell_num}/{total_cells}: {str(e)[:100]}"
-                          update_cell_tracker(error_info)
-                          print(f"❌ Error in cell {current_cell_num}: {e}")
-                          raise
+                  
+                  # Call the original preprocess_cell method
+                  return original_preprocess_cell(cell, resources, cell_index)
               
-              update_cell_tracker("Execution completed successfully")
+              # Replace the method with our tracked version
+              ep.preprocess_cell = tracked_preprocess_cell
+              
+              try:
+                  # Execute the entire notebook (with our cell tracking wrapper)
+                  ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
+                  update_cell_tracker("Execution completed successfully")
+              except Exception as e:
+                  error_info = f"ERROR during execution: {str(e)[:100]}"
+                  update_cell_tracker(error_info)
+                  print(f"❌ Execution failed: {e}")
+                  raise
               
               # Save the executed notebook
               with open(notebook_path, 'w', encoding='utf-8') as f:
