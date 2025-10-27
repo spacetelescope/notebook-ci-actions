@@ -926,23 +926,61 @@ jobs:
           micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
           
-          # Start background disk monitoring
-          echo "💽 Starting disk usage monitoring..."
+          # Start background system monitoring
+          echo "� Starting system resource monitoring..."
           (
             while true; do
+              # Disk usage monitoring
               df_output=$(df -h . 2>/dev/null | tail -1)
               used_space=$(echo "$df_output" | awk '{print $3}')
               available_space=$(echo "$df_output" | awk '{print $4}')
-              usage_percent=$(echo "$df_output" | awk '{print $5}' | sed 's/%//')
+              disk_usage_percent=$(echo "$df_output" | awk '{print $5}' | sed 's/%//')
               total_space=$(echo "$df_output" | awk '{print $2}')
               
-              echo "💽 [$(date '+%H:%M:%S')] Disk Usage: ${usage_percent}% (${used_space}/${total_space} used, ${available_space} available)"
+              # CPU usage monitoring (1-second average)
+              cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | sed 's/%us,//' || echo "N/A")
+              if [ "$cpu_usage" = "N/A" ]; then
+                # Fallback method using /proc/stat
+                cpu_usage=$(awk '/^cpu / {usage=($2+$4)*100/($2+$3+$4+$5)} END {printf "%.1f", usage}' /proc/stat 2>/dev/null || echo "N/A")
+              fi
               
-              # Alert if disk usage is high
-              if [ "$usage_percent" -gt 85 ]; then
-                echo "⚠️ WARNING: Disk usage is ${usage_percent}% - approaching capacity limit!"
-              elif [ "$usage_percent" -gt 95 ]; then
-                echo "🚨 CRITICAL: Disk usage is ${usage_percent}% - may cause execution failures!"
+              # Memory usage monitoring
+              mem_info=$(free | grep '^Mem:')
+              mem_total=$(echo "$mem_info" | awk '{print $2}')
+              mem_used=$(echo "$mem_info" | awk '{print $3}')
+              mem_usage_percent=$(echo "$mem_info" | awk '{printf "%.1f", ($3/$2)*100}')
+              
+              # Load average
+              load_avg=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//' || echo "N/A")
+              
+              echo "� [$(date '+%H:%M:%S')] System Resources:"
+              echo "  💽 Disk: ${disk_usage_percent}% (${used_space}/${total_space} used, ${available_space} available)"
+              echo "  🖥️  CPU: ${cpu_usage}% (Load: ${load_avg})"
+              echo "  🧠 Memory: ${mem_usage_percent}% ($(echo $mem_used | awk '{printf "%.1fG", $1/1024/1024}')G/$(echo $mem_total | awk '{printf "%.1fG", $1/1024/1024}')G used)"
+              
+              # Alert if resource usage is high
+              if [ "$disk_usage_percent" -gt 85 ]; then
+                echo "⚠️ WARNING: Disk usage is ${disk_usage_percent}% - approaching capacity limit!"
+              elif [ "$disk_usage_percent" -gt 95 ]; then
+                echo "🚨 CRITICAL: Disk usage is ${disk_usage_percent}% - may cause execution failures!"
+              fi
+              
+              # CPU usage alerts
+              if [ "$cpu_usage" != "N/A" ]; then
+                cpu_num=$(echo "$cpu_usage" | cut -d'.' -f1)
+                if [ "$cpu_num" -gt 90 ]; then
+                  echo "🚨 CRITICAL: CPU usage is ${cpu_usage}% - system may be overloaded!"
+                elif [ "$cpu_num" -gt 75 ]; then
+                  echo "⚠️ WARNING: CPU usage is ${cpu_usage}% - high system load detected!"
+                fi
+              fi
+              
+              # Memory usage alerts
+              mem_num=$(echo "$mem_usage_percent" | cut -d'.' -f1)
+              if [ "$mem_num" -gt 90 ]; then
+                echo "🚨 CRITICAL: Memory usage is ${mem_usage_percent}% - may cause OOM errors!"
+              elif [ "$mem_num" -gt 80 ]; then
+                echo "⚠️ WARNING: Memory usage is ${mem_usage_percent}% - approaching memory limits!"
               fi
               
               sleep 5
@@ -951,7 +989,7 @@ jobs:
           
           # Store the monitoring process PID
           MONITOR_PID=$!
-          echo "📊 Disk monitoring started (PID: $MONITOR_PID)"
+          echo "📊 System monitoring started (PID: $MONITOR_PID)"
           
           # Execute notebook in background to allow monitoring
           echo "🚀 Starting notebook execution..."
@@ -962,15 +1000,21 @@ jobs:
           wait $EXECUTION_PID
           EXECUTION_EXIT_CODE=$?
           
-          # Stop disk monitoring
+          # Stop system monitoring
           kill $MONITOR_PID 2>/dev/null || true
-          echo "📊 Disk monitoring stopped"
+          echo "📊 System monitoring stopped"
           
-          # Report final disk usage
+          # Report final system usage
           final_df=$(df -h . 2>/dev/null | tail -1)
-          final_usage=$(echo "$final_df" | awk '{print $5}')
-          final_available=$(echo "$final_df" | awk '{print $4}')
-          echo "💽 Final disk usage: $final_usage ($final_available available)"
+          final_disk_usage=$(echo "$final_df" | awk '{print $5}')
+          final_disk_available=$(echo "$final_df" | awk '{print $4}')
+          final_cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | sed 's/%us,//' || awk '/^cpu / {usage=($2+$4)*100/($2+$3+$4+$5)} END {printf "%.1f", usage}' /proc/stat 2>/dev/null || echo "N/A")
+          final_mem=$(free | grep '^Mem:' | awk '{printf "%.1f%%", ($3/$2)*100}')
+          
+          echo "� Final system resources:"
+          echo "  💽 Disk: $final_disk_usage ($final_disk_available available)"
+          echo "  🖥️  CPU: ${final_cpu}%"
+          echo "  🧠 Memory: $final_mem"
           
           # Exit with the same code as notebook execution
           if [ $EXECUTION_EXIT_CODE -ne 0 ]; then
