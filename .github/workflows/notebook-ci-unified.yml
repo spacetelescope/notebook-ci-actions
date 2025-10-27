@@ -831,7 +831,14 @@ jobs:
           echo "  Hostname: $(hostname || echo 'N/A')"
           echo "  Available CPU cores: $(nproc || echo 'N/A')"
           echo "  Available memory: $(free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}' || echo 'N/A')"
-          echo "  Disk space: $(df -h . 2>/dev/null | tail -1 | awk '{print $4}' || echo 'N/A')"
+          echo "  Memory usage: $(free -h 2>/dev/null | grep '^Mem:' | awk '{printf \"%.1f%%\", ($3/$2)*100}' || echo 'N/A')"
+          echo ""
+          echo "💽 Initial Disk Usage:"
+          df -h / 2>/dev/null || echo "❌ Failed to get disk info"
+          df -h . 2>/dev/null | tail -1 | awk '{printf "  Workspace: %s used / %s total (%s available) - %s\n", $3, $2, $4, $5}' || echo "❌ Failed to get workspace disk info"
+          echo ""
+          echo "📂 Largest directories in /tmp:"
+          du -sh /tmp/* 2>/dev/null | sort -hr | head -5 || echo "  No data available"
           echo ""
           echo "📝 JSON Lookup Test:"
           echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq '.' || echo "❌ Invalid JSON"
@@ -918,7 +925,60 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
-          jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace "${{ matrix.notebook }}"
+          
+          # Start background disk monitoring
+          echo "💽 Starting disk usage monitoring..."
+          (
+            while true; do
+              df_output=$(df -h . 2>/dev/null | tail -1)
+              used_space=$(echo "$df_output" | awk '{print $3}')
+              available_space=$(echo "$df_output" | awk '{print $4}')
+              usage_percent=$(echo "$df_output" | awk '{print $5}' | sed 's/%//')
+              total_space=$(echo "$df_output" | awk '{print $2}')
+              
+              echo "💽 [$(date '+%H:%M:%S')] Disk Usage: ${usage_percent}% (${used_space}/${total_space} used, ${available_space} available)"
+              
+              # Alert if disk usage is high
+              if [ "$usage_percent" -gt 85 ]; then
+                echo "⚠️ WARNING: Disk usage is ${usage_percent}% - approaching capacity limit!"
+              elif [ "$usage_percent" -gt 95 ]; then
+                echo "🚨 CRITICAL: Disk usage is ${usage_percent}% - may cause execution failures!"
+              fi
+              
+              sleep 5
+            done
+          ) &
+          
+          # Store the monitoring process PID
+          MONITOR_PID=$!
+          echo "📊 Disk monitoring started (PID: $MONITOR_PID)"
+          
+          # Execute notebook in background to allow monitoring
+          echo "🚀 Starting notebook execution..."
+          jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace "${{ matrix.notebook }}" &
+          EXECUTION_PID=$!
+          
+          # Wait for notebook execution to complete
+          wait $EXECUTION_PID
+          EXECUTION_EXIT_CODE=$?
+          
+          # Stop disk monitoring
+          kill $MONITOR_PID 2>/dev/null || true
+          echo "📊 Disk monitoring stopped"
+          
+          # Report final disk usage
+          final_df=$(df -h . 2>/dev/null | tail -1)
+          final_usage=$(echo "$final_df" | awk '{print $5}')
+          final_available=$(echo "$final_df" | awk '{print $4}')
+          echo "💽 Final disk usage: $final_usage ($final_available available)"
+          
+          # Exit with the same code as notebook execution
+          if [ $EXECUTION_EXIT_CODE -ne 0 ]; then
+            echo "❌ Notebook execution failed with exit code: $EXECUTION_EXIT_CODE"
+            exit $EXECUTION_EXIT_CODE
+          else
+            echo "✅ Notebook execution completed successfully"
+          fi
 
       - name: Store executed notebook to gh-storage
         if: |
@@ -1092,6 +1152,25 @@ jobs:
           result="${{ job.status }}"
           
           echo "📊 Recording result for $notebook: $result"
+          
+          # Show final system resource usage
+          echo "💽 Final System Resources:"
+          df -h / 2>/dev/null | head -2 || echo "❌ Failed to get root disk info"
+          df -h . 2>/dev/null | tail -1 | awk '{printf "  Workspace: %s used / %s total (%s available) - %s\n", $3, $2, $4, $5}' || echo "❌ Failed to get workspace disk info"
+          echo "  Memory: $(free -h 2>/dev/null | grep '^Mem:' | awk '{printf \"%s used / %s total (%.1f%% used)\", $3, $2, ($3/$2)*100}' || echo 'N/A')"
+          
+          # Show largest directories that might be consuming space
+          echo "📂 Largest directories in workspace:"
+          du -sh ./* 2>/dev/null | sort -hr | head -5 || echo "  No data available"
+          echo "📂 Temporary files usage:"
+          du -sh /tmp/* 2>/dev/null | sort -hr | head -3 || echo "  No large temp files"
+          
+          # Check for common space-consuming patterns
+          echo "🔍 Space usage analysis:"
+          echo "  Jupyter cache: $(du -sh ~/.jupyter 2>/dev/null | cut -f1 || echo 'N/A')"
+          echo "  Conda cache: $(du -sh ~/.conda 2>/dev/null | cut -f1 || echo 'N/A')" 
+          echo "  Pip cache: $(du -sh ~/.cache/pip 2>/dev/null | cut -f1 || echo 'N/A')"
+          echo "  Docker (if any): $(du -sh /var/lib/docker 2>/dev/null | cut -f1 || echo 'N/A')"
           
           # Create a results directory if it doesn't exist
           mkdir -p /tmp/notebook-results
