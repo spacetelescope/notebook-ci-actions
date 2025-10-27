@@ -926,8 +926,12 @@ jobs:
           micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
           
-          # Start background system monitoring
-          echo "� Starting system resource monitoring..."
+          # Create cell tracking file for monitoring
+          CELL_TRACKER="/tmp/current_cell_info.txt"
+          echo "Initialization" > "$CELL_TRACKER"
+          
+          # Start background system monitoring with cell tracking
+          echo "� Starting system resource monitoring with cell-level tracking..."
           (
             while true; do
               # Disk usage monitoring
@@ -953,34 +957,46 @@ jobs:
               # Load average
               load_avg=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//' || echo "N/A")
               
-              echo "� [$(date '+%H:%M:%S')] System Resources:"
+              # Get current cell information if available
+              current_cell="Unknown"
+              if [ -f "$CELL_TRACKER" ]; then
+                current_cell=$(cat "$CELL_TRACKER" 2>/dev/null || echo "Unknown")
+              fi
+              
+              echo "� [$(date '+%H:%M:%S')] System Resources (Current: $current_cell):"
               echo "  💽 Disk: ${disk_usage_percent}% (${used_space}/${total_space} used, ${available_space} available)"
               echo "  🖥️  CPU: ${cpu_usage}% (Load: ${load_avg})"
               echo "  🧠 Memory: ${mem_usage_percent}% ($(echo $mem_used | awk '{printf "%.1fG", $1/1024/1024}')G/$(echo $mem_total | awk '{printf "%.1fG", $1/1024/1024}')G used)"
               
-              # Alert if resource usage is high
+              # Alert if resource usage is high - now includes current cell info
               if [ "$disk_usage_percent" -gt 85 ]; then
-                echo "⚠️ WARNING: Disk usage is ${disk_usage_percent}% - approaching capacity limit!"
+                echo "⚠️ WARNING: Disk usage is ${disk_usage_percent}% during execution of: $current_cell"
+                echo "   📍 Resource limit approaching - consider optimizing cell or splitting workload"
               elif [ "$disk_usage_percent" -gt 95 ]; then
-                echo "🚨 CRITICAL: Disk usage is ${disk_usage_percent}% - may cause execution failures!"
+                echo "🚨 CRITICAL: Disk usage is ${disk_usage_percent}% during execution of: $current_cell"
+                echo "   📍 Execution may fail - immediate attention required for this cell"
               fi
               
-              # CPU usage alerts
+              # CPU usage alerts with cell context
               if [ "$cpu_usage" != "N/A" ]; then
                 cpu_num=$(echo "$cpu_usage" | cut -d'.' -f1)
                 if [ "$cpu_num" -gt 90 ]; then
-                  echo "🚨 CRITICAL: CPU usage is ${cpu_usage}% - system may be overloaded!"
+                  echo "🚨 CRITICAL: CPU usage is ${cpu_usage}% during execution of: $current_cell"
+                  echo "   📍 System overloaded - this cell may be computationally intensive"
                 elif [ "$cpu_num" -gt 75 ]; then
-                  echo "⚠️ WARNING: CPU usage is ${cpu_usage}% - high system load detected!"
+                  echo "⚠️ WARNING: CPU usage is ${cpu_usage}% during execution of: $current_cell"
+                  echo "   📍 High system load detected - monitor this cell for optimization"
                 fi
               fi
               
-              # Memory usage alerts
+              # Memory usage alerts with cell context
               mem_num=$(echo "$mem_usage_percent" | cut -d'.' -f1)
               if [ "$mem_num" -gt 90 ]; then
-                echo "🚨 CRITICAL: Memory usage is ${mem_usage_percent}% - may cause OOM errors!"
+                echo "🚨 CRITICAL: Memory usage is ${mem_usage_percent}% during execution of: $current_cell"
+                echo "   📍 OOM risk - this cell may have memory leaks or excessive data loading"
               elif [ "$mem_num" -gt 80 ]; then
-                echo "⚠️ WARNING: Memory usage is ${mem_usage_percent}% - approaching memory limits!"
+                echo "⚠️ WARNING: Memory usage is ${mem_usage_percent}% during execution of: $current_cell"
+                echo "   📍 Approaching memory limits - review data handling in this cell"
               fi
               
               sleep 5
@@ -991,9 +1007,76 @@ jobs:
           MONITOR_PID=$!
           echo "📊 System monitoring started (PID: $MONITOR_PID)"
           
-          # Execute notebook in background to allow monitoring
-          echo "🚀 Starting notebook execution..."
-          jupyter nbconvert --to notebook --execute --ExecutePreprocessor.kernel_name=python3 --inplace "${{ matrix.notebook }}" &
+          # Create a custom nbconvert script with cell tracking
+          cat > /tmp/execute_with_tracking.py << 'EOF'
+          import nbformat
+          import sys
+          import os
+          import subprocess
+          from nbconvert.preprocessors import ExecutePreprocessor
+          from nbconvert import NotebookExporter
+          import time
+          
+          def update_cell_tracker(cell_info):
+              """Update the cell tracker file with current execution info"""
+              try:
+                  with open('/tmp/current_cell_info.txt', 'w') as f:
+                      f.write(cell_info)
+              except:
+                  pass  # Ignore errors to not interrupt execution
+          
+          def execute_notebook_with_tracking(notebook_path):
+              # Read the notebook
+              with open(notebook_path, 'r', encoding='utf-8') as f:
+                  nb = nbformat.read(f, as_version=4)
+              
+              # Custom executor with cell tracking
+              ep = ExecutePreprocessor(kernel_name='python3', timeout=None)
+              
+              update_cell_tracker("Starting notebook execution")
+              
+              total_cells = len([cell for cell in nb.cells if cell.cell_type == 'code'])
+              current_cell_num = 0
+              
+              for cell_index, cell in enumerate(nb.cells):
+                  if cell.cell_type == 'code':
+                      current_cell_num += 1
+                      
+                      # Extract cell info for tracking
+                      cell_source = cell.source[:100].replace('\n', ' ').replace('\r', '') if cell.source else "Empty cell"
+                      cell_info = f"Cell {current_cell_num}/{total_cells} (Index {cell_index + 1}): {cell_source}..."
+                      
+                      update_cell_tracker(cell_info)
+                      print(f"🔍 Executing: {cell_info}")
+                      
+                      try:
+                          # Execute just this cell
+                          ep.preprocess_cell(cell, {'metadata': {'path': os.path.dirname(notebook_path)}}, cell_index)
+                      except Exception as e:
+                          update_cell_tracker(f"ERROR in Cell {current_cell_num}/{total_cells}: {str(e)[:100]}")
+                          print(f"❌ Error in cell {current_cell_num}: {e}")
+                          raise
+              
+              update_cell_tracker("Execution completed successfully")
+              
+              # Save the executed notebook
+              with open(notebook_path, 'w', encoding='utf-8') as f:
+                  nbformat.write(nb, f)
+              
+              print(f"✅ Successfully executed {total_cells} code cells")
+          
+          if __name__ == "__main__":
+              if len(sys.argv) != 2:
+                  print("Usage: python execute_with_tracking.py <notebook_path>")
+                  sys.exit(1)
+              
+              notebook_path = sys.argv[1]
+              execute_notebook_with_tracking(notebook_path)
+          EOF
+          
+          # Execute notebook with cell tracking
+          echo "🚀 Starting notebook execution with cell-level tracking..."
+          python /tmp/execute_with_tracking.py "${{ matrix.notebook }}" &
           EXECUTION_PID=$!
           
           # Wait for notebook execution to complete
@@ -1003,6 +1086,10 @@ jobs:
           # Stop system monitoring
           kill $MONITOR_PID 2>/dev/null || true
           echo "📊 System monitoring stopped"
+          
+          # Clean up temporary files
+          rm -f /tmp/execute_with_tracking.py
+          rm -f "$CELL_TRACKER"
           
           # Report final system usage
           final_df=$(df -h . 2>/dev/null | tail -1)
