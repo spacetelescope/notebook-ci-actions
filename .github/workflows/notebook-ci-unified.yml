@@ -1754,12 +1754,18 @@ jobs:
           create-args: "python=${{ inputs.python-version }} pip jupyter-book sphinx"
           cache-environment: false
 
+      - name: Setup Node.js (required for jupyter-book v2.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
       - name: Install documentation dependencies
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate docs-env
           echo "📚 Installing documentation dependencies"
-          pip install --upgrade jupyter-book sphinx
+          # Pin to v1.x for now to avoid v2.x breaking changes and Node.js requirements
+          pip install "jupyter-book<2.0" sphinx
           
       - name: Build JupyterBook documentation
         run: |
@@ -1795,10 +1801,11 @@ jobs:
           # Build the documentation
           echo "🔨 Starting JupyterBook build..."
           echo "which jupyter-book: $(which jupyter-book || true)"
-          echo "jupyter-book --version: $(jupyter-book --version || true)"
+          echo "jupyter-book version: $(jupyter-book --version 2>&1 || true)"
           echo "python: $(python --version)"
-          python -c "import shutil; print('python which jupyter-book:', shutil.which('jupyter-book'))" || true
           python -m pip show jupyter-book || true
+          
+          # Use v1.x command syntax (we pinned to v1.x in installation)
           echo "Command: jupyter-book build . -v -v"
           jupyter-book build . -v -v 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
