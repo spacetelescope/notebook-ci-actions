@@ -1782,9 +1782,9 @@ jobs:
           # Clean any existing build directory
           rm -rf _build
           
-          # Build the documentation with maximum verbosity (-vvv)
+          # Build the documentation with maximum verbosity
           echo "🔨 Starting JupyterBook build..."
-          jupyter-book build -vvv . 2>&1 | tee build.log
+          jupyter-book build . -vvv 2>&1 | tee build.log
           
           echo ""
           echo "📊 Build results:"
