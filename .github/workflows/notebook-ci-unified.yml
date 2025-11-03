@@ -831,7 +831,14 @@ jobs:
           echo "  Hostname: $(hostname || echo 'N/A')"
           echo "  Available CPU cores: $(nproc || echo 'N/A')"
           echo "  Available memory: $(free -h 2>/dev/null | grep '^Mem:' | awk '{print $2}' || echo 'N/A')"
-          echo "  Disk space: $(df -h . 2>/dev/null | tail -1 | awk '{print $4}' || echo 'N/A')"
+          echo "  Memory usage: $(free -h 2>/dev/null | grep '^Mem:' | awk '{printf \"%.1f%%\", ($3/$2)*100}' || echo 'N/A')"
+          echo ""
+          echo "💽 Initial Disk Usage:"
+          df -h / 2>/dev/null || echo "❌ Failed to get disk info"
+          df -h . 2>/dev/null | tail -1 | awk '{printf "  Workspace: %s used / %s total (%s available) - %s\n", $3, $2, $4, $5}' || echo "❌ Failed to get workspace disk info"
+          echo ""
+          echo "📂 Largest directories in /tmp:"
+          du -sh /tmp/* 2>/dev/null | sort -hr | head -5 || echo "  No data available"
           echo ""
           echo "📝 JSON Lookup Test:"
           echo '${{ needs.setup-matrix.outputs.runner-config }}' | jq '.' || echo "❌ Invalid JSON"
@@ -896,7 +903,7 @@ jobs:
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
           # Clear outputs to ensure clean validation
           jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
-          pytest --nbval --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+          pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
 
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
@@ -918,7 +925,225 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "▶️ Executing notebook: ${{ matrix.notebook }}"
-          jupyter nbconvert --to notebook --execute --inplace "${{ matrix.notebook }}"
+          
+          # Create cell tracking file for monitoring
+          CELL_TRACKER="/tmp/current_cell_info.txt"
+          echo "Initialization" > "$CELL_TRACKER"
+          
+          # Start background system monitoring with cell tracking
+          echo "� Starting system resource monitoring with cell-level tracking..."
+          (
+            while true; do
+              # Disk usage monitoring
+              df_output=$(df -h . 2>/dev/null | tail -1)
+              used_space=$(echo "$df_output" | awk '{print $3}')
+              available_space=$(echo "$df_output" | awk '{print $4}')
+              disk_usage_percent=$(echo "$df_output" | awk '{print $5}' | sed 's/%//')
+              total_space=$(echo "$df_output" | awk '{print $2}')
+              
+              # CPU usage monitoring (1-second average)
+              cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | sed 's/%us,//' || echo "N/A")
+              if [ "$cpu_usage" = "N/A" ]; then
+                # Fallback method using /proc/stat
+                cpu_usage=$(awk '/^cpu / {usage=($2+$4)*100/($2+$3+$4+$5)} END {printf "%.1f", usage}' /proc/stat 2>/dev/null || echo "N/A")
+              fi
+              
+              # Memory usage monitoring
+              mem_info=$(free | grep '^Mem:')
+              mem_total=$(echo "$mem_info" | awk '{print $2}')
+              mem_used=$(echo "$mem_info" | awk '{print $3}')
+              mem_usage_percent=$(echo "$mem_info" | awk '{printf "%.1f", ($3/$2)*100}')
+              
+              # Load average
+              load_avg=$(uptime | awk -F'load average:' '{print $2}' | awk '{print $1}' | sed 's/,//' || echo "N/A")
+              
+              # Get current cell information if available
+              current_cell="Unknown"
+              if [ -f "$CELL_TRACKER" ]; then
+                current_cell=$(cat "$CELL_TRACKER" 2>/dev/null || echo "Unknown")
+              fi
+              
+              echo "� [$(date '+%H:%M:%S')] System Resources (Current: $current_cell):"
+              echo "  💽 Disk: ${disk_usage_percent}% (${used_space}/${total_space} used, ${available_space} available)"
+              echo "  🖥️  CPU: ${cpu_usage}% (Load: ${load_avg})"
+              echo "  🧠 Memory: ${mem_usage_percent}% ($(echo $mem_used | awk '{printf "%.1fG", $1/1024/1024}')G/$(echo $mem_total | awk '{printf "%.1fG", $1/1024/1024}')G used)"
+              
+              # Alert if resource usage is high - now includes current cell info
+              if [ "$disk_usage_percent" -gt 85 ]; then
+                echo "⚠️ WARNING: Disk usage is ${disk_usage_percent}% during execution of: $current_cell"
+                echo "   📍 Resource limit approaching - consider optimizing cell or splitting workload"
+              elif [ "$disk_usage_percent" -gt 95 ]; then
+                echo "🚨 CRITICAL: Disk usage is ${disk_usage_percent}% during execution of: $current_cell"
+                echo "   📍 Execution may fail - immediate attention required for this cell"
+              fi
+              
+              # CPU usage alerts with cell context
+              if [ "$cpu_usage" != "N/A" ]; then
+                cpu_num=$(echo "$cpu_usage" | cut -d'.' -f1)
+                if [ "$cpu_num" -gt 90 ]; then
+                  echo "🚨 CRITICAL: CPU usage is ${cpu_usage}% during execution of: $current_cell"
+                  echo "   📍 System overloaded - this cell may be computationally intensive"
+                elif [ "$cpu_num" -gt 75 ]; then
+                  echo "⚠️ WARNING: CPU usage is ${cpu_usage}% during execution of: $current_cell"
+                  echo "   📍 High system load detected - monitor this cell for optimization"
+                fi
+              fi
+              
+              # Memory usage alerts with cell context
+              mem_num=$(echo "$mem_usage_percent" | cut -d'.' -f1)
+              if [ "$mem_num" -gt 90 ]; then
+                echo "🚨 CRITICAL: Memory usage is ${mem_usage_percent}% during execution of: $current_cell"
+                echo "   📍 OOM risk - this cell may have memory leaks or excessive data loading"
+              elif [ "$mem_num" -gt 80 ]; then
+                echo "⚠️ WARNING: Memory usage is ${mem_usage_percent}% during execution of: $current_cell"
+                echo "   📍 Approaching memory limits - review data handling in this cell"
+              fi
+              
+              sleep 5
+            done
+          ) &
+          
+          # Store the monitoring process PID
+          MONITOR_PID=$!
+          echo "📊 System monitoring started (PID: $MONITOR_PID)"
+          
+          # Create a custom nbconvert script with cell tracking
+          cat > /tmp/execute_with_tracking.py << 'EOF'
+          import nbformat
+          import sys
+          import os
+          import subprocess
+          from nbconvert.preprocessors import ExecutePreprocessor
+          from nbconvert import NotebookExporter
+          import time
+          
+          def update_cell_tracker(cell_info):
+              """Update the cell tracker file with current execution info"""
+              try:
+                  with open('/tmp/current_cell_info.txt', 'w') as f:
+                      f.write(cell_info)
+              except:
+                  pass  # Ignore errors to not interrupt execution
+          
+          def execute_notebook_with_tracking(notebook_path):
+              # Convert to absolute path and verify file exists
+              if not os.path.isabs(notebook_path):
+                  notebook_path = os.path.abspath(notebook_path)
+              
+              if not os.path.exists(notebook_path):
+                  error_msg = f"Notebook file not found: {notebook_path}"
+                  update_cell_tracker(f"ERROR: {error_msg}")
+                  print(f"❌ {error_msg}")
+                  print(f"🔍 Current working directory: {os.getcwd()}")
+                  print(f"📁 Directory contents:")
+                  try:
+                      for item in os.listdir('.'):
+                          print(f"  - {item}")
+                  except:
+                      print("  Could not list directory contents")
+                  sys.exit(1)
+              
+              print(f"📝 Reading notebook: {notebook_path}")
+              
+              # Read the notebook
+              with open(notebook_path, 'r', encoding='utf-8') as f:
+                  nb = nbformat.read(f, as_version=4)
+              
+              # Set working directory to notebook directory for proper imports
+              notebook_dir = os.path.dirname(notebook_path)
+              
+              # Use the standard approach: execute the entire notebook but with cell tracking
+              ep = ExecutePreprocessor(kernel_name='python3', timeout=None)
+              
+              update_cell_tracker("Starting notebook execution")
+              
+              total_cells = len([cell for cell in nb.cells if cell.cell_type == 'code'])
+              print(f"📊 Found {total_cells} code cells to execute")
+              
+              # Override the preprocess method to add cell tracking
+              original_preprocess_cell = ep.preprocess_cell
+              current_cell_num = 0
+              
+              def tracked_preprocess_cell(cell, resources, cell_index):
+                  nonlocal current_cell_num
+                  
+                  if cell.cell_type == 'code':
+                      current_cell_num += 1
+                      
+                      # Extract cell info for tracking
+                      cell_source = cell.source[:100].replace('\n', ' ').replace('\r', '') if cell.source else "Empty cell"
+                      cell_info = f"Cell {current_cell_num}/{total_cells} (Index {cell_index + 1}): {cell_source}..."
+                      
+                      update_cell_tracker(cell_info)
+                      print(f"🔍 Executing: {cell_info}")
+                  
+                  # Call the original preprocess_cell method
+                  return original_preprocess_cell(cell, resources, cell_index)
+              
+              # Replace the method with our tracked version
+              ep.preprocess_cell = tracked_preprocess_cell
+              
+              try:
+                  # Execute the entire notebook (with our cell tracking wrapper)
+                  ep.preprocess(nb, {'metadata': {'path': notebook_dir}})
+                  update_cell_tracker("Execution completed successfully")
+              except Exception as e:
+                  error_info = f"ERROR during execution: {str(e)[:100]}"
+                  update_cell_tracker(error_info)
+                  print(f"❌ Execution failed: {e}")
+                  raise
+              
+              # Save the executed notebook
+              with open(notebook_path, 'w', encoding='utf-8') as f:
+                  nbformat.write(nb, f)
+              
+              print(f"✅ Successfully executed {total_cells} code cells")
+          
+          if __name__ == "__main__":
+              if len(sys.argv) != 2:
+                  print("Usage: python execute_with_tracking.py <notebook_path>")
+                  sys.exit(1)
+              
+              notebook_path = sys.argv[1]
+              execute_notebook_with_tracking(notebook_path)
+          EOF
+          
+          # Execute notebook with cell tracking
+          echo "🚀 Starting notebook execution with cell-level tracking..."
+          python /tmp/execute_with_tracking.py "${{ matrix.notebook }}" &
+          EXECUTION_PID=$!
+          
+          # Wait for notebook execution to complete
+          wait $EXECUTION_PID
+          EXECUTION_EXIT_CODE=$?
+          
+          # Stop system monitoring
+          kill $MONITOR_PID 2>/dev/null || true
+          echo "📊 System monitoring stopped"
+          
+          # Clean up temporary files
+          rm -f /tmp/execute_with_tracking.py
+          rm -f "$CELL_TRACKER"
+          
+          # Report final system usage
+          final_df=$(df -h . 2>/dev/null | tail -1)
+          final_disk_usage=$(echo "$final_df" | awk '{print $5}')
+          final_disk_available=$(echo "$final_df" | awk '{print $4}')
+          final_cpu=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | sed 's/%us,//' || awk '/^cpu / {usage=($2+$4)*100/($2+$3+$4+$5)} END {printf "%.1f", usage}' /proc/stat 2>/dev/null || echo "N/A")
+          final_mem=$(free | grep '^Mem:' | awk '{printf "%.1f%%", ($3/$2)*100}')
+          
+          echo "� Final system resources:"
+          echo "  💽 Disk: $final_disk_usage ($final_disk_available available)"
+          echo "  🖥️  CPU: ${final_cpu}%"
+          echo "  🧠 Memory: $final_mem"
+          
+          # Exit with the same code as notebook execution
+          if [ $EXECUTION_EXIT_CODE -ne 0 ]; then
+            echo "❌ Notebook execution failed with exit code: $EXECUTION_EXIT_CODE"
+            exit $EXECUTION_EXIT_CODE
+          else
+            echo "✅ Notebook execution completed successfully"
+          fi
 
       - name: Store executed notebook to gh-storage
         if: |
@@ -1093,6 +1318,25 @@ jobs:
           
           echo "📊 Recording result for $notebook: $result"
           
+          # Show final system resource usage
+          echo "💽 Final System Resources:"
+          df -h / 2>/dev/null | head -2 || echo "❌ Failed to get root disk info"
+          df -h . 2>/dev/null | tail -1 | awk '{printf "  Workspace: %s used / %s total (%s available) - %s\n", $3, $2, $4, $5}' || echo "❌ Failed to get workspace disk info"
+          echo "  Memory: $(free -h 2>/dev/null | grep '^Mem:' | awk '{printf \"%s used / %s total (%.1f%% used)\", $3, $2, ($3/$2)*100}' || echo 'N/A')"
+          
+          # Show largest directories that might be consuming space
+          echo "📂 Largest directories in workspace:"
+          du -sh ./* 2>/dev/null | sort -hr | head -5 || echo "  No data available"
+          echo "📂 Temporary files usage:"
+          du -sh /tmp/* 2>/dev/null | sort -hr | head -3 || echo "  No large temp files"
+          
+          # Check for common space-consuming patterns
+          echo "🔍 Space usage analysis:"
+          echo "  Jupyter cache: $(du -sh ~/.jupyter 2>/dev/null | cut -f1 || echo 'N/A')"
+          echo "  Conda cache: $(du -sh ~/.conda 2>/dev/null | cut -f1 || echo 'N/A')" 
+          echo "  Pip cache: $(du -sh ~/.cache/pip 2>/dev/null | cut -f1 || echo 'N/A')"
+          echo "  Docker (if any): $(du -sh /var/lib/docker 2>/dev/null | cut -f1 || echo 'N/A')"
+          
           # Create a results directory if it doesn't exist
           mkdir -p /tmp/notebook-results
           
@@ -1170,7 +1414,9 @@ jobs:
               if isinstance(toc_data, dict):
                   if 'file' in toc_data:
                       file_path = toc_data['file']
-                      if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
+                      # Only include files with explicit .md or .html extensions
+                      # Skip entries without extensions (they're likely directories or notebook refs)
+                      if file_path.endswith(('.md', '.html')):
                           files_list.append(file_path)
                   for key, value in toc_data.items():
                       if key not in ['file']:
@@ -1508,12 +1754,18 @@ jobs:
           create-args: "python=${{ inputs.python-version }} pip jupyter-book sphinx"
           cache-environment: false
 
+      - name: Setup Node.js (required for jupyter-book v2.x)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
       - name: Install documentation dependencies
         run: |
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate docs-env
           echo "📚 Installing documentation dependencies"
-          pip install --upgrade jupyter-book sphinx
+          # Pin to v1.x for now to avoid v2.x breaking changes and Node.js requirements
+          pip install "jupyter-book<2.0" sphinx
           
       - name: Build JupyterBook documentation
         run: |
@@ -1521,12 +1773,61 @@ jobs:
           micromamba activate docs-env
           echo "📖 Building JupyterBook documentation"
           
+          # Verify _config.yml has only_build_toc_files setting
+          if [ -f "_config.yml" ]; then
+            echo "🔍 Checking _config.yml for only_build_toc_files setting:"
+            grep "only_build_toc_files" _config.yml || echo "⚠️ only_build_toc_files not found in _config.yml"
+          fi
+          
+          # Show what files exist before build
+          echo "📁 Current working directory: $(pwd)"
+          echo "📁 Files present before build:"
+          echo "  _toc.yml exists: $([ -f '_toc.yml' ] && echo 'yes' || echo 'no')"
+          echo "  _config.yml exists: $([ -f '_config.yml' ] && echo 'yes' || echo 'no')"
+          echo "  notebooks/ exists: $([ -d 'notebooks' ] && echo 'yes' || echo 'no')"
+          echo "📁 Top-level directory contents:"
+          ls -la | head -20
+          
+          # Check for any unusual files or symlinks that might confuse JupyterBook
+          echo "🔍 Checking for potential issues:"
+          echo "  Symlinks in root:"
+          find . -maxdepth 1 -type l -ls || echo "  None found"
+          echo "  Files/dirs named same as repo:"
+          ls -la notebook-ci-testing 2>/dev/null || echo "  None found"
+          
           # Clean any existing build directory
           rm -rf _build
           
-          # Build the documentation (don't specify --path-output to use default _build location)
-          jupyter-book build .
-          echo "✅ JupyterBook documentation built successfully"
+          # Build the documentation
+          echo "🔨 Starting JupyterBook build..."
+          echo "which jupyter-book: $(which jupyter-book || true)"
+          echo "jupyter-book version: $(jupyter-book --version 2>&1 || true)"
+          echo "python: $(python --version)"
+          python -m pip show jupyter-book || true
+          
+          # Use v1.x command syntax (we pinned to v1.x in installation)
+          echo "Command: jupyter-book build ."
+          jupyter-book build . 2>&1 | tee build.log
+          BUILD_EXIT_CODE=$?
+          
+          echo ""
+          echo "📊 Build results:"
+          echo "  Build exit code: $BUILD_EXIT_CODE"
+          echo "  _build/html exists: $([ -d '_build/html' ] && echo 'yes' || echo 'no')"
+          if [ -d '_build/html' ]; then
+            echo "  HTML files generated: $(find _build/html -name '*.html' | wc -l)"
+            echo "  Notebook HTML files: $(find _build/html/notebooks -name '*.html' 2>/dev/null | wc -l)"
+          fi
+          
+          # If build failed, show log tail
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo ""
+            echo "⚠️ Build failed with exit code $BUILD_EXIT_CODE"
+            echo "Last 80 lines of build.log:"
+            tail -n 80 build.log || true
+          fi
+          
+          echo "✅ JupyterBook documentation build completed"
           
       - name: Run post-processing script
         if: inputs.post-processing-script != ''
