@@ -1794,8 +1794,9 @@ jobs:
           
           # Build the documentation
           echo "🔨 Starting JupyterBook build..."
-          echo "Command: jupyter-book build ."
-          jupyter-book build . 2>&1 | tee build.log
+          echo "JupyterBook version: $(jupyter-book --version)"
+          echo "Command: jupyter-book build . --builder html"
+          jupyter-book build . --builder html 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
