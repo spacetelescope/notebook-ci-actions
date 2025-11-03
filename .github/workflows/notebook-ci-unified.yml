@@ -1414,7 +1414,9 @@ jobs:
               if isinstance(toc_data, dict):
                   if 'file' in toc_data:
                       file_path = toc_data['file']
-                      if file_path.endswith(('.md', '.html')) or (not os.path.splitext(file_path)[1] and not file_path.endswith('.ipynb')):
+                      # Only include files with explicit .md or .html extensions
+                      # Skip entries without extensions (they're likely directories or notebook refs)
+                      if file_path.endswith(('.md', '.html')):
                           files_list.append(file_path)
                   for key, value in toc_data.items():
                       if key not in ['file']:
@@ -1765,12 +1767,34 @@ jobs:
           micromamba activate docs-env
           echo "📖 Building JupyterBook documentation"
           
+          # Verify _config.yml has only_build_toc_files setting
+          if [ -f "_config.yml" ]; then
+            echo "🔍 Checking _config.yml for only_build_toc_files setting:"
+            grep "only_build_toc_files" _config.yml || echo "⚠️ only_build_toc_files not found in _config.yml"
+          fi
+          
+          # Show what files exist before build
+          echo "📁 Files present before build:"
+          echo "  _toc.yml exists: $([ -f '_toc.yml' ] && echo 'yes' || echo 'no')"
+          echo "  _config.yml exists: $([ -f '_config.yml' ] && echo 'yes' || echo 'no')"
+          echo "  notebooks/ exists: $([ -d 'notebooks' ] && echo 'yes' || echo 'no')"
+          
           # Clean any existing build directory
           rm -rf _build
           
-          # Build the documentation (don't specify --path-output to use default _build location)
-          jupyter-book build .
-          echo "✅ JupyterBook documentation built successfully"
+          # Build the documentation with verbose output
+          echo "🔨 Starting JupyterBook build..."
+          jupyter-book build . --verbose 2>&1 | tee build.log
+          
+          echo ""
+          echo "📊 Build results:"
+          echo "  _build/html exists: $([ -d '_build/html' ] && echo 'yes' || echo 'no')"
+          if [ -d '_build/html' ]; then
+            echo "  HTML files generated: $(find _build/html -name '*.html' | wc -l)"
+            echo "  Notebook HTML files: $(find _build/html/notebooks -name '*.html' 2>/dev/null | wc -l)"
+          fi
+          
+          echo "✅ JupyterBook documentation build completed"
           
       - name: Run post-processing script
         if: inputs.post-processing-script != ''
