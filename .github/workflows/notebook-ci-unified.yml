@@ -1792,11 +1792,22 @@ jobs:
           # Clean any existing build directory
           rm -rf _build
           
-          # Build the documentation
-          echo "🔨 Starting JupyterBook build..."
-          echo "JupyterBook version: $(jupyter-book --version)"
-          echo "Command: jupyter-book build . --builder html"
-          jupyter-book build . --builder html 2>&1 | tee build.log
+      # Build the documentation
+      echo "🔨 Starting JupyterBook build..."
+      echo "which jupyter-book: $(which jupyter-book || true)"
+      echo "jupyter-book --version: $(jupyter-book --version || true)"
+      echo "python: $(python --version)"
+      python - <<'PY'
+import shutil, sys
+print('python which jupyter-book:', shutil.which('jupyter-book'))
+try:
+  import jupyter_book
+  print('jupyter_book Python package version:', getattr(jupyter_book, '__version__', 'unknown'))
+except Exception as e:
+  print('Failed to import jupyter_book:', e)
+PY
+      echo "Command: python -m jupyter_book.cli build . -v -v"
+      python -m jupyter_book.cli build . -v -v 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
