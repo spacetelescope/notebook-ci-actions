@@ -1806,8 +1806,8 @@ jobs:
           python -m pip show jupyter-book || true
           
           # Use v1.x command syntax (we pinned to v1.x in installation)
-          echo "Command: jupyter-book build . -v -v"
-          jupyter-book build . -v -v 2>&1 | tee build.log
+          echo "Command: jupyter-book build ."
+          jupyter-book build . 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
