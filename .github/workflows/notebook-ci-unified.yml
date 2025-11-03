@@ -1782,6 +1782,13 @@ jobs:
           echo "📁 Top-level directory contents:"
           ls -la | head -20
           
+          # Check for any unusual files or symlinks that might confuse JupyterBook
+          echo "🔍 Checking for potential issues:"
+          echo "  Symlinks in root:"
+          find . -maxdepth 1 -type l -ls || echo "  None found"
+          echo "  Files/dirs named same as repo:"
+          ls -la notebook-ci-testing 2>/dev/null || echo "  None found"
+          
           # Clean any existing build directory
           rm -rf _build
           
