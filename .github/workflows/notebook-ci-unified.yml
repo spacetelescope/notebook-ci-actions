@@ -1774,34 +1774,33 @@ jobs:
           fi
           
           # Show what files exist before build
+          echo "📁 Current working directory: $(pwd)"
           echo "📁 Files present before build:"
           echo "  _toc.yml exists: $([ -f '_toc.yml' ] && echo 'yes' || echo 'no')"
           echo "  _config.yml exists: $([ -f '_config.yml' ] && echo 'yes' || echo 'no')"
           echo "  notebooks/ exists: $([ -d 'notebooks' ] && echo 'yes' || echo 'no')"
+          echo "📁 Top-level directory contents:"
+          ls -la | head -20
           
           # Clean any existing build directory
           rm -rf _build
           
-          # Build the documentation with verbose output
+          # Build the documentation
           echo "🔨 Starting JupyterBook build..."
-          jupyter-book build . -v -v -v 2>&1 | tee build.log
+          echo "Command: jupyter-book build ."
+          jupyter-book build . 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
           echo "📊 Build results:"
           echo "  Build exit code: $BUILD_EXIT_CODE"
+          echo "  build.log contents:"
+          cat build.log
+          echo ""
           echo "  _build/html exists: $([ -d '_build/html' ] && echo 'yes' || echo 'no')"
           if [ -d '_build/html' ]; then
             echo "  HTML files generated: $(find _build/html -name '*.html' | wc -l)"
             echo "  Notebook HTML files: $(find _build/html/notebooks -name '*.html' 2>/dev/null | wc -l)"
-          fi
-          
-          # Show last 50 lines of build log if build failed
-          if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo ""
-            echo "⚠️ Build failed with exit code $BUILD_EXIT_CODE"
-            echo "Last 50 lines of build.log:"
-            tail -50 build.log
           fi
           
           echo "✅ JupyterBook documentation build completed"
