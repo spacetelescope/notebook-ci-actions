@@ -434,28 +434,13 @@ jobs:
               with open(notebook_path, "r", encoding="utf-8") as f:
                   nb = json.load(f)
               
-              # Check for deprecation in multiple ways
+              # Check for deprecation using only the structured metadata field
               is_deprecated = False
               
-              # Method 1: Check notebook metadata
+              # Only check notebook metadata for the 'deprecated' field
+              # This is the field set by the workflow's manual deprecation process
               if "metadata" in nb and "deprecated" in nb.get("metadata", {}):
                   is_deprecated = True
-              
-              # Method 2: Check for cells with deprecated tags
-              if not is_deprecated:
-                  for cell in nb.get("cells", []):
-                      if cell.get("cell_type") == "markdown" and "tags" in cell.get("metadata", {}):
-                          if "deprecated" in cell["metadata"]["tags"]:
-                              is_deprecated = True
-                              break
-              
-              # Method 3: Text-based search for backward compatibility
-              if not is_deprecated:
-                  for cell in nb.get("cells", []):
-                      source = "".join(cell.get("source", []))
-                      if "DEPRECATED" in source or "deprecated" in source:
-                          is_deprecated = True
-                          break
               
               # Output result - do not use exit codes
               if is_deprecated:
@@ -1633,32 +1618,23 @@ jobs:
               with open(notebook_path, 'r', encoding='utf-8') as f:
                   nb = json.load(f)
               
-              # Check if notebook has deprecation metadata or content
+              # Check if notebook has deprecation metadata using only the structured field
               is_deprecated = False
               deprecation_date = None
               has_existing_warning = False
               
-              # Method 1: Check for cells with deprecated tag OR existing deprecation-warning tag
+              # Check if deprecation warning banner already exists (to avoid duplicates)
               for cell in nb.get('cells', []):
                   if cell.get('cell_type') == 'markdown' and 'tags' in cell.get('metadata', {}):
-                      tags = cell['metadata']['tags']
-                      if 'deprecated' in tags:
-                          is_deprecated = True
-                          # Try to extract date from existing deprecation content
-                          source = ''.join(cell.get('source', []))
-                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
-                          if date_match:
-                              deprecation_date = date_match.group(1)
-                      elif 'deprecation-warning' in tags:
+                      if 'deprecation-warning' in cell['metadata']['tags']:
                           # Already has a deprecation warning, don't add another
                           has_existing_warning = True
                           print(f"ℹ️ Deprecation warning already exists in {notebook_path}")
                           break
-                  if is_deprecated or has_existing_warning:
-                      break
               
-              # Method 2: Check notebook metadata for deprecation info
-              if not is_deprecated and 'metadata' in nb:
+              # Only check notebook metadata for the 'deprecated' field
+              # This is the field set by the workflow's manual deprecation process
+              if not has_existing_warning and 'metadata' in nb:
                   nb_metadata = nb['metadata']
                   if 'deprecated' in nb_metadata:
                       is_deprecated = True
@@ -1668,18 +1644,6 @@ jobs:
                           # Try to parse as date
                           if re.match(r'\d{4}-\d{2}-\d{2}', nb_metadata['deprecated']):
                               deprecation_date = nb_metadata['deprecated']
-              
-              # Method 3: Text-based search (backward compatibility)
-              if not is_deprecated:
-                  for cell in nb.get('cells', []):
-                      source = ''.join(cell.get('source', []))
-                      if re.search(r'DEPRECATED|deprecated|DEPRECATION', source, re.IGNORECASE):
-                          is_deprecated = True
-                          # Try to extract date
-                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
-                          if date_match:
-                              deprecation_date = date_match.group(1)
-                          break
               
               if is_deprecated:
                   print(f"📅 Found deprecated notebook: {notebook_path}")
@@ -2124,17 +2088,20 @@ jobs:
               with open(notebook_path, 'r') as f:
                   nb = json.load(f)
               
-              for cell in nb['cells']:
-                  if cell['cell_type'] == 'markdown' and 'tags' in cell.get('metadata', {}):
-                      if 'deprecated' in cell['metadata']['tags']:
-                          source = ''.join(cell['source'])
-                          # Extract date from deprecation banner
-                          import re
-                          date_match = re.search(r'(\d{4}-\d{2}-\d{2})', source)
-                          if date_match:
-                              dep_date = datetime.strptime(date_match.group(1), '%Y-%m-%d')
-                              if dep_date <= datetime.now():
-                                  return True, dep_date
+              # Only check the structured metadata field set by the workflow
+              if 'metadata' in nb and 'deprecated' in nb.get('metadata', {}):
+                  deprecated_info = nb['metadata']['deprecated']
+                  # Extract the deprecation date from the metadata
+                  if isinstance(deprecated_info, dict) and 'date' in deprecated_info:
+                      dep_date_str = deprecated_info['date']
+                      try:
+                          dep_date = datetime.strptime(dep_date_str, '%Y-%m-%d')
+                          # Check if the deprecation date has passed
+                          if dep_date <= datetime.now():
+                              return True, dep_date
+                      except ValueError:
+                          pass  # Invalid date format, skip this notebook
+              
               return False, None
           
           deprecated_notebooks = []
