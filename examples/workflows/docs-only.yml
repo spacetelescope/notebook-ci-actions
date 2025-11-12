@@ -35,9 +35,16 @@ on:
 
 jobs:
   deploy-documentation:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
+      execution-mode: 'on-demand'
+      trigger-event: 'html'
       python-version: ${{ github.event.inputs.python-version || '3.11' }}
-      post-run-script: ${{ github.event.inputs.post-processing-script || 'scripts/jdaviz_image_replacement.sh' }}
+      enable-validation: false
+      enable-security: false
+      enable-execution: false
+      enable-storage: false
+      enable-html-build: true
+      post-run-script: ${{ github.event.inputs.post-processing-script }}
     secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -181,6 +181,34 @@ fi
 # Close the SKIP_DEPS if statement
 fi
 
+# Helper: Install per-notebook requirements.txt if present
+install_notebook_requirements() {
+    local nb_path="$1"
+    local nb_dir
+    nb_dir=$(dirname "$nb_path")
+    local found_req=""
+    while [ "$nb_dir" != "." ] && [ "$nb_dir" != "/" ]; do
+        if [ -f "$nb_dir/requirements.txt" ]; then
+            found_req="$nb_dir/requirements.txt"
+            break
+        fi
+        nb_dir=$(dirname "$nb_dir")
+    done
+    if [ -n "$found_req" ]; then
+        log_info "Installing per-notebook requirements: $found_req"
+        if timeout 300 uv pip install -r "$found_req"; then
+            log_success "Installed $found_req"
+        else
+            log_warning "uv install failed, trying pip fallback for $found_req..."
+            if timeout 300 pip install -r "$found_req"; then
+                log_success "Installed $found_req with pip fallback"
+            else
+                log_error "Failed to install $found_req"
+            fi
+        fi
+    fi
+}
+
 # Repository-specific package detection
 REPO_NAME=$(basename $(pwd))
 case "$REPO_NAME" in
@@ -224,6 +252,9 @@ else
         
         if [ -n "$SINGLE_NOTEBOOK" ]; then
             if [ -f "$SINGLE_NOTEBOOK" ]; then
+                if [ "$SKIP_DEPS" != "true" ]; then
+                    install_notebook_requirements "$SINGLE_NOTEBOOK"
+                fi
                 log_info "Validating single notebook: $SINGLE_NOTEBOOK"
                 pytest --nbval "$SINGLE_NOTEBOOK" || log_error "Notebook validation failed for $SINGLE_NOTEBOOK"
             else
@@ -231,7 +262,13 @@ else
                 exit 1
             fi
         else
-            pytest --nbval notebooks/ || log_error "Some notebooks failed validation"
+            for nb in $(find notebooks -name "*.ipynb"); do
+                if [ "$SKIP_DEPS" != "true" ]; then
+                    install_notebook_requirements "$nb"
+                fi
+                log_info "Validating notebook: $nb"
+                pytest --nbval "$nb" || log_error "Notebook validation failed for $nb"
+            done
         fi
         
         log_success "Notebook validation completed"
@@ -267,6 +304,9 @@ else
     
     for notebook in $notebooks_to_execute; do
         if [ -f "$notebook" ]; then
+            if [ "$SKIP_DEPS" != "true" ]; then
+                install_notebook_requirements "$notebook"
+            fi
             log_info "Executing: $notebook"
             # Execute notebook with timeout
             timeout 300 jupyter nbconvert --to notebook --execute --inplace "$notebook" || {

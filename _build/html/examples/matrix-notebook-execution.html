@@ -1,0 +1,1381 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Matrix-Based Notebook Execution in Production &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/matrix-notebook-execution';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/matrix-notebook-execution.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Matrix-Based Notebook Execution in Production</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits">🎯 Key Benefits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">📋 Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-structure">📁 Repository Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-matrix-list">1. Define Matrix List</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-github-actions-workflow">Complete GitHub Actions Workflow</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spawn-notebook-runners">2. Spawn Notebook Runners</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-requirements">3. Install Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-installation-strategies">Advanced Installation Strategies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execute-notebooks">4. Execute Notebooks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-monitoring-error-handling">Execution Monitoring &amp; Error Handling</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#production-optimization-best-practices">🚀 Production Optimization &amp; Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-maintenance">🔧 Troubleshooting &amp; Maintenance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion-next-steps">🎯 Conclusion &amp; Next Steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits-achieved">✅ <strong>Key Benefits Achieved</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-path">🔄 <strong>Implementation Path</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-features-to-explore">🚀 <strong>Advanced Features to Explore</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">📚 <strong>Additional Resources</strong></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="matrix-based-notebook-execution-in-production">
+<h1>Matrix-Based Notebook Execution in Production<a class="headerlink" href="#matrix-based-notebook-execution-in-production" title="Link to this heading">#</a></h1>
+<p>This notebook demonstrates how to implement <strong>matrix-based execution</strong> for Jupyter notebooks in production CI/CD environments. Each notebook runs in its own isolated GitHub Actions runner with its specific dependencies.</p>
+<section id="key-benefits">
+<h2>🎯 Key Benefits<a class="headerlink" href="#key-benefits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Isolation</strong>: Each notebook runs independently</p></li>
+<li><p><strong>Scalability</strong>: Parallel execution across multiple runners</p></li>
+<li><p><strong>Dependency Management</strong>: Each notebook uses its own <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></p></li>
+<li><p><strong>Fault Tolerance</strong>: One failing notebook doesn’t affect others</p></li>
+<li><p><strong>Resource Optimization</strong>: Different notebooks can use different runner types</p></li>
+</ul>
+</section>
+<section id="prerequisites">
+<h2>📋 Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>GitHub Actions workflows</p></li>
+<li><p>Notebooks organized in separate directories</p></li>
+<li><p>Individual <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> files per notebook directory</p></li>
+<li><p>Proper repository structure</p></li>
+</ul>
+</section>
+<section id="repository-structure">
+<h2>📁 Repository Structure<a class="headerlink" href="#repository-structure" title="Link to this heading">#</a></h2>
+<p>For matrix-based execution, organize your repository with each notebook in its own directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>repository/
+├── .github/workflows/
+│   └── notebook-matrix.yml
+├── notebooks/
+│   ├── data-analysis/
+│   │   ├── analysis.ipynb
+│   │   ├── requirements.txt
+│   │   └── README.md
+│   ├── visualization/
+│   │   ├── plots.ipynb
+│   │   ├── requirements.txt
+│   │   └── data/
+│   ├── machine-learning/
+│   │   ├── model.ipynb
+│   │   ├── requirements.txt
+│   │   └── models/
+│   └── astronomy/
+│       ├── jwst-analysis.ipynb
+│       ├── requirements.txt
+│       └── data/
+├── _config.yml
+├── _toc.yml
+└── README.md
+</pre></div>
+</div>
+<p><strong>Key Points:</strong></p>
+<ul class="simple">
+<li><p>Each notebook has its own directory</p></li>
+<li><p>Each directory contains a <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> with specific dependencies</p></li>
+<li><p>Notebooks can have their own data/supporting files</p></li>
+</ul>
+</section>
+<section id="define-matrix-list">
+<h2>1. Define Matrix List<a class="headerlink" href="#define-matrix-list" title="Link to this heading">#</a></h2>
+<p>The GitHub Actions matrix strategy allows you to run the same job with different parameters. Here’s how to define a matrix for notebook execution:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example GitHub Actions workflow matrix configuration</span>
+<span class="c1"># This would be in .github/workflows/notebook-matrix.yml</span>
+
+<span class="n">matrix_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;strategy&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;fail-fast&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># Don&#39;t stop all jobs if one fails</span>
+        <span class="s2">&quot;matrix&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;notebook&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;notebooks/data-analysis&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;notebooks/visualization&quot;</span><span class="p">,</span> 
+                <span class="s2">&quot;notebooks/machine-learning&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;notebooks/astronomy&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;python-version&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;3.9&quot;</span><span class="p">,</span> <span class="s2">&quot;3.10&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;os&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ubuntu-latest&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1"># Display the matrix configuration</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Matrix Configuration:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">matrix_config</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="complete-github-actions-workflow">
+<h3>Complete GitHub Actions Workflow<a class="headerlink" href="#complete-github-actions-workflow" title="Link to this heading">#</a></h3>
+<p>Here’s a complete workflow file that implements matrix-based notebook execution:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Complete GitHub Actions workflow for matrix-based notebook execution</span>
+<span class="n">workflow_yaml</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">name: Matrix Notebook Execution</span>
+
+<span class="s1">on:</span>
+<span class="s1">  push:</span>
+<span class="s1">    branches: [ main, develop ]</span>
+<span class="s1">  pull_request:</span>
+<span class="s1">    branches: [ main ]</span>
+<span class="s1">  workflow_dispatch:</span>
+<span class="s1">    inputs:</span>
+<span class="s1">      notebook_path:</span>
+<span class="s1">        description: &#39;Specific notebook directory to test (optional)&#39;</span>
+<span class="s1">        required: false</span>
+<span class="s1">        type: string</span>
+
+<span class="s1">jobs:</span>
+<span class="s1">  discover-notebooks:</span>
+<span class="s1">    runs-on: ubuntu-latest</span>
+<span class="s1">    outputs:</span>
+<span class="s1">      matrix: ${{ steps.discover.outputs.matrix }}</span>
+<span class="s1">    steps:</span>
+<span class="s1">      - uses: actions/checkout@v4</span>
+<span class="s1">      </span>
+<span class="s1">      - name: Discover changed notebooks</span>
+<span class="s1">        id: discover</span>
+<span class="s1">        run: |</span>
+<span class="s1">          # Find all notebook directories with requirements.txt</span>
+<span class="s1">          if [ &quot;${{ github.event_name }}&quot; = &quot;workflow_dispatch&quot; ] &amp;&amp; [ -n &quot;${{ inputs.notebook_path }}&quot; ]; then</span>
+<span class="s1">            # Manual trigger for specific notebook</span>
+<span class="s1">            echo &quot;matrix={</span><span class="se">\&quot;</span><span class="s1">notebook</span><span class="se">\&quot;</span><span class="s1">:[</span><span class="se">\&quot;</span><span class="s1">${{ inputs.notebook_path }}</span><span class="se">\&quot;</span><span class="s1">],</span><span class="se">\&quot;</span><span class="s1">python-version</span><span class="se">\&quot;</span><span class="s1">:[</span><span class="se">\&quot;</span><span class="s1">3.9</span><span class="se">\&quot;</span><span class="s1">],</span><span class="se">\&quot;</span><span class="s1">os</span><span class="se">\&quot;</span><span class="s1">:[</span><span class="se">\&quot;</span><span class="s1">ubuntu-latest</span><span class="se">\&quot;</span><span class="s1">]}&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">          else</span>
+<span class="s1">            # Auto-discovery based on changed files or all notebooks</span>
+<span class="s1">            notebooks=$(find notebooks -name &quot;requirements.txt&quot; -exec dirname </span><span class="si">{}</span><span class="s1"> \; | sort | uniq)</span>
+<span class="s1">            matrix_json=$(echo &quot;$notebooks&quot; | jq -R -s -c &#39;split(&quot;</span><span class="se">\n</span><span class="s1">&quot;)[:-1] | {&quot;notebook&quot;: ., &quot;python-version&quot;: [&quot;3.9&quot;], &quot;os&quot;: [&quot;ubuntu-latest&quot;]}&#39;)</span>
+<span class="s1">            echo &quot;matrix=$matrix_json&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s1">          fi</span>
+
+<span class="s1">  execute-notebooks:</span>
+<span class="s1">    needs: discover-notebooks</span>
+<span class="s1">    runs-on: ${{ matrix.os }}</span>
+<span class="s1">    strategy:</span>
+<span class="s1">      fail-fast: false</span>
+<span class="s1">      matrix: ${{ fromJson(needs.discover-notebooks.outputs.matrix) }}</span>
+<span class="s1">    </span>
+<span class="s1">    steps:</span>
+<span class="s1">      - name: Checkout repository</span>
+<span class="s1">        uses: actions/checkout@v4</span>
+<span class="s1">        </span>
+<span class="s1">      - name: Set up Python ${{ matrix.python-version }}</span>
+<span class="s1">        uses: actions/setup-python@v4</span>
+<span class="s1">        with:</span>
+<span class="s1">          python-version: ${{ matrix.python-version }}</span>
+<span class="s1">          </span>
+<span class="s1">      - name: Install base dependencies</span>
+<span class="s1">        run: |</span>
+<span class="s1">          python -m pip install --upgrade pip</span>
+<span class="s1">          pip install jupyter nbconvert nbval</span>
+<span class="s1">          </span>
+<span class="s1">      - name: Install notebook-specific requirements</span>
+<span class="s1">        run: |</span>
+<span class="s1">          if [ -f &quot;${{ matrix.notebook }}/requirements.txt&quot; ]; then</span>
+<span class="s1">            echo &quot;Installing requirements from ${{ matrix.notebook }}/requirements.txt&quot;</span>
+<span class="s1">            pip install -r &quot;${{ matrix.notebook }}/requirements.txt&quot;</span>
+<span class="s1">          else</span>
+<span class="s1">            echo &quot;No requirements.txt found in ${{ matrix.notebook }}&quot;</span>
+<span class="s1">            exit 1</span>
+<span class="s1">          fi</span>
+<span class="s1">          </span>
+<span class="s1">      - name: Execute notebook</span>
+<span class="s1">        run: |</span>
+<span class="s1">          cd &quot;${{ matrix.notebook }}&quot;</span>
+<span class="s1">          notebook_file=$(find . -name &quot;*.ipynb&quot; | head -1)</span>
+<span class="s1">          if [ -n &quot;$notebook_file&quot; ]; then</span>
+<span class="s1">            echo &quot;Executing $notebook_file&quot;</span>
+<span class="s1">            jupyter nbconvert --to notebook --execute &quot;$notebook_file&quot; --output executed_notebook.ipynb</span>
+<span class="s1">          else</span>
+<span class="s1">            echo &quot;No .ipynb file found in ${{ matrix.notebook }}&quot;</span>
+<span class="s1">            exit 1</span>
+<span class="s1">          fi</span>
+<span class="s1">          </span>
+<span class="s1">      - name: Validate notebook output</span>
+<span class="s1">        run: |</span>
+<span class="s1">          cd &quot;${{ matrix.notebook }}&quot;</span>
+<span class="s1">          if [ -f &quot;executed_notebook.ipynb&quot; ]; then</span>
+<span class="s1">            echo &quot;Notebook executed successfully&quot;</span>
+<span class="s1">            # Optional: Run nbval for additional validation</span>
+<span class="s1">            pytest --nbval executed_notebook.ipynb || echo &quot;NBVal validation failed but continuing&quot;</span>
+<span class="s1">          fi</span>
+<span class="s1">          </span>
+<span class="s1">      - name: Upload executed notebook</span>
+<span class="s1">        uses: actions/upload-artifact@v3</span>
+<span class="s1">        if: always()</span>
+<span class="s1">        with:</span>
+<span class="s1">          name: executed-notebook-${{ matrix.notebook }}-${{ matrix.python-version }}</span>
+<span class="s1">          path: ${{ matrix.notebook }}/executed_notebook.ipynb</span>
+<span class="s1">          retention-days: 30</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GitHub Actions Workflow for Matrix Execution:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">workflow_yaml</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="spawn-notebook-runners">
+<h2>2. Spawn Notebook Runners<a class="headerlink" href="#spawn-notebook-runners" title="Link to this heading">#</a></h2>
+<p>Each notebook in the matrix runs in its own isolated runner environment. Here’s how the spawning process works:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simulation of how GitHub Actions spawns runners for each matrix job</span>
+
+<span class="k">def</span> <span class="nf">simulate_runner_spawning</span><span class="p">(</span><span class="n">matrix_config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulate how GitHub Actions spawns individual runners for each matrix combination</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runners</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">notebook</span> <span class="ow">in</span> <span class="n">matrix_config</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">][</span><span class="s1">&#39;notebook&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">python_version</span> <span class="ow">in</span> <span class="n">matrix_config</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">][</span><span class="s1">&#39;python-version&#39;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">os</span> <span class="ow">in</span> <span class="n">matrix_config</span><span class="p">[</span><span class="s1">&#39;strategy&#39;</span><span class="p">][</span><span class="s1">&#39;matrix&#39;</span><span class="p">][</span><span class="s1">&#39;os&#39;</span><span class="p">]:</span>
+                <span class="n">runner</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;runner-</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">runners</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s1">&#39;notebook&#39;</span><span class="p">:</span> <span class="n">notebook</span><span class="p">,</span>
+                    <span class="s1">&#39;python_version&#39;</span><span class="p">:</span> <span class="n">python_version</span><span class="p">,</span>
+                    <span class="s1">&#39;os&#39;</span><span class="p">:</span> <span class="n">os</span><span class="p">,</span>
+                    <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;spawned&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;isolated_env&#39;</span><span class="p">:</span> <span class="kc">True</span>
+                <span class="p">}</span>
+                <span class="n">runners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">runners</span>
+
+<span class="c1"># Simulate spawning runners</span>
+<span class="n">spawned_runners</span> <span class="o">=</span> <span class="n">simulate_runner_spawning</span><span class="p">(</span><span class="n">matrix_config</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spawned </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">spawned_runners</span><span class="p">)</span><span class="si">}</span><span class="s2"> runners:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">runner</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">spawned_runners</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. Runner </span><span class="si">{</span><span class="n">runner</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">runner</span><span class="p">[</span><span class="s1">&#39;notebook&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (Python </span><span class="si">{</span><span class="n">runner</span><span class="p">[</span><span class="s1">&#39;python_version&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">runner</span><span class="p">[</span><span class="s1">&#39;os&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="c1"># Show the key benefits</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">🎯 Benefits of Individual Runners:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Complete isolation between notebooks&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Parallel execution for faster CI/CD&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Independent failure handling&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Custom environment per notebook&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Resource optimization&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="install-requirements">
+<h2>3. Install Requirements<a class="headerlink" href="#install-requirements" title="Link to this heading">#</a></h2>
+<p>Each runner installs only the specific dependencies needed for its notebook. This approach provides:</p>
+<ul class="simple">
+<li><p><strong>Minimal Dependencies</strong>: Only install what’s needed</p></li>
+<li><p><strong>Version Isolation</strong>: Different notebooks can use different package versions</p></li>
+<li><p><strong>Faster Installation</strong>: Smaller requirement sets install faster</p></li>
+<li><p><strong>Reduced Conflicts</strong>: No dependency conflicts between notebooks</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example requirements.txt files for different notebook types</span>
+
+<span class="n">requirements_examples</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;notebooks/data-analysis&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;pandas==2.0.3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;numpy==1.24.3&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;matplotlib==3.7.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;seaborn==0.12.2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;scipy==1.11.1&quot;</span>
+    <span class="p">],</span>
+    
+    <span class="s2">&quot;notebooks/visualization&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;plotly==5.15.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bokeh==3.2.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;altair==5.0.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pandas==2.0.3&quot;</span>
+    <span class="p">],</span>
+    
+    <span class="s2">&quot;notebooks/machine-learning&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;scikit-learn==1.3.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tensorflow==2.13.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keras==2.13.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;numpy==1.24.3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pandas==2.0.3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;joblib==1.3.1&quot;</span>
+    <span class="p">],</span>
+    
+    <span class="s2">&quot;notebooks/astronomy&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;astropy==5.3.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;jwst==1.11.4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;crds==11.16.14&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;numpy==1.24.3&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;matplotlib==3.7.1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;photutils==1.8.0&quot;</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">simulate_requirements_installation</span><span class="p">(</span><span class="n">notebook_path</span><span class="p">,</span> <span class="n">requirements</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulate the requirements installation process for a specific notebook</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📦 Installing requirements for </span><span class="si">{</span><span class="n">notebook_path</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">requirements</span><span class="p">)</span><span class="si">}</span><span class="s2"> packages to install&quot;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">req</span> <span class="ow">in</span> <span class="n">requirements</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   ✅ Installing </span><span class="si">{</span><span class="n">req</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   🎉 All requirements installed successfully!</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;notebook&#39;</span><span class="p">:</span> <span class="n">notebook_path</span><span class="p">,</span>
+        <span class="s1">&#39;packages_installed&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">requirements</span><span class="p">),</span>
+        <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;success&#39;</span>
+    <span class="p">}</span>
+
+<span class="c1"># Simulate installation for each notebook</span>
+<span class="n">installation_results</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">notebook_path</span><span class="p">,</span> <span class="n">requirements</span> <span class="ow">in</span> <span class="n">requirements_examples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">simulate_requirements_installation</span><span class="p">(</span><span class="n">notebook_path</span><span class="p">,</span> <span class="n">requirements</span><span class="p">)</span>
+    <span class="n">installation_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+<span class="c1"># Summary</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📊 Installation Summary:&quot;</span><span class="p">)</span>
+<span class="n">total_packages</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;packages_installed&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">installation_results</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total notebooks: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">installation_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total packages installed: </span><span class="si">{</span><span class="n">total_packages</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average packages per notebook: </span><span class="si">{</span><span class="n">total_packages</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">installation_results</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="advanced-installation-strategies">
+<h3>Advanced Installation Strategies<a class="headerlink" href="#advanced-installation-strategies" title="Link to this heading">#</a></h3>
+<p>For production environments, consider these optimization strategies:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Advanced installation strategies for production</span>
+
+<span class="n">advanced_strategies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;caching&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cache dependencies to speed up subsequent runs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;implementation&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Cache pip dependencies</span>
+<span class="s2">  uses: actions/cache@v3</span>
+<span class="s2">  with:</span>
+<span class="s2">    path: ~/.cache/pip</span>
+<span class="s2">    key: ${{ runner.os }}-pip-${{ matrix.notebook }}-${{ hashFiles(format(&#39;</span><span class="si">{0}</span><span class="s2">/requirements.txt&#39;, matrix.notebook)) }}</span>
+<span class="s2">    restore-keys: |</span>
+<span class="s2">      ${{ runner.os }}-pip-${{ matrix.notebook }}-</span>
+<span class="s2">      ${{ runner.os }}-pip-</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Faster installation&quot;</span><span class="p">,</span> <span class="s2">&quot;Reduced network usage&quot;</span><span class="p">,</span> <span class="s2">&quot;More reliable builds&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;layered_requirements&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use base + specific requirements for common dependencies&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;implementation&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Base requirements.txt (common packages)</span>
+<span class="s2">base_requirements.txt:</span>
+<span class="s2">  - numpy&gt;=1.24.0</span>
+<span class="s2">  - pandas&gt;=2.0.0</span>
+<span class="s2">  - matplotlib&gt;=3.7.0</span>
+<span class="s2">  </span>
+<span class="s2"># Notebook-specific requirements.txt</span>
+<span class="s2">notebooks/astronomy/requirements.txt:</span>
+<span class="s2">  -r ../../base_requirements.txt</span>
+<span class="s2">  - astropy==5.3.1</span>
+<span class="s2">  - jwst==1.11.4</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Consistent base versions&quot;</span><span class="p">,</span> <span class="s2">&quot;Reduced duplication&quot;</span><span class="p">,</span> <span class="s2">&quot;Easier maintenance&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;conditional_installation&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Install different packages based on runner OS or Python version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;implementation&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Install OS-specific requirements</span>
+<span class="s2">  run: |</span>
+<span class="s2">    if [ &quot;${{ runner.os }}&quot; = &quot;macOS&quot; ]; then</span>
+<span class="s2">      pip install -r ${{ matrix.notebook }}/requirements-macos.txt</span>
+<span class="s2">    else</span>
+<span class="s2">      pip install -r ${{ matrix.notebook }}/requirements.txt</span>
+<span class="s2">    fi</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;OS optimization&quot;</span><span class="p">,</span> <span class="s2">&quot;Conditional dependencies&quot;</span><span class="p">,</span> <span class="s2">&quot;Platform flexibility&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;timeout_handling&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Add timeouts and retry logic for reliable installation&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;implementation&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Install requirements with timeout</span>
+<span class="s2">  run: |</span>
+<span class="s2">    timeout 1200 pip install -r ${{ matrix.notebook }}/requirements.txt || {</span>
+<span class="s2">      echo &quot;Installation timed out, retrying with --no-cache-dir&quot;</span>
+<span class="s2">      timeout 1200 pip install --no-cache-dir -r ${{ matrix.notebook }}/requirements.txt</span>
+<span class="s2">    }</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefits&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Handles hanging installs&quot;</span><span class="p">,</span> <span class="s2">&quot;Automatic retry&quot;</span><span class="p">,</span> <span class="s2">&quot;Better reliability&quot;</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🚀 Advanced Installation Strategies:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">advanced_strategies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">📋 </span><span class="si">{</span><span class="n">strategy</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Benefits: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;benefits&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="execute-notebooks">
+<h2>4. Execute Notebooks<a class="headerlink" href="#execute-notebooks" title="Link to this heading">#</a></h2>
+<p>Once dependencies are installed, each runner executes its assigned notebook independently. The execution process includes validation, error handling, and artifact collection.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Notebook execution simulation</span>
+
+<span class="k">def</span> <span class="nf">simulate_notebook_execution</span><span class="p">(</span><span class="n">notebook_path</span><span class="p">,</span> <span class="n">runner_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Simulate the execution of a notebook in its dedicated runner</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="kn">import</span> <span class="nn">random</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚀 Runner </span><span class="si">{</span><span class="n">runner_id</span><span class="si">}</span><span class="s2">: Starting execution of </span><span class="si">{</span><span class="n">notebook_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Simulate notebook execution steps</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;Setting up environment variables&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Loading notebook file&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;Validating notebook structure&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Executing cells sequentially&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Capturing outputs and errors&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Generating execution report&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Saving executed notebook&quot;</span>
+    <span class="p">]</span>
+    
+    <span class="n">execution_time</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">steps</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">step_time</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>  <span class="c1"># Simulate variable execution time</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Step </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">steps</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">step_time</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s)&quot;</span><span class="p">)</span>
+        <span class="n">execution_time</span> <span class="o">+=</span> <span class="n">step_time</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># Brief pause for demo</span>
+    
+    <span class="c1"># Simulate success/failure (90% success rate)</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.1</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;runner_id&#39;</span><span class="p">:</span> <span class="n">runner_id</span><span class="p">,</span>
+        <span class="s1">&#39;notebook&#39;</span><span class="p">:</span> <span class="n">notebook_path</span><span class="p">,</span>
+        <span class="s1">&#39;execution_time&#39;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">execution_time</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;success&#39;</span> <span class="k">if</span> <span class="n">success</span> <span class="k">else</span> <span class="s1">&#39;failed&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;cells_executed&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span>
+        <span class="s1">&#39;outputs_generated&#39;</span><span class="p">:</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   ✅ Execution completed successfully in </span><span class="si">{</span><span class="n">execution_time</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   ❌ Execution failed after </span><span class="si">{</span><span class="n">execution_time</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">result</span>
+
+<span class="c1"># Simulate execution for all spawned runners</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📊 Executing notebooks in parallel runners:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">execution_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">runner</span> <span class="ow">in</span> <span class="n">spawned_runners</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">simulate_notebook_execution</span><span class="p">(</span><span class="n">runner</span><span class="p">[</span><span class="s1">&#39;notebook&#39;</span><span class="p">],</span> <span class="n">runner</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+    <span class="n">execution_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>  <span class="c1"># Add spacing between executions</span>
+
+<span class="c1"># Execution summary</span>
+<span class="n">successful</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">execution_results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;success&#39;</span><span class="p">]</span>
+<span class="n">failed</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">execution_results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;failed&#39;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">📈 Execution Summary:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total notebooks: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">execution_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successful: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">successful</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">successful</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">execution_results</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failed</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">execution_results</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Average execution time: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;execution_time&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">execution_results</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">execution_results</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total cells executed: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;cells_executed&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">execution_results</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="execution-monitoring-error-handling">
+<h3>Execution Monitoring &amp; Error Handling<a class="headerlink" href="#execution-monitoring-error-handling" title="Link to this heading">#</a></h3>
+<p>Production notebook execution requires robust monitoring and error handling:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Production-grade execution monitoring</span>
+
+<span class="n">monitoring_strategies</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;timeout_management&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Prevent notebooks from running indefinitely&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Execute notebook with timeout</span>
+<span class="s2">  run: |</span>
+<span class="s2">    cd &quot;${{ matrix.notebook }}&quot;</span>
+<span class="s2">    timeout 1800 jupyter nbconvert --to notebook --execute *.ipynb </span><span class="se">\</span>
+<span class="s2">      --ExecutePreprocessor.timeout=300 </span><span class="se">\</span>
+<span class="s2">      --ExecutePreprocessor.kernel_name=python3 </span><span class="se">\</span>
+<span class="s2">      --output executed_notebook.ipynb</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;memory_monitoring&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Monitor memory usage during execution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Monitor memory usage</span>
+<span class="s2">  run: |</span>
+<span class="s2">    # Start memory monitoring in background</span>
+<span class="s2">    (while true; do </span>
+<span class="s2">      echo &quot;$(date): Memory: $(free -h | grep Mem | awk &#39;{print $3}&#39;)&quot; </span>
+<span class="s2">      sleep 30</span>
+<span class="s2">    done) &amp;</span>
+<span class="s2">    MONITOR_PID=$!</span>
+<span class="s2">    </span>
+<span class="s2">    # Execute notebook</span>
+<span class="s2">    jupyter nbconvert --execute *.ipynb</span>
+<span class="s2">    </span>
+<span class="s2">    # Stop monitoring</span>
+<span class="s2">    kill $MONITOR_PID</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;error_collection&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Collect detailed error information for debugging&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Execute with error collection</span>
+<span class="s2">  run: |</span>
+<span class="s2">    set +e  # Don&#39;t exit on error</span>
+<span class="s2">    jupyter nbconvert --execute *.ipynb --to notebook </span><span class="se">\</span>
+<span class="s2">      --output executed_notebook.ipynb </span><span class="se">\</span>
+<span class="s2">      --ExecutePreprocessor.allow_errors=True 2&gt; execution_errors.log</span>
+<span class="s2">    </span>
+<span class="s2">    if [ $? -ne 0 ]; then</span>
+<span class="s2">      echo &quot;Notebook execution failed, collecting debug info&quot;</span>
+<span class="s2">      echo &quot;=== Error Log ===&quot; &gt;&gt; debug_info.txt</span>
+<span class="s2">      cat execution_errors.log &gt;&gt; debug_info.txt</span>
+<span class="s2">      echo &quot;=== Environment Info ===&quot; &gt;&gt; debug_info.txt</span>
+<span class="s2">      pip list &gt;&gt; debug_info.txt</span>
+<span class="s2">      echo &quot;=== System Info ===&quot; &gt;&gt; debug_info.txt</span>
+<span class="s2">      uname -a &gt;&gt; debug_info.txt</span>
+<span class="s2">    fi</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;artifact_management&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Save execution artifacts for analysis&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Upload execution artifacts</span>
+<span class="s2">  uses: actions/upload-artifact@v3</span>
+<span class="s2">  if: always()</span>
+<span class="s2">  with:</span>
+<span class="s2">    name: notebook-execution-${{ matrix.notebook }}</span>
+<span class="s2">    path: |</span>
+<span class="s2">      ${{ matrix.notebook }}/executed_notebook.ipynb</span>
+<span class="s2">      ${{ matrix.notebook }}/execution_errors.log</span>
+<span class="s2">      ${{ matrix.notebook }}/debug_info.txt</span>
+<span class="s2">      ${{ matrix.notebook }}/**/*.png</span>
+<span class="s2">      ${{ matrix.notebook }}/**/*.html</span>
+<span class="s2">    retention-days: 30</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔍 Production Monitoring Strategies:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">strategy</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">monitoring_strategies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">📋 </span><span class="si">{</span><span class="n">strategy</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+<span class="c1"># Show execution metrics</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">📊 Key Execution Metrics to Track:&quot;</span><span class="p">)</span>
+<span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Execution time per notebook&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Memory usage peaks&quot;</span><span class="p">,</span> 
+    <span class="s2">&quot;Cell-by-cell execution status&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Error types and frequencies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Success/failure rates&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Resource utilization&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Artifact sizes&quot;</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">metric</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="production-optimization-best-practices">
+<h2>🚀 Production Optimization &amp; Best Practices<a class="headerlink" href="#production-optimization-best-practices" title="Link to this heading">#</a></h2>
+<p>Matrix-based execution enables powerful optimizations for large-scale notebook operations:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Production optimization strategies</span>
+
+<span class="n">optimizations</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;dynamic_matrix_generation&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Generate matrix based on changed files&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefit&quot;</span><span class="p">:</span> <span class="s2">&quot;Only test affected notebooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Generate dynamic matrix</span>
+<span class="s2">  id: matrix</span>
+<span class="s2">  run: |</span>
+<span class="s2">    # Get changed notebook directories</span>
+<span class="s2">    if [ &quot;${{ github.event_name }}&quot; = &quot;pull_request&quot; ]; then</span>
+<span class="s2">      changed_notebooks=$(git diff --name-only HEAD^ HEAD | </span><span class="se">\</span>
+<span class="s2">        grep &#39;\.ipynb$&#39; | xargs dirname | sort -u)</span>
+<span class="s2">    else</span>
+<span class="s2">      # For push events, test all notebooks</span>
+<span class="s2">      changed_notebooks=$(find notebooks -name &#39;*.ipynb&#39; -exec dirname </span><span class="si">{}</span><span class="s2"> \; | sort -u)</span>
+<span class="s2">    fi</span>
+<span class="s2">    </span>
+<span class="s2">    # Convert to JSON matrix</span>
+<span class="s2">    matrix=$(echo &quot;$changed_notebooks&quot; | jq -R -s -c </span><span class="se">\</span>
+<span class="s2">      &#39;split(&quot;</span><span class="se">\n</span><span class="s2">&quot;)[:-1] | {&quot;notebook&quot;: .}&#39;)</span>
+<span class="s2">    echo &quot;matrix=$matrix&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;runner_type_optimization&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use different runner types based on notebook requirements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefit&quot;</span><span class="p">:</span> <span class="s2">&quot;Cost optimization and performance tuning&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">strategy:</span>
+<span class="s2">  matrix:</span>
+<span class="s2">    include:</span>
+<span class="s2">      # Lightweight notebooks - standard runners</span>
+<span class="s2">      - notebook: notebooks/simple-analysis</span>
+<span class="s2">        os: ubuntu-latest</span>
+<span class="s2">        runner-type: standard</span>
+<span class="s2">      </span>
+<span class="s2">      # Heavy computation - larger runners  </span>
+<span class="s2">      - notebook: notebooks/machine-learning</span>
+<span class="s2">        os: ubuntu-latest-4-cores</span>
+<span class="s2">        runner-type: large</span>
+<span class="s2">      </span>
+<span class="s2">      # GPU workloads - GPU runners</span>
+<span class="s2">      - notebook: notebooks/deep-learning  </span>
+<span class="s2">        os: ubuntu-latest-gpu</span>
+<span class="s2">        runner-type: gpu</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;conditional_execution&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Skip execution based on conditions&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefit&quot;</span><span class="p">:</span> <span class="s2">&quot;Reduce unnecessary runs&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Check if execution needed</span>
+<span class="s2">  id: check</span>
+<span class="s2">  run: |</span>
+<span class="s2">    # Skip if only documentation changed</span>
+<span class="s2">    if git diff --name-only HEAD^ HEAD | grep -E &#39;\.(md|rst|txt)$&#39; &amp;&amp; </span><span class="se">\</span>
+<span class="s2">       ! git diff --name-only HEAD^ HEAD | grep -E &#39;\.(ipynb|py)$&#39;; then</span>
+<span class="s2">      echo &quot;skip=true&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="s2">    else</span>
+<span class="s2">      echo &quot;skip=false&quot; &gt;&gt; $GITHUB_OUTPUT  </span>
+<span class="s2">    fi</span>
+<span class="s2">    </span>
+<span class="s2">- name: Execute notebook</span>
+<span class="s2">  if: steps.check.outputs.skip == &#39;false&#39;</span>
+<span class="s2">  run: jupyter nbconvert --execute *.ipynb</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;parallel_artifact_processing&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Process artifacts in parallel after execution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;benefit&quot;</span><span class="p">:</span> <span class="s2">&quot;Faster CI completion&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">  # Separate job for artifact processing</span>
+<span class="s2">  process-artifacts:</span>
+<span class="s2">    needs: execute-notebooks</span>
+<span class="s2">    runs-on: ubuntu-latest</span>
+<span class="s2">    steps:</span>
+<span class="s2">      - name: Download all artifacts</span>
+<span class="s2">        uses: actions/download-artifact@v3</span>
+<span class="s2">        </span>
+<span class="s2">      - name: Process in parallel</span>
+<span class="s2">        run: |</span>
+<span class="s2">          # Process multiple artifacts simultaneously</span>
+<span class="s2">          for dir in artifact-*/; do</span>
+<span class="s2">            (cd &quot;$dir&quot; &amp;&amp; process_notebook_output.py) &amp;</span>
+<span class="s2">          done</span>
+<span class="s2">          wait  # Wait for all background processes</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚡ Production Optimization Strategies:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">opt</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">optimizations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">🎯 </span><span class="si">{</span><span class="n">opt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   </span><span class="si">{</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Benefit: </span><span class="si">{</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;benefit&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Show resource optimization calculations</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">💰 Resource Optimization Example:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Traditional approach (sequential):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - 10 notebooks × 15 minutes each = 150 minutes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - 1 runner for 150 minutes = 150 runner-minutes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Matrix approach (parallel):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - 10 notebooks × 15 minutes each in parallel = 15 minutes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - 10 runners for 15 minutes = 150 runner-minutes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - 🎉 90% time reduction (150min → 15min)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  - Same cost, dramatically faster feedback!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="troubleshooting-maintenance">
+<h2>🔧 Troubleshooting &amp; Maintenance<a class="headerlink" href="#troubleshooting-maintenance" title="Link to this heading">#</a></h2>
+<p>Common issues and solutions for matrix-based notebook execution:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common troubleshooting scenarios</span>
+
+<span class="n">troubleshooting_guide</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;matrix_generation_failures&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;symptom&quot;</span><span class="p">:</span> <span class="s2">&quot;Matrix job shows empty or invalid matrix&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;causes&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;No notebooks found in expected directories&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Invalid JSON generation in matrix step&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;File path issues with spaces or special characters&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;solutions&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Add debug output to matrix generation step&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Validate JSON before setting output&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Use proper escaping for file paths&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;debug_code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Debug matrix generation</span>
+<span class="s2">  run: |</span>
+<span class="s2">    echo &quot;Found notebooks:&quot;</span>
+<span class="s2">    find notebooks -name &#39;*.ipynb&#39; | head -10</span>
+<span class="s2">    echo &quot;Generated matrix:&quot;</span>
+<span class="s2">    echo &quot;$matrix&quot; | jq .</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;dependency_conflicts&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;symptom&quot;</span><span class="p">:</span> <span class="s2">&quot;Package installation fails with dependency conflicts&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;causes&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Conflicting version requirements&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Platform-specific package issues&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Outdated requirements.txt files&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;solutions&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Use pip-tools for dependency resolution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Pin specific package versions&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Regular dependency updates&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;debug_code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Debug dependency issues</span>
+<span class="s2">  run: |</span>
+<span class="s2">    echo &quot;Python version: $(python --version)&quot;</span>
+<span class="s2">    echo &quot;Pip version: $(pip --version)&quot;</span>
+<span class="s2">    echo &quot;Requirements content:&quot;</span>
+<span class="s2">    cat ${{ matrix.notebook }}/requirements.txt</span>
+<span class="s2">    echo &quot;Attempting installation with verbose output:&quot;</span>
+<span class="s2">    pip install -v -r ${{ matrix.notebook }}/requirements.txt</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;notebook_execution_failures&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;symptom&quot;</span><span class="p">:</span> <span class="s2">&quot;Notebooks fail during execution&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;causes&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Runtime errors in notebook cells&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Missing data files or resources&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Memory or timeout issues&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;solutions&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Use ExecutePreprocessor.allow_errors=True for testing&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Implement proper error handling in notebooks&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Increase timeout values for long-running cells&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;debug_code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">- name: Debug notebook execution</span>
+<span class="s2">  run: |</span>
+<span class="s2">    cd &quot;${{ matrix.notebook }}&quot;</span>
+<span class="s2">    echo &quot;Notebook content summary:&quot;</span>
+<span class="s2">    jupyter nbconvert --to python *.ipynb --stdout | head -50</span>
+<span class="s2">    echo &quot;Available files:&quot;</span>
+<span class="s2">    ls -la</span>
+<span class="s2">    echo &quot;Memory before execution:&quot;</span>
+<span class="s2">    free -h</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">},</span>
+    
+    <span class="s2">&quot;runner_capacity_issues&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;symptom&quot;</span><span class="p">:</span> <span class="s2">&quot;Jobs queued for long periods or runners out of capacity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;causes&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Too many parallel jobs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Insufficient runner quota&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Long-running notebooks blocking resources&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;solutions&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;Implement job concurrency limits&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Use conditional execution&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Optimize notebook execution time&quot;</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;debug_code&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2"># Add concurrency control</span>
+<span class="s2">concurrency:</span>
+<span class="s2">  group: notebook-ci-${{ github.ref }}</span>
+<span class="s2">  cancel-in-progress: true</span>
+<span class="s2">  </span>
+<span class="s2"># Or limit parallel jobs</span>
+<span class="s2">strategy:</span>
+<span class="s2">  max-parallel: 5  # Limit concurrent executions</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🛠️ Troubleshooting Guide:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">issue</span><span class="p">,</span> <span class="n">details</span> <span class="ow">in</span> <span class="n">troubleshooting_guide</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">❌ </span><span class="si">{</span><span class="n">issue</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Symptom: </span><span class="si">{</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;symptom&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Common causes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;causes&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> identified&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Available solutions: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">details</span><span class="p">[</span><span class="s1">&#39;solutions&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> strategies&quot;</span><span class="p">)</span>
+
+<span class="c1"># Maintenance checklist</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">📋 Regular Maintenance Checklist:&quot;</span><span class="p">)</span>
+<span class="n">maintenance_tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Update requirements.txt files monthly&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Review and optimize slow-running notebooks&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Monitor runner usage and costs&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Update base Docker images&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Check for deprecated GitHub Actions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Review artifact retention policies&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Update timeout values based on execution patterns&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Clean up old workflow runs and artifacts&quot;</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">task</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">maintenance_tasks</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="conclusion-next-steps">
+<h2>🎯 Conclusion &amp; Next Steps<a class="headerlink" href="#conclusion-next-steps" title="Link to this heading">#</a></h2>
+<p>Matrix-based notebook execution provides a robust, scalable solution for production Jupyter notebook CI/CD. This approach offers:</p>
+<section id="key-benefits-achieved">
+<h3>✅ <strong>Key Benefits Achieved</strong><a class="headerlink" href="#key-benefits-achieved" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>🚀 Parallel Execution</strong>: 90% faster CI completion</p></li>
+<li><p><strong>🔒 Isolation</strong>: Each notebook runs independently</p></li>
+<li><p><strong>📦 Dependency Management</strong>: Notebook-specific requirements</p></li>
+<li><p><strong>💰 Cost Optimization</strong>: Efficient resource usage</p></li>
+<li><p><strong>🛡️ Fault Tolerance</strong>: Individual failure containment</p></li>
+<li><p><strong>📊 Scalability</strong>: Linear scaling with notebook count</p></li>
+</ul>
+</section>
+<section id="implementation-path">
+<h3>🔄 <strong>Implementation Path</strong><a class="headerlink" href="#implementation-path" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Start Small</strong>: Begin with 2-3 notebooks</p></li>
+<li><p><strong>Optimize</strong>: Add caching and conditional execution</p></li>
+<li><p><strong>Scale</strong>: Gradually add more notebooks to matrix</p></li>
+<li><p><strong>Monitor</strong>: Implement comprehensive logging and metrics</p></li>
+<li><p><strong>Maintain</strong>: Regular dependency and workflow updates</p></li>
+</ol>
+</section>
+<section id="advanced-features-to-explore">
+<h3>🚀 <strong>Advanced Features to Explore</strong><a class="headerlink" href="#advanced-features-to-explore" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Dynamic resource allocation</strong> based on notebook complexity</p></li>
+<li><p><strong>Intelligent change detection</strong> for selective execution</p></li>
+<li><p><strong>Multi-environment testing</strong> (dev/staging/prod)</p></li>
+<li><p><strong>Automated dependency updates</strong> with compatibility testing</p></li>
+<li><p><strong>Performance regression detection</strong> with historical baselines</p></li>
+</ul>
+</section>
+<section id="additional-resources">
+<h3>📚 <strong>Additional Resources</strong><a class="headerlink" href="#additional-resources" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix">GitHub Actions Matrix Documentation</a></p></li>
+<li><p><a class="reference external" href="https://nbconvert.readthedocs.io/">Jupyter nbconvert Documentation</a></p></li>
+<li><p><a class="reference internal" href="../docs/local-testing-guide.html"><span class="std std-doc">Production Notebook Best Practices</span></a></p></li>
+<li><p><a class="reference internal" href="#../examples/workflows/"><span class="xref myst">Example Workflows</span></a></p></li>
+</ul>
+<p>This matrix-based approach transforms notebook CI/CD from a bottleneck into a competitive advantage! 🎉</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits">🎯 Key Benefits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">📋 Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-structure">📁 Repository Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-matrix-list">1. Define Matrix List</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-github-actions-workflow">Complete GitHub Actions Workflow</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spawn-notebook-runners">2. Spawn Notebook Runners</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-requirements">3. Install Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-installation-strategies">Advanced Installation Strategies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execute-notebooks">4. Execute Notebooks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-monitoring-error-handling">Execution Monitoring &amp; Error Handling</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#production-optimization-best-practices">🚀 Production Optimization &amp; Best Practices</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-maintenance">🔧 Troubleshooting &amp; Maintenance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conclusion-next-steps">🎯 Conclusion &amp; Next Steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits-achieved">✅ <strong>Key Benefits Achieved</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-path">🔄 <strong>Implementation Path</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-features-to-explore">🚀 <strong>Advanced Features to Explore</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">📚 <strong>Additional Resources</strong></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

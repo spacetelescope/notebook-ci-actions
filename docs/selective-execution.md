@@ -308,13 +308,13 @@ Assuming GitHub Actions pricing of $0.008/minute:
 
 ## 🔗 Related Documentation
 
-- [Smart Workflows Guide](smart-workflows.md)
+- [Unified Workflow Guide](../README.md)
 - [Migration Checklist](repository-migration-checklist.md)
-- [Package Manager Strategy](../PACKAGE_MANAGER_STRATEGY.md)
+- [Configuration Reference](configuration-reference.md)
 - [Example Workflows](../examples/README.md)
 
 ---
 
-**Implementation Date**: December 2024  
+**Implementation Date**: July 2025  
 **Status**: ✅ Ready for Production  
 **Compatibility**: Repositories with organized directory structures

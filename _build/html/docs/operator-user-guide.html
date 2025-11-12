@@ -1,0 +1,1193 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Notebook CI/CD System - Operator User Guide &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/operator-user-guide';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/operator-user-guide.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Notebook CI/CD System - Operator User Guide</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-overview">System Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-repositories">Supported Repositories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-system-works">How the System Works</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-types">Workflow Types</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-request-pr-workflows">1. Pull Request (PR) Workflows</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#main-branch-workflows">2. Main Branch Workflows</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#on-demand-workflows">3. On-Demand Workflows</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-path-detection">Smart Path Detection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-interactions">Operator Interactions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-repository-health">1. Monitoring Repository Health</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#check-ci-status">Check CI Status</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-pages">Repository Pages</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#manual-workflow-triggers">2. Manual Workflow Triggers</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#triggering-on-demand-builds">Triggering On-Demand Builds</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#re-running-failed-workflows">Re-running Failed Workflows</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-management">3. Environment Management</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-dependency-files">Understanding Dependency Files</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#common-dependency-patterns">Common Dependency Patterns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-and-logs">Monitoring and Logs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-action-logs">1. Accessing Action Logs</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#via-github-ui">Via GitHub UI</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#log-structure">Log Structure</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-log-sections-to-monitor">2. Key Log Sections to Monitor</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup-issues">Environment Setup Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-execution-issues">Notebook Execution Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-build-issues">Documentation Build Issues</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-status-api">3. Workflow Status API</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues-and-troubleshooting">Common Issues and Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-and-dependencies">1. Environment and Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-package-installation-fails">Issue: Package Installation Fails</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-package-not-found">Issue: Package Not Found</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-execution-failures">2. Notebook Execution Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-notebook-kernel-errors">Issue: Notebook Kernel Errors</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-import-errors-in-notebooks">Issue: Import Errors in Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-data-file-not-found">Issue: Data File Not Found</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3. Documentation Build Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-sphinx-build-failures">Issue: Sphinx Build Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-missing-static-files">Issue: Missing Static Files</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#github-actions-infrastructure">4. GitHub Actions Infrastructure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-workflow-not-triggering">Issue: Workflow Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-secrets-tokens-not-working">Issue: Secrets/Tokens Not Working</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-runner-out-of-disk-space">Issue: Runner Out of Disk Space</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-issues">5. Performance Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-workflows-taking-too-long">Issue: Workflows Taking Too Long</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-rate-limiting">Issue: Rate Limiting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-maintenance">1. Repository Maintenance</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#keep-dependencies-updated">Keep Dependencies Updated</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimize-notebooks-for-ci">Optimize Notebooks for CI</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#monitor-resource-usage">Monitor Resource Usage</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-workflow">2. Troubleshooting Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-identify-the-failure-point">Step 1: Identify the Failure Point</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-examine-logs">Step 2: Examine Logs</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-reproduce-locally">Step 3: Reproduce Locally</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-test-fix">Step 4: Test Fix</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">3. Getting Help</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-resources">Internal Resources</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#external-resources">External Resources</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#escalation">Escalation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="notebook-ci-cd-system-operator-user-guide">
+<h1>Notebook CI/CD System - Operator User Guide<a class="headerlink" href="#notebook-ci-cd-system-operator-user-guide" title="Link to this heading">#</a></h1>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#system-overview"><span class="xref myst">System Overview</span></a></p></li>
+<li><p><a class="reference internal" href="#how-the-system-works"><span class="xref myst">How the System Works</span></a></p></li>
+<li><p><a class="reference internal" href="#operator-interactions"><span class="xref myst">Operator Interactions</span></a></p></li>
+<li><p><a class="reference internal" href="#monitoring-and-logs"><span class="xref myst">Monitoring and Logs</span></a></p></li>
+<li><p><a class="reference internal" href="#common-issues-and-troubleshooting"><span class="xref myst">Common Issues and Troubleshooting</span></a></p></li>
+<li><p><a class="reference internal" href="#best-practices"><span class="xref myst">Best Practices</span></a></p></li>
+</ol>
+</section>
+<section id="system-overview">
+<h2>System Overview<a class="headerlink" href="#system-overview" title="Link to this heading">#</a></h2>
+<p>The centralized notebook CI/CD system provides automated testing, building, and deployment for Jupyter notebooks across multiple repositories. It consists of reusable GitHub Actions workflows that handle:</p>
+<ul class="simple">
+<li><p><strong>Notebook Execution</strong>: Running notebooks to validate they work correctly</p></li>
+<li><p><strong>Documentation Building</strong>: Generating HTML documentation from notebooks</p></li>
+<li><p><strong>Environment Management</strong>: Setting up Python/conda environments</p></li>
+<li><p><strong>Artifact Management</strong>: Publishing built documentation and assets</p></li>
+<li><p><strong>Smart Path Detection</strong>: Only running CI when relevant files change</p></li>
+</ul>
+<section id="supported-repositories">
+<h3>Supported Repositories<a class="headerlink" href="#supported-repositories" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">jdat_notebooks</span></code> - JWST Data Analysis Tools notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code> - Hubble Space Telescope notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mast_notebooks</span></code> - Mikulski Archive for Space Telescopes notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hello_universe</span></code> - Educational/introductory notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code> - JWST Pipeline processing notebooks</p></li>
+</ul>
+</section>
+</section>
+<section id="how-the-system-works">
+<h2>How the System Works<a class="headerlink" href="#how-the-system-works" title="Link to this heading">#</a></h2>
+<section id="architecture">
+<h3>Architecture<a class="headerlink" href="#architecture" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Repository (e.g., jdat_notebooks)
+├── .github/workflows/
+│   ├── ci-pr.yml          # Calls centralized PR workflow
+│   └── ci-main.yml        # Calls centralized main workflow
+├── _config.yml            # Jupyter Book configuration
+├── _toc.yml               # Jupyter Book table of contents
+├── requirements.txt       # Python dependencies (if needed)
+└── notebooks/             # Jupyter notebooks to test
+</pre></div>
+</div>
+</section>
+<section id="workflow-types">
+<h3>Workflow Types<a class="headerlink" href="#workflow-types" title="Link to this heading">#</a></h3>
+<section id="pull-request-pr-workflows">
+<h4>1. Pull Request (PR) Workflows<a class="headerlink" href="#pull-request-pr-workflows" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: When PRs are opened, updated, or synchronized</p></li>
+<li><p><strong>Purpose</strong>: Validate changes before merging</p></li>
+<li><p><strong>Scope</strong>: Can run full CI or docs-only based on changed files</p></li>
+<li><p><strong>Artifacts</strong>: Temporary preview builds (not published)</p></li>
+</ul>
+</section>
+<section id="main-branch-workflows">
+<h4>2. Main Branch Workflows<a class="headerlink" href="#main-branch-workflows" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: When code is merged to main branch</p></li>
+<li><p><strong>Purpose</strong>: Build and deploy production documentation</p></li>
+<li><p><strong>Scope</strong>: Always runs full CI pipeline</p></li>
+<li><p><strong>Artifacts</strong>: Published to GitHub Pages or artifact storage</p></li>
+</ul>
+</section>
+<section id="on-demand-workflows">
+<h4>3. On-Demand Workflows<a class="headerlink" href="#on-demand-workflows" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: Manual workflow dispatch</p></li>
+<li><p><strong>Purpose</strong>: Testing, debugging, or rebuilding on demand</p></li>
+<li><p><strong>Scope</strong>: Configurable (full CI or docs-only)</p></li>
+</ul>
+</section>
+</section>
+<section id="smart-path-detection">
+<h3>Smart Path Detection<a class="headerlink" href="#smart-path-detection" title="Link to this heading">#</a></h3>
+<p>The system automatically determines what to run based on file changes:</p>
+<ul class="simple">
+<li><p><strong>Docs-only path</strong>: Triggered by changes to:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">*.md</span></code> files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">README</span></code> files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code> (workflow changes)</p></li>
+</ul>
+</li>
+<li><p><strong>Full CI path</strong>: Triggered by changes to:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">*.ipynb</span></code> notebooks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> or <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
+<li><p>Python source files (<code class="docutils literal notranslate"><span class="pre">*.py</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_config.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> (Jupyter Book configuration)</p></li>
+<li><p>Any other code files</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="operator-interactions">
+<h2>Operator Interactions<a class="headerlink" href="#operator-interactions" title="Link to this heading">#</a></h2>
+<section id="monitoring-repository-health">
+<h3>1. Monitoring Repository Health<a class="headerlink" href="#monitoring-repository-health" title="Link to this heading">#</a></h3>
+<section id="check-ci-status">
+<h4>Check CI Status<a class="headerlink" href="#check-ci-status" title="Link to this heading">#</a></h4>
+<p>Navigate to any supported repository and look for:</p>
+<ul class="simple">
+<li><p>✅ Green checkmarks = All workflows passing</p></li>
+<li><p>❌ Red X marks = Workflow failures</p></li>
+<li><p>🟡 Yellow dots = Workflows running</p></li>
+</ul>
+</section>
+<section id="repository-pages">
+<h4>Repository Pages<a class="headerlink" href="#repository-pages" title="Link to this heading">#</a></h4>
+<p>Each repository has automatically built documentation available at:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">https://{org}.github.io/{repository-name}/</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="manual-workflow-triggers">
+<h3>2. Manual Workflow Triggers<a class="headerlink" href="#manual-workflow-triggers" title="Link to this heading">#</a></h3>
+<section id="triggering-on-demand-builds">
+<h4>Triggering On-Demand Builds<a class="headerlink" href="#triggering-on-demand-builds" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Go to repository → Actions tab</p></li>
+<li><p>Select “Notebook CI (On-Demand)” workflow</p></li>
+<li><p>Click “Run workflow”</p></li>
+<li><p>Choose options:</p>
+<ul class="simple">
+<li><p><strong>Branch</strong>: Which branch to build from</p></li>
+<li><p><strong>Force full CI</strong>: Override smart detection</p></li>
+<li><p><strong>Debug mode</strong>: Enable verbose logging</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="re-running-failed-workflows">
+<h4>Re-running Failed Workflows<a class="headerlink" href="#re-running-failed-workflows" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Click on the failed workflow run</p></li>
+<li><p>Click “Re-run all jobs” or “Re-run failed jobs”</p></li>
+<li><p>Monitor the new run for resolution</p></li>
+</ol>
+</section>
+</section>
+<section id="environment-management">
+<h3>3. Environment Management<a class="headerlink" href="#environment-management" title="Link to this heading">#</a></h3>
+<section id="understanding-dependency-files">
+<h4>Understanding Dependency Files<a class="headerlink" href="#understanding-dependency-files" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></strong>: Python package dependencies</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></strong>: Modern Python project configuration</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_config.yml</span></code></strong>: Jupyter Book configuration</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code></strong>: Jupyter Book table of contents</p></li>
+</ul>
+</section>
+<section id="common-dependency-patterns">
+<h4>Common Dependency Patterns<a class="headerlink" href="#common-dependency-patterns" title="Link to this heading">#</a></h4>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># requirements.txt example
+jupyter
+numpy
+matplotlib
+astropy
+# Add project-specific packages
+
+# _config.yml (Jupyter Book configuration)
+title: My Notebook Collection
+author: Your Name
+logo: logo.png
+
+# _toc.yml (Table of contents)
+format: jb-book
+root: index
+chapters:
+- file: notebooks/intro
+- file: notebooks/analysis
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="monitoring-and-logs">
+<h2>Monitoring and Logs<a class="headerlink" href="#monitoring-and-logs" title="Link to this heading">#</a></h2>
+<section id="accessing-action-logs">
+<h3>1. Accessing Action Logs<a class="headerlink" href="#accessing-action-logs" title="Link to this heading">#</a></h3>
+<section id="via-github-ui">
+<h4>Via GitHub UI<a class="headerlink" href="#via-github-ui" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Navigate to repository → <strong>Actions</strong> tab</p></li>
+<li><p>Click on specific workflow run</p></li>
+<li><p>Click on job name (e.g., “notebook-ci”)</p></li>
+<li><p>Expand log sections to see details</p></li>
+</ol>
+</section>
+<section id="log-structure">
+<h4>Log Structure<a class="headerlink" href="#log-structure" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Setup Environment
+├── Checkout code
+├── Setup Python/Conda
+└── Install dependencies
+
+Execute Notebooks  
+├── Find notebook files
+├── Run each notebook
+└── Collect outputs
+
+Build Documentation
+├── Convert notebooks to HTML
+├── Build docs site
+└── Prepare artifacts
+
+Deploy/Upload
+├── Upload to GitHub Pages
+└── Store artifacts
+</pre></div>
+</div>
+</section>
+</section>
+<section id="key-log-sections-to-monitor">
+<h3>2. Key Log Sections to Monitor<a class="headerlink" href="#key-log-sections-to-monitor" title="Link to this heading">#</a></h3>
+<section id="environment-setup-issues">
+<h4>Environment Setup Issues<a class="headerlink" href="#environment-setup-issues" title="Link to this heading">#</a></h4>
+<p>Look for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Setup</span> <span class="pre">Python</span></code> step failures</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Install</span> <span class="pre">dependencies</span></code> errors</p></li>
+<li><p>Package resolution conflicts</p></li>
+</ul>
+</section>
+<section id="notebook-execution-issues">
+<h4>Notebook Execution Issues<a class="headerlink" href="#notebook-execution-issues" title="Link to this heading">#</a></h4>
+<p>Look for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Execute</span> <span class="pre">notebooks</span></code> step failures</p></li>
+<li><p>Individual notebook error messages</p></li>
+<li><p>Timeout errors (notebooks taking too long)</p></li>
+</ul>
+</section>
+<section id="documentation-build-issues">
+<h4>Documentation Build Issues<a class="headerlink" href="#documentation-build-issues" title="Link to this heading">#</a></h4>
+<p>Look for:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Build</span> <span class="pre">documentation</span></code> failures</p></li>
+<li><p>Sphinx/Jekyll build errors</p></li>
+<li><p>Missing file references</p></li>
+</ul>
+</section>
+</section>
+<section id="workflow-status-api">
+<h3>3. Workflow Status API<a class="headerlink" href="#workflow-status-api" title="Link to this heading">#</a></h3>
+<p>For programmatic monitoring:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check latest workflow status</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: token </span><span class="nv">$GITHUB_TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>https://api.github.com/repos/<span class="o">{</span>org<span class="o">}</span>/<span class="o">{</span>repo<span class="o">}</span>/actions/runs
+
+<span class="c1"># Get specific workflow run logs</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: token </span><span class="nv">$GITHUB_TOKEN</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>https://api.github.com/repos/<span class="o">{</span>org<span class="o">}</span>/<span class="o">{</span>repo<span class="o">}</span>/actions/runs/<span class="o">{</span>run_id<span class="o">}</span>/logs
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-issues-and-troubleshooting">
+<h2>Common Issues and Troubleshooting<a class="headerlink" href="#common-issues-and-troubleshooting" title="Link to this heading">#</a></h2>
+<section id="environment-and-dependencies">
+<h3>1. Environment and Dependencies<a class="headerlink" href="#environment-and-dependencies" title="Link to this heading">#</a></h3>
+<section id="issue-package-installation-fails">
+<h4>Issue: Package Installation Fails<a class="headerlink" href="#issue-package-installation-fails" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Failed</span> <span class="n">to</span> <span class="n">install</span> <span class="n">package</span> <span class="s1">&#39;xyz&#39;</span>
+</pre></div>
+</div>
+<p><strong>Diagnosis</strong>:</p>
+<ul class="simple">
+<li><p>Check the “Setup Python” or “Install dependencies” log section</p></li>
+<li><p>Look for package conflicts or unavailable packages</p></li>
+</ul>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Pin specific versions</strong>: Update <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> with exact versions</p></li>
+<li><p><strong>Remove problematic packages</strong>: Temporarily remove and test</p></li>
+<li><p><strong>Use alternative packages</strong>: Find equivalent packages</p></li>
+<li><p><strong>Check package spelling</strong>: Verify correct package names</p></li>
+</ol>
+<p><strong>Example Fix</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Before (problematic)
+some-package
+
+# After (fixed)  
+some-package==1.2.3
+</pre></div>
+</div>
+</section>
+<section id="issue-package-not-found">
+<h4>Issue: Package Not Found<a class="headerlink" href="#issue-package-not-found" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ERROR</span><span class="p">:</span> <span class="n">No</span> <span class="n">matching</span> <span class="n">distribution</span> <span class="n">found</span> <span class="k">for</span> <span class="n">package</span> <span class="s1">&#39;xyz&#39;</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Check package name</strong>: Verify correct spelling and name</p></li>
+<li><p><strong>Use alternative packages</strong>: Find packages with similar functionality</p></li>
+<li><p><strong>Check availability</strong>: Ensure package exists on PyPI</p></li>
+<li><p><strong>Try dev versions</strong>: Use pre-release or development versions</p></li>
+</ol>
+</section>
+</section>
+<section id="notebook-execution-failures">
+<h3>2. Notebook Execution Failures<a class="headerlink" href="#notebook-execution-failures" title="Link to this heading">#</a></h3>
+<section id="issue-notebook-kernel-errors">
+<h4>Issue: Notebook Kernel Errors<a class="headerlink" href="#issue-notebook-kernel-errors" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Kernel</span> <span class="n">died</span> <span class="k">while</span> <span class="n">executing</span> <span class="n">notebook</span><span class="o">.</span><span class="n">ipynb</span>
+</pre></div>
+</div>
+<p><strong>Diagnosis</strong>:</p>
+<ul class="simple">
+<li><p>Look in “Execute notebooks” section</p></li>
+<li><p>Check specific notebook error messages</p></li>
+<li><p>Review notebook cell outputs</p></li>
+</ul>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Memory issues</strong>: Reduce data size or add memory limits</p></li>
+<li><p><strong>Missing dependencies</strong>: Add required packages to environment</p></li>
+<li><p><strong>Code errors</strong>: Fix syntax or logic errors in notebooks</p></li>
+<li><p><strong>Timeout issues</strong>: Optimize slow-running cells</p></li>
+</ol>
+</section>
+<section id="issue-import-errors-in-notebooks">
+<h4>Issue: Import Errors in Notebooks<a class="headerlink" href="#issue-import-errors-in-notebooks" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">ModuleNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="s1">&#39;xyz&#39;</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Add to requirements</strong>: Include missing package in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></p></li>
+<li><p><strong>Check spelling</strong>: Verify correct package/module names</p></li>
+<li><p><strong>Virtual environment</strong>: Ensure package is in correct environment</p></li>
+</ol>
+</section>
+<section id="issue-data-file-not-found">
+<h4>Issue: Data File Not Found<a class="headerlink" href="#issue-data-file-not-found" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">FileNotFoundError</span><span class="p">:</span> <span class="n">No</span> <span class="n">such</span> <span class="n">file</span> <span class="ow">or</span> <span class="n">directory</span><span class="p">:</span> <span class="s1">&#39;data/file.fits&#39;</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Check paths</strong>: Use relative paths from notebook location</p></li>
+<li><p><strong>Add data files</strong>: Include required data in repository</p></li>
+<li><p><strong>Download data</strong>: Add cells to download required datasets</p></li>
+<li><p><strong>Mock data</strong>: Use synthetic data for CI testing</p></li>
+</ol>
+</section>
+</section>
+<section id="id1">
+<h3>3. Documentation Build Issues<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<section id="issue-sphinx-build-failures">
+<h4>Issue: Sphinx Build Failures<a class="headerlink" href="#issue-sphinx-build-failures" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">Warning</span><span class="p">,</span> <span class="n">treated</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span> <span class="n">document</span> <span class="n">isn</span><span class="s1">&#39;t included in any toctree</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Update index</strong>: Add notebook to <code class="docutils literal notranslate"><span class="pre">docs/index.rst</span></code> or similar</p></li>
+<li><p><strong>Fix references</strong>: Ensure all cross-references are valid</p></li>
+<li><p><strong>Check syntax</strong>: Validate reStructuredText syntax</p></li>
+</ol>
+</section>
+<section id="issue-missing-static-files">
+<h4>Issue: Missing Static Files<a class="headerlink" href="#issue-missing-static-files" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Static</span> <span class="n">file</span> <span class="ow">not</span> <span class="n">found</span><span class="p">:</span> <span class="n">_static</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">png</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Add files</strong>: Include missing static files in repository</p></li>
+<li><p><strong>Fix paths</strong>: Update file paths in notebooks or docs</p></li>
+<li><p><strong>Remove references</strong>: Remove references to missing files</p></li>
+</ol>
+</section>
+</section>
+<section id="github-actions-infrastructure">
+<h3>4. GitHub Actions Infrastructure<a class="headerlink" href="#github-actions-infrastructure" title="Link to this heading">#</a></h3>
+<section id="issue-workflow-not-triggering">
+<h4>Issue: Workflow Not Triggering<a class="headerlink" href="#issue-workflow-not-triggering" title="Link to this heading">#</a></h4>
+<p><strong>Check</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>File paths</strong>: Ensure workflow files are in <code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code></p></li>
+<li><p><strong>Syntax</strong>: Validate YAML syntax in workflow files</p></li>
+<li><p><strong>Permissions</strong>: Verify repository has Actions enabled</p></li>
+<li><p><strong>Branch protection</strong>: Check if branch rules block workflows</p></li>
+</ol>
+</section>
+<section id="issue-secrets-tokens-not-working">
+<h4>Issue: Secrets/Tokens Not Working<a class="headerlink" href="#issue-secrets-tokens-not-working" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Error</span><span class="p">:</span> <span class="n">Authentication</span> <span class="n">failed</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Check secrets</strong>: Verify secrets are set in repository settings</p></li>
+<li><p><strong>Token permissions</strong>: Ensure tokens have required scopes</p></li>
+<li><p><strong>Renewal</strong>: Check if tokens have expired</p></li>
+</ol>
+</section>
+<section id="issue-runner-out-of-disk-space">
+<h4>Issue: Runner Out of Disk Space<a class="headerlink" href="#issue-runner-out-of-disk-space" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">No</span> <span class="n">space</span> <span class="n">left</span> <span class="n">on</span> <span class="n">device</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Clean up</strong>: Remove unnecessary files in workflow</p></li>
+<li><p><strong>Smaller data</strong>: Reduce dataset sizes for testing</p></li>
+<li><p><strong>Stream processing</strong>: Process data in chunks rather than loading all</p></li>
+</ol>
+</section>
+</section>
+<section id="performance-issues">
+<h3>5. Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading">#</a></h3>
+<section id="issue-workflows-taking-too-long">
+<h4>Issue: Workflows Taking Too Long<a class="headerlink" href="#issue-workflows-taking-too-long" title="Link to this heading">#</a></h4>
+<p><strong>Common causes</strong>:</p>
+<ul class="simple">
+<li><p>Large datasets being processed</p></li>
+<li><p>Complex computations in notebooks</p></li>
+<li><p>Slow dependency installation</p></li>
+</ul>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Optimize notebooks</strong>: Reduce computation complexity</p></li>
+<li><p><strong>Cache dependencies</strong>: Use action caching for faster builds</p></li>
+<li><p><strong>Parallel execution</strong>: Split notebooks across multiple jobs</p></li>
+<li><p><strong>Skip slow notebooks</strong>: Use conditional execution</p></li>
+</ol>
+</section>
+<section id="issue-rate-limiting">
+<h4>Issue: Rate Limiting<a class="headerlink" href="#issue-rate-limiting" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">API</span> <span class="n">rate</span> <span class="n">limit</span> <span class="n">exceeded</span>
+</pre></div>
+</div>
+<p><strong>Solutions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Reduce frequency</strong>: Limit workflow triggers</p></li>
+<li><p><strong>Use tokens</strong>: Authenticate API calls with tokens</p></li>
+<li><p><strong>Cache results</strong>: Avoid repeated API calls</p></li>
+</ol>
+</section>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<section id="repository-maintenance">
+<h3>1. Repository Maintenance<a class="headerlink" href="#repository-maintenance" title="Link to this heading">#</a></h3>
+<section id="keep-dependencies-updated">
+<h4>Keep Dependencies Updated<a class="headerlink" href="#keep-dependencies-updated" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Regularly review and update <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code></p></li>
+<li><p>Test with latest package versions</p></li>
+<li><p>Pin critical package versions</p></li>
+</ul>
+</section>
+<section id="optimize-notebooks-for-ci">
+<h4>Optimize Notebooks for CI<a class="headerlink" href="#optimize-notebooks-for-ci" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Keep execution time under 10 minutes per notebook</p></li>
+<li><p>Use small sample datasets</p></li>
+<li><p>Include error handling</p></li>
+<li><p>Clear outputs before committing</p></li>
+</ul>
+</section>
+<section id="monitor-resource-usage">
+<h4>Monitor Resource Usage<a class="headerlink" href="#monitor-resource-usage" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Watch for memory and disk usage trends</p></li>
+<li><p>Optimize data processing algorithms</p></li>
+<li><p>Use efficient data formats</p></li>
+</ul>
+</section>
+</section>
+<section id="troubleshooting-workflow">
+<h3>2. Troubleshooting Workflow<a class="headerlink" href="#troubleshooting-workflow" title="Link to this heading">#</a></h3>
+<section id="step-1-identify-the-failure-point">
+<h4>Step 1: Identify the Failure Point<a class="headerlink" href="#step-1-identify-the-failure-point" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Check workflow run status</p></li>
+<li><p>Identify which job failed</p></li>
+<li><p>Find specific step that failed</p></li>
+</ol>
+</section>
+<section id="step-2-examine-logs">
+<h4>Step 2: Examine Logs<a class="headerlink" href="#step-2-examine-logs" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Read error messages carefully</p></li>
+<li><p>Look for stack traces</p></li>
+<li><p>Check preceding steps for context</p></li>
+</ol>
+</section>
+<section id="step-3-reproduce-locally">
+<h4>Step 3: Reproduce Locally<a class="headerlink" href="#step-3-reproduce-locally" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Check out the failing branch</p></li>
+<li><p>Set up same environment locally</p></li>
+<li><p>Run the failing command manually</p></li>
+</ol>
+</section>
+<section id="step-4-test-fix">
+<h4>Step 4: Test Fix<a class="headerlink" href="#step-4-test-fix" title="Link to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Make minimal changes to fix issue</p></li>
+<li><p>Test locally first</p></li>
+<li><p>Push and verify CI passes</p></li>
+</ol>
+</section>
+</section>
+<section id="getting-help">
+<h3>3. Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h3>
+<section id="internal-resources">
+<h4>Internal Resources<a class="headerlink" href="#internal-resources" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Check this documentation</p></li>
+<li><p>Review workflow logs</p></li>
+<li><p>Consult repository README files</p></li>
+</ul>
+</section>
+<section id="external-resources">
+<h4>External Resources<a class="headerlink" href="#external-resources" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.github.com/en/actions">GitHub Actions Documentation</a></p></li>
+<li><p><a class="reference external" href="https://jupyterbook.org/">Jupyter Book Documentation</a></p></li>
+<li><p><a class="reference external" href="https://jupyter.org/documentation">Jupyter Documentation</a></p></li>
+</ul>
+</section>
+<section id="escalation">
+<h4>Escalation<a class="headerlink" href="#escalation" title="Link to this heading">#</a></h4>
+<p>If issues persist after troubleshooting:</p>
+<ol class="arabic simple">
+<li><p>Create GitHub issue in affected repository</p></li>
+<li><p>Include relevant log excerpts</p></li>
+<li><p>Describe steps already attempted</p></li>
+<li><p>Tag relevant team members</p></li>
+</ol>
+<hr class="docutils" />
+<p><em>This guide covers the most common scenarios. For repository-specific issues or advanced troubleshooting, consult the individual repository documentation or contact the development team.</em></p>
+</section>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#system-overview">System Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-repositories">Supported Repositories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-system-works">How the System Works</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#architecture">Architecture</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-types">Workflow Types</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-request-pr-workflows">1. Pull Request (PR) Workflows</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#main-branch-workflows">2. Main Branch Workflows</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#on-demand-workflows">3. On-Demand Workflows</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-path-detection">Smart Path Detection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operator-interactions">Operator Interactions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-repository-health">1. Monitoring Repository Health</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#check-ci-status">Check CI Status</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-pages">Repository Pages</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#manual-workflow-triggers">2. Manual Workflow Triggers</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#triggering-on-demand-builds">Triggering On-Demand Builds</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#re-running-failed-workflows">Re-running Failed Workflows</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-management">3. Environment Management</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-dependency-files">Understanding Dependency Files</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#common-dependency-patterns">Common Dependency Patterns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring-and-logs">Monitoring and Logs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#accessing-action-logs">1. Accessing Action Logs</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#via-github-ui">Via GitHub UI</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#log-structure">Log Structure</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-log-sections-to-monitor">2. Key Log Sections to Monitor</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup-issues">Environment Setup Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-execution-issues">Notebook Execution Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-build-issues">Documentation Build Issues</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-status-api">3. Workflow Status API</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues-and-troubleshooting">Common Issues and Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-and-dependencies">1. Environment and Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-package-installation-fails">Issue: Package Installation Fails</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-package-not-found">Issue: Package Not Found</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-execution-failures">2. Notebook Execution Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-notebook-kernel-errors">Issue: Notebook Kernel Errors</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-import-errors-in-notebooks">Issue: Import Errors in Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-data-file-not-found">Issue: Data File Not Found</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3. Documentation Build Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-sphinx-build-failures">Issue: Sphinx Build Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-missing-static-files">Issue: Missing Static Files</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#github-actions-infrastructure">4. GitHub Actions Infrastructure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-workflow-not-triggering">Issue: Workflow Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-secrets-tokens-not-working">Issue: Secrets/Tokens Not Working</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-runner-out-of-disk-space">Issue: Runner Out of Disk Space</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-issues">5. Performance Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-workflows-taking-too-long">Issue: Workflows Taking Too Long</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-rate-limiting">Issue: Rate Limiting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-maintenance">1. Repository Maintenance</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#keep-dependencies-updated">Keep Dependencies Updated</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimize-notebooks-for-ci">Optimize Notebooks for CI</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#monitor-resource-usage">Monitor Resource Usage</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-workflow">2. Troubleshooting Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-identify-the-failure-point">Step 1: Identify the Failure Point</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-examine-logs">Step 2: Examine Logs</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-reproduce-locally">Step 3: Reproduce Locally</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-test-fix">Step 4: Test Fix</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">3. Getting Help</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-resources">Internal Resources</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#external-resources">External Resources</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#escalation">Escalation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

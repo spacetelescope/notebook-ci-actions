@@ -1,0 +1,643 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Static HTML File Support in Merge Mode - Implementation Complete &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'STATIC_HTML_FIX';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/STATIC_HTML_FIX.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Static HTML File Support in Merge Mode - Implementation Complete</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-identified">Issue Identified</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem">The Problem</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before-fix">Before Fix:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-scenarios">Workflow Scenarios:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-solution">The Solution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits">Benefits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-documentation-builds">1. <strong>Complete Documentation Builds</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proper-file-handling">2. <strong>Proper File Handling</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#all-modes-work-correctly">3. <strong>All Modes Work Correctly</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-workflow-output">Example Workflow Output</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before-fix-merge-mode">Before Fix (Merge Mode):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#after-fix-merge-mode">After Fix (Merge Mode):</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-implementation">Technical Implementation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files-modified">Files Modified:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-changes">Key Changes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#safe-operation">Safe Operation:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="static-html-file-support-in-merge-mode-implementation-complete">
+<h1>Static HTML File Support in Merge Mode - Implementation Complete<a class="headerlink" href="#static-html-file-support-in-merge-mode-implementation-complete" title="Link to this heading">#</a></h1>
+<section id="issue-identified">
+<h2>Issue Identified<a class="headerlink" href="#issue-identified" title="Link to this heading">#</a></h2>
+<p>When building documentation in merge mode, the workflow checks out the <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code> branch which contains only executed notebooks. Static HTML files and Jupyter Book configuration files from the main branch were missing, causing incomplete documentation builds.</p>
+</section>
+<section id="the-problem">
+<h2>The Problem<a class="headerlink" href="#the-problem" title="Link to this heading">#</a></h2>
+<section id="before-fix">
+<h3>Before Fix:<a class="headerlink" href="#before-fix" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In merge mode</span>
+git<span class="w"> </span>checkout<span class="w"> </span>gh-storage<span class="w">  </span><span class="c1"># ✅ Has executed notebooks</span>
+<span class="w">                        </span><span class="c1"># ❌ Missing static HTML files</span>
+<span class="w">                        </span><span class="c1"># ❌ Missing _toc.yml updates</span>
+<span class="w">                        </span><span class="c1"># ❌ Missing _config.yml changes</span>
+jupyter-book<span class="w"> </span>build<span class="w"> </span>.<span class="w">    </span><span class="c1"># ❌ Incomplete build</span>
+</pre></div>
+</div>
+</section>
+<section id="workflow-scenarios">
+<h3>Workflow Scenarios:<a class="headerlink" href="#workflow-scenarios" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>PR Mode (docs-only)</strong>: ✅ Works correctly - uses current branch with HTML files</p></li>
+<li><p><strong>Merge Mode</strong>: ❌ Problem - uses <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code> branch without static files</p></li>
+<li><p><strong>On-demand HTML build</strong>: ❌ Same problem as merge mode</p></li>
+</ol>
+</section>
+</section>
+<section id="the-solution">
+<h2>The Solution<a class="headerlink" href="#the-solution" title="Link to this heading">#</a></h2>
+<p>Enhanced the documentation build job to merge static content from the main branch when building from <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enhanced merge mode workflow</span>
+git<span class="w"> </span>checkout<span class="w"> </span>gh-storage<span class="w">          </span><span class="c1"># Get executed notebooks</span>
+git<span class="w"> </span>fetch<span class="w"> </span>origin<span class="w"> </span>main<span class="w">           </span><span class="c1"># Fetch latest main branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>docs/<span class="w">        </span><span class="c1"># Get static HTML files</span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>*.md<span class="w">         </span><span class="c1"># Get markdown files  </span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>_config.yml<span class="w">  </span><span class="c1"># Get Jupyter Book config</span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>_toc.yml<span class="w">     </span><span class="c1"># Get table of contents</span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>*.html<span class="w">       </span><span class="c1"># Get root HTML files</span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>*.css<span class="w">        </span><span class="c1"># Get stylesheets</span>
+git<span class="w"> </span>checkout<span class="w"> </span>origin/main<span class="w"> </span>--<span class="w"> </span>*.js<span class="w">         </span><span class="c1"># Get JavaScript files</span>
+jupyter-book<span class="w"> </span>build<span class="w"> </span>.<span class="w">             </span><span class="c1"># ✅ Complete build with everything</span>
+</pre></div>
+</div>
+</section>
+<section id="benefits">
+<h2>Benefits<a class="headerlink" href="#benefits" title="Link to this heading">#</a></h2>
+<section id="complete-documentation-builds">
+<h3>1. <strong>Complete Documentation Builds</strong><a class="headerlink" href="#complete-documentation-builds" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ Executed notebooks from <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code></p></li>
+<li><p>✅ Latest static HTML files from main branch</p></li>
+<li><p>✅ Current Jupyter Book configuration</p></li>
+<li><p>✅ Updated table of contents</p></li>
+</ul>
+</section>
+<section id="proper-file-handling">
+<h3>2. <strong>Proper File Handling</strong><a class="headerlink" href="#proper-file-handling" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Static HTML files referenced in <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> are included</p></li>
+<li><p>Documentation structure changes are reflected</p></li>
+<li><p>CSS/JS customizations are preserved</p></li>
+<li><p>Markdown documentation is current</p></li>
+</ul>
+</section>
+<section id="all-modes-work-correctly">
+<h3>3. <strong>All Modes Work Correctly</strong><a class="headerlink" href="#all-modes-work-correctly" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>PR Mode</strong>: Uses current branch (already worked)</p></li>
+<li><p><strong>Merge Mode</strong>: Uses <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code> + merges static files (fixed)</p></li>
+<li><p><strong>On-demand HTML</strong>: Uses <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code> + merges static files (fixed)</p></li>
+</ul>
+</section>
+</section>
+<section id="example-workflow-output">
+<h2>Example Workflow Output<a class="headerlink" href="#example-workflow-output" title="Link to this heading">#</a></h2>
+<section id="before-fix-merge-mode">
+<h3>Before Fix (Merge Mode):<a class="headerlink" href="#before-fix-merge-mode" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>📦 Fetching executed notebooks from gh-storage branch
+✅ Switched to gh-storage branch with executed notebooks
+📖 Building JupyterBook documentation
+❌ Error: File &#39;docs/overview.html&#39; referenced in _toc.yml not found
+</pre></div>
+</div>
+</section>
+<section id="after-fix-merge-mode">
+<h3>After Fix (Merge Mode):<a class="headerlink" href="#after-fix-merge-mode" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>📦 Fetching executed notebooks from gh-storage branch  
+✅ Switched to gh-storage branch with executed notebooks
+🔄 Merging static documentation files from main branch
+✅ Static documentation files merged from main branch
+📋 Current working directory contents:
+./docs/overview.html
+./docs/getting-started.md
+./_toc.yml
+./_config.yml
+./notebooks/examples/analysis.ipynb
+📖 Building JupyterBook documentation
+✅ JupyterBook documentation built successfully
+</pre></div>
+</div>
+</section>
+</section>
+<section id="technical-implementation">
+<h2>Technical Implementation<a class="headerlink" href="#technical-implementation" title="Link to this heading">#</a></h2>
+<section id="files-modified">
+<h3>Files Modified:<a class="headerlink" href="#files-modified" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.github/workflows/notebook-ci-unified.yml</span></code>: Enhanced documentation build job</p></li>
+</ul>
+</section>
+<section id="key-changes">
+<h3>Key Changes:<a class="headerlink" href="#key-changes" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Added <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">fetch</span> <span class="pre">origin</span> <span class="pre">main</span></code> to ensure latest main branch content</p></li>
+<li><p>Added selective checkout of static files from main branch</p></li>
+<li><p>Added informative logging to show what files are being merged</p></li>
+<li><p>Added graceful handling when optional files don’t exist</p></li>
+</ol>
+</section>
+<section id="safe-operation">
+<h3>Safe Operation:<a class="headerlink" href="#safe-operation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Uses <code class="docutils literal notranslate"><span class="pre">2&gt;/dev/null</span></code> to suppress error messages for missing files</p></li>
+<li><p>Provides informative messages about what’s being merged</p></li>
+<li><p>Only affects merge mode and HTML-only builds</p></li>
+<li><p>PR mode behavior unchanged (already working correctly)</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h2>
+<p>The fix ensures that when you:</p>
+<ol class="arabic simple">
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">docs/overview.html</span></code> in a PR</p></li>
+<li><p>Reference it in <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code></p></li>
+<li><p>Merge the PR</p></li>
+</ol>
+<p>The resulting documentation build will include:</p>
+<ul class="simple">
+<li><p>✅ Your updated HTML file</p></li>
+<li><p>✅ All executed notebooks with their outputs</p></li>
+<li><p>✅ Complete Jupyter Book structure</p></li>
+<li><p>✅ Proper navigation and links</p></li>
+</ul>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<p><strong>Answer to original question</strong>: Yes, static HTML files referenced in <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> will now be properly included in documentation builds, even when building from the <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code> branch in merge mode. The workflow automatically merges the latest static content from the main branch to ensure complete documentation builds.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-identified">Issue Identified</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem">The Problem</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before-fix">Before Fix:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-scenarios">Workflow Scenarios:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-solution">The Solution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits">Benefits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-documentation-builds">1. <strong>Complete Documentation Builds</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#proper-file-handling">2. <strong>Proper File Handling</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#all-modes-work-correctly">3. <strong>All Modes Work Correctly</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-workflow-output">Example Workflow Output</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#before-fix-merge-mode">Before Fix (Merge Mode):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#after-fix-merge-mode">After Fix (Merge Mode):</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-implementation">Technical Implementation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#files-modified">Files Modified:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-changes">Key Changes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#safe-operation">Safe Operation:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

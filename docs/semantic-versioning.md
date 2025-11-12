@@ -248,19 +248,19 @@ jobs:
 #### Recommended: Pin to Major Version
 ```yaml
 # Automatically gets latest v1.x.x (safe, gets bug fixes)
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 ```
 
 #### Conservative: Pin to Exact Version
 ```yaml
 # Pinned to exact version (most stable, but misses bug fixes)
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.2.3
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1.2.3
 ```
 
 #### Development: Use Branch
 ```yaml
 # Use for testing only, not production
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 ```
 
 ### Version Range Examples
@@ -269,16 +269,16 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
 # Good practices for different scenarios:
 
 # Production environments - pin to major version
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 
 # Critical systems - pin to exact version
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.2.3
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1.2.3
 
 # Testing environments - use latest
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 
 # Feature branches - use pre-release
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v2.0.0-beta.1
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v2.0.0-beta.1
 ```
 
 ## 🚀 Migration Guide
@@ -292,7 +292,7 @@ Check the release notes for breaking changes:
 # v1.x.x (old)
 jobs:
   ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       python-version: "3.11"
       execution-mode: "full"
@@ -301,7 +301,7 @@ jobs:
 # v2.0.0 (new) - Example breaking changes
 jobs:
   ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v2
     with:
       python-version: "3.11"
       execution-mode: "full"
@@ -326,17 +326,17 @@ jobs:
   # Keep v1 for critical paths
   ci-v1:
     if: github.ref != 'refs/heads/main'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     
   # Test v2 on main branch
   ci-v2:
     if: github.ref == 'refs/heads/main'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v2
 
 # Option 2: Feature flag approach
 jobs:
   ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@${{ github.event.inputs.workflow_version || 'v1' }}
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@${{ github.event.inputs.workflow_version || 'v1' }}
 ```
 
 ### Minor Version Updates (v1.0.0 → v1.1.0)
@@ -345,10 +345,10 @@ Minor updates are backwards compatible, so you can update safely:
 
 ```yaml
 # Before: Pinned to exact version
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.0
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1.0.0
 
 # After: Pin to major version to get updates automatically
-uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 ```
 
 ## ✅ Best Practices
@@ -464,13 +464,5 @@ jobs:
 
 ---
 
-## 🏷️ Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| v1.0.0 | 2024-01-15 | Initial release |
-| v1.1.0 | 2024-02-01 | Added post-run script support |
-| v1.1.1 | 2024-02-15 | Fixed timeout handling |
-| v2.0.0 | 2024-03-01 | Breaking: Restructured inputs |
 
 For the latest version information, see the [Releases page](../../releases).

@@ -22,7 +22,16 @@ on:
 
 jobs:
   deprecation-management:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_deprecation_manager.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
-      notebook-path: ${{ github.event.inputs.notebook-path }}
+      execution-mode: 'on-demand'
+      trigger-event: 'deprecate'
+      single-filename: ${{ github.event.inputs.notebook-path }}
       removal-date: ${{ github.event.inputs.removal-date }}
+      enable-validation: false
+      enable-security: false
+      enable-execution: false
+      enable-storage: true
+      enable-html-build: true
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

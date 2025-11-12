@@ -15,20 +15,16 @@ on:
 
 jobs:
   validate-notebooks:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
     with:
+      execution-mode: 'pr'
       python-version: "3.11"
-      execution-mode: "validation-only"
-      build-html: false
-      security-scan: true
+      enable-validation: true
+      enable-security: true
+      enable-execution: true
+      enable-storage: true
+      enable-html-build: false
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-
-  build-docs-preview:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
-    with:
-      python-version: "3.11"
-      post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

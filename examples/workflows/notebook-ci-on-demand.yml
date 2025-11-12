@@ -19,16 +19,25 @@ on:
       execution-mode:
         description: 'Execution mode'
         required: true
-        default: 'full'
+        default: 'on-demand'
         type: choice
         options:
-          - 'validation-only'
-          - 'full'
-          - 'quick'
+          - 'pr'
+          - 'merge'
+          - 'on-demand'
       single-notebook:
         description: 'Path to single notebook (optional)'
         required: false
         type: string
+      trigger-event:
+        description: 'Trigger event type'
+        required: false
+        default: 'execute'
+        type: choice
+        options:
+          - 'execute'
+          - 'deprecate'
+          - 'validate'
       run-security-scan:
         description: 'Run security scan'
         required: false
@@ -45,39 +54,27 @@ on:
         default: true
         type: boolean
       post-processing:
-        description: 'Post-processing options'
+        description: 'Post-processing script'
         required: false
-        default: 'jdaviz'
-        type: choice
-        options:
-          - 'none'
-          - 'jdaviz'
-          - 'full'
+        default: ''
+        type: string
 
 jobs:
   on-demand-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
-      python-version: ${{ inputs.python-version }}
       execution-mode: ${{ inputs.execution-mode }}
+      python-version: ${{ inputs.python-version }}
       single-filename: ${{ inputs.single-notebook }}
-      build-html: ${{ inputs.build-documentation }}
-      security-scan: ${{ inputs.run-security-scan }}
+      trigger-event: ${{ inputs.trigger-event }}
+      enable-validation: true
+      enable-security: ${{ inputs.run-security-scan }}
+      enable-execution: true
+      enable-storage: true
+      enable-html-build: ${{ inputs.build-documentation }}
       skip-deprecated: ${{ inputs.skip-deprecated }}
+      post-run-script: ${{ inputs.post-processing }}
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
-
-  # Enhanced post-processing based on selection
-  build-docs-on-demand:
-    if: inputs.build-documentation == true
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
-    with:
-      python-version: ${{ inputs.python-version }}
-      post-run-script: ${{ 
-        inputs.post-processing == 'jdaviz' && 'scripts/jdaviz_image_replacement.sh' ||
-        inputs.post-processing == 'full' && 'scripts/full_post_processing.sh' ||
-        '' 
-      }}
-    secrets:
-      github-token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
