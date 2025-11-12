@@ -122,7 +122,7 @@ jobs:
       docs-only: ${{ steps.setup.outputs.docs-only }}
       non-notebook-files: ${{ steps.setup.outputs.non-notebook-files }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           
@@ -791,7 +791,7 @@ jobs:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           
@@ -1361,7 +1361,7 @@ jobs:
     outputs:
       fetched-doc-files: ${{ steps.fetch-docs.outputs.doc-files }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ (inputs.execution-mode == 'merge' || inputs.trigger-event == 'html') && 'gh-storage' || github.ref }}
           fetch-depth: 0
@@ -1824,7 +1824,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           
@@ -2151,7 +2151,7 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           
