@@ -82,7 +82,7 @@ jobs:
           target_branch: dependabot_file_update
           commit_message: "Updated contents of configuration file .github/dependabot.yml"
       - name: Create pull request to merge changes in branch "${{ inputs.pull_request_source_branch }}" into "${{ inputs.pull_request_target_branch }}"
-        uses: devops-infra/action-pull-request@v0.5.5
+        uses: devops-infra/action-pull-request@v1.0.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           body: "**Automated pull request**<br><br>Updated contents of .github/dependabot.yml"
