@@ -347,6 +347,21 @@ SINGLE_NOTEBOOK=notebooks/example.ipynb ./scripts/test-local-ci.sh
 export CRDS_SERVER_URL="https://jwst-crds.stsci.edu"
 export CRDS_PATH="/tmp/crds_cache"
 ./scripts/test-local-ci.sh
+
+# When using the centralized notebook CI workflow from a caller repository,
+# the same CRDS configuration can be passed via inputs:
+#
+# execute-all:
+#   uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
+#   with:
+#     execution-mode: 'on-demand'
+#     trigger-event: 'execute'
+#     python-version: '3.11'
+#     # Optional CRDS configuration (only for JWST-style pipelines)
+#     crds-server-url: 'https://jwst-crds.stsci.edu'
+#     crds-context: 'jwst_1234.pmap'
+#     crds-path: '/tmp/crds_cache'
+
 ```
 
 ### Act-based Workflow Testing
