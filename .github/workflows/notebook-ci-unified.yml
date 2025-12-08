@@ -106,6 +106,12 @@ on:
         description: 'Optional post-processing script path'
         required: false
         type: string
+
+      # Pre-processing
+      pre-processing-script:
+        description: 'Optional pre-processing script path (runs before validation/execution)'
+        required: false
+        type: string
       
       # Deprecation
       deprecation-days:
@@ -902,6 +908,27 @@ jobs:
             pip install -r "$nb_dir/requirements.txt"
           else
             echo "No requirements.txt found in $nb_dir - using base environment only"
+          fi
+
+      - name: Run pre-processing script
+        if: inputs.pre-processing-script != ''
+        run: |
+          notebook="${{ matrix.notebook }}"
+          nb_dir=$(dirname "$notebook")
+
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate ci-env
+
+          script_path="${{ inputs.pre-processing-script }}"
+
+          if [ -f "$script_path" ]; then
+            echo "🔧 Running pre-processing script: $script_path"
+            python "$script_path"
+          elif [ -f "$nb_dir/$script_path" ]; then
+            echo "🔧 Running notebook-local pre-processing script: $nb_dir/$script_path"
+            python "$nb_dir/$script_path"
+          else
+            echo "ℹ️ Pre-processing script not found at repo or notebook level; skipping."
           fi
 
       - name: Validate notebook

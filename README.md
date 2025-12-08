@@ -135,6 +135,9 @@ with:
   
   # Deprecation management
   deprecation-days: 30              # Days until deprecation expires
+
+  # Optional pre-processing hook
+  pre-processing-script: 'scripts/notebook_data_dependencies.py'  # Runs before validation/execution
 ```
 
 ### Optional CRDS Configuration (JWST-style Pipelines)
