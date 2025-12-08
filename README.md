@@ -137,6 +137,25 @@ with:
   deprecation-days: 30              # Days until deprecation expires
 ```
 
+### Optional CRDS Configuration (JWST-style Pipelines)
+
+Some notebook repositories (for example, JWST/CRDS consumers) need CRDS
+environment variables to be set during notebook execution. Because callers
+cannot pass `env` directly to a reusable workflow, the unified workflow
+exposes these as optional inputs:
+
+```yaml
+with:
+  # Optional CRDS options (all default to empty strings)
+  crds-server-url: 'https://jwst-crds.stsci.edu'   # -> CRDS_SERVER_URL
+  crds-context: 'jwst_1234.pmap'                   # -> CRDS_CONTEXT
+  crds-path: '/tmp/crds_cache'                     # -> CRDS_PATH
+```
+
+When provided, these inputs are mapped to `CRDS_SERVER_URL`, `CRDS_CONTEXT`,
+and `CRDS_PATH` at the workflow level so that all jobs see the same CRDS
+configuration. If you do not need CRDS, simply omit these inputs.
+
 ## 🛠️ Common Use Cases
 
 ### 1. Pull Request Validation

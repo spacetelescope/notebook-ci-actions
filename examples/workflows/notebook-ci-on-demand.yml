@@ -58,6 +58,21 @@ on:
         required: false
         default: ''
         type: string
+      crds-server-url:
+        description: 'Optional CRDS server URL (sets CRDS_SERVER_URL)'
+        required: false
+        default: ''
+        type: string
+      crds-context:
+        description: 'Optional CRDS context (sets CRDS_CONTEXT)'
+        required: false
+        default: ''
+        type: string
+      crds-path:
+        description: 'Optional CRDS cache path (sets CRDS_PATH)'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   on-demand-ci:
@@ -74,6 +89,10 @@ jobs:
       enable-html-build: ${{ inputs.build-documentation }}
       skip-deprecated: ${{ inputs.skip-deprecated }}
       post-run-script: ${{ inputs.post-processing }}
+      # Optional CRDS configuration for JWST-style pipelines
+      crds-server-url: ${{ inputs.crds-server-url }}
+      crds-context: ${{ inputs.crds-context }}
+      crds-path: ${{ inputs.crds-path }}
     secrets:
       CASJOBS_USERID: ${{ secrets.CASJOBS_USERID }}
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
