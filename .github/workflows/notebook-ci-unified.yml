@@ -1580,12 +1580,39 @@ jobs:
           
           # Get the list of notebooks that were processed
           NOTEBOOKS='${{ needs.setup-matrix.outputs.matrix-notebooks }}'
-          
+
+          # Build a set of notebooks that actually failed execution, based on
+          # execution results recorded by the process-notebooks job.
+          FAILED_NOTEBOOKS_FILE="/tmp/notebook-results/failed.txt"
+          declare -A FAILED_SET
+
+          if [ -f "$FAILED_NOTEBOOKS_FILE" ]; then
+            echo "📊 Loading failed notebook list from $FAILED_NOTEBOOKS_FILE"
+            while IFS= read -r failed_nb; do
+              if [ -n "$failed_nb" ]; then
+                FAILED_SET["$failed_nb"]=1
+              fi
+            done < "$FAILED_NOTEBOOKS_FILE"
+          else
+            echo "ℹ️ No failed notebook list found; skipping failure banner injection"
+          fi
+
+          if [ "${#FAILED_SET[@]}" -eq 0 ]; then
+            echo "ℹ️ No failed notebooks recorded; no execution warnings will be added"
+            exit 0
+          fi
+
           if [ "$NOTEBOOKS" != "[]" ] && [ "$NOTEBOOKS" != "null" ] && [ "$NOTEBOOKS" != "" ]; then
             echo "$NOTEBOOKS" | jq -r '.[]' 2>/dev/null | while read -r notebook; do
+              # Only add a warning for notebooks that actually failed
+              if [ -z "${FAILED_SET[$notebook]}" ]; then
+                echo "ℹ️ Notebook executed successfully, skipping warning banner: $notebook"
+                continue
+              fi
+
               if [ -f "$notebook" ]; then
-                echo "🔧 Adding warning banner to: $notebook"
-                
+                echo "🔧 Adding warning banner to failed notebook: $notebook"
+
                 # Create a temporary Python script to add the warning banner
                 cat > add_warning.py << 'EOF'
           import json
