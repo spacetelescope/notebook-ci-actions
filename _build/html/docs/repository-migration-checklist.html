@@ -1,0 +1,1427 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Repository Migration Checklist &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/repository-migration-checklist';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/repository-migration-checklist.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Repository Migration Checklist</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">📋 Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-migration-setup">🚀 Pre-Migration Setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-inventory-current-workflows">Step 1: Inventory Current Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#current-workflow-analysis">✅ Current Workflow Analysis</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-prepare-notebook-ci-actions-repository">Step 2: Prepare notebook-ci-actions Repository</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-setup">✅ Repository Setup</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-create-migration-branch-template">Step 3: Create Migration Branch Template</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-migration">🔄 Repository-Specific Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks-migration">jdat_notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#current-state-analysis">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-steps">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks-testing">✅ jdat_notebooks Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks-migration">mast_notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks-testing">✅ mast_notebooks Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-migration">hst_notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-testing">✅ hst_notebooks Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe-migration">hello_universe Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe-testing">✅ hello_universe Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks-migration">jwst-pipeline-notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks-testing">✅ jwst-pipeline-notebooks Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-validation">🧪 Testing &amp; Validation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-strategy">Local Testing Strategy</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-deployment-testing">✅ Pre-Deployment Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-testing-process">Version Testing Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#progressive-version-testing">✅ Progressive Version Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-validation">Performance Validation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-benchmarks">✅ Performance Benchmarks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#post-migration-cleanup">🏁 Post-Migration Cleanup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-cleanup">Repository Cleanup</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cleanup-tasks">✅ Cleanup Tasks</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-updates">Documentation Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-tasks">✅ Documentation Tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🚨 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues-and-solutions">Common Issues and Solutions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-1-workflow-not-triggering">Issue 1: Workflow Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-2-missing-secrets">Issue 2: Missing Secrets</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-3-environment-setup-failures">Issue 3: Environment Setup Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-4-notebook-execution-timeouts">Issue 4: Notebook Execution Timeouts</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-5-documentation-build-failures">Issue 5: Documentation Build Failures</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#emergency-rollback">Emergency Rollback</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-rollback-process">✅ Quick Rollback Process</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#support-resources">Support Resources</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">✅ Getting Help</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-progress-tracker">📊 Migration Progress Tracker</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes-section">📝 Notes Section</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks-notes">jdat_notebooks Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks-notes">mast_notebooks Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-notes">hst_notebooks Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe-notes">hello_universe Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks-notes">jwst-pipeline-notebooks Notes:</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="repository-migration-checklist">
+<h1>Repository Migration Checklist<a class="headerlink" href="#repository-migration-checklist" title="Link to this heading">#</a></h1>
+<p>This checklist provides step-by-step instructions for migrating the following repositories to use the centralized GitHub Actions workflows from the <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code> repository:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">jdat_notebooks</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mast_notebooks</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hello_universe</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code></p></li>
+</ul>
+<section id="table-of-contents">
+<h2>📋 Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#pre-migration-setup"><span class="xref myst">Pre-Migration Setup</span></a></p></li>
+<li><p><a class="reference internal" href="#repository-specific-migration"><span class="xref myst">Repository-Specific Migration</span></a></p></li>
+<li><p><a class="reference internal" href="#testing--validation"><span class="xref myst">Testing &amp; Validation</span></a></p></li>
+<li><p><a class="reference internal" href="#post-migration-cleanup"><span class="xref myst">Post-Migration Cleanup</span></a></p></li>
+<li><p><a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a></p></li>
+</ul>
+</section>
+<section id="pre-migration-setup">
+<h2>🚀 Pre-Migration Setup<a class="headerlink" href="#pre-migration-setup" title="Link to this heading">#</a></h2>
+<section id="step-1-inventory-current-workflows">
+<h3>Step 1: Inventory Current Workflows<a class="headerlink" href="#step-1-inventory-current-workflows" title="Link to this heading">#</a></h3>
+<p>For each repository, document the existing workflows:</p>
+<section id="current-workflow-analysis">
+<h4>✅ Current Workflow Analysis<a class="headerlink" href="#current-workflow-analysis" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong><code class="docutils literal notranslate"><span class="pre">jdat_notebooks</span></code></strong>: Document existing <code class="docutils literal notranslate"><span class="pre">.github/workflows/*.yml</span></code> files</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong><code class="docutils literal notranslate"><span class="pre">mast_notebooks</span></code></strong>: Document existing <code class="docutils literal notranslate"><span class="pre">.github/workflows/*.yml</span></code> files</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong><code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code></strong>: Document existing <code class="docutils literal notranslate"><span class="pre">.github/workflows/*.yml</span></code> files</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong><code class="docutils literal notranslate"><span class="pre">hello_universe</span></code></strong>: Document existing <code class="docutils literal notranslate"><span class="pre">.github/workflows/*.yml</span></code> files</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong><code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code></strong>: Document existing <code class="docutils literal notranslate"><span class="pre">.github/workflows/*.yml</span></code> files</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this in each repository to inventory workflows</span>
+find<span class="w"> </span>.github/workflows<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.yml&quot;</span><span class="w"> </span>-o<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.yaml&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>file<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$file</span><span class="s2"> ===&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Triggers: </span><span class="k">$(</span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="s2">&quot;^on:&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;^--&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Jobs: </span><span class="k">$(</span>grep<span class="w"> </span><span class="s2">&quot;^  [a-zA-Z].*:&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$file</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;^    &quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="k">done</span><span class="w"> </span>&gt;<span class="w"> </span>workflow-inventory.txt
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-2-prepare-notebook-ci-actions-repository">
+<h3>Step 2: Prepare notebook-ci-actions Repository<a class="headerlink" href="#step-2-prepare-notebook-ci-actions-repository" title="Link to this heading">#</a></h3>
+<section id="repository-setup">
+<h4>✅ Repository Setup<a class="headerlink" href="#repository-setup" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Ensure <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code> repository exists</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Copy workflows from <code class="docutils literal notranslate"><span class="pre">dev-actions</span></code> to <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># In notebook-ci-actions repo</span>
+cp<span class="w"> </span>../dev-actions/.github/workflows/ci_*.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>../dev-actions/.github/scripts/<span class="w"> </span>.github/scripts/<span class="w"> </span>-r
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Set up initial release tags:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>tag<span class="w"> </span>v1.0.0
+git<span class="w"> </span>tag<span class="w"> </span>v1
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v1.0.0<span class="w"> </span>v1
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="step-3-create-migration-branch-template">
+<h3>Step 3: Create Migration Branch Template<a class="headerlink" href="#step-3-create-migration-branch-template" title="Link to this heading">#</a></h3>
+<p>Create this script as <code class="docutils literal notranslate"><span class="pre">scripts/create-migration-branch.sh</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Create migration branch with backup</span>
+
+<span class="nv">REPO_NAME</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPO_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Usage: </span><span class="nv">$0</span><span class="s2"> &lt;repository_name&gt;&quot;</span>
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Creating migration branch for </span><span class="nv">$REPO_NAME</span><span class="s2">...&quot;</span>
+
+<span class="c1"># Create migration branch</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>migrate-to-centralized-actions
+
+<span class="c1"># Backup existing workflows</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>.github/workflows-backup
+cp<span class="w"> </span>.github/workflows/*.yml<span class="w"> </span>.github/workflows-backup/<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;No workflows to backup&quot;</span>
+
+<span class="c1"># Create migration tracking file</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>migration-status.md<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s"># Migration Status for $REPO_NAME</span>
+
+<span class="s">## Pre-Migration Workflows</span>
+<span class="s">$(find .github/workflows -name &quot;*.yml&quot; 2&gt;/dev/null | sed &#39;s/^/- /&#39;)</span>
+
+<span class="s">## Migration Date</span>
+<span class="s">$(date)</span>
+
+<span class="s">## Checklist</span>
+<span class="s">- [ ] Workflows migrated</span>
+<span class="s">- [ ] Secrets configured</span>
+<span class="s">- [ ] Testing completed</span>
+<span class="s">- [ ] Documentation updated</span>
+<span class="s">EOF</span>
+
+git<span class="w"> </span>add<span class="w"> </span>migration-status.md<span class="w"> </span>.github/workflows-backup/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Prepare migration branch for </span><span class="nv">$REPO_NAME</span><span class="s2">&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Migration branch created. Run migration checklist next.&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="repository-specific-migration">
+<h2>🔄 Repository-Specific Migration<a class="headerlink" href="#repository-specific-migration" title="Link to this heading">#</a></h2>
+<section id="jdat-notebooks-migration">
+<h3>jdat_notebooks Migration<a class="headerlink" href="#jdat-notebooks-migration" title="Link to this heading">#</a></h3>
+<section id="current-state-analysis">
+<h4>✅ Current State Analysis<a class="headerlink" href="#current-state-analysis" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Repository URL</strong>: <code class="docutils literal notranslate"><span class="pre">https://github.com/spacetelescope/jdat_notebooks</span></code></p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Primary workflows identified</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Notebook CI/validation</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Documentation building</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Security scanning</p></li>
+</ul>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Python version(s) used</strong>: _____________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Special requirements</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> CRDS cache requirements</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Large data downloads</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Micromamba environment needs</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="migration-steps">
+<h4>✅ Migration Steps<a class="headerlink" href="#migration-steps" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 1</strong>: Create migration branch</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>jdat_notebooks
+bash<span class="w"> </span>../scripts/create-migration-branch.sh<span class="w"> </span>jdat_notebooks
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 2</strong>: Choose workflow strategy and replace with centralized versions</p>
+<p><strong>Option A: Smart Workflows (Recommended)</strong> - Automatically detect file changes and optimize CI</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove old workflows (after backup)</span>
+rm<span class="w"> </span>.github/workflows/*.yml
+
+<span class="c1"># Copy smart workflow examples</span>
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/notebook-ci-pr-smart.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/notebook-ci-main-smart.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/notebook-ci-on-demand.yml<span class="w"> </span>.github/workflows/
+</pre></div>
+</div>
+<p><strong>Option B: Traditional Workflows</strong> - Consistent full CI for all changes</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove old workflows (after backup)</span>
+rm<span class="w"> </span>.github/workflows/*.yml
+
+<span class="c1"># Copy traditional workflow examples</span>
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/notebook-ci-pr.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/notebook-ci-main.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/docs-only.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>../notebook-ci-actions/examples/workflows/notebook-ci-on-demand.yml<span class="w"> </span>.github/workflows/
+</pre></div>
+</div>
+<p><strong>Smart vs Traditional Comparison:</strong></p>
+<ul class="simple">
+<li><p><strong>Smart</strong>: 85% faster for docs-only changes, 60% cost savings, intelligent routing</p></li>
+<li><p><strong>Traditional</strong>: Consistent full validation, simpler debugging, predictable timing</p></li>
+</ul>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 3</strong>: Update workflow references</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update organization reference</span>
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/your-org/spacetelescope/g&#39;</span><span class="w"> </span>.github/workflows/*.yml
+<span class="c1"># Update repository reference  </span>
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/dev-actions/notebook-ci-actions/g&#39;</span><span class="w"> </span>.github/workflows/*.yml
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 4</strong>: Configure repository-specific parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># In .github/workflows/notebook-ci-main.yml</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">full-ci-pipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span><span class="w">  </span><span class="c1"># Adjust as needed</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">      </span><span class="nt">build-html</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span>
+<span class="w">      </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 5</strong>: Configure secrets in repository settings</p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> (usually automatic)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">CASJOBS_USERID</span></code> (if needed)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">CASJOBS_PW</span></code> (if needed)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="jdat-notebooks-testing">
+<h4>✅ jdat_notebooks Testing<a class="headerlink" href="#jdat-notebooks-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Local testing</strong>: Test workflows with workflow_dispatch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>PR testing</strong>: Create test PR to verify workflow triggers</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Documentation</strong>: Verify JupyterBook builds correctly</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Special considerations</strong>: Test CRDS cache and data access</p></li>
+</ul>
+</section>
+</section>
+<section id="mast-notebooks-migration">
+<h3>mast_notebooks Migration<a class="headerlink" href="#mast-notebooks-migration" title="Link to this heading">#</a></h3>
+<section id="id1">
+<h4>✅ Current State Analysis<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Repository URL</strong>: <code class="docutils literal notranslate"><span class="pre">https://github.com/spacetelescope/mast_notebooks</span></code></p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Primary workflows identified</strong>: ________________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Python version(s) used</strong>: _____________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Special requirements</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> MAST API access</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Archive data requirements</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Authentication needs</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h4>✅ Migration Steps<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 1</strong>: Create migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 2</strong>: Replace workflows with centralized versions</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 3</strong>: Update workflow references</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 4</strong>: Configure repository-specific parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example for MAST-specific needs</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">  </span><span class="nt">build-html</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="c1"># Add MAST-specific configurations</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 5</strong>: Configure secrets</p></li>
+</ul>
+</section>
+<section id="mast-notebooks-testing">
+<h4>✅ mast_notebooks Testing<a class="headerlink" href="#mast-notebooks-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Local testing</strong>: Test MAST API access</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Archive queries</strong>: Verify data download functionality</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Authentication</strong>: Test with repository secrets</p></li>
+</ul>
+</section>
+</section>
+<section id="hst-notebooks-migration">
+<h3>hst_notebooks Migration<a class="headerlink" href="#hst-notebooks-migration" title="Link to this heading">#</a></h3>
+<section id="id3">
+<h4>✅ Current State Analysis<a class="headerlink" href="#id3" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Repository URL</strong>: <code class="docutils literal notranslate"><span class="pre">https://github.com/spacetelescope/hst_notebooks</span></code></p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Primary workflows identified</strong>: ________________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Python version(s) used</strong>: _____________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Special requirements</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">hstcal</span></code> environment</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Large HST data files</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> STScI software stack</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id4">
+<h4>✅ Migration Steps<a class="headerlink" href="#id4" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 1</strong>: Create migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 2</strong>: Replace workflows with centralized versions</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 3</strong>: Update workflow references</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 4</strong>: Configure HST-specific parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># HST repositories have special micromamba support</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">  </span><span class="nt">build-html</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="c1"># The ci_pipeline.yml automatically detects hst_notebooks repo</span>
+<span class="w">  </span><span class="c1"># and sets up hstcal environment</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 5</strong>: Configure secrets</p></li>
+</ul>
+</section>
+<section id="hst-notebooks-testing">
+<h4>✅ hst_notebooks Testing<a class="headerlink" href="#hst-notebooks-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Environment</strong>: Verify <code class="docutils literal notranslate"><span class="pre">hstcal</span></code> environment setup</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Data access</strong>: Test HST data download and processing</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Software stack</strong>: Verify STScI tools work correctly</p></li>
+</ul>
+</section>
+</section>
+<section id="hello-universe-migration">
+<h3>hello_universe Migration<a class="headerlink" href="#hello-universe-migration" title="Link to this heading">#</a></h3>
+<section id="id5">
+<h4>✅ Current State Analysis<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Repository URL</strong>: <code class="docutils literal notranslate"><span class="pre">https://github.com/spacetelescope/hello_universe</span></code></p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Primary workflows identified</strong>: ________________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Python version(s) used</strong>: _____________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Special requirements</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Educational content focus</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Simplified examples</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Beginner-friendly documentation</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id6">
+<h4>✅ Migration Steps<a class="headerlink" href="#id6" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 1</strong>: Create migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 2</strong>: Replace workflows with centralized versions</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 3</strong>: Update workflow references</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 4</strong>: Configure for educational content</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simplified configuration for educational repository</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;validation-only&quot;</span><span class="w">  </span><span class="c1"># Lighter validation for tutorials</span>
+<span class="w">  </span><span class="nt">build-html</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># May skip for simple educational content</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 5</strong>: Configure secrets (minimal needed)</p></li>
+</ul>
+</section>
+<section id="hello-universe-testing">
+<h4>✅ hello_universe Testing<a class="headerlink" href="#hello-universe-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Beginner focus</strong>: Ensure workflows don’t overwhelm new users</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Simple examples</strong>: Verify basic notebook execution</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Documentation</strong>: Ensure educational docs build correctly</p></li>
+</ul>
+</section>
+</section>
+<section id="jwst-pipeline-notebooks-migration">
+<h3>jwst-pipeline-notebooks Migration<a class="headerlink" href="#jwst-pipeline-notebooks-migration" title="Link to this heading">#</a></h3>
+<section id="id7">
+<h4>✅ Current State Analysis<a class="headerlink" href="#id7" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Repository URL</strong>: <code class="docutils literal notranslate"><span class="pre">https://github.com/spacetelescope/jwst-pipeline-notebooks</span></code></p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Primary workflows identified</strong>: ________________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Python version(s) used</strong>: _____________</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Special requirements</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> JWST pipeline software</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Large JWST data files</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <code class="docutils literal notranslate"><span class="pre">jdaviz</span></code> visualization tools</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> CRDS references</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id8">
+<h4>✅ Migration Steps<a class="headerlink" href="#id8" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 1</strong>: Create migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 2</strong>: Replace workflows with centralized versions</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 3</strong>: Update workflow references</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 4</strong>: Configure JWST-specific parameters</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">  </span><span class="nt">build-html</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 5</strong>: Configure post-processing for jdaviz</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># In HTML builder workflow</span>
+<span class="nt">build-and-deploy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_html_builder.yml@v1</span>
+<span class="w">  </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">    </span><span class="nt">post-run-script</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;scripts/jdaviz_image_replacement.sh&quot;</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Step 6</strong>: Configure secrets</p></li>
+</ul>
+</section>
+<section id="jwst-pipeline-notebooks-testing">
+<h4>✅ jwst-pipeline-notebooks Testing<a class="headerlink" href="#jwst-pipeline-notebooks-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>JWST pipeline</strong>: Test pipeline software installation</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Large data</strong>: Verify data download and processing</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Visualization</strong>: Test jdaviz tools and image replacement</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>CRDS</strong>: Verify reference file access</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="testing-validation">
+<h2>🧪 Testing &amp; Validation<a class="headerlink" href="#testing-validation" title="Link to this heading">#</a></h2>
+<section id="local-testing-strategy">
+<h3>Local Testing Strategy<a class="headerlink" href="#local-testing-strategy" title="Link to this heading">#</a></h3>
+<section id="pre-deployment-testing">
+<h4>✅ Pre-Deployment Testing<a class="headerlink" href="#pre-deployment-testing" title="Link to this heading">#</a></h4>
+<p>For each repository:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Test workflow_dispatch triggers</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Navigate to Actions tab in GitHub</span>
+<span class="c1"># Manually trigger &quot;Notebook CI - On Demand&quot; workflow</span>
+<span class="c1"># Test with different parameters:</span>
+<span class="c1"># - Python version: 3.11</span>
+<span class="c1"># - Execution mode: validation-only (safe for testing)</span>
+<span class="c1"># - Single notebook: pick a simple notebook</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Test PR workflows</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create test PR with minor notebook change</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>test-workflows
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;# Test&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>test-notebook.ipynb
+git<span class="w"> </span>add<span class="w"> </span>test-notebook.ipynb
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: trigger PR workflow&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>test-workflows
+<span class="c1"># Create PR and verify workflows run</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Validate workflow outputs</strong></p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Check that notebooks execute without errors</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Verify HTML documentation builds</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Confirm security scans complete</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Test artifact uploads on failures</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="version-testing-process">
+<h3>Version Testing Process<a class="headerlink" href="#version-testing-process" title="Link to this heading">#</a></h3>
+<section id="progressive-version-testing">
+<h4>✅ Progressive Version Testing<a class="headerlink" href="#progressive-version-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Test with exact version first</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use exact version for initial testing</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.0.0</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Graduate to major version pinning</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Once stable, use major version pinning</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Monitor for updates</strong></p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Subscribe to notebook-ci-actions releases</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Test new versions in staging before production</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="performance-validation">
+<h3>Performance Validation<a class="headerlink" href="#performance-validation" title="Link to this heading">#</a></h3>
+<section id="performance-benchmarks">
+<h4>✅ Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Link to this heading">#</a></h4>
+<p>For each repository, record baseline performance:</p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Execution time</strong>: Record current workflow run times</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Resource usage</strong>: Monitor GitHub Actions minute consumption</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Success rate</strong>: Track workflow success/failure rates</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Error patterns</strong>: Document common failure modes</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create performance tracking file</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>performance-baseline.md<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s"># Performance Baseline for $(basename $(pwd))</span>
+
+<span class="s">## Pre-Migration (Date: $(date))</span>
+<span class="s">- Average workflow time: _____ minutes</span>
+<span class="s">- Success rate: _____%</span>
+<span class="s">- Common failures: __________</span>
+
+<span class="s">## Post-Migration (Date: TBD)</span>
+<span class="s">- Average workflow time: _____ minutes  </span>
+<span class="s">- Success rate: _____%</span>
+<span class="s">- Common failures: __________</span>
+
+<span class="s">## Performance Notes</span>
+<span class="s">- Improvements: __________</span>
+<span class="s">- Regressions: __________</span>
+<span class="s">- Action items: __________</span>
+<span class="s">EOF</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="post-migration-cleanup">
+<h2>🏁 Post-Migration Cleanup<a class="headerlink" href="#post-migration-cleanup" title="Link to this heading">#</a></h2>
+<section id="repository-cleanup">
+<h3>Repository Cleanup<a class="headerlink" href="#repository-cleanup" title="Link to this heading">#</a></h3>
+<section id="cleanup-tasks">
+<h4>✅ Cleanup Tasks<a class="headerlink" href="#cleanup-tasks" title="Link to this heading">#</a></h4>
+<p>For each successfully migrated repository:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Remove backup files</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># After confirming workflows work correctly</span>
+rm<span class="w"> </span>-rf<span class="w"> </span>.github/workflows-backup/
+git<span class="w"> </span>rm<span class="w"> </span>migration-status.md
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Update documentation</strong></p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Update <a class="reference external" href="http://README.md">README.md</a> with new workflow information</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Document any repository-specific configuration</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Add links to centralized workflow documentation</p></li>
+</ul>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Archive old branches</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Delete migration branch after successful merge</span>
+git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>migrate-to-centralized-actions
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>--delete<span class="w"> </span>migrate-to-centralized-actions
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+<section id="documentation-updates">
+<h3>Documentation Updates<a class="headerlink" href="#documentation-updates" title="Link to this heading">#</a></h3>
+<section id="documentation-tasks">
+<h4>✅ Documentation Tasks<a class="headerlink" href="#documentation-tasks" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Update each repository’s README</strong></p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## GitHub Actions Workflows</span>
+
+This repository uses centralized workflows from 
+[<span class="nt">notebook-ci-actions</span>](<span class="na">https://github.com/mgough-970/dev-actions</span>).
+
+<span class="gu">### Available Workflows:</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**PR Validation**</span>: Runs on pull requests for quick validation
+<span class="k">-</span><span class="w"> </span><span class="gs">**Main CI**</span>: Full execution and deployment on main branch
+<span class="k">-</span><span class="w"> </span><span class="gs">**On-Demand**</span>: Manual testing with configurable options
+<span class="k">-</span><span class="w"> </span><span class="gs">**Documentation**</span>: Builds and deploys JupyterBook documentation
+
+For workflow documentation, see the 
+[<span class="nt">notebook-ci-actions repository</span>](<span class="na">https://github.com/mgough-970/dev-actions</span>).
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Create migration summary report</strong></p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gh"># Migration Summary Report</span>
+
+<span class="gu">## Repositories Migrated  - [x] jdat_notebooks - Completed $(date)</span>
+<span class="k">- [x]</span> mast_notebooks - Completed $(date)  
+<span class="k">- [x]</span> hst_notebooks - Completed $(date)
+<span class="k">- [x]</span> hello_universe - Completed $(date)
+<span class="k">- [x]</span> jwst-pipeline-notebooks - Completed $(date)
+
+<span class="gu">## Benefits Achieved</span>
+<span class="k">-</span><span class="w"> </span>Centralized workflow management
+<span class="k">-</span><span class="w"> </span>Consistent CI/CD across repositories
+<span class="k">-</span><span class="w"> </span>Reduced maintenance overhead
+<span class="k">-</span><span class="w"> </span>Improved documentation building
+
+<span class="gu">## Lessons Learned</span>
+<span class="k">-</span><span class="w"> </span>[Repository-specific notes]
+<span class="k">-</span><span class="w"> </span>[Common issues encountered]
+<span class="k">-</span><span class="w"> </span>[Best practices discovered]
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>🚨 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues-and-solutions">
+<h3>Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading">#</a></h3>
+<section id="issue-1-workflow-not-triggering">
+<h4>Issue 1: Workflow Not Triggering<a class="headerlink" href="#issue-1-workflow-not-triggering" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: New workflows don’t run on PR or push
+<strong>Solution</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check workflow file syntax</span>
+yamllint<span class="w"> </span>.github/workflows/*.yml
+
+<span class="c1"># Verify workflow file permissions</span>
+ls<span class="w"> </span>-la<span class="w"> </span>.github/workflows/
+
+<span class="c1"># Check repository Actions settings</span>
+<span class="c1"># Settings → Actions → General → Actions permissions</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-2-missing-secrets">
+<h4>Issue 2: Missing Secrets<a class="headerlink" href="#issue-2-missing-secrets" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: <code class="docutils literal notranslate"><span class="pre">Error:</span> <span class="pre">Secret</span> <span class="pre">'CASJOBS_USERID'</span> <span class="pre">not</span> <span class="pre">found</span></code>
+<strong>Solution</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add secrets in repository settings:</span>
+<span class="c1"># Settings → Secrets and variables → Actions → New repository secret</span>
+
+<span class="c1"># Required secrets for most repositories:</span>
+<span class="c1"># - GITHUB_TOKEN (usually automatic)</span>
+<span class="c1"># - CASJOBS_USERID (for astronomical data)</span>
+<span class="c1"># - CASJOBS_PW (for astronomical data)</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-3-environment-setup-failures">
+<h4>Issue 3: Environment Setup Failures<a class="headerlink" href="#issue-3-environment-setup-failures" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: <code class="docutils literal notranslate"><span class="pre">micromamba</span> <span class="pre">environment</span> <span class="pre">creation</span> <span class="pre">failed</span></code> or <code class="docutils literal notranslate"><span class="pre">hstcal</span> <span class="pre">not</span> <span class="pre">found</span></code>
+<strong>Solution</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># For HST repositories, ensure the workflow detects the repo correctly</span>
+<span class="c1"># The ci_pipeline.yml automatically sets up hstcal for hst_notebooks</span>
+
+<span class="c1"># For custom environments, you may need to fork and modify workflows</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-4-notebook-execution-timeouts">
+<h4>Issue 4: Notebook Execution Timeouts<a class="headerlink" href="#issue-4-notebook-execution-timeouts" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: <code class="docutils literal notranslate"><span class="pre">Cell</span> <span class="pre">execution</span> <span class="pre">timeout</span> <span class="pre">exceeded</span></code>
+<strong>Solution</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Increase timeout in workflow parameters</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">  </span><span class="nt">cell-timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6000</span><span class="w">  </span><span class="c1"># Increase from default 4000 seconds</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-5-documentation-build-failures">
+<h4>Issue 5: Documentation Build Failures<a class="headerlink" href="#issue-5-documentation-build-failures" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: JupyterBook build errors
+<strong>Solution</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check _config.yml and _toc.yml files</span>
+<span class="c1"># Ensure all referenced notebooks exist</span>
+<span class="c1"># Verify notebook output is stripped (use nbstripout)</span>
+
+<span class="c1"># For jdaviz issues, ensure post-processing script exists:</span>
+<span class="c1"># scripts/jdaviz_image_replacement.sh</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="emergency-rollback">
+<h3>Emergency Rollback<a class="headerlink" href="#emergency-rollback" title="Link to this heading">#</a></h3>
+<section id="quick-rollback-process">
+<h4>✅ Quick Rollback Process<a class="headerlink" href="#quick-rollback-process" title="Link to this heading">#</a></h4>
+<p>If critical issues occur:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Immediate rollback</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Restore from backup</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+rm<span class="w"> </span>.github/workflows/*.yml
+cp<span class="w"> </span>.github/workflows-backup/*.yml<span class="w"> </span>.github/workflows/
+git<span class="w"> </span>add<span class="w"> </span>.github/workflows/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Emergency rollback to previous workflows&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+</pre></div>
+</div>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Investigate and fix</strong></p>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Review workflow logs for error details</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Test fixes in migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Re-attempt migration after fixes</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="support-resources">
+<h3>Support Resources<a class="headerlink" href="#support-resources" title="Link to this heading">#</a></h3>
+<section id="getting-help">
+<h4>✅ Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Primary support</strong>: Create issues in <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code> repository</p></li>
+<li><p><strong>Documentation</strong>: Check <code class="docutils literal notranslate"><span class="pre">docs/</span></code> folder in <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code></p></li>
+<li><p><strong>Community</strong>: Use repository discussions for questions</p></li>
+<li><p><strong>Emergency</strong>: Contact repository maintainers directly</p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="migration-progress-tracker">
+<h2>📊 Migration Progress Tracker<a class="headerlink" href="#migration-progress-tracker" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Repository</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Migration Date</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>jdat_notebooks</p></td>
+<td><p>⏳ Pending</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>mast_notebooks</p></td>
+<td><p>⏳ Pending</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>hst_notebooks</p></td>
+<td><p>⏳ Pending</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>hello_universe</p></td>
+<td><p>⏳ Pending</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>jwst-pipeline-notebooks</p></td>
+<td><p>⏳ Pending</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Status Legend</strong>: ⏳ Pending, 🔄 In Progress, ✅ Complete, ❌ Failed</p>
+</section>
+<hr class="docutils" />
+<section id="notes-section">
+<h2>📝 Notes Section<a class="headerlink" href="#notes-section" title="Link to this heading">#</a></h2>
+<p>Use this space to record repository-specific notes, special requirements, or lessons learned during migration:</p>
+<section id="jdat-notebooks-notes">
+<h3>jdat_notebooks Notes:<a class="headerlink" href="#jdat-notebooks-notes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li></li>
+</ul>
+</section>
+<section id="mast-notebooks-notes">
+<h3>mast_notebooks Notes:<a class="headerlink" href="#mast-notebooks-notes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li></li>
+</ul>
+</section>
+<section id="hst-notebooks-notes">
+<h3>hst_notebooks Notes:<a class="headerlink" href="#hst-notebooks-notes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li></li>
+</ul>
+</section>
+<section id="hello-universe-notes">
+<h3>hello_universe Notes:<a class="headerlink" href="#hello-universe-notes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li></li>
+</ul>
+</section>
+<section id="jwst-pipeline-notebooks-notes">
+<h3>jwst-pipeline-notebooks Notes:<a class="headerlink" href="#jwst-pipeline-notebooks-notes" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li></li>
+</ul>
+<hr class="docutils" />
+<p><strong>Last Updated</strong>: $(date)<br />
+<strong>Migration Lead</strong>: [Your Name]<br />
+<strong>Review Date</strong>: [Schedule quarterly reviews]</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">📋 Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-migration-setup">🚀 Pre-Migration Setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-inventory-current-workflows">Step 1: Inventory Current Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#current-workflow-analysis">✅ Current Workflow Analysis</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-prepare-notebook-ci-actions-repository">Step 2: Prepare notebook-ci-actions Repository</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-setup">✅ Repository Setup</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-create-migration-branch-template">Step 3: Create Migration Branch Template</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-migration">🔄 Repository-Specific Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks-migration">jdat_notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#current-state-analysis">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-steps">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks-testing">✅ jdat_notebooks Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks-migration">mast_notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks-testing">✅ mast_notebooks Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-migration">hst_notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-testing">✅ hst_notebooks Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe-migration">hello_universe Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe-testing">✅ hello_universe Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks-migration">jwst-pipeline-notebooks Migration</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">✅ Current State Analysis</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">✅ Migration Steps</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks-testing">✅ jwst-pipeline-notebooks Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-validation">🧪 Testing &amp; Validation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-strategy">Local Testing Strategy</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-deployment-testing">✅ Pre-Deployment Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-testing-process">Version Testing Process</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#progressive-version-testing">✅ Progressive Version Testing</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-validation">Performance Validation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-benchmarks">✅ Performance Benchmarks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#post-migration-cleanup">🏁 Post-Migration Cleanup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-cleanup">Repository Cleanup</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cleanup-tasks">✅ Cleanup Tasks</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-updates">Documentation Updates</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-tasks">✅ Documentation Tasks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🚨 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues-and-solutions">Common Issues and Solutions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-1-workflow-not-triggering">Issue 1: Workflow Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-2-missing-secrets">Issue 2: Missing Secrets</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-3-environment-setup-failures">Issue 3: Environment Setup Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-4-notebook-execution-timeouts">Issue 4: Notebook Execution Timeouts</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-5-documentation-build-failures">Issue 5: Documentation Build Failures</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#emergency-rollback">Emergency Rollback</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-rollback-process">✅ Quick Rollback Process</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#support-resources">Support Resources</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">✅ Getting Help</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-progress-tracker">📊 Migration Progress Tracker</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes-section">📝 Notes Section</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks-notes">jdat_notebooks Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks-notes">mast_notebooks Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks-notes">hst_notebooks Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe-notes">hello_universe Notes:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks-notes">jwst-pipeline-notebooks Notes:</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

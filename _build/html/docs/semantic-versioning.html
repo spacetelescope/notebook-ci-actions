@@ -1,0 +1,1104 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Semantic Versioning for GitHub Actions Workflows &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/semantic-versioning';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/semantic-versioning.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Semantic Versioning for GitHub Actions Workflows</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">📋 Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">🎯 Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#semantic-versioning-basics">📐 Semantic Versioning Basics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-format-major-minor-patch">Version Format: <code class="docutils literal notranslate"><span class="pre">MAJOR.MINOR.PATCH</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-release-versions">Pre-release Versions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-strategy-for-actions">🏷️ Versioning Strategy for Actions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-bump-each-version-component">When to Bump Each Version Component</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#major-version-breaking-changes">MAJOR Version (Breaking Changes)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-version-new-features">MINOR Version (New Features)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#patch-version-bug-fixes">PATCH Version (Bug Fixes)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git-tag-strategy">Git Tag Strategy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-versioning-workflow">🤖 Automated Versioning Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#release-workflow-with-semantic-versioning">1. Release Workflow with Semantic Versioning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pr-based-version-bump-detection">2. PR-based Version Bump Detection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conventional-commits-integration">3. Conventional Commits Integration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-versioned-workflows">🔄 Using Versioned Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pinning-to-specific-versions">Pinning to Specific Versions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#recommended-pin-to-major-version">Recommended: Pin to Major Version</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conservative-pin-to-exact-version">Conservative: Pin to Exact Version</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#development-use-branch">Development: Use Branch</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-range-examples">Version Range Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-guide">🚀 Migration Guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#upgrading-from-v1-to-v2-breaking-changes">Upgrading from v1 to v2 (Breaking Changes)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-review-breaking-changes">Step 1: Review Breaking Changes</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-test-in-feature-branch">Step 2: Test in Feature Branch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-gradual-migration-strategy">Step 3: Gradual Migration Strategy</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-version-updates-v1-0-0-v1-1-0">Minor Version Updates (v1.0.0 → v1.1.0)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">✅ Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-workflow-maintainers">For Workflow Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-workflow-consumers">For Workflow Consumers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#release-communication">Release Communication</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pr-title-conventions">PR Title Conventions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pr-body-template">PR Body Template</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🔧 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#version-tag-not-found">1. Version Tag Not Found</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#major-version-tag-out-of-date">2. Major Version Tag Out of Date</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes-not-detected">3. Breaking Changes Not Detected</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-version-issues">Debugging Version Issues</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">📚 Additional Resources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-history">🏷️ Version History</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="semantic-versioning-for-github-actions-workflows">
+<h1>Semantic Versioning for GitHub Actions Workflows<a class="headerlink" href="#semantic-versioning-for-github-actions-workflows" title="Link to this heading">#</a></h1>
+<p>This document explains how to implement semantic versioning for reusable GitHub Actions workflows and how to automate the versioning process using GitHub Actions.</p>
+<section id="table-of-contents">
+<h2>📋 Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview"><span class="xref myst">Overview</span></a></p></li>
+<li><p><a class="reference internal" href="#semantic-versioning-basics"><span class="xref myst">Semantic Versioning Basics</span></a></p></li>
+<li><p><a class="reference internal" href="#versioning-strategy-for-actions"><span class="xref myst">Versioning Strategy for Actions</span></a></p></li>
+<li><p><a class="reference internal" href="#automated-versioning-workflow"><span class="xref myst">Automated Versioning Workflow</span></a></p></li>
+<li><p><a class="reference internal" href="#using-versioned-workflows"><span class="xref myst">Using Versioned Workflows</span></a></p></li>
+<li><p><a class="reference internal" href="migration-guide.html"><span class="doc std std-doc">Migration Guide</span></a></p></li>
+<li><p><a class="reference internal" href="#best-practices"><span class="xref myst">Best Practices</span></a></p></li>
+<li><p><a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a></p></li>
+</ul>
+</section>
+<section id="overview">
+<h2>🎯 Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Semantic versioning (SemVer) provides a systematic way to version your reusable GitHub Actions workflows, ensuring:</p>
+<ul class="simple">
+<li><p><strong>Backwards compatibility</strong> for existing consumers</p></li>
+<li><p><strong>Clear communication</strong> about changes and their impact</p></li>
+<li><p><strong>Safe upgrades</strong> with confidence in stability</p></li>
+<li><p><strong>Automated release management</strong> through GitHub Actions</p></li>
+</ul>
+</section>
+<section id="semantic-versioning-basics">
+<h2>📐 Semantic Versioning Basics<a class="headerlink" href="#semantic-versioning-basics" title="Link to this heading">#</a></h2>
+<section id="version-format-major-minor-patch">
+<h3>Version Format: <code class="docutils literal notranslate"><span class="pre">MAJOR.MINOR.PATCH</span></code><a class="headerlink" href="#version-format-major-minor-patch" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>MAJOR</strong> (<code class="docutils literal notranslate"><span class="pre">1.0.0</span></code> → <code class="docutils literal notranslate"><span class="pre">2.0.0</span></code>): Breaking changes that require caller updates</p></li>
+<li><p><strong>MINOR</strong> (<code class="docutils literal notranslate"><span class="pre">1.0.0</span></code> → <code class="docutils literal notranslate"><span class="pre">1.1.0</span></code>): New features that are backwards compatible</p></li>
+<li><p><strong>PATCH</strong> (<code class="docutils literal notranslate"><span class="pre">1.0.0</span></code> → <code class="docutils literal notranslate"><span class="pre">1.0.1</span></code>): Bug fixes that are backwards compatible</p></li>
+</ul>
+</section>
+<section id="pre-release-versions">
+<h3>Pre-release Versions<a class="headerlink" href="#pre-release-versions" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Alpha</strong>: <code class="docutils literal notranslate"><span class="pre">1.0.0-alpha.1</span></code> - Early development, unstable</p></li>
+<li><p><strong>Beta</strong>: <code class="docutils literal notranslate"><span class="pre">1.0.0-beta.1</span></code> - Feature complete, testing phase</p></li>
+<li><p><strong>Release Candidate</strong>: <code class="docutils literal notranslate"><span class="pre">1.0.0-rc.1</span></code> - Production ready candidate</p></li>
+</ul>
+</section>
+</section>
+<section id="versioning-strategy-for-actions">
+<h2>🏷️ Versioning Strategy for Actions<a class="headerlink" href="#versioning-strategy-for-actions" title="Link to this heading">#</a></h2>
+<section id="when-to-bump-each-version-component">
+<h3>When to Bump Each Version Component<a class="headerlink" href="#when-to-bump-each-version-component" title="Link to this heading">#</a></h3>
+<section id="major-version-breaking-changes">
+<h4>MAJOR Version (Breaking Changes)<a class="headerlink" href="#major-version-breaking-changes" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Removing or renaming workflow inputs</p></li>
+<li><p>Changing input types (string → boolean)</p></li>
+<li><p>Removing workflow outputs</p></li>
+<li><p>Changing default behavior significantly</p></li>
+<li><p>Requiring new secrets or permissions</p></li>
+</ul>
+<p><strong>Example Breaking Changes:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># v1.x.x</span>
+<span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+
+<span class="c1"># v2.0.0 - BREAKING: changed required to optional</span>
+<span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># ← Breaking change</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="minor-version-new-features">
+<h4>MINOR Version (New Features)<a class="headerlink" href="#minor-version-new-features" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Adding new optional inputs</p></li>
+<li><p>Adding new workflow outputs</p></li>
+<li><p>Adding new optional features</p></li>
+<li><p>Improving performance without changing interface</p></li>
+</ul>
+<p><strong>Example New Features:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># v1.2.0 - NEW: Added post-run-script input</span>
+<span class="nt">inputs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">  </span><span class="nt">post-run-script</span><span class="p">:</span><span class="w">  </span><span class="c1"># ← New optional input</span>
+<span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+</pre></div>
+</div>
+</section>
+<section id="patch-version-bug-fixes">
+<h4>PATCH Version (Bug Fixes)<a class="headerlink" href="#patch-version-bug-fixes" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Fixing bugs without changing interface</p></li>
+<li><p>Security updates</p></li>
+<li><p>Documentation improvements</p></li>
+<li><p>Internal refactoring</p></li>
+</ul>
+</section>
+</section>
+<section id="git-tag-strategy">
+<h3>Git Tag Strategy<a class="headerlink" href="#git-tag-strategy" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create semantic version tags</span>
+git<span class="w"> </span>tag<span class="w"> </span>v1.0.0
+git<span class="w"> </span>tag<span class="w"> </span>v1.1.0
+git<span class="w"> </span>tag<span class="w"> </span>v1.1.1
+git<span class="w"> </span>tag<span class="w"> </span>v2.0.0
+
+<span class="c1"># Create major version tags (auto-updated)</span>
+git<span class="w"> </span>tag<span class="w"> </span>v1<span class="w">      </span><span class="c1"># Points to latest v1.x.x</span>
+git<span class="w"> </span>tag<span class="w"> </span>v2<span class="w">      </span><span class="c1"># Points to latest v2.x.x</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="automated-versioning-workflow">
+<h2>🤖 Automated Versioning Workflow<a class="headerlink" href="#automated-versioning-workflow" title="Link to this heading">#</a></h2>
+<section id="release-workflow-with-semantic-versioning">
+<h3>1. Release Workflow with Semantic Versioning<a class="headerlink" href="#release-workflow-with-semantic-versioning" title="Link to this heading">#</a></h3>
+<p>Create <code class="docutils literal notranslate"><span class="pre">.github/workflows/release.yml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release and Version Management</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">closed</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">release</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.event.pull_request.merged == true</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">      </span><span class="nt">issues</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">      </span><span class="nt">pull-requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Checkout</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">fetch-depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">        </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Determine Version Bump</span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">version</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mathieudutour/github-tag-action@v6.1</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">github_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+<span class="w">        </span><span class="nt">default_bump</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">patch</span>
+<span class="w">        </span><span class="nt">custom_tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event.pull_request.body }}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create Release</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/create-release@v1</span>
+<span class="w">      </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">GITHUB_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tag_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ steps.version.outputs.new_tag }}</span>
+<span class="w">        </span><span class="nt">release_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Release ${{ steps.version.outputs.new_tag }}</span>
+<span class="w">        </span><span class="nt">body</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">## Changes in ${{ steps.version.outputs.new_tag }}</span>
+<span class="w">          </span>
+<span class="w">          </span><span class="no">${{ github.event.pull_request.body }}</span>
+<span class="w">          </span>
+<span class="w">          </span><span class="no">**Full Changelog**: ${{ steps.version.outputs.changelog }}</span>
+<span class="w">        </span><span class="nt">draft</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">prerelease</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Update Major Version Tag</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">MAJOR_VERSION=$(echo ${{ steps.version.outputs.new_tag }} | cut -d. -f1)</span>
+<span class="w">        </span><span class="no">git tag -fa ${MAJOR_VERSION} -m &quot;Update ${MAJOR_VERSION} to ${{ steps.version.outputs.new_tag }}&quot;</span>
+<span class="w">        </span><span class="no">git push origin ${MAJOR_VERSION} --force</span>
+</pre></div>
+</div>
+</section>
+<section id="pr-based-version-bump-detection">
+<h3>2. PR-based Version Bump Detection<a class="headerlink" href="#pr-based-version-bump-detection" title="Link to this heading">#</a></h3>
+<p>Add this workflow to automatically determine version bumps based on PR labels:</p>
+<p>Create <code class="docutils literal notranslate"><span class="pre">.github/workflows/version-check.yml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Version Bump Check</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">opened</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">synchronize</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">labeled</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">unlabeled</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">version-check</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check Version Bump Label</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/github-script@v7</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">script</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">const labels = context.payload.pull_request.labels.map(l =&gt; l.name);</span>
+<span class="w">          </span>
+<span class="w">          </span><span class="no">const versionLabels = labels.filter(l =&gt; </span>
+<span class="w">            </span><span class="no">l.startsWith(&#39;version:&#39;) || </span>
+<span class="w">            </span><span class="no">[&#39;breaking-change&#39;, &#39;feature&#39;, &#39;bugfix&#39;].includes(l)</span>
+<span class="w">          </span><span class="no">);</span>
+<span class="w">          </span>
+<span class="w">          </span><span class="no">if (versionLabels.length === 0) {</span>
+<span class="w">            </span><span class="no">github.rest.issues.createComment({</span>
+<span class="w">              </span><span class="no">issue_number: context.issue.number,</span>
+<span class="w">              </span><span class="no">owner: context.repo.owner,</span>
+<span class="w">              </span><span class="no">repo: context.repo.repo,</span>
+<span class="w">              </span><span class="no">body: `⚠️ **Version Label Missing**</span>
+<span class="w">          </span><span class="no">    </span>
+<span class="w">              </span><span class="no">Please add one of these labels to indicate the type of change:</span>
+<span class="w">              </span><span class="no">- \`version:major\` or \`breaking-change\` - Breaking changes</span>
+<span class="w">              </span><span class="no">- \`version:minor\` or \`feature\` - New features  </span>
+<span class="w">              </span><span class="no">- \`version:patch\` or \`bugfix\` - Bug fixes</span>
+<span class="w">              </span><span class="no">`</span>
+<span class="w">            </span><span class="no">});</span>
+<span class="w">          </span><span class="no">  </span>
+<span class="w">            </span><span class="no">core.setFailed(&#39;PR must have a version bump label&#39;);</span>
+<span class="w">          </span><span class="no">}</span>
+<span class="w">          </span>
+<span class="w">          </span><span class="no">core.info(`Version labels found: ${versionLabels.join(&#39;, &#39;)}`);</span>
+</pre></div>
+</div>
+</section>
+<section id="conventional-commits-integration">
+<h3>3. Conventional Commits Integration<a class="headerlink" href="#conventional-commits-integration" title="Link to this heading">#</a></h3>
+<p>For automatic version detection based on commit messages:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Semantic Release</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">main</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">release</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Checkout</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">fetch-depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Semantic Release</span>
+<span class="w">      </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cycjimmy/semantic-release-action@v4</span>
+<span class="w">      </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">GITHUB_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">semantic_version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">19</span>
+<span class="w">        </span><span class="nt">extra_plugins</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">@semantic-release/changelog@6.0.0</span>
+<span class="w">          </span><span class="no">@semantic-release/git@10.0.0</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="using-versioned-workflows">
+<h2>🔄 Using Versioned Workflows<a class="headerlink" href="#using-versioned-workflows" title="Link to this heading">#</a></h2>
+<section id="pinning-to-specific-versions">
+<h3>Pinning to Specific Versions<a class="headerlink" href="#pinning-to-specific-versions" title="Link to this heading">#</a></h3>
+<section id="recommended-pin-to-major-version">
+<h4>Recommended: Pin to Major Version<a class="headerlink" href="#recommended-pin-to-major-version" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Automatically gets latest v1.x.x (safe, gets bug fixes)</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+</pre></div>
+</div>
+</section>
+<section id="conservative-pin-to-exact-version">
+<h4>Conservative: Pin to Exact Version<a class="headerlink" href="#conservative-pin-to-exact-version" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pinned to exact version (most stable, but misses bug fixes)</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.2.3</span>
+</pre></div>
+</div>
+</section>
+<section id="development-use-branch">
+<h4>Development: Use Branch<a class="headerlink" href="#development-use-branch" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use for testing only, not production</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="version-range-examples">
+<h3>Version Range Examples<a class="headerlink" href="#version-range-examples" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good practices for different scenarios:</span>
+
+<span class="c1"># Production environments - pin to major version</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+
+<span class="c1"># Critical systems - pin to exact version</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.2.3</span>
+
+<span class="c1"># Testing environments - use latest</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2</span>
+
+<span class="c1"># Feature branches - use pre-release</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v2.0.0-beta.1</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="migration-guide">
+<h2>🚀 Migration Guide<a class="headerlink" href="#migration-guide" title="Link to this heading">#</a></h2>
+<section id="upgrading-from-v1-to-v2-breaking-changes">
+<h3>Upgrading from v1 to v2 (Breaking Changes)<a class="headerlink" href="#upgrading-from-v1-to-v2-breaking-changes" title="Link to this heading">#</a></h3>
+<section id="step-1-review-breaking-changes">
+<h4>Step 1: Review Breaking Changes<a class="headerlink" href="#step-1-review-breaking-changes" title="Link to this heading">#</a></h4>
+<p>Check the release notes for breaking changes:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># v1.x.x (old)</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">      </span><span class="nt">build-html</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># v2.0.0 (new) - Example breaking changes</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v2</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;full&quot;</span>
+<span class="w">      </span><span class="c1"># BREAKING: build-html removed, use separate job</span>
+<span class="w">      </span><span class="nt">enable-security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># NEW: required parameter</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-test-in-feature-branch">
+<h4>Step 2: Test in Feature Branch<a class="headerlink" href="#step-2-test-in-feature-branch" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create feature branch for upgrade</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>upgrade-to-v2
+
+<span class="c1"># Update workflow files</span>
+<span class="c1"># Test thoroughly</span>
+<span class="c1"># Create PR with version upgrade</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-gradual-migration-strategy">
+<h4>Step 3: Gradual Migration Strategy<a class="headerlink" href="#step-3-gradual-migration-strategy" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option 1: Parallel workflows during transition</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Keep v1 for critical paths</span>
+<span class="w">  </span><span class="nt">ci-v1</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.ref != &#39;refs/heads/main&#39;</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+<span class="w">    </span>
+<span class="w">  </span><span class="c1"># Test v2 on main branch</span>
+<span class="w">  </span><span class="nt">ci-v2</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">github.ref == &#39;refs/heads/main&#39;</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v2</span>
+
+<span class="c1"># Option 2: Feature flag approach</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@${{ github.event.inputs.workflow_version || &#39;v1&#39; }}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="minor-version-updates-v1-0-0-v1-1-0">
+<h3>Minor Version Updates (v1.0.0 → v1.1.0)<a class="headerlink" href="#minor-version-updates-v1-0-0-v1-1-0" title="Link to this heading">#</a></h3>
+<p>Minor updates are backwards compatible, so you can update safely:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before: Pinned to exact version</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.0.0</span>
+
+<span class="c1"># After: Pin to major version to get updates automatically</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>✅ Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<section id="for-workflow-maintainers">
+<h3>For Workflow Maintainers<a class="headerlink" href="#for-workflow-maintainers" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Always use semantic versioning</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good</span>
+git<span class="w"> </span>tag<span class="w"> </span>v1.2.3
+
+<span class="c1"># Bad</span>
+git<span class="w"> </span>tag<span class="w"> </span>release-2023-06-11
+</pre></div>
+</div>
+</li>
+<li><p><strong>Maintain backwards compatibility within major versions</strong></p></li>
+<li><p><strong>Document breaking changes clearly</strong></p></li>
+<li><p><strong>Use pre-release versions for testing</strong></p></li>
+<li><p><strong>Keep major version tags updated</strong></p></li>
+</ol>
+</section>
+<section id="for-workflow-consumers">
+<h3>For Workflow Consumers<a class="headerlink" href="#for-workflow-consumers" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Pin to major versions in production</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org/repo/.github/workflows/workflow.yml@v1</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Test upgrades in feature branches</strong></p></li>
+<li><p><strong>Monitor release notes and changelogs</strong></p></li>
+<li><p><strong>Use exact versions for critical systems</strong></p></li>
+<li><p><strong>Update dependencies regularly</strong></p></li>
+</ol>
+</section>
+<section id="release-communication">
+<h3>Release Communication<a class="headerlink" href="#release-communication" title="Link to this heading">#</a></h3>
+<section id="pr-title-conventions">
+<h4>PR Title Conventions<a class="headerlink" href="#pr-title-conventions" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>feat: add post-processing script support (#123)      # Minor version
+fix: resolve timeout issues in notebook execution   # Patch version  
+feat!: remove deprecated python-version input       # Major version
+</pre></div>
+</div>
+</section>
+<section id="pr-body-template">
+<h4>PR Body Template<a class="headerlink" href="#pr-body-template" title="Link to this heading">#</a></h4>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">## Type of Change</span>
+<span class="k">- [ ]</span> 🐛 Bug fix (patch version)
+<span class="k">- [ ]</span> ✨ New feature (minor version) 
+<span class="k">- [ ]</span> 💥 Breaking change (major version)
+
+<span class="gu">## Description</span>
+Brief description of changes...
+
+<span class="gu">## Breaking Changes (if any)</span>
+<span class="k">-</span><span class="w"> </span>List any breaking changes
+<span class="k">-</span><span class="w"> </span>Include migration steps
+
+<span class="gu">## Testing</span>
+<span class="k">- [ ]</span> Tested in development environment
+<span class="k">- [ ]</span> Backwards compatibility verified
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>🔧 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h3>
+<section id="version-tag-not-found">
+<h4>1. Version Tag Not Found<a class="headerlink" href="#version-tag-not-found" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Error: Reference does not exist</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org/repo/.github/workflows/workflow.yml@v1.2.3</span>
+
+<span class="c1"># Solution: Check if tag exists</span>
+<span class="l l-Scalar l-Scalar-Plain">git ls-remote --tags origin</span>
+</pre></div>
+</div>
+</section>
+<section id="major-version-tag-out-of-date">
+<h4>2. Major Version Tag Out of Date<a class="headerlink" href="#major-version-tag-out-of-date" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update major version tag to point to latest</span>
+git<span class="w"> </span>tag<span class="w"> </span>-fa<span class="w"> </span>v1<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Update v1 to v1.2.3&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v1<span class="w"> </span>--force
+</pre></div>
+</div>
+</section>
+<section id="breaking-changes-not-detected">
+<h4>3. Breaking Changes Not Detected<a class="headerlink" href="#breaking-changes-not-detected" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add this to your PR template</span>
+<span class="c1">## Breaking Changes Checklist</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Input parameters changed</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Output format changed</span><span class="w">  </span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">New required secrets</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Behavior significantly altered</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debugging-version-issues">
+<h3>Debugging Version Issues<a class="headerlink" href="#debugging-version-issues" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add version info to workflow outputs</span>
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">debug-version</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show Version Info</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">echo &quot;Workflow version: ${GITHUB_REF#refs/tags/}&quot;</span>
+<span class="w">        </span><span class="no">echo &quot;Called from: ${{ github.repository }}&quot;</span>
+<span class="w">        </span><span class="no">echo &quot;Caller ref: ${{ github.ref }}&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="additional-resources">
+<h2>📚 Additional Resources<a class="headerlink" href="#additional-resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://semver.org/">Semantic Versioning Specification</a></p></li>
+<li><p><a class="reference external" href="https://docs.github.com/en/actions/creating-actions/about-custom-actions#using-release-management-for-actions">GitHub Actions Versioning Guide</a></p></li>
+<li><p><a class="reference external" href="https://www.conventionalcommits.org/">Conventional Commits</a></p></li>
+<li><p><a class="reference external" href="https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes">GitHub Release Automation</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="version-history">
+<h2>🏷️ Version History<a class="headerlink" href="#version-history" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Version</p></th>
+<th class="head"><p>Date</p></th>
+<th class="head"><p>Changes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>v1.0.0</p></td>
+<td><p>2024-01-15</p></td>
+<td><p>Initial release</p></td>
+</tr>
+<tr class="row-odd"><td><p>v1.1.0</p></td>
+<td><p>2024-02-01</p></td>
+<td><p>Added post-run script support</p></td>
+</tr>
+<tr class="row-even"><td><p>v1.1.1</p></td>
+<td><p>2024-02-15</p></td>
+<td><p>Fixed timeout handling</p></td>
+</tr>
+<tr class="row-odd"><td><p>v2.0.0</p></td>
+<td><p>2024-03-01</p></td>
+<td><p>Breaking: Restructured inputs</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For the latest version information, see the <a class="reference internal" href="#../../releases"><span class="xref myst">Releases page</span></a>.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">📋 Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">🎯 Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#semantic-versioning-basics">📐 Semantic Versioning Basics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-format-major-minor-patch">Version Format: <code class="docutils literal notranslate"><span class="pre">MAJOR.MINOR.PATCH</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-release-versions">Pre-release Versions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-strategy-for-actions">🏷️ Versioning Strategy for Actions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-bump-each-version-component">When to Bump Each Version Component</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#major-version-breaking-changes">MAJOR Version (Breaking Changes)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-version-new-features">MINOR Version (New Features)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#patch-version-bug-fixes">PATCH Version (Bug Fixes)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#git-tag-strategy">Git Tag Strategy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-versioning-workflow">🤖 Automated Versioning Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#release-workflow-with-semantic-versioning">1. Release Workflow with Semantic Versioning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pr-based-version-bump-detection">2. PR-based Version Bump Detection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conventional-commits-integration">3. Conventional Commits Integration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-versioned-workflows">🔄 Using Versioned Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pinning-to-specific-versions">Pinning to Specific Versions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#recommended-pin-to-major-version">Recommended: Pin to Major Version</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conservative-pin-to-exact-version">Conservative: Pin to Exact Version</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#development-use-branch">Development: Use Branch</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#version-range-examples">Version Range Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-guide">🚀 Migration Guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#upgrading-from-v1-to-v2-breaking-changes">Upgrading from v1 to v2 (Breaking Changes)</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-review-breaking-changes">Step 1: Review Breaking Changes</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-test-in-feature-branch">Step 2: Test in Feature Branch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-gradual-migration-strategy">Step 3: Gradual Migration Strategy</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#minor-version-updates-v1-0-0-v1-1-0">Minor Version Updates (v1.0.0 → v1.1.0)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">✅ Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-workflow-maintainers">For Workflow Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-workflow-consumers">For Workflow Consumers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#release-communication">Release Communication</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pr-title-conventions">PR Title Conventions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pr-body-template">PR Body Template</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🔧 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#version-tag-not-found">1. Version Tag Not Found</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#major-version-tag-out-of-date">2. Major Version Tag Out of Date</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes-not-detected">3. Breaking Changes Not Detected</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-version-issues">Debugging Version Issues</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">📚 Additional Resources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-history">🏷️ Version History</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

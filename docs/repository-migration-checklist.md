@@ -5,7 +5,7 @@ This checklist provides step-by-step instructions for migrating the following re
 - `jdat_notebooks`
 - `mast_notebooks` 
 - `hst_notebooks`
-- `hello_universe`
+- `hellouniverse`
 - `jwst-pipeline-notebooks`
 
 ## 📋 Table of Contents
@@ -26,7 +26,7 @@ For each repository, document the existing workflows:
 - [ ] **`jdat_notebooks`**: Document existing `.github/workflows/*.yml` files
 - [ ] **`mast_notebooks`**: Document existing `.github/workflows/*.yml` files  
 - [ ] **`hst_notebooks`**: Document existing `.github/workflows/*.yml` files
-- [ ] **`hello_universe`**: Document existing `.github/workflows/*.yml` files
+- [ ] **`hellouniverse`**: Document existing `.github/workflows/*.yml` files
 - [ ] **`jwst-pipeline-notebooks`**: Document existing `.github/workflows/*.yml` files
 
 ```bash
@@ -167,7 +167,7 @@ echo "Migration branch created. Run migration checklist next."
   # In .github/workflows/notebook-ci-main.yml
   jobs:
     full-ci-pipeline:
-      uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+      uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
       with:
         python-version: "3.11"  # Adjust as needed
         execution-mode: "full"
@@ -244,7 +244,7 @@ echo "Migration branch created. Run migration checklist next."
     execution-mode: "full"
     build-html: true
     security-scan: true
-    # The ci_pipeline.yml automatically detects hst_notebooks repo
+    # The notebook-ci-unified.yml automatically detects hst_notebooks repo
     # and sets up hstcal environment
   ```
 - [ ] **Step 5**: Configure secrets
@@ -254,10 +254,10 @@ echo "Migration branch created. Run migration checklist next."
 - [ ] **Data access**: Test HST data download and processing
 - [ ] **Software stack**: Verify STScI tools work correctly
 
-### hello_universe Migration
+### hellouniverse Migration
 
 #### ✅ Current State Analysis
-- [ ] **Repository URL**: `https://github.com/spacetelescope/hello_universe`
+- [ ] **Repository URL**: `https://github.com/spacetelescope/hellouniverse`
 - [ ] **Primary workflows identified**: ________________
 - [ ] **Python version(s) used**: _____________
 - [ ] **Special requirements**: 
@@ -280,7 +280,7 @@ echo "Migration branch created. Run migration checklist next."
   ```
 - [ ] **Step 5**: Configure secrets (minimal needed)
 
-#### ✅ hello_universe Testing
+#### ✅ hellouniverse Testing
 - [ ] **Beginner focus**: Ensure workflows don't overwhelm new users
 - [ ] **Simple examples**: Verify basic notebook execution
 - [ ] **Documentation**: Ensure educational docs build correctly
@@ -313,7 +313,7 @@ echo "Migration branch created. Run migration checklist next."
   ```yaml
   # In HTML builder workflow
   build-and-deploy:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@v1
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"
@@ -366,13 +366,13 @@ For each repository:
 - [ ] **Test with exact version first**
   ```yaml
   # Use exact version for initial testing
-  uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1.0.0
+  uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1.0.0
   ```
 
 - [ ] **Graduate to major version pinning**
   ```yaml
   # Once stable, use major version pinning
-  uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@v1
+  uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
   ```
 
 - [ ] **Monitor for updates**
@@ -464,7 +464,7 @@ For each successfully migrated repository:
   ## Repositories Migrated  - [x] jdat_notebooks - Completed $(date)
   - [x] mast_notebooks - Completed $(date)  
   - [x] hst_notebooks - Completed $(date)
-  - [x] hello_universe - Completed $(date)
+  - [x] hellouniverse - Completed $(date)
   - [x] jwst-pipeline-notebooks - Completed $(date)
 
   ## Benefits Achieved
@@ -515,7 +515,7 @@ ls -la .github/workflows/
 **Solution**:
 ```yaml
 # For HST repositories, ensure the workflow detects the repo correctly
-# The ci_pipeline.yml automatically sets up hstcal for hst_notebooks
+# The notebook-ci-unified.yml automatically sets up hstcal for hst_notebooks
 
 # For custom environments, you may need to fork and modify workflows
 ```
@@ -581,7 +581,7 @@ If critical issues occur:
 | jdat_notebooks | ⏳ Pending | | |
 | mast_notebooks | ⏳ Pending | | |
 | hst_notebooks | ⏳ Pending | | |
-| hello_universe | ⏳ Pending | | |
+| hellouniverse | ⏳ Pending | | |
 | jwst-pipeline-notebooks | ⏳ Pending | | |
 
 **Status Legend**: ⏳ Pending, 🔄 In Progress, ✅ Complete, ❌ Failed
@@ -601,7 +601,7 @@ Use this space to record repository-specific notes, special requirements, or les
 ### hst_notebooks Notes:
 - 
 
-### hello_universe Notes:
+### hellouniverse Notes:
 - 
 
 ### jwst-pipeline-notebooks Notes:

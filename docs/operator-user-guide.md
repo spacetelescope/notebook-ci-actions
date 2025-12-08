@@ -22,7 +22,7 @@ The centralized notebook CI/CD system provides automated testing, building, and 
 - `jdat_notebooks` - JWST Data Analysis Tools notebooks
 - `hst_notebooks` - Hubble Space Telescope notebooks  
 - `mast_notebooks` - Mikulski Archive for Space Telescopes notebooks
-- `hello_universe` - Educational/introductory notebooks
+- `hellouniverse` - Educational/introductory notebooks
 - `jwst-pipeline-notebooks` - JWST Pipeline processing notebooks
 
 ## How the System Works

@@ -45,23 +45,6 @@ on:
         description: 'Path to custom requirements file'
         required: false
         type: string
-
-      # Optional CRDS Configuration (for JWST-style pipelines)
-      crds-server-url:
-        description: 'Optional CRDS server URL (sets CRDS_SERVER_URL)'
-        required: false
-        type: string
-        default: ''
-      crds-context:
-        description: 'Optional CRDS context (sets CRDS_CONTEXT)'
-        required: false
-        type: string
-        default: ''
-      crds-path:
-        description: 'Optional CRDS cache path (sets CRDS_PATH)'
-        required: false
-        type: string
-        default: ''
       
       # Notebook Selection
       single-notebook:
@@ -126,13 +109,6 @@ on:
         required: false
       CASJOBS_PW:
         required: false
-
-env:
-  # Optional CRDS configuration exposed to all jobs. These are typically used by
-  # JWST-style pipelines; callers can omit them entirely if not needed.
-  CRDS_SERVER_URL: ${{ inputs.crds-server-url }}
-  CRDS_CONTEXT: ${{ inputs.crds-context }}
-  CRDS_PATH: ${{ inputs.crds-path }}
 
 jobs:
   # Change Detection and Matrix Setup

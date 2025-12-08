@@ -1,0 +1,1132 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Troubleshooting Guide for Unified Notebook CI/CD &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/troubleshooting';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/troubleshooting.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Troubleshooting Guide for Unified Notebook CI/CD</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-diagnostics">Quick Diagnostics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-not-triggering">1. Workflow Not Triggering</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#file-paths-don-t-match-triggers">File Paths Don’t Match Triggers</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-name-mismatch">Branch Name Mismatch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-file-location">Workflow File Location</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup-failures">2. Environment Setup Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment-issues">Conda Environment Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-file-not-found">Requirements File Not Found</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#python-version-compatibility">Python Version Compatibility</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-execution-failures">3. Notebook Execution Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#long-running-notebooks">Long-Running Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-dependencies">Missing Dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#resource-limitations">Resource Limitations</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-failures">4. Validation Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cell-output-mismatches">Cell Output Mismatches</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#flaky-tests">Flaky Tests</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#storage-and-gh-storage-issues">5. Storage and gh-storage Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-permissions">Branch Permissions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated-notebook-overwrite">Deprecated Notebook Overwrite</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-conflicts">Git Conflicts</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#html-build-failures">6. HTML Build Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-table-of-contents">Missing Table of Contents</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jupyterbook-configuration-issues">JupyterBook Configuration Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processing-script-failures">Post-Processing Script Failures</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#secrets-and-authentication">7. Secrets and Authentication</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-repository-secrets">Missing Repository Secrets</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#incorrect-secret-names">Incorrect Secret Names</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-issues">8. Performance Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-selective-execution">Enable Selective Execution</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimize-feature-flags">Optimize Feature Flags</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#use-appropriate-execution-mode">Use Appropriate Execution Mode</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-tools">Debugging Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-debug-logging">1. Enable Debug Logging</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-workflow-logs">2. Check Workflow Logs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validate-yaml-syntax">3. Validate YAML Syntax</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-locally">4. Test Locally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-error-messages">Common Error Messages</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-unable-to-process-file-command-output-successfully">“Error: Unable to process file command ‘output’ successfully”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-conda-environment-xyz-not-found">“Error: conda environment ‘xyz’ not found”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-requirements-txt-not-found">“Error: requirements.txt not found”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-workflow-exceeded-timeout">“Error: workflow exceeded timeout”</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-specific-issues">Migration-Specific Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#old-workflow-conflicts">Old Workflow Conflicts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-mapping-issues">Configuration Mapping Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-features">Missing Features</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-documentation">1. Check Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#review-examples">2. Review Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-systematically">3. Test Systematically</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#open-issues">4. Open Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contact-support">5. Contact Support</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prevention-best-practices">Prevention Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-testing">1. Regular Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">2. Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring">3. Monitoring</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gradual-migration">4. Gradual Migration</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="troubleshooting-guide-for-unified-notebook-ci-cd">
+<h1>Troubleshooting Guide for Unified Notebook CI/CD<a class="headerlink" href="#troubleshooting-guide-for-unified-notebook-ci-cd" title="Link to this heading">#</a></h1>
+<p>This guide helps you diagnose and resolve common issues with the unified notebook CI/CD system.</p>
+<section id="quick-diagnostics">
+<h2>Quick Diagnostics<a class="headerlink" href="#quick-diagnostics" title="Link to this heading">#</a></h2>
+<section id="workflow-not-triggering">
+<h3>1. Workflow Not Triggering<a class="headerlink" href="#workflow-not-triggering" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>PR created but no CI workflow runs</p></li>
+<li><p>Push to main branch doesn’t trigger deployment</p></li>
+<li><p>Scheduled workflow doesn’t run</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="file-paths-don-t-match-triggers">
+<h4>File Paths Don’t Match Triggers<a class="headerlink" href="#file-paths-don-t-match-triggers" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check your trigger paths in the workflow file</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;notebooks/**&#39;</span><span class="w">    </span><span class="c1"># Must match your notebook location</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span><span class="w"> </span><span class="c1"># Must exist in root</span>
+</pre></div>
+</div>
+<p><strong>Solution:</strong> Verify the <code class="docutils literal notranslate"><span class="pre">paths:</span></code> configuration matches your repository structure.</p>
+</section>
+<section id="branch-name-mismatch">
+<h4>Branch Name Mismatch<a class="headerlink" href="#branch-name-mismatch" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="nv">main</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w">    </span><span class="c1"># Must match your default branch</span>
+</pre></div>
+</div>
+<p><strong>Solution:</strong> Update branch names if your default branch is <code class="docutils literal notranslate"><span class="pre">master</span></code> or something else.</p>
+</section>
+<section id="workflow-file-location">
+<h4>Workflow File Location<a class="headerlink" href="#workflow-file-location" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Workflow file in wrong location</p>
+<p><strong>Solution:</strong> Ensure caller workflows are in <code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.github/
+└── workflows/
+    ├── notebook-pr.yml
+    ├── notebook-merge.yml
+    └── notebook-scheduled.yml
+</pre></div>
+</div>
+</section>
+</section>
+<section id="environment-setup-failures">
+<h3>2. Environment Setup Failures<a class="headerlink" href="#environment-setup-failures" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>“Environment not found” errors</p></li>
+<li><p>Package installation failures</p></li>
+<li><p>Python version conflicts</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="conda-environment-issues">
+<h4>Conda Environment Issues<a class="headerlink" href="#conda-environment-issues" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check conda environment name</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span><span class="w">  </span><span class="c1"># Must exist on conda-forge</span>
+</pre></div>
+</div>
+<p><strong>Valid environments:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hstcal</span></code> - HST calibration tools</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stenv</span></code> - Space Telescope environment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">astropy</span></code> - General astronomy environment</p></li>
+</ul>
+<p><strong>Solution:</strong> Verify environment exists on conda-forge or use standard Python setup.</p>
+</section>
+<section id="requirements-file-not-found">
+<h4>Requirements File Not Found<a class="headerlink" href="#requirements-file-not-found" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">custom-requirements</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span><span class="w">  </span><span class="c1"># File must exist</span>
+</pre></div>
+</div>
+<p><strong>Solution:</strong> Check file path and ensure it exists in repository.</p>
+</section>
+<section id="python-version-compatibility">
+<h4>Python Version Compatibility<a class="headerlink" href="#python-version-compatibility" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span><span class="w">  </span><span class="c1"># Must be supported</span>
+</pre></div>
+</div>
+<p><strong>Supported versions:</strong> 3.8, 3.9, 3.10, 3.11, 3.12</p>
+</section>
+</section>
+<section id="notebook-execution-failures">
+<h3>3. Notebook Execution Failures<a class="headerlink" href="#notebook-execution-failures" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>Notebooks fail to execute</p></li>
+<li><p>Timeout errors during execution</p></li>
+<li><p>Memory or resource errors</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="long-running-notebooks">
+<h4>Long-Running Notebooks<a class="headerlink" href="#long-running-notebooks" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Notebooks exceed timeout limits</p>
+<p><strong>Solution:</strong> Configure longer timeouts in your notebooks:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to notebook cell</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;NBVAL_CELL_TIMEOUT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;600&#39;</span>  <span class="c1"># 10 minutes</span>
+</pre></div>
+</div>
+</section>
+<section id="missing-dependencies">
+<h4>Missing Dependencies<a class="headerlink" href="#missing-dependencies" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Notebooks require packages not in requirements</p>
+<p><strong>Solution:</strong> Add missing packages to appropriate requirements.txt:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span># In notebooks/your-directory/requirements.txt
+missing-package==1.0.0
+another-package&gt;=2.0
+</pre></div>
+</div>
+</section>
+<section id="resource-limitations">
+<h4>Resource Limitations<a class="headerlink" href="#resource-limitations" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Notebooks require too much memory/CPU</p>
+<p><strong>Solution:</strong></p>
+<ol class="arabic simple">
+<li><p>Optimize notebooks for CI environment</p></li>
+<li><p>Use smaller datasets for testing</p></li>
+<li><p>Consider skipping resource-intensive cells in CI</p></li>
+</ol>
+</section>
+</section>
+<section id="validation-failures">
+<h3>4. Validation Failures<a class="headerlink" href="#validation-failures" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>pytest nbval failures</p></li>
+<li><p>Notebook validation errors</p></li>
+<li><p>Cell execution timeouts</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="cell-output-mismatches">
+<h4>Cell Output Mismatches<a class="headerlink" href="#cell-output-mismatches" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Expected outputs don’t match actual outputs</p>
+<p><strong>Solution:</strong> Update notebook outputs or use nbval tags:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In notebook cell, add metadata tag</span>
+<span class="p">{</span><span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nbval-skip&quot;</span><span class="p">]}</span>  <span class="c1"># Skip validation for this cell</span>
+</pre></div>
+</div>
+</section>
+<section id="flaky-tests">
+<h4>Flaky Tests<a class="headerlink" href="#flaky-tests" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Tests pass locally but fail in CI</p>
+<p><strong>Solution:</strong> Make notebooks deterministic:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set random seeds</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="storage-and-gh-storage-issues">
+<h3>5. Storage and gh-storage Issues<a class="headerlink" href="#storage-and-gh-storage-issues" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>Executed notebooks not stored</p></li>
+<li><p>Git push failures to gh-storage</p></li>
+<li><p>Conflicts when pushing outputs</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="branch-permissions">
+<h4>Branch Permissions<a class="headerlink" href="#branch-permissions" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> No permissions to create/push to gh-storage branch</p>
+<p><strong>Solution:</strong> Ensure workflow has proper permissions:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">permissions</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span><span class="w">  </span><span class="c1"># Required for git operations</span>
+</pre></div>
+</div>
+</section>
+<section id="deprecated-notebook-overwrite">
+<h4>Deprecated Notebook Overwrite<a class="headerlink" href="#deprecated-notebook-overwrite" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Deprecated notebooks being overwritten</p>
+<p><strong>Solution:</strong> Check notebook deprecation tags:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Notebook should have deprecation metadata</span>
+<span class="c1"># The workflow automatically detects and skips these</span>
+</pre></div>
+</div>
+</section>
+<section id="git-conflicts">
+<h4>Git Conflicts<a class="headerlink" href="#git-conflicts" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Multiple concurrent pushes to gh-storage</p>
+<p><strong>Solution:</strong> The workflow includes retry logic, but check for:</p>
+<ul class="simple">
+<li><p>Multiple simultaneous PR builds</p></li>
+<li><p>Manual pushes to gh-storage branch</p></li>
+</ul>
+</section>
+</section>
+<section id="html-build-failures">
+<h3>6. HTML Build Failures<a class="headerlink" href="#html-build-failures" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>JupyterBook build errors</p></li>
+<li><p>Documentation deployment failures</p></li>
+<li><p>Missing or broken documentation</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="missing-table-of-contents">
+<h4>Missing Table of Contents<a class="headerlink" href="#missing-table-of-contents" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> No <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> file</p>
+<p><strong>Solution:</strong> Create basic table of contents:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># _toc.yml</span>
+<span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jb-book</span>
+<span class="nt">root</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">index</span>
+<span class="nt">chapters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notebooks/README</span>
+<span class="w">    </span><span class="nt">sections</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">glob</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notebooks/*/*.ipynb</span>
+</pre></div>
+</div>
+</section>
+<section id="jupyterbook-configuration-issues">
+<h4>JupyterBook Configuration Issues<a class="headerlink" href="#jupyterbook-configuration-issues" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Invalid <code class="docutils literal notranslate"><span class="pre">_config.yml</span></code></p>
+<p><strong>Solution:</strong> Check configuration syntax:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># _config.yml</span>
+<span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Your</span><span class="nv"> </span><span class="s">Repository&quot;</span>
+<span class="nt">author</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Your</span><span class="nv"> </span><span class="s">Name&quot;</span>
+<span class="nt">logo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logo.png</span>
+
+<span class="nt">execute</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">execute_notebooks</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;off&quot;</span><span class="w">  </span><span class="c1"># Use pre-executed notebooks</span>
+</pre></div>
+</div>
+</section>
+<section id="post-processing-script-failures">
+<h4>Post-Processing Script Failures<a class="headerlink" href="#post-processing-script-failures" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Custom post-processing script errors</p>
+<p><strong>Solution:</strong> Debug script permissions and logic:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make script executable</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>scripts/your_script.sh
+
+<span class="c1"># Test script locally</span>
+./scripts/your_script.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="secrets-and-authentication">
+<h3>7. Secrets and Authentication<a class="headerlink" href="#secrets-and-authentication" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>CASJOBS authentication failures</p></li>
+<li><p>Permission denied errors</p></li>
+<li><p>Secret not found errors</p></li>
+</ul>
+<p><strong>Common Causes &amp; Solutions:</strong></p>
+<section id="missing-repository-secrets">
+<h4>Missing Repository Secrets<a class="headerlink" href="#missing-repository-secrets" title="Link to this heading">#</a></h4>
+<p><strong>Problem:</strong> Required secrets not configured</p>
+<p><strong>Solution:</strong> Add secrets in repository settings:</p>
+<ol class="arabic simple">
+<li><p>Go to Settings &gt; Secrets and variables &gt; Actions</p></li>
+<li><p>Add required secrets:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CASJOBS_USERID</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CASJOBS_PW</span></code></p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="incorrect-secret-names">
+<h4>Incorrect Secret Names<a class="headerlink" href="#incorrect-secret-names" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check secret names match exactly</span>
+<span class="nt">secrets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span><span class="w">  </span><span class="c1"># Must match exactly</span>
+<span class="w">  </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span><span class="w">          </span><span class="c1"># Must match exactly</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="performance-issues">
+<h3>8. Performance Issues<a class="headerlink" href="#performance-issues" title="Link to this heading">#</a></h3>
+<p><strong>Symptoms:</strong></p>
+<ul class="simple">
+<li><p>Slow workflow execution</p></li>
+<li><p>Timeout errors</p></li>
+<li><p>High resource usage</p></li>
+</ul>
+<p><strong>Common Solutions:</strong></p>
+<section id="enable-selective-execution">
+<h4>Enable Selective Execution<a class="headerlink" href="#enable-selective-execution" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># For PR workflows, ensure selective execution is working</span>
+<span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr&#39;</span><span class="w">  </span><span class="c1"># Only processes changed notebooks</span>
+</pre></div>
+</div>
+</section>
+<section id="optimize-feature-flags">
+<h4>Optimize Feature Flags<a class="headerlink" href="#optimize-feature-flags" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Disable unnecessary features</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">     </span><span class="c1"># If security scanning not needed</span>
+<span class="w">  </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">   </span><span class="c1"># If HTML not needed for PRs</span>
+</pre></div>
+</div>
+</section>
+<section id="use-appropriate-execution-mode">
+<h4>Use Appropriate Execution Mode<a class="headerlink" href="#use-appropriate-execution-mode" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use docs-only mode when appropriate</span>
+<span class="c1"># Automatically detected for documentation changes</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="debugging-tools">
+<h2>Debugging Tools<a class="headerlink" href="#debugging-tools" title="Link to this heading">#</a></h2>
+<section id="enable-debug-logging">
+<h3>1. Enable Debug Logging<a class="headerlink" href="#enable-debug-logging" title="Link to this heading">#</a></h3>
+<p>Add to repository variables:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ACTIONS_STEP_DEBUG</span><span class="o">=</span><span class="n">true</span>
+<span class="n">ACTIONS_RUNNER_DEBUG</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+</section>
+<section id="check-workflow-logs">
+<h3>2. Check Workflow Logs<a class="headerlink" href="#check-workflow-logs" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Go to Actions tab in GitHub</p></li>
+<li><p>Click on failed workflow run</p></li>
+<li><p>Expand failed steps to see detailed logs</p></li>
+<li><p>Look for error messages and stack traces</p></li>
+</ol>
+</section>
+<section id="validate-yaml-syntax">
+<h3>3. Validate YAML Syntax<a class="headerlink" href="#validate-yaml-syntax" title="Link to this heading">#</a></h3>
+<p>Use online YAML validators or local tools:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using yq (if installed)</span>
+yq<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="s1">&#39;.github/workflows/notebook-pr.yml&#39;</span>
+
+<span class="c1"># Using Python</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; yaml.safe_load(open(&#39;.github/workflows/notebook-pr.yml&#39;))&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="test-locally">
+<h3>4. Test Locally<a class="headerlink" href="#test-locally" title="Link to this heading">#</a></h3>
+<p>Run the test script to validate setup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># From the unified CI/CD repository</span>
+./scripts/test-unified-system.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-error-messages">
+<h2>Common Error Messages<a class="headerlink" href="#common-error-messages" title="Link to this heading">#</a></h2>
+<section id="error-unable-to-process-file-command-output-successfully">
+<h3>“Error: Unable to process file command ‘output’ successfully”<a class="headerlink" href="#error-unable-to-process-file-command-output-successfully" title="Link to this heading">#</a></h3>
+<p><strong>Cause:</strong> Invalid JSON format in workflow outputs</p>
+<p><strong>Solution:</strong> Check JSON formatting:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># JSON should be compact, no pretty-printing</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;matrix_notebooks=[\&quot;notebook1.ipynb\&quot;,\&quot;notebook2.ipynb\&quot;]&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="nv">$GITHUB_OUTPUT</span>
+</pre></div>
+</div>
+</section>
+<section id="error-conda-environment-xyz-not-found">
+<h3>“Error: conda environment ‘xyz’ not found”<a class="headerlink" href="#error-conda-environment-xyz-not-found" title="Link to this heading">#</a></h3>
+<p><strong>Cause:</strong> Invalid conda environment name</p>
+<p><strong>Solution:</strong> Use valid environment names:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span><span class="w">  </span><span class="c1"># Valid</span>
+<span class="c1"># conda-environment: &#39;invalid-env&#39;  # Invalid</span>
+</pre></div>
+</div>
+</section>
+<section id="error-requirements-txt-not-found">
+<h3>“Error: requirements.txt not found”<a class="headerlink" href="#error-requirements-txt-not-found" title="Link to this heading">#</a></h3>
+<p><strong>Cause:</strong> Specified requirements file doesn’t exist</p>
+<p><strong>Solution:</strong> Check file paths:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">custom-requirements</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;requirements.txt&#39;</span><span class="w">  </span><span class="c1"># Must exist in repo root</span>
+<span class="c1"># custom-requirements: &#39;path/to/requirements.txt&#39;  # Check path</span>
+</pre></div>
+</div>
+</section>
+<section id="error-workflow-exceeded-timeout">
+<h3>“Error: workflow exceeded timeout”<a class="headerlink" href="#error-workflow-exceeded-timeout" title="Link to this heading">#</a></h3>
+<p><strong>Cause:</strong> Workflow or notebooks take too long</p>
+<p><strong>Solution:</strong> Optimize or increase timeouts:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># In notebook</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;NBVAL_CELL_TIMEOUT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1200&#39;</span>  <span class="c1"># 20 minutes</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="migration-specific-issues">
+<h2>Migration-Specific Issues<a class="headerlink" href="#migration-specific-issues" title="Link to this heading">#</a></h2>
+<section id="old-workflow-conflicts">
+<h3>Old Workflow Conflicts<a class="headerlink" href="#old-workflow-conflicts" title="Link to this heading">#</a></h3>
+<p><strong>Problem:</strong> Old and new workflows both running</p>
+<p><strong>Solution:</strong> Remove old workflow files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove old workflows</span>
+rm<span class="w"> </span>.github/workflows/notebook-ci-pr-selective.yml
+rm<span class="w"> </span>.github/workflows/notebook-ci-main-selective.yml
+<span class="c1"># etc.</span>
+</pre></div>
+</div>
+</section>
+<section id="configuration-mapping-issues">
+<h3>Configuration Mapping Issues<a class="headerlink" href="#configuration-mapping-issues" title="Link to this heading">#</a></h3>
+<p><strong>Problem:</strong> Old configuration doesn’t map to new system</p>
+<p><strong>Solution:</strong> Use migration mapping:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Old Setting</p></th>
+<th class="head"><p>New Configuration</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Manual Python setup</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python-version:</span> <span class="pre">'3.11'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Hardcoded conda env</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">conda-environment:</span> <span class="pre">'hstcal'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Always-on features</p></td>
+<td><p>Feature toggles</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="missing-features">
+<h3>Missing Features<a class="headerlink" href="#missing-features" title="Link to this heading">#</a></h3>
+<p><strong>Problem:</strong> Feature from old system not available</p>
+<p><strong>Solution:</strong> Check configuration options:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Most features are now configurable</span>
+<span class="nt">with</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enable-validation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">enable-storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h2>
+<section id="check-documentation">
+<h3>1. Check Documentation<a class="headerlink" href="#check-documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="configuration-reference.html"><span class="std std-doc">Configuration Reference</span></a></p></li>
+<li><p><a class="reference internal" href="migration-guide-unified.html"><span class="std std-doc">Migration Guide</span></a></p></li>
+<li><p><a class="reference internal" href="../README-unified.html"><span class="std std-doc">Main README</span></a></p></li>
+</ul>
+</section>
+<section id="review-examples">
+<h3>2. Review Examples<a class="headerlink" href="#review-examples" title="Link to this heading">#</a></h3>
+<p>Check example workflows in <code class="docutils literal notranslate"><span class="pre">examples/caller-workflows/</span></code></p>
+</section>
+<section id="test-systematically">
+<h3>3. Test Systematically<a class="headerlink" href="#test-systematically" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Start with simplest configuration</p></li>
+<li><p>Add features one at a time</p></li>
+<li><p>Test each change with a draft PR</p></li>
+</ol>
+</section>
+<section id="open-issues">
+<h3>4. Open Issues<a class="headerlink" href="#open-issues" title="Link to this heading">#</a></h3>
+<p>If problems persist:</p>
+<ol class="arabic simple">
+<li><p>Check existing issues in the repository</p></li>
+<li><p>Gather relevant logs and configuration</p></li>
+<li><p>Open a new issue with detailed information</p></li>
+</ol>
+</section>
+<section id="contact-support">
+<h3>5. Contact Support<a class="headerlink" href="#contact-support" title="Link to this heading">#</a></h3>
+<p>For urgent issues or assistance with migration:</p>
+<ul class="simple">
+<li><p>Tag maintainers in issues</p></li>
+<li><p>Provide full error logs</p></li>
+<li><p>Include repository configuration details</p></li>
+</ul>
+</section>
+</section>
+<section id="prevention-best-practices">
+<h2>Prevention Best Practices<a class="headerlink" href="#prevention-best-practices" title="Link to this heading">#</a></h2>
+<section id="regular-testing">
+<h3>1. Regular Testing<a class="headerlink" href="#regular-testing" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Test workflows with draft PRs before merging</p></li>
+<li><p>Validate configuration changes</p></li>
+<li><p>Monitor workflow performance</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>2. Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Document custom configurations</p></li>
+<li><p>Keep repository README updated</p></li>
+<li><p>Document any custom post-processing scripts</p></li>
+</ul>
+</section>
+<section id="monitoring">
+<h3>3. Monitoring<a class="headerlink" href="#monitoring" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Watch for deprecation warnings</p></li>
+<li><p>Monitor execution times</p></li>
+<li><p>Check for failed scheduled runs</p></li>
+</ul>
+</section>
+<section id="gradual-migration">
+<h3>4. Gradual Migration<a class="headerlink" href="#gradual-migration" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Migrate one workflow at a time</p></li>
+<li><p>Test thoroughly before removing old workflows</p></li>
+<li><p>Keep backups during migration</p></li>
+</ul>
+<p>This troubleshooting guide should help you resolve most common issues with the unified notebook CI/CD system. For specific problems not covered here, refer to the detailed logs and consider opening an issue for assistance.</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-diagnostics">Quick Diagnostics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-not-triggering">1. Workflow Not Triggering</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#file-paths-don-t-match-triggers">File Paths Don’t Match Triggers</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-name-mismatch">Branch Name Mismatch</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-file-location">Workflow File Location</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-setup-failures">2. Environment Setup Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment-issues">Conda Environment Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-file-not-found">Requirements File Not Found</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#python-version-compatibility">Python Version Compatibility</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-execution-failures">3. Notebook Execution Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#long-running-notebooks">Long-Running Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-dependencies">Missing Dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#resource-limitations">Resource Limitations</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-failures">4. Validation Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#cell-output-mismatches">Cell Output Mismatches</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#flaky-tests">Flaky Tests</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#storage-and-gh-storage-issues">5. Storage and gh-storage Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-permissions">Branch Permissions</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated-notebook-overwrite">Deprecated Notebook Overwrite</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-conflicts">Git Conflicts</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#html-build-failures">6. HTML Build Failures</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-table-of-contents">Missing Table of Contents</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#jupyterbook-configuration-issues">JupyterBook Configuration Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#post-processing-script-failures">Post-Processing Script Failures</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#secrets-and-authentication">7. Secrets and Authentication</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-repository-secrets">Missing Repository Secrets</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#incorrect-secret-names">Incorrect Secret Names</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-issues">8. Performance Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-selective-execution">Enable Selective Execution</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimize-feature-flags">Optimize Feature Flags</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#use-appropriate-execution-mode">Use Appropriate Execution Mode</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-tools">Debugging Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-debug-logging">1. Enable Debug Logging</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-workflow-logs">2. Check Workflow Logs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validate-yaml-syntax">3. Validate YAML Syntax</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-locally">4. Test Locally</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-error-messages">Common Error Messages</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-unable-to-process-file-command-output-successfully">“Error: Unable to process file command ‘output’ successfully”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-conda-environment-xyz-not-found">“Error: conda environment ‘xyz’ not found”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-requirements-txt-not-found">“Error: requirements.txt not found”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#error-workflow-exceeded-timeout">“Error: workflow exceeded timeout”</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-specific-issues">Migration-Specific Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#old-workflow-conflicts">Old Workflow Conflicts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-mapping-issues">Configuration Mapping Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-features">Missing Features</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#check-documentation">1. Check Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#review-examples">2. Review Examples</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-systematically">3. Test Systematically</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#open-issues">4. Open Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#contact-support">5. Contact Support</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prevention-best-practices">Prevention Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-testing">1. Regular Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">2. Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monitoring">3. Monitoring</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gradual-migration">4. Gradual Migration</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -101,13 +101,13 @@ jobs:
                   echo "  → Added affected directory: $dir"
                 fi
                 ;;
-              requirements.txt|pyproject.toml|setup.py)
-                echo "  → Root requirements file changed: $file"
+              pyproject.toml|setup.py)
+                echo "  → Root project file changed: $file"
                 REQUIREMENTS_CHANGED=true
                 DEPLOY_NEEDED=true
-                # Root requirements affect all notebooks
+                # Root project files affect all notebooks
                 AFFECTED_DIRECTORIES=("notebooks")
-                echo "  → Root requirements change affects all notebooks"
+                echo "  → Root project file change affects all notebooks"
                 ;;
               _config.yml|_toc.yml)
                 echo "  → Documentation config changed"
@@ -150,13 +150,13 @@ jobs:
           if [ ${#AFFECTED_DIRECTORIES[@]} -eq 0 ]; then
             affected_dirs_json="[]"
           else
-            affected_dirs_json=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s .)
+            affected_dirs_json=$(printf '%s\n' "${AFFECTED_DIRECTORIES[@]}" | jq -R . | jq -s -c .)
           fi
           
           if [ ${#CHANGED_NOTEBOOKS[@]} -eq 0 ]; then
             changed_notebooks_json="[]"
           else
-            changed_notebooks_json=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s .)
+            changed_notebooks_json=$(printf '%s\n' "${CHANGED_NOTEBOOKS[@]}" | jq -R . | jq -s -c .)
           fi
           
           echo "Affected directories: $affected_dirs_json"
@@ -223,11 +223,8 @@ jobs:
           if [ -f "${{ matrix.directory }}/requirements.txt" ]; then
             echo "Using directory-specific requirements: ${{ matrix.directory }}/requirements.txt"
             uv pip install -r "${{ matrix.directory }}/requirements.txt"
-          elif [ -f "requirements.txt" ]; then
-            echo "Using root requirements.txt"
-            uv pip install -r requirements.txt
           else
-            echo "No requirements file found, installing basic dependencies"
+            echo "No requirements.txt found in ${{ matrix.directory }} - using base environment only"
             uv pip install jupyter nbval pytest
           fi
 
@@ -264,7 +261,7 @@ jobs:
     if: |
       needs.detect-changes.outputs.notebooks-changed == 'true' && 
       needs.detect-changes.outputs.execution-strategy == 'full-repository'
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_pipeline.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_pipeline.yml@dev-actions-v2
     with:
       python-version: "3.11"
       execution-mode: "full"
@@ -297,7 +294,7 @@ jobs:
        needs.full-repository-ci.result == 'success' || 
        needs.full-repository-ci.result == 'skipped' || 
        needs.docs-only-rebuild.result == 'success')
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/ci_html_builder.yml@main
+    uses: mgrough-970/dev-actions/.github/workflows/ci_html_builder.yml@dev-actions-v2
     with:
       python-version: "3.11"
       post-run-script: "scripts/jdaviz_image_replacement.sh"  # Optional, adjust per repo
@@ -363,6 +360,6 @@ jobs:
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔗 Useful Links" >> $GITHUB_STEP_SUMMARY
-          echo "- [Workflow Documentation](https://github.com/spacetelescope/notebook-ci-actions)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Workflow Documentation](https://github.com/mgrough-970/dev-actions)" >> $GITHUB_STEP_SUMMARY
           echo "- [Repository Documentation](https://spacetelescope.github.io/${{ github.event.repository.name }})" >> $GITHUB_STEP_SUMMARY
-          echo "- [Selective Execution Guide](https://github.com/spacetelescope/notebook-ci-actions/blob/main/docs/selective-execution.md)" >> $GITHUB_STEP_SUMMARY
+          echo "- [Selective Execution Guide](https://github.com/mgrough-970/dev-actions/blob/main/docs/selective-execution.md)" >> $GITHUB_STEP_SUMMARY

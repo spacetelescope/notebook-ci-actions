@@ -1,0 +1,913 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Notebook CI/CD Caller Workflows &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/caller-workflows/README';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/examples/caller-workflows/README.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Notebook CI/CD Caller Workflows</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-workflows">Available Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-request-workflow-notebook-pr-yml">1. Pull Request Workflow (<code class="docutils literal notranslate"><span class="pre">notebook-pr.yml</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#merge-main-branch-workflow-notebook-merge-yml">2. Merge/Main Branch Workflow (<code class="docutils literal notranslate"><span class="pre">notebook-merge.yml</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scheduled-maintenance-notebook-scheduled-yml">3. Scheduled Maintenance (<code class="docutils literal notranslate"><span class="pre">notebook-scheduled.yml</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-demand-actions-notebook-on-demand-yml">4. On-Demand Actions (<code class="docutils literal notranslate"><span class="pre">notebook-on-demand.yml</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-options">Configuration Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-parameters">Common Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-customization">Repository-Specific Customization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-hst-notebooks">For HST Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-jwst-notebooks">For JWST Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-custom-environments">For Custom Environments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#required-secrets">Required Secrets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-triggers">File Triggers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paths-that-trigger-workflows">Paths That Trigger Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-detection">Smart Detection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecation-workflow">Deprecation Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tagging-a-notebook-for-deprecation">Tagging a Notebook for Deprecation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automatic-deprecation-management">Automatic Deprecation Management</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-setup">1. Repository Setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditional-features">2. Conditional Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">3. Performance Optimization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-processing">4. Custom Processing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows-not-triggering">1. Workflows Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment-issues">2. Conda Environment Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-installation-failures">3. Requirements Installation Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#permission-issues">4. Permission Issues</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-from-existing-workflows">Migration from Existing Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-individual-workflows">From Individual Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-custom-ci-systems">From Custom CI Systems</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#minimal-configuration">Minimal Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full-featured-configuration">Full-Featured Configuration</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="notebook-ci-cd-caller-workflows">
+<h1>Notebook CI/CD Caller Workflows<a class="headerlink" href="#notebook-ci-cd-caller-workflows" title="Link to this heading">#</a></h1>
+<p>This directory contains example caller workflows that repositories can use to integrate with the unified Notebook CI/CD system.</p>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Copy the appropriate workflow files</strong> to your repository’s <code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code> directory</p></li>
+<li><p><strong>Customize the configuration</strong> parameters as needed for your repository</p></li>
+<li><p><strong>Set up required secrets</strong> in your repository settings</p></li>
+</ol>
+</section>
+<section id="available-workflows">
+<h2>Available Workflows<a class="headerlink" href="#available-workflows" title="Link to this heading">#</a></h2>
+<section id="pull-request-workflow-notebook-pr-yml">
+<h3>1. Pull Request Workflow (<code class="docutils literal notranslate"><span class="pre">notebook-pr.yml</span></code>)<a class="headerlink" href="#pull-request-workflow-notebook-pr-yml" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Validates and tests notebooks on pull requests</p></li>
+<li><p><strong>Features</strong>:</p>
+<ul>
+<li><p>Validates notebooks with pytest nbval</p></li>
+<li><p>Runs security scans with bandit</p></li>
+<li><p>Executes notebooks to test functionality</p></li>
+<li><p>Stores executed outputs to <code class="docutils literal notranslate"><span class="pre">gh-storage</span></code> branch</p></li>
+<li><p>Detects docs-only changes to skip unnecessary processing</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="merge-main-branch-workflow-notebook-merge-yml">
+<h3>2. Merge/Main Branch Workflow (<code class="docutils literal notranslate"><span class="pre">notebook-merge.yml</span></code>)<a class="headerlink" href="#merge-main-branch-workflow-notebook-merge-yml" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Full CI/CD pipeline after merging to main branch</p></li>
+<li><p><strong>Features</strong>:</p>
+<ul>
+<li><p>Complete notebook validation and execution</p></li>
+<li><p>Builds and deploys JupyterBook documentation</p></li>
+<li><p>Supports post-processing scripts</p></li>
+<li><p>Respects deprecated notebook flags</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="scheduled-maintenance-notebook-scheduled-yml">
+<h3>3. Scheduled Maintenance (<code class="docutils literal notranslate"><span class="pre">notebook-scheduled.yml</span></code>)<a class="headerlink" href="#scheduled-maintenance-notebook-scheduled-yml" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Weekly maintenance and health checks</p></li>
+<li><p><strong>Features</strong>:</p>
+<ul>
+<li><p>Weekly validation of all notebooks</p></li>
+<li><p>Automatic deprecation management</p></li>
+<li><p>Moves expired notebooks to deprecated branch</p></li>
+<li><p>No storage or HTML generation (validation only)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="on-demand-actions-notebook-on-demand-yml">
+<h3>4. On-Demand Actions (<code class="docutils literal notranslate"><span class="pre">notebook-on-demand.yml</span></code>)<a class="headerlink" href="#on-demand-actions-notebook-on-demand-yml" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Purpose</strong>: Manual workflow triggers with multiple options</p></li>
+<li><p><strong>Features</strong>:</p>
+<ul>
+<li><p>Validate all notebooks</p></li>
+<li><p>Execute all notebooks</p></li>
+<li><p>Security scan all notebooks</p></li>
+<li><p>Single notebook operations</p></li>
+<li><p>Full pipeline execution</p></li>
+<li><p>HTML-only builds</p></li>
+<li><p>Notebook deprecation tagging</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading">#</a></h2>
+<section id="common-parameters">
+<h3>Common Parameters<a class="headerlink" href="#common-parameters" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">python-version</span></code></p></td>
+<td><p>Python version to use</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'3.11'</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'3.10'</span></code>, <code class="docutils literal notranslate"><span class="pre">'3.12'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">conda-environment</span></code></p></td>
+<td><p>Custom conda environment</p></td>
+<td><p>None</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'hstcal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'stenv'</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom-requirements</span></code></p></td>
+<td><p>Path to custom requirements</p></td>
+<td><p>None</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'custom-reqs.txt'</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enable-validation</span></code></p></td>
+<td><p>Enable pytest nbval</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enable-security</span></code></p></td>
+<td><p>Enable bandit scanning</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enable-execution</span></code></p></td>
+<td><p>Enable notebook execution</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enable-storage</span></code></p></td>
+<td><p>Store outputs to gh-storage</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enable-html-build</span></code></p></td>
+<td><p>Build HTML documentation</p></td>
+<td><p>Varies</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">post-processing-script</span></code></p></td>
+<td><p>Post-processing script path</p></td>
+<td><p>None</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">'scripts/process.sh'</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="repository-specific-customization">
+<h3>Repository-Specific Customization<a class="headerlink" href="#repository-specific-customization" title="Link to this heading">#</a></h3>
+<section id="for-hst-notebooks">
+<h4>For HST Notebooks<a class="headerlink" href="#for-hst-notebooks" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span>
+<span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/hst_processing.sh&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="for-jwst-notebooks">
+<h4>For JWST Notebooks<a class="headerlink" href="#for-jwst-notebooks" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;stenv&#39;</span>
+<span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/jwst_processing.sh&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="for-custom-environments">
+<h4>For Custom Environments<a class="headerlink" href="#for-custom-environments" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">custom-requirements</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;environment/requirements.txt&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="required-secrets">
+<h2>Required Secrets<a class="headerlink" href="#required-secrets" title="Link to this heading">#</a></h2>
+<p>Set these secrets in your repository settings (<code class="docutils literal notranslate"><span class="pre">Settings</span> <span class="pre">&gt;</span> <span class="pre">Secrets</span> <span class="pre">and</span> <span class="pre">variables</span> <span class="pre">&gt;</span> <span class="pre">Actions</span></code>):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Secret</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CASJOBS_USERID</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>CasJobs user ID for database access</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">CASJOBS_PW</span></code></p></td>
+<td><p>Optional</p></td>
+<td><p>CasJobs password for database access</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="file-triggers">
+<h2>File Triggers<a class="headerlink" href="#file-triggers" title="Link to this heading">#</a></h2>
+<section id="paths-that-trigger-workflows">
+<h3>Paths That Trigger Workflows<a class="headerlink" href="#paths-that-trigger-workflows" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">notebooks/**</span></code> - Any notebook files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> - Root requirements</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> - Python project configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">*.yaml</span></code> - Configuration files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*.md</span></code> - Documentation files</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">*.html</span></code>, <code class="docutils literal notranslate"><span class="pre">*.css</span></code>, <code class="docutils literal notranslate"><span class="pre">*.js</span></code> - Web assets</p></li>
+</ul>
+</section>
+<section id="smart-detection">
+<h3>Smart Detection<a class="headerlink" href="#smart-detection" title="Link to this heading">#</a></h3>
+<p>The system automatically detects:</p>
+<ul class="simple">
+<li><p><strong>Docs-only changes</strong>: Skips notebook execution for faster builds</p></li>
+<li><p><strong>Requirements changes</strong>: Triggers full repository validation</p></li>
+<li><p><strong>Notebook changes</strong>: Selective execution of affected directories</p></li>
+<li><p><strong>Deprecated notebooks</strong>: Prevents overwriting with new outputs</p></li>
+</ul>
+</section>
+</section>
+<section id="deprecation-workflow">
+<h2>Deprecation Workflow<a class="headerlink" href="#deprecation-workflow" title="Link to this heading">#</a></h2>
+<section id="tagging-a-notebook-for-deprecation">
+<h3>Tagging a Notebook for Deprecation<a class="headerlink" href="#tagging-a-notebook-for-deprecation" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Use the on-demand workflow with <code class="docutils literal notranslate"><span class="pre">deprecate-notebook</span></code> action</p></li>
+<li><p>Specify the notebook path and days until deprecation</p></li>
+<li><p>A deprecation banner will be added to the notebook</p></li>
+</ol>
+</section>
+<section id="automatic-deprecation-management">
+<h3>Automatic Deprecation Management<a class="headerlink" href="#automatic-deprecation-management" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Scheduled workflow checks weekly for expired notebooks</p></li>
+<li><p>Expired notebooks are moved to the <code class="docutils literal notranslate"><span class="pre">deprecated</span></code> branch</p></li>
+<li><p>Original notebooks are removed from <code class="docutils literal notranslate"><span class="pre">main</span></code> branch</p></li>
+</ul>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<section id="repository-setup">
+<h3>1. Repository Setup<a class="headerlink" href="#repository-setup" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use consistent Python version across workflows</span>
+<span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+
+<span class="c1"># Set appropriate conda environment for your domain</span>
+<span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span><span class="w">  </span><span class="c1"># or &#39;stenv&#39;, etc.</span>
+</pre></div>
+</div>
+</section>
+<section id="conditional-features">
+<h3>2. Conditional Features<a class="headerlink" href="#conditional-features" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Disable features not needed for your repository</span>
+<span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">      </span><span class="c1"># If no security scanning needed</span>
+<span class="nt">enable-storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">       </span><span class="c1"># If no output storage needed</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-optimization">
+<h3>3. Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># For documentation repositories</span>
+<span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">     </span><span class="c1"># Skip execution for docs-only repos</span>
+<span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Focus on HTML generation</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-processing">
+<h3>4. Custom Processing<a class="headerlink" href="#custom-processing" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add post-processing for specialized workflows</span>
+<span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/custom_processing.sh&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h3>
+<section id="workflows-not-triggering">
+<h4>1. Workflows Not Triggering<a class="headerlink" href="#workflows-not-triggering" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Check that files are in the correct <code class="docutils literal notranslate"><span class="pre">paths:</span></code> configuration</p></li>
+<li><p>Verify branch names match your repository’s default branch</p></li>
+</ul>
+</section>
+<section id="conda-environment-issues">
+<h4>2. Conda Environment Issues<a class="headerlink" href="#conda-environment-issues" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Ensure the specified conda environment exists on conda-forge</p></li>
+<li><p>Check environment spelling and capitalization</p></li>
+</ul>
+</section>
+<section id="requirements-installation-failures">
+<h4>3. Requirements Installation Failures<a class="headerlink" href="#requirements-installation-failures" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Verify requirements file paths are correct</p></li>
+<li><p>Check for conflicting package versions</p></li>
+</ul>
+</section>
+<section id="permission-issues">
+<h4>4. Permission Issues<a class="headerlink" href="#permission-issues" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> has appropriate permissions</p></li>
+<li><p>Check that secrets are properly configured</p></li>
+</ul>
+</section>
+</section>
+<section id="getting-help">
+<h3>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Check the <a class="reference external" href="https://github.com/mgough-970/dev-actions">main repository documentation</a></p></li>
+<li><p>Review workflow run logs for specific error messages</p></li>
+<li><p>Open an issue in the notebook-ci-actions repository</p></li>
+</ol>
+</section>
+</section>
+<section id="migration-from-existing-workflows">
+<h2>Migration from Existing Workflows<a class="headerlink" href="#migration-from-existing-workflows" title="Link to this heading">#</a></h2>
+<section id="from-individual-workflows">
+<h3>From Individual Workflows<a class="headerlink" href="#from-individual-workflows" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Replace multiple workflow files with these unified callers</p></li>
+<li><p>Update configuration parameters to match your needs</p></li>
+<li><p>Test with a draft PR to ensure functionality</p></li>
+</ol>
+</section>
+<section id="from-custom-ci-systems">
+<h3>From Custom CI Systems<a class="headerlink" href="#from-custom-ci-systems" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Map your existing steps to the appropriate configuration options</p></li>
+<li><p>Move custom scripts to the <code class="docutils literal notranslate"><span class="pre">post-processing-script</span></code> parameter</p></li>
+<li><p>Adjust triggers and paths as needed</p></li>
+</ol>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<section id="minimal-configuration">
+<h3>Minimal Configuration<a class="headerlink" href="#minimal-configuration" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">notebook-ci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pr&#39;</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="full-featured-configuration">
+<h3>Full-Featured Configuration<a class="headerlink" href="#full-featured-configuration" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">notebook-ci</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@main</span>
+<span class="w">    </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;merge&#39;</span>
+<span class="w">      </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;3.11&#39;</span>
+<span class="w">      </span><span class="nt">conda-environment</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;hstcal&#39;</span>
+<span class="w">      </span><span class="nt">enable-validation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-security</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-execution</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">enable-html-build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">post-processing-script</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;scripts/custom_processing.sh&#39;</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CASJOBS_USERID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_USERID }}</span>
+<span class="w">      </span><span class="nt">CASJOBS_PW</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.CASJOBS_PW }}</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./examples/caller-workflows"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">Quick Start</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-workflows">Available Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-request-workflow-notebook-pr-yml">1. Pull Request Workflow (<code class="docutils literal notranslate"><span class="pre">notebook-pr.yml</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#merge-main-branch-workflow-notebook-merge-yml">2. Merge/Main Branch Workflow (<code class="docutils literal notranslate"><span class="pre">notebook-merge.yml</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scheduled-maintenance-notebook-scheduled-yml">3. Scheduled Maintenance (<code class="docutils literal notranslate"><span class="pre">notebook-scheduled.yml</span></code>)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#on-demand-actions-notebook-on-demand-yml">4. On-Demand Actions (<code class="docutils literal notranslate"><span class="pre">notebook-on-demand.yml</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-options">Configuration Options</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-parameters">Common Parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-customization">Repository-Specific Customization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-hst-notebooks">For HST Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-jwst-notebooks">For JWST Notebooks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-custom-environments">For Custom Environments</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#required-secrets">Required Secrets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-triggers">File Triggers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#paths-that-trigger-workflows">Paths That Trigger Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-detection">Smart Detection</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecation-workflow">Deprecation Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tagging-a-notebook-for-deprecation">Tagging a Notebook for Deprecation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automatic-deprecation-management">Automatic Deprecation Management</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-setup">1. Repository Setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditional-features">2. Conditional Features</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">3. Performance Optimization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-processing">4. Custom Processing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows-not-triggering">1. Workflows Not Triggering</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#conda-environment-issues">2. Conda Environment Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-installation-failures">3. Requirements Installation Failures</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#permission-issues">4. Permission Issues</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting Help</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-from-existing-workflows">Migration from Existing Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-individual-workflows">From Individual Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#from-custom-ci-systems">From Custom CI Systems</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#minimal-configuration">Minimal Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#full-featured-configuration">Full-Featured Configuration</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,729 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Deployment Checklist &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DEPLOYMENT_CHECKLIST';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/DEPLOYMENT_CHECKLIST.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Deployment Checklist</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-deployment-setup">🚀 Pre-Deployment Setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-create-production-repository">Step 1: Create Production Repository</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-copy-development-content">Step 2: Copy Development Content</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-create-initial-release">Step 3: Create Initial Release</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-configure-repository-settings">Step 4: Configure Repository Settings</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-phase">🧪 Testing Phase</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-1-single-repository-test-hello-universe">Phase 1: Single Repository Test (hello_universe)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-2-gradual-rollout">Phase 2: Gradual Rollout</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-3-monitoring-and-optimization">Phase 3: Monitoring and Optimization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-migration-checklist">📋 Repository Migration Checklist</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-migration">Pre-Migration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration">Migration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#post-migration">Post-Migration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#emergency-rollback-procedure">🔧 Emergency Rollback Procedure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#success-metrics">📊 Success Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-metrics">Technical Metrics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-metrics">Process Metrics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support-during-rollout">📞 Support During Rollout</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#points-of-contact">Points of Contact</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#communication-channels">Communication Channels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="deployment-checklist">
+<h1>Deployment Checklist<a class="headerlink" href="#deployment-checklist" title="Link to this heading">#</a></h1>
+<section id="pre-deployment-setup">
+<h2>🚀 Pre-Deployment Setup<a class="headerlink" href="#pre-deployment-setup" title="Link to this heading">#</a></h2>
+<section id="step-1-create-production-repository">
+<h3>Step 1: Create Production Repository<a class="headerlink" href="#step-1-create-production-repository" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Create <code class="docutils literal notranslate"><span class="pre">mgough-970/dev-actions</span></code> repository</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Set up repository description: “Centralized GitHub Actions workflows for STScI notebook repositories”</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Configure repository visibility (recommend: Public)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Add appropriate topics: <code class="docutils literal notranslate"><span class="pre">github-actions</span></code>, <code class="docutils literal notranslate"><span class="pre">jupyter-notebooks</span></code>, <code class="docutils literal notranslate"><span class="pre">stsci</span></code>, <code class="docutils literal notranslate"><span class="pre">workflows</span></code></p></li>
+</ul>
+</section>
+<section id="step-2-copy-development-content">
+<h3>Step 2: Copy Development Content<a class="headerlink" href="#step-2-copy-development-content" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone this development repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/your-username/dev-actions.git
+
+<span class="c1"># Create and setup production repository</span>
+<span class="nb">cd</span><span class="w"> </span>dev-actions
+git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>origin<span class="w"> </span>https://github.com/mgough-970/dev-actions.git
+
+<span class="c1"># Copy all files (excluding .git)</span>
+cp<span class="w"> </span>-r<span class="w"> </span>../dev-actions/*<span class="w"> </span>.
+cp<span class="w"> </span>-r<span class="w"> </span>../dev-actions/.github<span class="w"> </span>.
+
+<span class="c1"># Initial commit</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Initial release: Centralized workflows for notebook repositories</span>
+
+<span class="s2">Features:</span>
+<span class="s2">- 3 core reusable workflows (CI pipeline, HTML builder, deprecation manager)</span>
+<span class="s2">- 5 example caller workflows for different use cases</span>
+<span class="s2">- Complete semantic versioning system with automated releases</span>
+<span class="s2">- Repository-specific migration tools and validation</span>
+<span class="s2">- Comprehensive documentation and migration guides</span>
+
+<span class="s2">Supports: jdat_notebooks, mast_notebooks, hst_notebooks, hello_universe, jwst-pipeline-notebooks&quot;</span>
+
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+</pre></div>
+</div>
+</section>
+<section id="step-3-create-initial-release">
+<h3>Step 3: Create Initial Release<a class="headerlink" href="#step-3-create-initial-release" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create and push initial version tags</span>
+git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v1.0.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Initial release</span>
+
+<span class="s2">Core workflows:</span>
+<span class="s2">- ci_pipeline.yml: Comprehensive notebook validation and execution</span>
+<span class="s2">- ci_html_builder.yml: JupyterBook documentation building with post-processing</span>
+<span class="s2">- ci_deprecation_manager.yml: Notebook lifecycle management</span>
+
+<span class="s2">Example workflows:</span>
+<span class="s2">- notebook-ci-pr.yml: Pull request validation</span>
+<span class="s2">- notebook-ci-main.yml: Main branch full CI/CD</span>
+<span class="s2">- notebook-ci-on-demand.yml: Manual testing</span>
+<span class="s2">- notebook-deprecation.yml: Lifecycle management</span>
+<span class="s2">- docs-only.yml: Documentation-only builds</span>
+
+<span class="s2">Migration tools:</span>
+<span class="s2">- validate-repository.sh: Pre-migration validation</span>
+<span class="s2">- migrate-repository.sh: Automated migration</span>
+
+<span class="s2">Documentation:</span>
+<span class="s2">- Complete setup and usage guides</span>
+<span class="s2">- Semantic versioning strategy</span>
+<span class="s2">- Repository-specific migration checklists&quot;</span>
+
+git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v1<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Major version 1 pointer&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>v1.0.0<span class="w"> </span>v1
+</pre></div>
+</div>
+</section>
+<section id="step-4-configure-repository-settings">
+<h3>Step 4: Configure Repository Settings<a class="headerlink" href="#step-4-configure-repository-settings" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>GitHub Pages</strong>: Enable if planning to host documentation</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Actions</strong>: Ensure GitHub Actions is enabled</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Security</strong>:</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Enable security advisories</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Configure dependabot (if desired)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Set branch protection rules for main branch</p></li>
+</ul>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Secrets</strong>: No secrets needed for core workflows</p></li>
+</ul>
+</section>
+</section>
+<section id="testing-phase">
+<h2>🧪 Testing Phase<a class="headerlink" href="#testing-phase" title="Link to this heading">#</a></h2>
+<section id="phase-1-single-repository-test-hello-universe">
+<h3>Phase 1: Single Repository Test (hello_universe)<a class="headerlink" href="#phase-1-single-repository-test-hello-universe" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone hello_universe repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/spacetelescope/hello_universe.git
+<span class="nb">cd</span><span class="w"> </span>hello_universe
+
+<span class="c1"># Run validation</span>
+../dev-actions/scripts/validate-repository.sh<span class="w"> </span>hello_universe<span class="w"> </span>spacetelescope
+
+<span class="c1"># Run migration</span>
+../dev-actions/scripts/migrate-repository.sh<span class="w"> </span>hello_universe<span class="w"> </span>spacetelescope
+
+<span class="c1"># Test workflows</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>migrate-to-centralized-actions
+<span class="c1"># Create PR and test all workflows</span>
+</pre></div>
+</div>
+</section>
+<section id="phase-2-gradual-rollout">
+<h3>Phase 2: Gradual Rollout<a class="headerlink" href="#phase-2-gradual-rollout" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Week 1</strong>: hello_universe (educational, lowest risk)</p></li>
+<li><p><strong>Week 2</strong>: mast_notebooks (standard configuration)</p></li>
+<li><p><strong>Week 3</strong>: jdat_notebooks (moderate complexity)</p></li>
+<li><p><strong>Week 4</strong>: hst_notebooks (micromamba environment)</p></li>
+<li><p><strong>Week 5</strong>: jwst-pipeline-notebooks (highest complexity)</p></li>
+</ol>
+</section>
+<section id="phase-3-monitoring-and-optimization">
+<h3>Phase 3: Monitoring and Optimization<a class="headerlink" href="#phase-3-monitoring-and-optimization" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Monitor workflow execution times</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Collect feedback from repository maintainers</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Document any issues or improvements needed</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Plan first minor release (v1.1.0) with improvements</p></li>
+</ul>
+</section>
+</section>
+<section id="repository-migration-checklist">
+<h2>📋 Repository Migration Checklist<a class="headerlink" href="#repository-migration-checklist" title="Link to this heading">#</a></h2>
+<p>For each repository, complete the following:</p>
+<section id="pre-migration">
+<h3>Pre-Migration<a class="headerlink" href="#pre-migration" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Run <code class="docutils literal notranslate"><span class="pre">validate-repository.sh</span></code> and achieve score ≥80%</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Backup existing workflows</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Create migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Notify repository maintainers</p></li>
+</ul>
+</section>
+<section id="migration">
+<h3>Migration<a class="headerlink" href="#migration" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Run <code class="docutils literal notranslate"><span class="pre">migrate-repository.sh</span></code></p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Review generated workflows</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Test workflows on migration branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Create pull request with migration</p></li>
+</ul>
+</section>
+<section id="post-migration">
+<h3>Post-Migration<a class="headerlink" href="#post-migration" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Merge migration PR</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Verify workflows run successfully on main branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Update repository documentation</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Mark repository as migrated in progress tracker</p></li>
+</ul>
+</section>
+</section>
+<section id="emergency-rollback-procedure">
+<h2>🔧 Emergency Rollback Procedure<a class="headerlink" href="#emergency-rollback-procedure" title="Link to this heading">#</a></h2>
+<p>If issues arise during migration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Rollback to original workflows</span>
+<span class="nb">cd</span><span class="w"> </span>repository-name
+git<span class="w"> </span>checkout<span class="w"> </span>main
+git<span class="w"> </span>checkout<span class="w"> </span>pre-migration-backup<span class="w"> </span>--<span class="w"> </span>.github/workflows/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Rollback: Restore original workflows&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+</pre></div>
+</div>
+</section>
+<section id="success-metrics">
+<h2>📊 Success Metrics<a class="headerlink" href="#success-metrics" title="Link to this heading">#</a></h2>
+<p>Track these metrics for successful deployment:</p>
+<section id="technical-metrics">
+<h3>Technical Metrics<a class="headerlink" href="#technical-metrics" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Workflow Success Rate</strong>: &gt;95% for all migrated repositories</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Execution Time</strong>: No significant increase in CI/CD time</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Error Rate</strong>: &lt;5% for workflow-related issues</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Migration Success</strong>: All 5 repositories successfully migrated</p></li>
+</ul>
+</section>
+<section id="process-metrics">
+<h3>Process Metrics<a class="headerlink" href="#process-metrics" title="Link to this heading">#</a></h3>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Documentation Usage</strong>: README views, issue resolution time</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Maintainer Satisfaction</strong>: Feedback from repository maintainers</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Contribution Rate</strong>: No decrease in PR/contribution activity</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> <strong>Issue Resolution</strong>: Migration-related issues resolved within 48 hours</p></li>
+</ul>
+</section>
+</section>
+<section id="support-during-rollout">
+<h2>📞 Support During Rollout<a class="headerlink" href="#support-during-rollout" title="Link to this heading">#</a></h2>
+<section id="points-of-contact">
+<h3>Points of Contact<a class="headerlink" href="#points-of-contact" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Primary</strong>: [Implementation Lead Name]</p></li>
+<li><p><strong>Technical</strong>: [Technical Lead Name]</p></li>
+<li><p><strong>STScI Contact</strong>: [STScI Representative Name]</p></li>
+</ul>
+</section>
+<section id="communication-channels">
+<h3>Communication Channels<a class="headerlink" href="#communication-channels" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Issues</strong>: Create issues in <code class="docutils literal notranslate"><span class="pre">dev-actions</span></code> repository</p></li>
+<li><p><strong>Questions</strong>: Use GitHub Discussions or appropriate Slack channels</p></li>
+<li><p><strong>Urgent</strong>: Direct contact with implementation team</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Quick Start</strong>: <a class="reference internal" href="examples/README.html"><span class="std std-doc">examples/README.md</span></a></p></li>
+<li><p><strong>Full Documentation</strong>: <a class="reference internal" href="README.html"><span class="std std-doc">README.md</span></a></p></li>
+<li><p><strong>Troubleshooting</strong>: <a class="reference internal" href="docs/migration-guide.html"><span class="std std-doc">docs/migration-guide.md</span></a></p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>Deployment Lead</strong>: [Your Name]<br />
+<strong>Target Completion</strong>: [Date]<br />
+<strong>Status</strong>: ⏳ Ready for Production Deployment</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-deployment-setup">🚀 Pre-Deployment Setup</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-create-production-repository">Step 1: Create Production Repository</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-copy-development-content">Step 2: Copy Development Content</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-create-initial-release">Step 3: Create Initial Release</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-configure-repository-settings">Step 4: Configure Repository Settings</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-phase">🧪 Testing Phase</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-1-single-repository-test-hello-universe">Phase 1: Single Repository Test (hello_universe)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-2-gradual-rollout">Phase 2: Gradual Rollout</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-3-monitoring-and-optimization">Phase 3: Monitoring and Optimization</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-migration-checklist">📋 Repository Migration Checklist</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-migration">Pre-Migration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration">Migration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#post-migration">Post-Migration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#emergency-rollback-procedure">🔧 Emergency Rollback Procedure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#success-metrics">📊 Success Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-metrics">Technical Metrics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#process-metrics">Process Metrics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support-during-rollout">📞 Support During Rollout</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#points-of-contact">Points of Contact</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#communication-channels">Communication Channels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

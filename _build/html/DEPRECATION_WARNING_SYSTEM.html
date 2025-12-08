@@ -1,0 +1,739 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Deprecation Warning System - Implementation Summary &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'DEPRECATION_WARNING_SYSTEM';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/DEPRECATION_WARNING_SYSTEM.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Deprecation Warning System - Implementation Summary</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features-implemented">Features Implemented</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-deprecation-detection-methods">1. Multiple Deprecation Detection Methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-1-metadata-based-recommended">Method 1: Metadata-based (Recommended)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-2-simple-metadata-flag">Method 2: Simple Metadata Flag</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-3-cell-tag-based-existing">Method 3: Cell Tag-based (Existing)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-4-text-based-legacy-support">Method 4: Text-based (Legacy Support)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automatic-warning-banner-injection">2. Automatic Warning Banner Injection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-date-handling">3. Smart Date Handling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-with-documentation-build">4. Integration with Documentation Build</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#duplicate-prevention">5. Duplicate Prevention</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-integration">Workflow Integration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-deprecation-warnings-are-added">When Deprecation Warnings Are Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#banner-location">Banner Location</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-design">Visual Design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits">Benefits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-users">For Users</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-maintainers">For Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-documentation">For Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-examples">Usage Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mark-a-notebook-as-deprecated-recommended-method">Mark a notebook as deprecated (recommended method):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mark-with-simple-date">Mark with simple date:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-existing-cell-tags">Using existing cell tags:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#files-modified">Files Modified</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="deprecation-warning-system-implementation-summary">
+<h1>Deprecation Warning System - Implementation Summary<a class="headerlink" href="#deprecation-warning-system-implementation-summary" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Implemented a comprehensive deprecation warning system that automatically detects deprecated notebooks and adds prominent warning banners to the generated documentation.</p>
+</section>
+<section id="features-implemented">
+<h2>Features Implemented<a class="headerlink" href="#features-implemented" title="Link to this heading">#</a></h2>
+<section id="multiple-deprecation-detection-methods">
+<h3>1. Multiple Deprecation Detection Methods<a class="headerlink" href="#multiple-deprecation-detection-methods" title="Link to this heading">#</a></h3>
+<section id="method-1-metadata-based-recommended">
+<h4>Method 1: Metadata-based (Recommended)<a class="headerlink" href="#method-1-metadata-based-recommended" title="Link to this heading">#</a></h4>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;deprecated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-31&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Replaced by newer analysis methods&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="method-2-simple-metadata-flag">
+<h4>Method 2: Simple Metadata Flag<a class="headerlink" href="#method-2-simple-metadata-flag" title="Link to this heading">#</a></h4>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;deprecated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-31&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="method-3-cell-tag-based-existing">
+<h4>Method 3: Cell Tag-based (Existing)<a class="headerlink" href="#method-3-cell-tag-based-existing" title="Link to this heading">#</a></h4>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;cell_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;markdown&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;deprecated&quot;</span><span class="p">]},</span>
+<span class="w">  </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;DEPRECATED: This notebook expires 2025-12-31&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="method-4-text-based-legacy-support">
+<h4>Method 4: Text-based (Legacy Support)<a class="headerlink" href="#method-4-text-based-legacy-support" title="Link to this heading">#</a></h4>
+<p>Any cell containing “DEPRECATED”, “deprecated”, or “DEPRECATION” text.</p>
+</section>
+</section>
+<section id="automatic-warning-banner-injection">
+<h3>2. Automatic Warning Banner Injection<a class="headerlink" href="#automatic-warning-banner-injection" title="Link to this heading">#</a></h3>
+<p>The system adds a prominent red warning banner to deprecated notebooks:</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">style</span><span class="o">=</span><span class="s">&#39;background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 10px 0; border-left: 4px solid #dc3545;&#39;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">h3</span> <span class="na">style</span><span class="o">=</span><span class="s">&#39;color: #721c24; margin-top: 0;&#39;</span><span class="p">&gt;</span>🚨 DEPRECATED NOTEBOOK<span class="p">&lt;/</span><span class="nt">h3</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span> <span class="na">style</span><span class="o">=</span><span class="s">&#39;color: #721c24; margin-bottom: 5px;&#39;</span><span class="p">&gt;&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>This notebook is scheduled for deprecation on 2025-12-31.<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span> <span class="na">style</span><span class="o">=</span><span class="s">&#39;color: #721c24; margin-bottom: 0;&#39;</span><span class="p">&gt;</span>Please migrate to newer alternatives or contact maintainers before using this notebook in production.<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">p</span> <span class="na">style</span><span class="o">=</span><span class="s">&#39;color: #721c24; margin-bottom: 0; font-size: 0.9em;&#39;</span><span class="p">&gt;&lt;</span><span class="nt">em</span><span class="p">&gt;</span>This warning was automatically generated during documentation build.<span class="p">&lt;/</span><span class="nt">em</span><span class="p">&gt;&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="smart-date-handling">
+<h3>3. Smart Date Handling<a class="headerlink" href="#smart-date-handling" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Future dates</strong>: Shows “scheduled for deprecation on DATE”</p></li>
+<li><p><strong>Past dates</strong>: Shows “was deprecated on DATE and may be moved or removed”</p></li>
+<li><p><strong>No date</strong>: Shows generic deprecation message</p></li>
+<li><p><strong>Invalid dates</strong>: Shows date as provided with fallback text</p></li>
+</ul>
+</section>
+<section id="integration-with-documentation-build">
+<h3>4. Integration with Documentation Build<a class="headerlink" href="#integration-with-documentation-build" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Runs during the <code class="docutils literal notranslate"><span class="pre">build-documentation</span></code> job</p></li>
+<li><p>Applies to all notebooks being processed for documentation</p></li>
+<li><p>Works alongside execution warnings</p></li>
+<li><p>Preserves source notebooks (only modifies temporary copies)</p></li>
+</ul>
+</section>
+<section id="duplicate-prevention">
+<h3>5. Duplicate Prevention<a class="headerlink" href="#duplicate-prevention" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Checks for existing deprecation warnings before adding new ones</p></li>
+<li><p>Uses metadata tags (<code class="docutils literal notranslate"><span class="pre">deprecation-warning</span></code>) to identify existing warnings</p></li>
+<li><p>Prevents multiple banners on the same notebook</p></li>
+</ul>
+</section>
+</section>
+<section id="workflow-integration">
+<h2>Workflow Integration<a class="headerlink" href="#workflow-integration" title="Link to this heading">#</a></h2>
+<section id="when-deprecation-warnings-are-added">
+<h3>When Deprecation Warnings Are Added<a class="headerlink" href="#when-deprecation-warnings-are-added" title="Link to this heading">#</a></h3>
+<p>The deprecation warning step runs during documentation build for <strong>all execution modes</strong>:</p>
+<ul class="simple">
+<li><p>✅ On-demand mode (<code class="docutils literal notranslate"><span class="pre">full-pipeline-all</span></code>)</p></li>
+<li><p>✅ Merge mode (production deployment)</p></li>
+<li><p>✅ HTML-only builds</p></li>
+<li><p>✅ Scheduled runs (if documentation is enabled)</p></li>
+</ul>
+</section>
+<section id="banner-location">
+<h3>Banner Location<a class="headerlink" href="#banner-location" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Added to</strong>: Temporary notebook copies during documentation build</p></li>
+<li><p><strong>Visible in</strong>: Generated HTML documentation</p></li>
+<li><p><strong>Not added to</strong>: Source notebooks in repository (keeps source clean)</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h2>
+<p>Created comprehensive test script <code class="docutils literal notranslate"><span class="pre">scripts/test-deprecation-warnings.sh</span></code> that validates:</p>
+<ul class="simple">
+<li><p>✅ All 4 deprecation detection methods</p></li>
+<li><p>✅ Warning banner injection</p></li>
+<li><p>✅ Date parsing and handling</p></li>
+<li><p>✅ Duplicate prevention</p></li>
+<li><p>✅ Multiple notebook processing</p></li>
+</ul>
+</section>
+<section id="visual-design">
+<h2>Visual Design<a class="headerlink" href="#visual-design" title="Link to this heading">#</a></h2>
+<p>The deprecation warning uses:</p>
+<ul class="simple">
+<li><p><strong>Red color scheme</strong> (<code class="docutils literal notranslate"><span class="pre">#f8d7da</span></code> background, <code class="docutils literal notranslate"><span class="pre">#dc3545</span></code> border)</p></li>
+<li><p><strong>Clear visual hierarchy</strong> with large warning icon (🚨)</p></li>
+<li><p><strong>Prominent placement</strong> at the top of notebooks</p></li>
+<li><p><strong>Distinct styling</strong> from execution warnings (which use yellow/orange)</p></li>
+</ul>
+</section>
+<section id="benefits">
+<h2>Benefits<a class="headerlink" href="#benefits" title="Link to this heading">#</a></h2>
+<section id="for-users">
+<h3>For Users<a class="headerlink" href="#for-users" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Clear visibility</strong>: Prominent warnings prevent accidental use of deprecated content</p></li>
+<li><p><strong>Migration guidance</strong>: Explicit instructions to contact maintainers or find alternatives</p></li>
+<li><p><strong>Date awareness</strong>: Clear timeline for when notebooks will be removed</p></li>
+</ul>
+</section>
+<section id="for-maintainers">
+<h3>For Maintainers<a class="headerlink" href="#for-maintainers" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Flexible marking</strong>: Multiple ways to mark notebooks as deprecated</p></li>
+<li><p><strong>Automated warnings</strong>: No manual intervention needed for documentation</p></li>
+<li><p><strong>Clean source</strong>: Repository stays clean while documentation shows warnings</p></li>
+<li><p><strong>Backward compatibility</strong>: Works with existing deprecation methods</p></li>
+</ul>
+</section>
+<section id="for-documentation">
+<h3>For Documentation<a class="headerlink" href="#for-documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Professional appearance</strong>: Consistent warning styling</p></li>
+<li><p><strong>User safety</strong>: Prevents users from following outdated guidance</p></li>
+<li><p><strong>Maintenance clarity</strong>: Easy to identify which content needs updating</p></li>
+</ul>
+</section>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading">#</a></h2>
+<section id="mark-a-notebook-as-deprecated-recommended-method">
+<h3>Mark a notebook as deprecated (recommended method):<a class="headerlink" href="#mark-a-notebook-as-deprecated-recommended-method" title="Link to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;deprecated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-31&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Superseded by new-analysis.ipynb&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="mark-with-simple-date">
+<h3>Mark with simple date:<a class="headerlink" href="#mark-with-simple-date" title="Link to this heading">#</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;deprecated&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-31&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="using-existing-cell-tags">
+<h3>Using existing cell tags:<a class="headerlink" href="#using-existing-cell-tags" title="Link to this heading">#</a></h3>
+<p>Add a markdown cell with:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;cell_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;markdown&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;deprecated&quot;</span><span class="p">]},</span>
+<span class="w">  </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;DEPRECATED: Use new-notebook.ipynb instead. Removal scheduled for 2025-12-31.&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="files-modified">
+<h2>Files Modified<a class="headerlink" href="#files-modified" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.github/workflows/notebook-ci-unified.yml</span></code> - Added deprecation warning step</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">scripts/test-deprecation-warnings.sh</span></code> - Comprehensive test script</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notebooks/testing/deprecated-test.ipynb</span></code> - Example deprecated notebook</p></li>
+</ul>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>✅ YAML syntax validated</p></li>
+<li><p>✅ All detection methods tested</p></li>
+<li><p>✅ Warning injection verified</p></li>
+<li><p>✅ Documentation build compatibility confirmed</p></li>
+<li><p>✅ Multiple notebook scenarios tested</p></li>
+</ul>
+</section>
+<section id="future-enhancements">
+<h2>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading">#</a></h2>
+<p>Potential improvements:</p>
+<ul class="simple">
+<li><p><strong>Email notifications</strong> when notebooks approach deprecation dates</p></li>
+<li><p><strong>Automatic issue creation</strong> for deprecated notebooks</p></li>
+<li><p><strong>Migration suggestions</strong> in warning banners</p></li>
+<li><p><strong>Deprecation dashboard</strong> showing all deprecated content</p></li>
+<li><p><strong>Integration with calendar</strong> for deprecation timeline management</p></li>
+</ul>
+<p>The system provides a robust, flexible, and user-friendly way to manage notebook deprecation while maintaining clean source code and providing clear user guidance.</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features-implemented">Features Implemented</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-deprecation-detection-methods">1. Multiple Deprecation Detection Methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-1-metadata-based-recommended">Method 1: Metadata-based (Recommended)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-2-simple-metadata-flag">Method 2: Simple Metadata Flag</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-3-cell-tag-based-existing">Method 3: Cell Tag-based (Existing)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#method-4-text-based-legacy-support">Method 4: Text-based (Legacy Support)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automatic-warning-banner-injection">2. Automatic Warning Banner Injection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-date-handling">3. Smart Date Handling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-with-documentation-build">4. Integration with Documentation Build</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#duplicate-prevention">5. Duplicate Prevention</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-integration">Workflow Integration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-deprecation-warnings-are-added">When Deprecation Warnings Are Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#banner-location">Banner Location</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-design">Visual Design</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits">Benefits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-users">For Users</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-maintainers">For Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-documentation">For Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-examples">Usage Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mark-a-notebook-as-deprecated-recommended-method">Mark a notebook as deprecated (recommended method):</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mark-with-simple-date">Mark with simple date:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-existing-cell-tags">Using existing cell tags:</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#files-modified">Files Modified</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

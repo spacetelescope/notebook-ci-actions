@@ -1,0 +1,577 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Repository Cleanup Summary &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'REPOSITORY_CLEANUP_SUMMARY';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/REPOSITORY_CLEANUP_SUMMARY.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Repository Cleanup Summary</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-references-updated">✅ Repository References Updated</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#files-updated">📋 Files Updated</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-files">Workflow Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-files">Documentation Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#script-files">Script Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-files">Configuration Files</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#changes-made">🔧 Changes Made</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-workflow-updates">🎯 Key Workflow Updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-status">✅ Testing Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ready-for-deployment">🚀 Ready for Deployment</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps:</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="repository-cleanup-summary">
+<h1>Repository Cleanup Summary<a class="headerlink" href="#repository-cleanup-summary" title="Link to this heading">#</a></h1>
+<section id="repository-references-updated">
+<h2>✅ Repository References Updated<a class="headerlink" href="#repository-references-updated" title="Link to this heading">#</a></h2>
+<p>Successfully updated all repository references from:</p>
+<ul class="simple">
+<li><p><strong>From</strong>: <code class="docutils literal notranslate"><span class="pre">spacetelescope/notebook-ci-actions</span></code></p></li>
+<li><p><strong>To</strong>: <code class="docutils literal notranslate"><span class="pre">mgough-970/dev-actions</span></code></p></li>
+<li><p><strong>Branch</strong>: <code class="docutils literal notranslate"><span class="pre">main</span></code> → <code class="docutils literal notranslate"><span class="pre">dev-actions-v2</span></code></p></li>
+</ul>
+</section>
+<section id="files-updated">
+<h2>📋 Files Updated<a class="headerlink" href="#files-updated" title="Link to this heading">#</a></h2>
+<section id="workflow-files">
+<h3>Workflow Files<a class="headerlink" href="#workflow-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">examples/caller-workflows/notebook-on-demand.yml</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">examples/caller-workflows/notebook-pr.yml</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">examples/caller-workflows/notebook-merge.yml</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">examples/caller-workflows/notebook-scheduled.yml</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">.github/workflows/notebook-on-demand.yml</span></code></p></li>
+<li><p>✅ All workflow files in <code class="docutils literal notranslate"><span class="pre">examples/workflows/</span></code></p></li>
+</ul>
+</section>
+<section id="documentation-files">
+<h3>Documentation Files<a class="headerlink" href="#documentation-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">README-unified.md</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">docs/migration-guide-unified.md</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">docs/configuration-reference.md</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">docs/troubleshooting-unified.md</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">docs/quick-reference-unified.md</span></code></p></li>
+<li><p>✅ All documentation in <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory</p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">examples/README.md</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">examples/complete-setup-example.md</span></code></p></li>
+</ul>
+</section>
+<section id="script-files">
+<h3>Script Files<a class="headerlink" href="#script-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">scripts/migrate-to-unified.sh</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">scripts/test-unified-system.sh</span></code></p></li>
+<li><p>✅ All shell scripts in <code class="docutils literal notranslate"><span class="pre">scripts/</span></code> directory</p></li>
+</ul>
+</section>
+<section id="configuration-files">
+<h3>Configuration Files<a class="headerlink" href="#configuration-files" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">DEPLOYMENT_CHECKLIST.md</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">IMPLEMENTATION_SUMMARY.md</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="changes-made">
+<h2>🔧 Changes Made<a class="headerlink" href="#changes-made" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Repository URL</strong>: Updated all GitHub repository references</p></li>
+<li><p><strong>Branch References</strong>: Changed from <code class="docutils literal notranslate"><span class="pre">&#64;main</span></code> to <code class="docutils literal notranslate"><span class="pre">&#64;dev-actions-v2</span></code></p></li>
+<li><p><strong>Workflow Uses</strong>: Updated all <code class="docutils literal notranslate"><span class="pre">uses:</span></code> statements in GitHub Actions</p></li>
+<li><p><strong>Documentation Links</strong>: Updated all GitHub links and references</p></li>
+<li><p><strong>Clone Commands</strong>: Updated git clone URLs in documentation</p></li>
+</ol>
+</section>
+<section id="key-workflow-updates">
+<h2>🎯 Key Workflow Updates<a class="headerlink" href="#key-workflow-updates" title="Link to this heading">#</a></h2>
+<p>The main on-demand workflow now references:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2</span>
+</pre></div>
+</div>
+<p>All 10 action types have been updated:</p>
+<ul class="simple">
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">validate-all</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">execute-all</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">security-scan-all</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">validate-single</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">execute-single</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">full-pipeline-all</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">full-pipeline-single</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">build-html-only</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">deprecate-notebook</span></code></p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">performance-test</span></code></p></li>
+</ul>
+</section>
+<section id="testing-status">
+<h2>✅ Testing Status<a class="headerlink" href="#testing-status" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>✅ <strong>Simple Test</strong>: All system components validated</p></li>
+<li><p>✅ <strong>Notebook Validation</strong>: 3 test notebooks working correctly</p></li>
+<li><p>✅ <strong>Workflow Structure</strong>: 10 action types detected and configured</p></li>
+<li><p>✅ <strong>Python Environment</strong>: Compatible and ready</p></li>
+</ul>
+</section>
+<section id="ready-for-deployment">
+<h2>🚀 Ready for Deployment<a class="headerlink" href="#ready-for-deployment" title="Link to this heading">#</a></h2>
+<p>The repository is now cleaned up and pointing to <code class="docutils literal notranslate"><span class="pre">mgough-970/dev-actions&#64;dev-actions-v2</span></code>. All references have been systematically updated and tested.</p>
+<section id="next-steps">
+<h3>Next Steps:<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Commit these changes to your repository</p></li>
+<li><p>Push to the <code class="docutils literal notranslate"><span class="pre">dev-actions-v2</span></code> branch</p></li>
+<li><p>Test the workflows in GitHub Actions</p></li>
+<li><p>Update any remaining external references as needed</p></li>
+</ol>
+<p>The notebook CI/CD system is ready for production use with your repository! 🎉</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-references-updated">✅ Repository References Updated</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#files-updated">📋 Files Updated</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-files">Workflow Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-files">Documentation Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#script-files">Script Files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-files">Configuration Files</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#changes-made">🔧 Changes Made</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-workflow-updates">🎯 Key Workflow Updates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-status">✅ Testing Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ready-for-deployment">🚀 Ready for Deployment</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps:</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

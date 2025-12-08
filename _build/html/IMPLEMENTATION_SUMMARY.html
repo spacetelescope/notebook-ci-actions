@@ -1,0 +1,884 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Implementation Summary: GitHub Actions Centralized Workflows &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'IMPLEMENTATION_SUMMARY';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/IMPLEMENTATION_SUMMARY.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Implementation Summary: GitHub Actions Centralized Workflows</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-overview">🎯 Project Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#completed-components">✅ Completed Components</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-documentation-system">1. Core Documentation System</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-versioning-system">2. Automated Versioning System</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-automation-scripts">3. Migration Automation Scripts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-workflows-5-complete-examples">4. Example Workflows (5 Complete Examples)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enhanced-core-workflows">5. Enhanced Core Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-configurations">6. Repository-Specific Configurations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-architecture">🏗️ Technical Architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#semantic-versioning-strategy">Semantic Versioning Strategy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-process">Migration Process</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-features">Workflow Features</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-repository-migration-status">📊 Target Repository Migration Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-instructions">🚀 Usage Instructions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-repository-maintainers">For Repository Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-workflow-consumers">For Workflow Consumers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-features-implemented">🔧 Key Features Implemented</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-version-bumping">Automated Version Bumping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-intelligence">Repository-Specific Intelligence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comprehensive-testing-framework">Comprehensive Testing Framework</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-system">Documentation System</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits-achieved">📈 Benefits Achieved</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-stsci-organization">For STScI Organization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">For Repository Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-contributors">For Contributors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">🎯 Next Steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#immediate-actions">Immediate Actions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-migration-order-recommended">Repository Migration Order (Recommended)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ongoing-maintenance">Ongoing Maintenance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-implementation-completed">🧪 Local Testing Implementation ⚡ <strong>COMPLETED</strong></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-infrastructure">Testing Infrastructure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-capabilities">Testing Capabilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Benefits Achieved</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-examples">Integration Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-information">🏷️ Version Information</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support-and-resources">📞 Support and Resources</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="implementation-summary-github-actions-centralized-workflows">
+<h1>Implementation Summary: GitHub Actions Centralized Workflows<a class="headerlink" href="#implementation-summary-github-actions-centralized-workflows" title="Link to this heading">#</a></h1>
+<section id="project-overview">
+<h2>🎯 Project Overview<a class="headerlink" href="#project-overview" title="Link to this heading">#</a></h2>
+<p>This project successfully created a comprehensive centralized GitHub Actions workflow system for STScI notebook repositories, complete with semantic versioning, automated migration tools, and detailed documentation.</p>
+</section>
+<section id="completed-components">
+<h2>✅ Completed Components<a class="headerlink" href="#completed-components" title="Link to this heading">#</a></h2>
+<section id="core-documentation-system">
+<h3>1. Core Documentation System<a class="headerlink" href="#core-documentation-system" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">README.md</span></code></strong>: Comprehensive main documentation with workflow details, usage examples, and setup instructions</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">examples/README.md</span></code></strong>: Detailed setup guide for using example workflows</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">docs/semantic-versioning.md</span></code></strong>: Complete semantic versioning strategy and implementation guide</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">docs/migration-guide.md</span></code></strong>: Step-by-step migration process for version updates</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">docs/repository-migration-checklist.md</span></code></strong>: Detailed checklist for migrating all 5 STScI repositories</p></li>
+</ul>
+</section>
+<section id="automated-versioning-system">
+<h3>2. Automated Versioning System<a class="headerlink" href="#automated-versioning-system" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">.github/workflows/release.yml</span></code></strong>: Automated release management with PR label-based version bumping</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">.github/workflows/version-check.yml</span></code></strong>: PR validation requiring version labels with breaking change detection</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">.github/workflows/setup-labels.yml</span></code></strong>: Creates necessary version and workflow labels automatically</p></li>
+</ul>
+</section>
+<section id="migration-automation-scripts">
+<h3>3. Migration Automation Scripts<a class="headerlink" href="#migration-automation-scripts" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">scripts/migrate-repository.sh</span></code></strong>: Complete automated migration script with repository-specific configurations</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">scripts/validate-repository.sh</span></code></strong>: Pre-migration validation with readiness scoring system</p></li>
+</ul>
+</section>
+<section id="example-workflows-5-complete-examples">
+<h3>4. Example Workflows (5 Complete Examples)<a class="headerlink" href="#example-workflows-5-complete-examples" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">examples/workflows/notebook-ci-pr.yml</span></code></strong>: Lightweight validation for pull requests</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">examples/workflows/notebook-ci-main.yml</span></code></strong>: Full CI pipeline for main branch deployments</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">examples/workflows/notebook-ci-on-demand.yml</span></code></strong>: Manual testing with configurable options</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">examples/workflows/notebook-deprecation.yml</span></code></strong>: Notebook lifecycle management</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">examples/workflows/docs-only.yml</span></code></strong>: Documentation-only rebuilds</p></li>
+</ul>
+</section>
+<section id="enhanced-core-workflows">
+<h3>5. Enhanced Core Workflows<a class="headerlink" href="#enhanced-core-workflows" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Enhanced <code class="docutils literal notranslate"><span class="pre">ci_html_builder.yml</span></code></strong>: Added <code class="docutils literal notranslate"><span class="pre">post-run-script</span></code> input parameter for custom post-processing (e.g., jdaviz image replacement)</p></li>
+<li><p><strong>Maintained <code class="docutils literal notranslate"><span class="pre">ci_pipeline.yml</span></code></strong>: Comprehensive notebook validation and execution</p></li>
+<li><p><strong>Maintained <code class="docutils literal notranslate"><span class="pre">ci_deprecation_manager.yml</span></code></strong>: Notebook lifecycle management</p></li>
+</ul>
+</section>
+<section id="repository-specific-configurations">
+<h3>6. Repository-Specific Configurations<a class="headerlink" href="#repository-specific-configurations" title="Link to this heading">#</a></h3>
+<p>Complete migration configurations for all 5 target repositories:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">jdat_notebooks</span></code></strong>: CRDS cache, large data downloads, micromamba environments</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">mast_notebooks</span></code></strong>: MAST API access, archive data requirements, authentication</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code></strong>: <code class="docutils literal notranslate"><span class="pre">hstcal</span></code> environment, HST data files, STScI software stack</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">hello_universe</span></code></strong>: Educational content focus, simplified requirements</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code></strong>: JWST pipeline software, jdaviz tools, CRDS references, image replacement</p></li>
+</ul>
+</section>
+</section>
+<section id="technical-architecture">
+<h2>🏗️ Technical Architecture<a class="headerlink" href="#technical-architecture" title="Link to this heading">#</a></h2>
+<section id="semantic-versioning-strategy">
+<h3>Semantic Versioning Strategy<a class="headerlink" href="#semantic-versioning-strategy" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Major versions (v1, v2, etc.)</strong>: Breaking changes requiring caller workflow updates</p></li>
+<li><p><strong>Minor versions (v1.1.0)</strong>: New backwards-compatible features (auto-updated major tags)</p></li>
+<li><p><strong>Patch versions (v1.1.1)</strong>: Backwards-compatible bug fixes</p></li>
+<li><p><strong>PR-based version bumping</strong>: Using labels <code class="docutils literal notranslate"><span class="pre">version:major</span></code>, <code class="docutils literal notranslate"><span class="pre">version:minor</span></code>, <code class="docutils literal notranslate"><span class="pre">version:patch</span></code></p></li>
+</ul>
+</section>
+<section id="migration-process">
+<h3>Migration Process<a class="headerlink" href="#migration-process" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Pre-migration validation</strong>: Automated repository readiness assessment</p></li>
+<li><p><strong>Automated migration</strong>: Repository-specific configuration deployment</p></li>
+<li><p><strong>Testing framework</strong>: Comprehensive validation of migrated workflows</p></li>
+<li><p><strong>Rollback strategy</strong>: Safe rollback procedures for failed migrations</p></li>
+</ol>
+</section>
+<section id="workflow-features">
+<h3>Workflow Features<a class="headerlink" href="#workflow-features" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Universal compatibility</strong>: Works with all STScI notebook repositories</p></li>
+<li><p><strong>Dual package managers</strong>: <code class="docutils literal notranslate"><span class="pre">uv</span></code> for fast Python package management, <code class="docutils literal notranslate"><span class="pre">micromamba</span></code> for conda environments</p></li>
+<li><p><strong>Repository detection</strong>: Automatic detection and configuration for specific repositories</p></li>
+<li><p><strong>Security scanning</strong>: Integrated security analysis with <code class="docutils literal notranslate"><span class="pre">bandit</span></code></p></li>
+<li><p><strong>Artifact management</strong>: Automated upload of failed notebooks for debugging</p></li>
+<li><p><strong>Documentation building</strong>: JupyterBook integration with GitHub Pages deployment</p></li>
+</ul>
+</section>
+</section>
+<section id="target-repository-migration-status">
+<h2>📊 Target Repository Migration Status<a class="headerlink" href="#target-repository-migration-status" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Repository</p></th>
+<th class="head"><p>Configuration</p></th>
+<th class="head"><p>Special Features</p></th>
+<th class="head"><p>Status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>jdat_notebooks</strong></p></td>
+<td><p>Python 3.11, full execution, HTML building</p></td>
+<td><p>CRDS cache, CasJobs integration</p></td>
+<td><p>✅ Ready</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>mast_notebooks</strong></p></td>
+<td><p>Python 3.11, full execution, HTML building</p></td>
+<td><p>MAST API access, authentication</p></td>
+<td><p>✅ Ready</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>hst_notebooks</strong></p></td>
+<td><p>Python 3.11, micromamba environment</p></td>
+<td><p>Auto-detected hstcal setup</p></td>
+<td><p>✅ Ready</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>hello_universe</strong></p></td>
+<td><p>Python 3.11, simplified config</p></td>
+<td><p>Disabled security scanning</p></td>
+<td><p>✅ Ready</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>jwst-pipeline-notebooks</strong></p></td>
+<td><p>Python 3.11, full execution</p></td>
+<td><p>jdaviz post-processing script</p></td>
+<td><p>✅ Ready</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="usage-instructions">
+<h2>🚀 Usage Instructions<a class="headerlink" href="#usage-instructions" title="Link to this heading">#</a></h2>
+<section id="for-repository-maintainers">
+<h3>For Repository Maintainers<a class="headerlink" href="#for-repository-maintainers" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Quick Migration</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Validate repository readiness</span>
+./scripts/validate-repository.sh<span class="w"> </span>jdat_notebooks<span class="w"> </span>spacetelescope
+
+<span class="c1"># Run automated migration</span>
+./scripts/migrate-repository.sh<span class="w"> </span>jdat_notebooks<span class="w"> </span>spacetelescope
+</pre></div>
+</div>
+</li>
+<li><p><strong>Manual Setup</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Copy example workflows</span>
+<span class="l l-Scalar l-Scalar-Plain">cp examples/workflows/*.yml your-repo/.github/workflows/</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># Update references</span>
+<span class="l l-Scalar l-Scalar-Plain">sed -i &#39;s/your-org/spacetelescope/g&#39; .github/workflows/*.yml</span>
+<span class="l l-Scalar l-Scalar-Plain">sed -i &#39;s/dev-actions/notebook-ci-actions/g&#39; .github/workflows/*.yml</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="for-workflow-consumers">
+<h3>For Workflow Consumers<a class="headerlink" href="#for-workflow-consumers" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use major version pinning (recommended)</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1</span>
+
+<span class="c1"># Or exact version for stability</span>
+<span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgough-970/dev-actions/.github/workflows/ci_pipeline.yml@v1.0.0</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="key-features-implemented">
+<h2>🔧 Key Features Implemented<a class="headerlink" href="#key-features-implemented" title="Link to this heading">#</a></h2>
+<section id="automated-version-bumping">
+<h3>Automated Version Bumping<a class="headerlink" href="#automated-version-bumping" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>PR label-based version detection</p></li>
+<li><p>Automatic release creation and tagging</p></li>
+<li><p>Major version tag auto-updating (v1 → v1.2.3)</p></li>
+<li><p>Comprehensive release notes generation</p></li>
+</ul>
+</section>
+<section id="repository-specific-intelligence">
+<h3>Repository-Specific Intelligence<a class="headerlink" href="#repository-specific-intelligence" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Automatic detection of repository type (hst_notebooks, jwst-pipeline-notebooks, etc.)</p></li>
+<li><p>Dynamic configuration based on repository needs</p></li>
+<li><p>Special handling for micromamba environments</p></li>
+<li><p>Custom post-processing scripts (jdaviz image replacement)</p></li>
+</ul>
+</section>
+<section id="comprehensive-testing-framework">
+<h3>Comprehensive Testing Framework<a class="headerlink" href="#comprehensive-testing-framework" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Pre-migration repository validation</p></li>
+<li><p>Progressive version testing (exact → major pinning)</p></li>
+<li><p>Comprehensive error handling and rollback procedures</p></li>
+<li><p>Detailed migration progress tracking</p></li>
+</ul>
+</section>
+<section id="documentation-system">
+<h3>Documentation System<a class="headerlink" href="#documentation-system" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Complete API reference for all workflows</p></li>
+<li><p>Step-by-step migration guides</p></li>
+<li><p>Repository-specific configuration examples</p></li>
+<li><p>Troubleshooting guides and common issues</p></li>
+</ul>
+</section>
+</section>
+<section id="benefits-achieved">
+<h2>📈 Benefits Achieved<a class="headerlink" href="#benefits-achieved" title="Link to this heading">#</a></h2>
+<section id="for-stsci-organization">
+<h3>For STScI Organization<a class="headerlink" href="#for-stsci-organization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Centralized Maintenance</strong>: Single source of truth for all notebook CI/CD workflows</p></li>
+<li><p><strong>Consistent Quality</strong>: Standardized testing and validation across all repositories</p></li>
+<li><p><strong>Reduced Overhead</strong>: Eliminate duplicate workflow maintenance across repositories</p></li>
+<li><p><strong>Scalability</strong>: Easy addition of new repositories using existing patterns</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>For Repository Maintainers<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Automated Setup</strong>: One-command migration to centralized workflows</p></li>
+<li><p><strong>Repository-Specific Optimization</strong>: Tailored configurations for each notebook collection</p></li>
+<li><p><strong>Version Stability</strong>: Semantic versioning ensures predictable updates</p></li>
+<li><p><strong>Professional Documentation</strong>: Comprehensive guides for setup and troubleshooting</p></li>
+</ul>
+</section>
+<section id="for-contributors">
+<h3>For Contributors<a class="headerlink" href="#for-contributors" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Consistent Development Experience</strong>: Same CI/CD patterns across all repositories</p></li>
+<li><p><strong>Fast Feedback</strong>: Optimized workflows with intelligent caching and parallel execution</p></li>
+<li><p><strong>Clear Error Reporting</strong>: Detailed artifact upload and error reporting</p></li>
+<li><p><strong>Security Assurance</strong>: Automated security scanning and validation</p></li>
+</ul>
+</section>
+</section>
+<section id="next-steps">
+<h2>🎯 Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<section id="immediate-actions">
+<h3>Immediate Actions<a class="headerlink" href="#immediate-actions" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Move to <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code> repository</strong> in <code class="docutils literal notranslate"><span class="pre">spacetelescope</span></code> organization</p></li>
+<li><p><strong>Copy workflows and scripts</strong> from this development repository</p></li>
+<li><p><strong>Set up initial release tags</strong> (v1.0.0, v1)</p></li>
+<li><p><strong>Test migration</strong> on one repository (recommend starting with <code class="docutils literal notranslate"><span class="pre">hello_universe</span></code>)</p></li>
+</ol>
+</section>
+<section id="repository-migration-order-recommended">
+<h3>Repository Migration Order (Recommended)<a class="headerlink" href="#repository-migration-order-recommended" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>hello_universe</strong> (simplest, educational repository)</p></li>
+<li><p><strong>mast_notebooks</strong> (standard configuration)</p></li>
+<li><p><strong>jdat_notebooks</strong> (CRDS and CasJobs complexity)</p></li>
+<li><p><strong>hst_notebooks</strong> (micromamba environment)</p></li>
+<li><p><strong>jwst-pipeline-notebooks</strong> (most complex, jdaviz post-processing)</p></li>
+</ol>
+</section>
+<section id="ongoing-maintenance">
+<h3>Ongoing Maintenance<a class="headerlink" href="#ongoing-maintenance" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Monitor workflow performance</strong> and optimization opportunities</p></li>
+<li><p><strong>Collect feedback</strong> from repository maintainers and contributors</p></li>
+<li><p><strong>Regular version updates</strong> following semantic versioning principles</p></li>
+<li><p><strong>Documentation updates</strong> based on real-world usage patterns</p></li>
+</ul>
+</section>
+</section>
+<section id="local-testing-implementation-completed">
+<h2>🧪 Local Testing Implementation ⚡ <strong>COMPLETED</strong><a class="headerlink" href="#local-testing-implementation-completed" title="Link to this heading">#</a></h2>
+<section id="testing-infrastructure">
+<h3>Testing Infrastructure<a class="headerlink" href="#testing-infrastructure" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">test-local-ci.sh</span></code></strong>: Complete CI pipeline simulation with repository-specific configurations</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">validate-workflows.sh</span></code></strong>: Comprehensive workflow validation with syntax and structure checks</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">test-with-act.sh</span></code></strong>: Docker-based GitHub Actions runner for full workflow testing</p></li>
+</ul>
+</section>
+<section id="testing-capabilities">
+<h3>Testing Capabilities<a class="headerlink" href="#testing-capabilities" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Local CI Simulation</strong>: Full notebook validation, execution, security scanning, and documentation building</p></li>
+<li><p><strong>Repository-Specific Testing</strong>: Automatic detection and configuration for JDAT, MAST, HST, Hello Universe, and JWST Pipeline repositories</p></li>
+<li><p><strong>Act Integration</strong>: Docker-based workflow testing with event simulation and artifact management</p></li>
+<li><p><strong>Performance Optimization</strong>: Multiple execution modes (validation-only, quick, full) for efficient testing</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">docs/local-testing-guide.md</span></code></strong>: Comprehensive guide covering all testing approaches and tools</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">docs/local-testing-quick-reference.md</span></code></strong>: Quick reference for common testing scenarios</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">scripts/README.md</span></code></strong>: Updated with detailed local testing examples and use cases</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Benefits Achieved<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>💰 Cost Reduction</strong>: Avoid GitHub Actions minutes during development (estimated 70-80% savings)</p></li>
+<li><p><strong>⚡ Faster Development</strong>: Immediate feedback without waiting for GitHub runners</p></li>
+<li><p><strong>🐛 Better Debugging</strong>: Local environment access for detailed troubleshooting</p></li>
+<li><p><strong>🔒 Safe Testing</strong>: Local secret management and environment simulation</p></li>
+</ul>
+</section>
+<section id="integration-examples">
+<h3>Integration Examples<a class="headerlink" href="#integration-examples" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Pre-commit hooks for automatic validation</p></li>
+<li><p>Development workflow scripts for common testing scenarios</p></li>
+<li><p>CI/CD pipeline simulation for comprehensive testing</p></li>
+<li><p>Repository-specific testing configurations</p></li>
+</ul>
+</section>
+</section>
+<section id="version-information">
+<h2>🏷️ Version Information<a class="headerlink" href="#version-information" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Implementation Version</strong>: 1.0.0</p></li>
+<li><p><strong>Target Repositories</strong>: 5 (jdat_notebooks, mast_notebooks, hst_notebooks, hello_universe, jwst-pipeline-notebooks)</p></li>
+<li><p><strong>Workflow Count</strong>: 3 core workflows + 5 example workflows</p></li>
+<li><p><strong>Documentation Pages</strong>: 4 comprehensive guides</p></li>
+<li><p><strong>Automation Scripts</strong>: 2 complete migration tools</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="support-and-resources">
+<h2>📞 Support and Resources<a class="headerlink" href="#support-and-resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Main Documentation</strong>: <a class="reference internal" href="README.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">README.md</span></code></span></a></p></li>
+<li><p><strong>Setup Guide</strong>: <a class="reference internal" href="examples/README.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">examples/README.md</span></code></span></a></p></li>
+<li><p><strong>Versioning Guide</strong>: <a class="reference internal" href="docs/semantic-versioning.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">docs/semantic-versioning.md</span></code></span></a></p></li>
+<li><p><strong>Migration Guide</strong>: <a class="reference internal" href="docs/migration-guide.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">docs/migration-guide.md</span></code></span></a></p></li>
+<li><p><strong>Repository Checklist</strong>: <a class="reference internal" href="docs/repository-migration-checklist.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">docs/repository-migration-checklist.md</span></code></span></a></p></li>
+</ul>
+<p><strong>Implementation Date</strong>: December 2024<br />
+<strong>Implementation Status</strong>: ✅ Complete and Ready for Deployment</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-overview">🎯 Project Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#completed-components">✅ Completed Components</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#core-documentation-system">1. Core Documentation System</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-versioning-system">2. Automated Versioning System</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-automation-scripts">3. Migration Automation Scripts</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-workflows-5-complete-examples">4. Example Workflows (5 Complete Examples)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enhanced-core-workflows">5. Enhanced Core Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-configurations">6. Repository-Specific Configurations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-architecture">🏗️ Technical Architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#semantic-versioning-strategy">Semantic Versioning Strategy</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migration-process">Migration Process</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-features">Workflow Features</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-repository-migration-status">📊 Target Repository Migration Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage-instructions">🚀 Usage Instructions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-repository-maintainers">For Repository Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-workflow-consumers">For Workflow Consumers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-features-implemented">🔧 Key Features Implemented</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automated-version-bumping">Automated Version Bumping</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-intelligence">Repository-Specific Intelligence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comprehensive-testing-framework">Comprehensive Testing Framework</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-system">Documentation System</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benefits-achieved">📈 Benefits Achieved</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-stsci-organization">For STScI Organization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">For Repository Maintainers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for-contributors">For Contributors</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">🎯 Next Steps</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#immediate-actions">Immediate Actions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-migration-order-recommended">Repository Migration Order (Recommended)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ongoing-maintenance">Ongoing Maintenance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-implementation-completed">🧪 Local Testing Implementation ⚡ <strong>COMPLETED</strong></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-infrastructure">Testing Infrastructure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-capabilities">Testing Capabilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Benefits Achieved</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-examples">Integration Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-information">🏷️ Version Information</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support-and-resources">📞 Support and Resources</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

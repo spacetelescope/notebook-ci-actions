@@ -1,0 +1,880 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Local Testing Quick Reference &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/local-testing-quick-reference';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/local-testing-quick-reference.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Local Testing Quick Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">🚀 Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-workflow">📋 Testing Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validate-workflows">1. Validate Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-ci-pipeline-locally">2. Test CI Pipeline Locally</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-with-act-docker-based">3. Test with Act (Docker-based)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-testing">🎯 Repository-Specific Testing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks">JDAT Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks">HST Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe">Hello Universe</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks">MAST Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks">JWST Pipeline Notebooks</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-use-cases">🔧 Common Use Cases</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-workflow">Development Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-commit-hook">Pre-Commit Hook</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ci-cd-pipeline-simulation">CI/CD Pipeline Simulation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🐛 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment Variables</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-tips">📊 Performance Tips</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speed-up-testing">Speed Up Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optimize-act-performance">Optimize Act Performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">📚 Additional Resources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-best-practices">💡 Tips and Best Practices</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="local-testing-quick-reference">
+<h1>Local Testing Quick Reference<a class="headerlink" href="#local-testing-quick-reference" title="Link to this heading">#</a></h1>
+<p>This guide provides a quick reference for testing GitHub Actions workflows locally using the new testing scripts.</p>
+<section id="quick-start">
+<h2>🚀 Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Basic Requirements</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python 3.9+ with pip</span>
+python3<span class="w"> </span>--version
+
+<span class="c1"># Git repository</span>
+git<span class="w"> </span>status
+</pre></div>
+</div>
+</li>
+<li><p><strong>Optional (for enhanced testing)</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Docker (for Act-based testing)</span>
+docker<span class="w"> </span>--version
+
+<span class="c1"># Act (GitHub Actions local runner)</span>
+act<span class="w"> </span>--version
+
+<span class="c1"># Install Act if not available:</span>
+<span class="c1"># macOS: brew install act</span>
+<span class="c1"># Linux: curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash</span>
+<span class="c1"># Windows: choco install act-cli</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="testing-workflow">
+<h2>📋 Testing Workflow<a class="headerlink" href="#testing-workflow" title="Link to this heading">#</a></h2>
+<section id="validate-workflows">
+<h3>1. Validate Workflows<a class="headerlink" href="#validate-workflows" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Validate all workflow files</span>
+./scripts/validate-workflows.sh
+
+<span class="c1"># Verbose output for debugging</span>
+<span class="nv">VERBOSE</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>./scripts/validate-workflows.sh
+
+<span class="c1"># Skip Act validation if not available</span>
+<span class="nv">VALIDATE_ACT</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./scripts/validate-workflows.sh
+</pre></div>
+</div>
+</section>
+<section id="test-ci-pipeline-locally">
+<h3>2. Test CI Pipeline Locally<a class="headerlink" href="#test-ci-pipeline-locally" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Quick validation (recommended for development)</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span>./scripts/test-local-ci.sh
+
+<span class="c1"># Full execution test</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>full<span class="w"> </span>./scripts/test-local-ci.sh
+
+<span class="c1"># Test single notebook</span>
+<span class="nv">SINGLE_NOTEBOOK</span><span class="o">=</span>notebooks/example.ipynb<span class="w"> </span>./scripts/test-local-ci.sh
+
+<span class="c1"># Skip time-consuming steps</span>
+<span class="nv">RUN_SECURITY_SCAN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="nv">BUILD_DOCUMENTATION</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</section>
+<section id="test-with-act-docker-based">
+<h3>3. Test with Act (Docker-based)<a class="headerlink" href="#test-with-act-docker-based" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test pull request workflow</span>
+./scripts/test-with-act.sh<span class="w"> </span>pull_request
+
+<span class="c1"># Test specific workflow</span>
+./scripts/test-with-act.sh<span class="w"> </span>push<span class="w"> </span>.github/workflows/notebook-ci-main.yml
+
+<span class="c1"># Dry run (validate without execution)</span>
+<span class="nv">DRY_RUN</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>./scripts/test-with-act.sh<span class="w"> </span>workflow_dispatch
+</pre></div>
+</div>
+</section>
+</section>
+<section id="repository-specific-testing">
+<h2>🎯 Repository-Specific Testing<a class="headerlink" href="#repository-specific-testing" title="Link to this heading">#</a></h2>
+<section id="jdat-notebooks">
+<h3>JDAT Notebooks<a class="headerlink" href="#jdat-notebooks" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set CRDS environment</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CRDS_SERVER_URL</span><span class="o">=</span><span class="s2">&quot;https://jwst-crds.stsci.edu&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CRDS_PATH</span><span class="o">=</span><span class="s2">&quot;/tmp/crds_cache&quot;</span>
+
+<span class="c1"># Test with full execution</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>full<span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</section>
+<section id="hst-notebooks">
+<h3>HST Notebooks<a class="headerlink" href="#hst-notebooks" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: hstcal may not be available locally</span>
+<span class="c1"># Use validation-only mode</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</section>
+<section id="hello-universe">
+<h3>Hello Universe<a class="headerlink" href="#hello-universe" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Educational repository - skip security scan</span>
+<span class="nv">RUN_SECURITY_SCAN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</section>
+<section id="mast-notebooks">
+<h3>MAST Notebooks<a class="headerlink" href="#mast-notebooks" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard testing - may show MAST API warnings</span>
+./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</section>
+<section id="jwst-pipeline-notebooks">
+<h3>JWST Pipeline Notebooks<a class="headerlink" href="#jwst-pipeline-notebooks" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># jdaviz may not be available locally</span>
+<span class="c1"># Focus on notebook validation</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-use-cases">
+<h2>🔧 Common Use Cases<a class="headerlink" href="#common-use-cases" title="Link to this heading">#</a></h2>
+<section id="development-workflow">
+<h3>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Save as: test-dev.sh</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🚀 Development Testing Workflow&quot;</span>
+
+<span class="c1"># 1. Quick validation</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📋 Step 1: Workflow validation&quot;</span>
+./scripts/validate-workflows.sh<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># 2. Fast CI test</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔬 Step 2: Quick CI test&quot;</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span><span class="se">\</span>
+<span class="nv">BUILD_DOCUMENTATION</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+./scripts/test-local-ci.sh<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># 3. Test specific changes</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📓 Step 3: Testing specific notebook: </span><span class="nv">$1</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="nv">SINGLE_NOTEBOOK</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w"> </span>./scripts/test-local-ci.sh
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Development testing completed!&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="pre-commit-hook">
+<h3>Pre-Commit Hook<a class="headerlink" href="#pre-commit-hook" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Save as: .git/hooks/pre-commit</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔍 Pre-commit validation...&quot;</span>
+
+<span class="c1"># Validate workflows if changed</span>
+<span class="k">if</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--cached<span class="w"> </span>--name-only<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;\.github/workflows/&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>./scripts/validate-workflows.sh<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="c1"># Quick notebook test if notebooks changed</span>
+<span class="k">if</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--cached<span class="w"> </span>--name-only<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;\.ipynb</span>$<span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">BUILD_DOCUMENTATION</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">RUN_SECURITY_SCAN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>./scripts/test-local-ci.sh<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Pre-commit validation passed&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="ci-cd-pipeline-simulation">
+<h3>CI/CD Pipeline Simulation<a class="headerlink" href="#ci-cd-pipeline-simulation" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># Save as: test-full-pipeline.sh</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔄 Full CI/CD Pipeline Simulation&quot;</span>
+
+<span class="c1"># 1. Workflow validation</span>
+./scripts/validate-workflows.sh
+
+<span class="c1"># 2. Full CI test</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>full<span class="w"> </span>./scripts/test-local-ci.sh
+
+<span class="c1"># 3. Act-based testing (if available)</span>
+<span class="k">if</span><span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>act<span class="w"> </span><span class="p">&amp;</span>&gt;<span class="w"> </span>/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>./scripts/test-with-act.sh<span class="w"> </span>pull_request
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Full pipeline simulation completed!&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>🐛 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Python Environment Issues</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clear virtual environment</span>
+rm<span class="w"> </span>-rf<span class="w"> </span>venv
+./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Permission Errors</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make scripts executable</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>scripts/*.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Docker Issues (Act)</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify Docker is running</span>
+docker<span class="w"> </span>ps
+
+<span class="c1"># Pull required images</span>
+docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/catthehacker/ubuntu:act-latest
+</pre></div>
+</div>
+</li>
+<li><p><strong>Git Issues</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ensure clean working directory</span>
+git<span class="w"> </span>status
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Clean up before testing&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PYTHON_VERSION</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3.11</span></code></p></td>
+<td><p>Python version to use</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">EXECUTION_MODE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">validation-only</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">validation-only</span></code>, <code class="docutils literal notranslate"><span class="pre">quick</span></code>, <code class="docutils literal notranslate"><span class="pre">full</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SINGLE_NOTEBOOK</span></code></p></td>
+<td><p>-</p></td>
+<td><p>Path to single notebook to test</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RUN_SECURITY_SCAN</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Enable/disable security scanning</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">BUILD_DOCUMENTATION</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Enable/disable documentation build</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">VALIDATE_ACT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>Use Act for workflow validation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">VERBOSE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Enable verbose output</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DRY_RUN</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Validate without execution (Act only)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="performance-tips">
+<h2>📊 Performance Tips<a class="headerlink" href="#performance-tips" title="Link to this heading">#</a></h2>
+<section id="speed-up-testing">
+<h3>Speed Up Testing<a class="headerlink" href="#speed-up-testing" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Use validation-only mode</strong> for quick feedback:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Skip time-consuming steps</strong> during development:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">RUN_SECURITY_SCAN</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="nv">BUILD_DOCUMENTATION</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Test single notebooks</strong> for focused debugging:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">SINGLE_NOTEBOOK</span><span class="o">=</span>notebooks/problematic.ipynb<span class="w"> </span>./scripts/test-local-ci.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use dry runs</strong> for workflow validation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">DRY_RUN</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>./scripts/test-with-act.sh<span class="w"> </span>pull_request
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="optimize-act-performance">
+<h3>Optimize Act Performance<a class="headerlink" href="#optimize-act-performance" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Reuse containers</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to .actrc</span>
+--reuse
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use faster images</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to .actrc</span>
+--platform<span class="w"> </span>ubuntu-latest<span class="o">=</span>ubuntu:22.04
+</pre></div>
+</div>
+</li>
+<li><p><strong>Cache dependencies</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to .actrc</span>
+--artifact-server-path<span class="w"> </span>/tmp/act-artifacts
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="additional-resources">
+<h2>📚 Additional Resources<a class="headerlink" href="#additional-resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="#docs/local-testing-guide.md"><span class="xref myst">Complete Local Testing Guide</span></a></strong> - Detailed testing methods</p></li>
+<li><p><strong><a class="reference internal" href="#scripts/README.md"><span class="xref myst">Scripts Documentation</span></a></strong> - Script usage and examples</p></li>
+<li><p><strong><a class="reference external" href="https://github.com/nektos/act">Act Documentation</a></strong> - GitHub Actions local runner</p></li>
+<li><p><strong><a class="reference internal" href="#docs/migration-guide.md"><span class="xref myst">Migration Guide</span></a></strong> - Repository migration process</p></li>
+</ul>
+</section>
+<section id="tips-and-best-practices">
+<h2>💡 Tips and Best Practices<a class="headerlink" href="#tips-and-best-practices" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Start with workflow validation</strong> before testing execution</p></li>
+<li><p><strong>Use validation-only mode</strong> for fast feedback during development</p></li>
+<li><p><strong>Test single notebooks</strong> when debugging specific issues</p></li>
+<li><p><strong>Run full tests</strong> before creating pull requests</p></li>
+<li><p><strong>Use Act</strong> for comprehensive workflow testing with Docker</p></li>
+<li><p><strong>Set up pre-commit hooks</strong> for automatic validation</p></li>
+<li><p><strong>Test repository-specific configurations</strong> with appropriate environment variables</p></li>
+</ol>
+<hr class="docutils" />
+<p><strong>Quick Commands Summary</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Essential testing commands</span>
+./scripts/validate-workflows.sh<span class="w">                    </span><span class="c1"># Validate workflow syntax</span>
+./scripts/test-local-ci.sh<span class="w">                        </span><span class="c1"># Quick CI simulation  </span>
+./scripts/test-with-act.sh<span class="w"> </span>pull_request<span class="w">           </span><span class="c1"># Full workflow test</span>
+
+<span class="c1"># Development shortcuts</span>
+<span class="nv">EXECUTION_MODE</span><span class="o">=</span>validation-only<span class="w"> </span>./scripts/test-local-ci.sh<span class="w">    </span><span class="c1"># Fast validation</span>
+<span class="nv">DRY_RUN</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>./scripts/test-with-act.sh<span class="w"> </span>pull_request<span class="w">        </span><span class="c1"># Dry run test</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">🚀 Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-workflow">📋 Testing Workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validate-workflows">1. Validate Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-ci-pipeline-locally">2. Test CI Pipeline Locally</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-with-act-docker-based">3. Test with Act (Docker-based)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-testing">🎯 Repository-Specific Testing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jdat-notebooks">JDAT Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hst-notebooks">HST Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hello-universe">Hello Universe</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mast-notebooks">MAST Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#jwst-pipeline-notebooks">JWST Pipeline Notebooks</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-use-cases">🔧 Common Use Cases</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#development-workflow">Development Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-commit-hook">Pre-Commit Hook</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ci-cd-pipeline-simulation">CI/CD Pipeline Simulation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🐛 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment Variables</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-tips">📊 Performance Tips</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speed-up-testing">Speed Up Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optimize-act-performance">Optimize Act Performance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">📚 Additional Resources</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-and-best-practices">💡 Tips and Best Practices</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

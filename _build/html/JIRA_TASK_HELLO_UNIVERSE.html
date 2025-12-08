@@ -1,0 +1,911 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>JIRA Task Description: Set up Workflow Caller for Hello Universe &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'JIRA_TASK_HELLO_UNIVERSE';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/JIRA_TASK_HELLO_UNIVERSE.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>JIRA Task Description: Set up Workflow Caller for Hello Universe</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#title">Title</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-type">Issue Type</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#priority">Priority</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#labels">Labels</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#business-justification">Business Justification</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-context">Technical Context</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reasoning">Reasoning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-task-is-important">Why This Task is Important</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#strategic-alignment">Strategic Alignment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acceptance-criteria">Acceptance Criteria</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#primary-requirements">Primary Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac1-workflow-caller-setup">AC1: Workflow Caller Setup</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac2-repository-configuration">AC2: Repository Configuration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac3-workflow-integration">AC3: Workflow Integration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac4-testing-and-validation">AC4: Testing and Validation</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#secondary-requirements">Secondary Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac5-documentation">AC5: Documentation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac6-error-handling">AC6: Error Handling</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac7-performance-optimization">AC7: Performance Optimization</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quality-gates">Quality Gates</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac8-code-quality">AC8: Code Quality</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac9-integration-testing">AC9: Integration Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition-of-done">Definition of Done</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-completion">Technical Completion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#business-completion">Business Completion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-approach">Implementation Approach</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-1-setup-and-configuration">Phase 1: Setup and Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-2-integration-and-testing">Phase 2: Integration and Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-3-optimization-and-documentation">Phase 3: Optimization and Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#risks-and-mitigation">Risks and Mitigation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-1-workflow-failures-due-to-dependencies">Risk 1: Workflow Failures Due to Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-2-long-execution-times">Risk 2: Long Execution Times</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-3-repository-specific-issues">Risk 3: Repository-Specific Issues</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#success-metrics">Success Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quantitative-metrics">Quantitative Metrics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#qualitative-metrics">Qualitative Metrics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-dependencies">Technical Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#team-dependencies">Team Dependencies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estimated-effort">Estimated Effort</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breakdown">Breakdown</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-issues">Related Issues</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-notes">Additional Notes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-considerations">Environment Considerations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="jira-task-description-set-up-workflow-caller-for-hello-universe">
+<h1>JIRA Task Description: Set up Workflow Caller for Hello Universe<a class="headerlink" href="#jira-task-description-set-up-workflow-caller-for-hello-universe" title="Link to this heading">#</a></h1>
+<section id="title">
+<h2>Title<a class="headerlink" href="#title" title="Link to this heading">#</a></h2>
+<p>Set up workflow caller in notebook-ci-testing for hello_universe repository</p>
+</section>
+<section id="issue-type">
+<h2>Issue Type<a class="headerlink" href="#issue-type" title="Link to this heading">#</a></h2>
+<p>Story</p>
+</section>
+<section id="priority">
+<h2>Priority<a class="headerlink" href="#priority" title="Link to this heading">#</a></h2>
+<p>Medium</p>
+</section>
+<section id="labels">
+<h2>Labels<a class="headerlink" href="#labels" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>ci-cd</p></li>
+<li><p>notebook-testing</p></li>
+<li><p>workflow-setup</p></li>
+<li><p>hello-universe</p></li>
+<li><p>automation</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading">#</a></h2>
+<section id="background">
+<h3>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h3>
+<p>The hello_universe repository needs to be integrated into the centralized notebook CI/CD system managed by the notebook-ci-testing repository. This integration will enable automated testing, validation, and deployment of Jupyter notebooks in the hello_universe repository using reusable workflows.</p>
+</section>
+<section id="business-justification">
+<h3>Business Justification<a class="headerlink" href="#business-justification" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Consistency</strong>: Standardize CI/CD processes across all notebook repositories</p></li>
+<li><p><strong>Maintainability</strong>: Centralize workflow logic to reduce duplication and maintenance overhead</p></li>
+<li><p><strong>Quality Assurance</strong>: Ensure all notebooks meet quality standards before deployment</p></li>
+<li><p><strong>Automation</strong>: Reduce manual testing effort and human error</p></li>
+<li><p><strong>Scalability</strong>: Enable efficient scaling of notebook testing infrastructure</p></li>
+</ol>
+</section>
+<section id="technical-context">
+<h3>Technical Context<a class="headerlink" href="#technical-context" title="Link to this heading">#</a></h3>
+<p>The notebook-ci-testing repository contains reusable GitHub Actions workflows that can be called by other repositories. The hello_universe repository contains educational Jupyter notebooks that need automated testing and validation.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="reasoning">
+<h2>Reasoning<a class="headerlink" href="#reasoning" title="Link to this heading">#</a></h2>
+<section id="why-this-task-is-important">
+<h3>Why This Task is Important<a class="headerlink" href="#why-this-task-is-important" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Educational Repository Impact</strong>: hello_universe serves as an introductory repository for new users learning notebook-based workflows. Ensuring its reliability through automated testing is crucial for user experience.</p></li>
+<li><p><strong>Risk Mitigation</strong>: Manual testing is prone to errors and inconsistencies. Automated CI/CD reduces the risk of deploying broken notebooks that could frustrate learners.</p></li>
+<li><p><strong>Developer Productivity</strong>: Automated workflows free up developer time from manual testing tasks, allowing focus on content creation and improvement.</p></li>
+<li><p><strong>Quality Gates</strong>: Implementing automated quality checks ensures notebooks execute properly across different environments and Python versions.</p></li>
+<li><p><strong>Documentation and Examples</strong>: hello_universe often serves as a reference implementation. Having robust CI/CD demonstrates best practices for other repositories.</p></li>
+</ol>
+</section>
+<section id="strategic-alignment">
+<h3>Strategic Alignment<a class="headerlink" href="#strategic-alignment" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Supports the organization’s goal of automated quality assurance</p></li>
+<li><p>Aligns with the initiative to centralize and standardize CI/CD workflows</p></li>
+<li><p>Contributes to improved developer experience and reduced maintenance burden</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="acceptance-criteria">
+<h2>Acceptance Criteria<a class="headerlink" href="#acceptance-criteria" title="Link to this heading">#</a></h2>
+<section id="primary-requirements">
+<h3>Primary Requirements<a class="headerlink" href="#primary-requirements" title="Link to this heading">#</a></h3>
+<section id="ac1-workflow-caller-setup">
+<h4>AC1: Workflow Caller Setup<a class="headerlink" href="#ac1-workflow-caller-setup" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Create <code class="docutils literal notranslate"><span class="pre">.github/workflows/</span></code> directory in hello_universe repository (if not exists)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Implement workflow caller YAML file that references notebook-ci-testing reusable workflows</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Configure appropriate triggers (push to main, pull requests, workflow_dispatch)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Set up proper permissions and secrets handling</p></li>
+</ul>
+</section>
+<section id="ac2-repository-configuration">
+<h4>AC2: Repository Configuration<a class="headerlink" href="#ac2-repository-configuration" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Add or verify <code class="docutils literal notranslate"><span class="pre">_config.yml</span></code> for Jupyter Book configuration</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Add or verify <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> for table of contents structure</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Ensure <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> or <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> exists with necessary dependencies</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Configure repository-specific environment variables if needed</p></li>
+</ul>
+</section>
+<section id="ac3-workflow-integration">
+<h4>AC3: Workflow Integration<a class="headerlink" href="#ac3-workflow-integration" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Integrate with notebook validation workflow from notebook-ci-testing</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Integrate with security scanning workflow (if applicable)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Integrate with documentation building workflow</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Configure matrix strategy for multiple Python versions (3.9, 3.10) if needed</p></li>
+</ul>
+</section>
+<section id="ac4-testing-and-validation">
+<h4>AC4: Testing and Validation<a class="headerlink" href="#ac4-testing-and-validation" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Workflow executes successfully on push to main branch</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Workflow executes successfully on pull request creation</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Manual workflow dispatch functions correctly</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> All notebooks in repository execute without errors</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Generated artifacts (executed notebooks, documentation) are properly uploaded</p></li>
+</ul>
+</section>
+</section>
+<section id="secondary-requirements">
+<h3>Secondary Requirements<a class="headerlink" href="#secondary-requirements" title="Link to this heading">#</a></h3>
+<section id="ac5-documentation">
+<h4>AC5: Documentation<a class="headerlink" href="#ac5-documentation" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Update hello_universe <a class="reference external" href="http://README.md">README.md</a> with CI/CD status badges</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Document the workflow setup process for future reference</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Add troubleshooting section for common issues</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Include links to centralized documentation in notebook-ci-testing</p></li>
+</ul>
+</section>
+<section id="ac6-error-handling">
+<h4>AC6: Error Handling<a class="headerlink" href="#ac6-error-handling" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Proper error handling for missing dependencies</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Graceful handling of notebook execution failures</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Appropriate timeout configurations</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Clear error messages and logging</p></li>
+</ul>
+</section>
+<section id="ac7-performance-optimization">
+<h4>AC7: Performance Optimization<a class="headerlink" href="#ac7-performance-optimization" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Implement caching for Python dependencies</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Configure appropriate concurrency settings</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Optimize for hello_universe repository characteristics (lightweight, educational content)</p></li>
+</ul>
+</section>
+</section>
+<section id="quality-gates">
+<h3>Quality Gates<a class="headerlink" href="#quality-gates" title="Link to this heading">#</a></h3>
+<section id="ac8-code-quality">
+<h4>AC8: Code Quality<a class="headerlink" href="#ac8-code-quality" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Workflow YAML passes yamllint validation</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> All workflow steps include proper descriptions</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Security best practices followed (no hardcoded secrets, appropriate permissions)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Follows naming conventions established in notebook-ci-testing</p></li>
+</ul>
+</section>
+<section id="ac9-integration-testing">
+<h4>AC9: Integration Testing<a class="headerlink" href="#ac9-integration-testing" title="Link to this heading">#</a></h4>
+<ul class="contains-task-list simple">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Test workflow with different types of commits (notebook changes, documentation changes, etc.)</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Verify workflow behavior on both successful and failing notebook executions</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Confirm artifact uploads work correctly</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Test manual workflow dispatch with different parameters</p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="definition-of-done">
+<h2>Definition of Done<a class="headerlink" href="#definition-of-done" title="Link to this heading">#</a></h2>
+<section id="technical-completion">
+<h3>Technical Completion<a class="headerlink" href="#technical-completion" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>✅ Workflow caller successfully implemented and tested</p></li>
+<li><p>✅ All acceptance criteria met and verified</p></li>
+<li><p>✅ Integration tests pass</p></li>
+<li><p>✅ Documentation updated</p></li>
+<li><p>✅ Code reviewed and approved</p></li>
+<li><p>✅ No security vulnerabilities introduced</p></li>
+</ol>
+</section>
+<section id="business-completion">
+<h3>Business Completion<a class="headerlink" href="#business-completion" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>✅ hello_universe notebooks execute automatically on code changes</p></li>
+<li><p>✅ Quality gates prevent broken notebooks from reaching main branch</p></li>
+<li><p>✅ Development team can confidently merge changes knowing automated testing validates functionality</p></li>
+<li><p>✅ End users have access to reliable, tested notebook content</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="implementation-approach">
+<h2>Implementation Approach<a class="headerlink" href="#implementation-approach" title="Link to this heading">#</a></h2>
+<section id="phase-1-setup-and-configuration">
+<h3>Phase 1: Setup and Configuration<a class="headerlink" href="#phase-1-setup-and-configuration" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Analyze hello_universe repository structure</p></li>
+<li><p>Create workflow caller configuration</p></li>
+<li><p>Set up basic CI/CD pipeline</p></li>
+</ol>
+</section>
+<section id="phase-2-integration-and-testing">
+<h3>Phase 2: Integration and Testing<a class="headerlink" href="#phase-2-integration-and-testing" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Integrate with notebook-ci-testing workflows</p></li>
+<li><p>Configure repository-specific settings</p></li>
+<li><p>Perform end-to-end testing</p></li>
+</ol>
+</section>
+<section id="phase-3-optimization-and-documentation">
+<h3>Phase 3: Optimization and Documentation<a class="headerlink" href="#phase-3-optimization-and-documentation" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Implement performance optimizations</p></li>
+<li><p>Add comprehensive documentation</p></li>
+<li><p>Create troubleshooting guides</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="risks-and-mitigation">
+<h2>Risks and Mitigation<a class="headerlink" href="#risks-and-mitigation" title="Link to this heading">#</a></h2>
+<section id="risk-1-workflow-failures-due-to-dependencies">
+<h3>Risk 1: Workflow Failures Due to Dependencies<a class="headerlink" href="#risk-1-workflow-failures-due-to-dependencies" title="Link to this heading">#</a></h3>
+<p><strong>Mitigation</strong>: Implement robust error handling and fallback strategies for dependency installation</p>
+</section>
+<section id="risk-2-long-execution-times">
+<h3>Risk 2: Long Execution Times<a class="headerlink" href="#risk-2-long-execution-times" title="Link to this heading">#</a></h3>
+<p><strong>Mitigation</strong>: Optimize workflow with caching and conditional execution based on changed files</p>
+</section>
+<section id="risk-3-repository-specific-issues">
+<h3>Risk 3: Repository-Specific Issues<a class="headerlink" href="#risk-3-repository-specific-issues" title="Link to this heading">#</a></h3>
+<p><strong>Mitigation</strong>: Thorough analysis of hello_universe repository characteristics and custom configuration as needed</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="success-metrics">
+<h2>Success Metrics<a class="headerlink" href="#success-metrics" title="Link to this heading">#</a></h2>
+<section id="quantitative-metrics">
+<h3>Quantitative Metrics<a class="headerlink" href="#quantitative-metrics" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Workflow success rate &gt; 95%</p></li>
+<li><p>Average workflow execution time &lt; 10 minutes</p></li>
+<li><p>Zero manual testing required for routine changes</p></li>
+<li><p>Reduction in bug reports related to broken notebooks</p></li>
+</ul>
+</section>
+<section id="qualitative-metrics">
+<h3>Qualitative Metrics<a class="headerlink" href="#qualitative-metrics" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Developer satisfaction with automated workflow</p></li>
+<li><p>Improved confidence in notebook reliability</p></li>
+<li><p>Reduced maintenance overhead</p></li>
+<li><p>Enhanced code quality and consistency</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h2>
+<section id="technical-dependencies">
+<h3>Technical Dependencies<a class="headerlink" href="#technical-dependencies" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Access to hello_universe repository</p></li>
+<li><p>notebook-ci-testing reusable workflows must be functional</p></li>
+<li><p>Required GitHub Actions permissions</p></li>
+<li><p>Python environment compatibility</p></li>
+</ul>
+</section>
+<section id="team-dependencies">
+<h3>Team Dependencies<a class="headerlink" href="#team-dependencies" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Repository maintainer approval for workflow setup</p></li>
+<li><p>DevOps team review of security configurations</p></li>
+<li><p>Documentation team input on README updates</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="estimated-effort">
+<h2>Estimated Effort<a class="headerlink" href="#estimated-effort" title="Link to this heading">#</a></h2>
+<p><strong>Story Points</strong>: 5
+<strong>Time Estimate</strong>: 1-2 sprints (2-4 weeks)</p>
+<section id="breakdown">
+<h3>Breakdown<a class="headerlink" href="#breakdown" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Repository analysis and planning: 4 hours</p></li>
+<li><p>Workflow implementation: 8 hours</p></li>
+<li><p>Testing and debugging: 6 hours</p></li>
+<li><p>Documentation: 3 hours</p></li>
+<li><p>Review and refinement: 3 hours</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="related-issues">
+<h2>Related Issues<a class="headerlink" href="#related-issues" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Link to parent epic for notebook CI/CD standardization</p></li>
+<li><p>Related stories for other repository integrations</p></li>
+<li><p>Dependencies on notebook-ci-testing infrastructure improvements</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="additional-notes">
+<h2>Additional Notes<a class="headerlink" href="#additional-notes" title="Link to this heading">#</a></h2>
+<section id="environment-considerations">
+<h3>Environment Considerations<a class="headerlink" href="#environment-considerations" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>hello_universe is primarily educational content, so workflow should be optimized for simplicity and clarity</p></li>
+<li><p>Consider adding educational value by making the CI/CD setup itself a learning example</p></li>
+<li><p>Ensure workflow is robust enough for users who may be new to GitHub Actions</p></li>
+</ul>
+</section>
+<section id="future-enhancements">
+<h3>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Integration with educational platform deployment</p></li>
+<li><p>Automated content updates and synchronization</p></li>
+<li><p>Performance monitoring and optimization</p></li>
+<li><p>User feedback collection and analysis</p></li>
+</ul>
+<hr class="docutils" />
+<p><em>Created by: [Your Name]</em>
+<em>Date: June 18, 2025</em>
+<em>Epic: Notebook CI/CD Standardization</em>
+<em>Sprint: [Current Sprint]</em></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#title">Title</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-type">Issue Type</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#priority">Priority</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#labels">Labels</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#description">Description</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#business-justification">Business Justification</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-context">Technical Context</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reasoning">Reasoning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-this-task-is-important">Why This Task is Important</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#strategic-alignment">Strategic Alignment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#acceptance-criteria">Acceptance Criteria</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#primary-requirements">Primary Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac1-workflow-caller-setup">AC1: Workflow Caller Setup</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac2-repository-configuration">AC2: Repository Configuration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac3-workflow-integration">AC3: Workflow Integration</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac4-testing-and-validation">AC4: Testing and Validation</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#secondary-requirements">Secondary Requirements</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac5-documentation">AC5: Documentation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac6-error-handling">AC6: Error Handling</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac7-performance-optimization">AC7: Performance Optimization</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quality-gates">Quality Gates</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac8-code-quality">AC8: Code Quality</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ac9-integration-testing">AC9: Integration Testing</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#definition-of-done">Definition of Done</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-completion">Technical Completion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#business-completion">Business Completion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-approach">Implementation Approach</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-1-setup-and-configuration">Phase 1: Setup and Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-2-integration-and-testing">Phase 2: Integration and Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#phase-3-optimization-and-documentation">Phase 3: Optimization and Documentation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#risks-and-mitigation">Risks and Mitigation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-1-workflow-failures-due-to-dependencies">Risk 1: Workflow Failures Due to Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-2-long-execution-times">Risk 2: Long Execution Times</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#risk-3-repository-specific-issues">Risk 3: Repository-Specific Issues</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#success-metrics">Success Metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quantitative-metrics">Quantitative Metrics</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#qualitative-metrics">Qualitative Metrics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#technical-dependencies">Technical Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#team-dependencies">Team Dependencies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estimated-effort">Estimated Effort</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#breakdown">Breakdown</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-issues">Related Issues</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-notes">Additional Notes</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-considerations">Environment Considerations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#future-enhancements">Future Enhancements</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

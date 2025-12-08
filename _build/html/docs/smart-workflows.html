@@ -1,0 +1,1034 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Smart Workflow System - Conditional CI Documentation &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/smart-workflows';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/smart-workflows.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Smart Workflow System - Conditional CI Documentation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">🧠 Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits">🎯 Key Benefits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">⚡ Performance Optimization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cost-reduction">💰 Cost Reduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quality-assurance">🔒 Quality Assurance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-smart-workflows">📁 Available Smart Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-smart-yml-smart-pull-request-ci">1. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code> - Smart Pull Request CI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-smart-yml-smart-main-branch-ci">2. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code> - Smart Main Branch CI</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-change-detection-logic">🔍 File Change Detection Logic</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-categories">File Categories</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-files-trigger-full-ci">📔 Notebook Files (Trigger Full CI)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-files-trigger-full-ci">🔧 Requirements Files (Trigger Full CI)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-files-docs-only-rebuild">📚 Documentation Files (Docs-Only Rebuild)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-files-special-handling">⚙️ Workflow Files (Special Handling)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-matrix">Decision Matrix</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-guide">🛠️ Implementation Guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-choose-your-smart-workflow">Step 1: Choose Your Smart Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-repository-specific-customization">Step 2: Repository-Specific Customization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-jwst-pipeline-notebooks">For <code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code>:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-hst-notebooks">For <code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code>:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-hello-universe">For <code class="docutils literal notranslate"><span class="pre">hello_universe</span></code>:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-testing-smart-workflows">Step 3: Testing Smart Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#test-documentation-only-path">Test Documentation-Only Path:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#test-notebook-change-path">Test Notebook Change Path:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-monitor-and-optimize">Step 4: Monitor and Optimize</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-run-analysis">Workflow Run Analysis:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fine-tuning">Fine-Tuning:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison">📊 Performance Comparison</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#traditional-workflow">Traditional Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-workflow">Smart Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-scenarios">Example Scenarios</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-1-documentation-update-pr">Scenario 1: Documentation Update PR</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-2-configuration-file-update">Scenario 2: Configuration File Update</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-3-notebook-bug-fix">Scenario 3: Notebook Bug Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-configuration">🔧 Advanced Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-file-patterns">Custom File Patterns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-logic">Repository-Specific Logic</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-specific-execution">Environment-Specific Execution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🚨 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-detection-not-working">Smart Detection Not Working</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#docs-only-builds-failing">Docs-Only Builds Failing</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#false-positives-in-detection">False Positives in Detection</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debug-mode">Debug Mode</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">📝 Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gradual-rollout">1. Gradual Rollout</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clear-communication">2. Clear Communication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-monitoring">3. Regular Monitoring</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fallback-strategy">4. Fallback Strategy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-documentation">🔗 Related Documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support">📞 Support</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="smart-workflow-system-conditional-ci-documentation">
+<h1>Smart Workflow System - Conditional CI Documentation<a class="headerlink" href="#smart-workflow-system-conditional-ci-documentation" title="Link to this heading">#</a></h1>
+<section id="overview">
+<h2>🧠 Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The Smart Workflow System intelligently detects file changes in pull requests and main branch pushes to determine the optimal CI/CD path. This system dramatically reduces execution time and compute costs for documentation-only changes while maintaining full validation for notebook and code changes.</p>
+</section>
+<section id="key-benefits">
+<h2>🎯 Key Benefits<a class="headerlink" href="#key-benefits" title="Link to this heading">#</a></h2>
+<section id="performance-optimization">
+<h3>⚡ Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Documentation-only PRs</strong>: ~2-5 minutes instead of 15-30 minutes</p></li>
+<li><p><strong>Config-only changes</strong>: Skip notebook execution entirely</p></li>
+<li><p><strong>Faster feedback</strong>: Immediate validation for non-notebook changes</p></li>
+</ul>
+</section>
+<section id="cost-reduction">
+<h3>💰 Cost Reduction<a class="headerlink" href="#cost-reduction" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Reduced GitHub Actions minutes</strong>: Up to 80% savings on documentation PRs</p></li>
+<li><p><strong>Efficient resource usage</strong>: Only run expensive operations when needed</p></li>
+<li><p><strong>Smart caching</strong>: Optimized workflow execution paths</p></li>
+</ul>
+</section>
+<section id="quality-assurance">
+<h3>🔒 Quality Assurance<a class="headerlink" href="#quality-assurance" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Full validation when needed</strong>: Complete CI for notebook/code changes</p></li>
+<li><p><strong>Selective testing</strong>: Targeted validation based on change type</p></li>
+<li><p><strong>Security scanning</strong>: Maintained where appropriate</p></li>
+</ul>
+</section>
+</section>
+<section id="available-smart-workflows">
+<h2>📁 Available Smart Workflows<a class="headerlink" href="#available-smart-workflows" title="Link to this heading">#</a></h2>
+<section id="notebook-ci-pr-smart-yml-smart-pull-request-ci">
+<h3>1. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code> - Smart Pull Request CI<a class="headerlink" href="#notebook-ci-pr-smart-yml-smart-pull-request-ci" title="Link to this heading">#</a></h3>
+<p><strong>Purpose</strong>: Intelligent PR validation with conditional execution paths</p>
+<p><strong>Features</strong>:</p>
+<ul class="simple">
+<li><p><strong>File Change Detection</strong>: Analyzes PR changes to determine workflow path</p></li>
+<li><p><strong>Conditional Execution</strong>: Full CI for notebooks, docs-only for config changes</p></li>
+<li><p><strong>Smart Feedback</strong>: Clear summary of why specific CI path was chosen</p></li>
+<li><p><strong>Security Scanning</strong>: Maintained for code changes</p></li>
+</ul>
+<p><strong>Workflow Paths</strong>:</p>
+<ul class="simple">
+<li><p><strong>Notebooks/Requirements Changed</strong> → Full notebook validation + security scan + docs preview</p></li>
+<li><p><strong>Documentation/Config Changed</strong> → Documentation rebuild only + preview</p></li>
+<li><p><strong>Mixed Changes</strong> → Full CI path (safer approach)</p></li>
+</ul>
+</section>
+<section id="notebook-ci-main-smart-yml-smart-main-branch-ci">
+<h3>2. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code> - Smart Main Branch CI<a class="headerlink" href="#notebook-ci-main-smart-yml-smart-main-branch-ci" title="Link to this heading">#</a></h3>
+<p><strong>Purpose</strong>: Optimized main branch CI with deployment intelligence</p>
+<p><strong>Features</strong>:</p>
+<ul class="simple">
+<li><p><strong>Production-Ready Execution</strong>: Full notebook execution for main branch when needed</p></li>
+<li><p><strong>Documentation-Only Deployment</strong>: Fast deployment for config-only changes</p></li>
+<li><p><strong>Performance Metrics</strong>: Built-in timing and cost optimization reporting</p></li>
+<li><p><strong>Deployment Summary</strong>: Clear feedback on what was deployed and why</p></li>
+</ul>
+<p><strong>Workflow Paths</strong>:</p>
+<ul class="simple">
+<li><p><strong>Notebooks/Requirements Changed</strong> → Full CI + execution + deployment</p></li>
+<li><p><strong>Documentation/Config Changed</strong> → Documentation rebuild + deployment</p></li>
+<li><p><strong>No Significant Changes</strong> → Skip CI entirely</p></li>
+</ul>
+</section>
+</section>
+<section id="file-change-detection-logic">
+<h2>🔍 File Change Detection Logic<a class="headerlink" href="#file-change-detection-logic" title="Link to this heading">#</a></h2>
+<section id="file-categories">
+<h3>File Categories<a class="headerlink" href="#file-categories" title="Link to this heading">#</a></h3>
+<p>The smart workflows categorize changed files into these groups:</p>
+<section id="notebook-files-trigger-full-ci">
+<h4>📔 Notebook Files (Trigger Full CI)<a class="headerlink" href="#notebook-files-trigger-full-ci" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">notebooks</span><span class="o">/*.</span><span class="n">ipynb</span>     <span class="c1"># Jupyter notebooks</span>
+<span class="n">notebooks</span><span class="o">/*.</span><span class="n">py</span>        <span class="c1"># Python scripts  </span>
+<span class="n">notebooks</span><span class="o">/*.</span><span class="n">R</span>         <span class="c1"># R scripts</span>
+</pre></div>
+</div>
+</section>
+<section id="requirements-files-trigger-full-ci">
+<h4>🔧 Requirements Files (Trigger Full CI)<a class="headerlink" href="#requirements-files-trigger-full-ci" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>      <span class="c1"># Python dependencies</span>
+<span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span>       <span class="c1"># Python project config</span>
+<span class="n">setup</span><span class="o">.</span><span class="n">py</span>            <span class="c1"># Python package setup</span>
+</pre></div>
+</div>
+</section>
+<section id="documentation-files-docs-only-rebuild">
+<h4>📚 Documentation Files (Docs-Only Rebuild)<a class="headerlink" href="#documentation-files-docs-only-rebuild" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">_config</span><span class="o">.</span><span class="n">yml</span>          <span class="c1"># JupyterBook config</span>
+<span class="n">_toc</span><span class="o">.</span><span class="n">yml</span>            <span class="c1"># Table of contents</span>
+<span class="o">*.</span><span class="n">md</span>                <span class="c1"># Markdown files</span>
+<span class="o">*.</span><span class="n">rst</span>               <span class="c1"># ReStructuredText files</span>
+<span class="n">scripts</span><span class="o">/*</span>           <span class="c1"># Helper scripts</span>
+<span class="o">*.</span><span class="n">html</span>              <span class="c1"># Static HTML</span>
+<span class="o">*.</span><span class="n">css</span>               <span class="c1"># Styling</span>
+<span class="o">*.</span><span class="n">js</span>                <span class="c1"># JavaScript</span>
+</pre></div>
+</div>
+</section>
+<section id="workflow-files-special-handling">
+<h4>⚙️ Workflow Files (Special Handling)<a class="headerlink" href="#workflow-files-special-handling" title="Link to this heading">#</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span><span class="n">github</span><span class="o">/</span><span class="n">workflows</span><span class="o">/*</span>  <span class="c1"># GitHub Actions workflows</span>
+<span class="o">*.</span><span class="n">yml</span>               <span class="c1"># Other YAML configs</span>
+<span class="o">*.</span><span class="n">yaml</span>              <span class="c1"># Other YAML configs</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="decision-matrix">
+<h3>Decision Matrix<a class="headerlink" href="#decision-matrix" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Files Changed</p></th>
+<th class="head"><p>PR Workflow</p></th>
+<th class="head"><p>Main Branch Workflow</p></th>
+<th class="head"><p>Reason</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Only <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code></p></td>
+<td><p>Full CI (validation-only)</p></td>
+<td><p>Full CI + Execution</p></td>
+<td><p>Notebooks need validation/execution</p></td>
+</tr>
+<tr class="row-odd"><td><p>Only requirements</p></td>
+<td><p>Full CI (validation-only)</p></td>
+<td><p>Full CI + Execution</p></td>
+<td><p>Dependencies affect notebook execution</p></td>
+</tr>
+<tr class="row-even"><td><p>Only <code class="docutils literal notranslate"><span class="pre">_config.yml</span></code></p></td>
+<td><p>Docs rebuild only</p></td>
+<td><p>Docs rebuild + deploy</p></td>
+<td><p>Documentation configuration</p></td>
+</tr>
+<tr class="row-odd"><td><p>Only <code class="docutils literal notranslate"><span class="pre">.md</span></code> files</p></td>
+<td><p>Docs rebuild only</p></td>
+<td><p>Docs rebuild + deploy</p></td>
+<td><p>Documentation content</p></td>
+</tr>
+<tr class="row-even"><td><p>Mixed changes</p></td>
+<td><p>Full CI</p></td>
+<td><p>Full CI + Execution</p></td>
+<td><p>Safety: validate everything</p></td>
+</tr>
+<tr class="row-odd"><td><p>Workflow files only</p></td>
+<td><p>Minimal/Skip</p></td>
+<td><p>Skip</p></td>
+<td><p>No content changes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="implementation-guide">
+<h2>🛠️ Implementation Guide<a class="headerlink" href="#implementation-guide" title="Link to this heading">#</a></h2>
+<section id="step-1-choose-your-smart-workflow">
+<h3>Step 1: Choose Your Smart Workflow<a class="headerlink" href="#step-1-choose-your-smart-workflow" title="Link to this heading">#</a></h3>
+<p>Replace your existing PR and main branch workflows with the smart versions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Remove old workflows</span>
+rm<span class="w"> </span>.github/workflows/notebook-ci-pr.yml
+rm<span class="w"> </span>.github/workflows/notebook-ci-main.yml
+
+<span class="c1"># Add smart workflows</span>
+cp<span class="w"> </span>notebook-ci-pr-smart.yml<span class="w"> </span>.github/workflows/
+cp<span class="w"> </span>notebook-ci-main-smart.yml<span class="w"> </span>.github/workflows/
+</pre></div>
+</div>
+</section>
+<section id="step-2-repository-specific-customization">
+<h3>Step 2: Repository-Specific Customization<a class="headerlink" href="#step-2-repository-specific-customization" title="Link to this heading">#</a></h3>
+<section id="for-jwst-pipeline-notebooks">
+<h4>For <code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code>:<a class="headerlink" href="#for-jwst-pipeline-notebooks" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># In both smart workflows, ensure post-processing is configured:</span>
+<span class="nt">post-run-script</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;scripts/jdaviz_image_replacement.sh&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="for-hst-notebooks">
+<h4>For <code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code>:<a class="headerlink" href="#for-hst-notebooks" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># The smart workflows automatically detect hst_notebooks and use micromamba</span>
+<span class="c1"># No additional configuration needed</span>
+</pre></div>
+</div>
+</section>
+<section id="for-hello-universe">
+<h4>For <code class="docutils literal notranslate"><span class="pre">hello_universe</span></code>:<a class="headerlink" href="#for-hello-universe" title="Link to this heading">#</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Consider disabling security scanning for educational repository:</span>
+<span class="nt">security-scan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># Add this to full-notebook-ci job</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-3-testing-smart-workflows">
+<h3>Step 3: Testing Smart Workflows<a class="headerlink" href="#step-3-testing-smart-workflows" title="Link to this heading">#</a></h3>
+<section id="test-documentation-only-path">
+<h4>Test Documentation-Only Path:<a class="headerlink" href="#test-documentation-only-path" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a PR that only changes documentation</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>test-docs-only
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;# New section&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>README.md
+git<span class="w"> </span>add<span class="w"> </span>README.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: add new section&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>test-docs-only
+<span class="c1"># Create PR - should trigger docs-only rebuild</span>
+</pre></div>
+</div>
+</section>
+<section id="test-notebook-change-path">
+<h4>Test Notebook Change Path:<a class="headerlink" href="#test-notebook-change-path" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a PR that changes a notebook</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>test-notebook-change
+<span class="c1"># Edit a notebook file</span>
+git<span class="w"> </span>add<span class="w"> </span>notebooks/example.ipynb
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: update example notebook&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>test-notebook-change
+<span class="c1"># Create PR - should trigger full CI</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="step-4-monitor-and-optimize">
+<h3>Step 4: Monitor and Optimize<a class="headerlink" href="#step-4-monitor-and-optimize" title="Link to this heading">#</a></h3>
+<section id="workflow-run-analysis">
+<h4>Workflow Run Analysis:<a class="headerlink" href="#workflow-run-analysis" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Monitor GitHub Actions usage in repository Insights</p></li>
+<li><p>Track time savings in workflow summaries</p></li>
+<li><p>Review smart workflow decision accuracy</p></li>
+</ul>
+</section>
+<section id="fine-tuning">
+<h4>Fine-Tuning:<a class="headerlink" href="#fine-tuning" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Adjust file pattern matching if needed</p></li>
+<li><p>Customize execution modes per repository</p></li>
+<li><p>Update documentation rebuild triggers</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="performance-comparison">
+<h2>📊 Performance Comparison<a class="headerlink" href="#performance-comparison" title="Link to this heading">#</a></h2>
+<section id="traditional-workflow">
+<h3>Traditional Workflow<a class="headerlink" href="#traditional-workflow" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Every PR: Full CI → 15-30 minutes
+Every Push: Full CI → 15-30 minutes
+Monthly Actions Minutes: ~500-1000 minutes
+</pre></div>
+</div>
+</section>
+<section id="smart-workflow">
+<h3>Smart Workflow<a class="headerlink" href="#smart-workflow" title="Link to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Documentation PR: Docs-only → 2-5 minutes
+Notebook PR: Full CI → 15-30 minutes  
+Documentation Push: Docs-only → 2-5 minutes
+Notebook Push: Full CI → 15-30 minutes
+Monthly Actions Minutes: ~200-400 minutes (60% savings)
+</pre></div>
+</div>
+</section>
+<section id="example-scenarios">
+<h3>Example Scenarios<a class="headerlink" href="#example-scenarios" title="Link to this heading">#</a></h3>
+<section id="scenario-1-documentation-update-pr">
+<h4>Scenario 1: Documentation Update PR<a class="headerlink" href="#scenario-1-documentation-update-pr" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Traditional</strong>: 20 minutes (full notebook execution)</p></li>
+<li><p><strong>Smart</strong>: 3 minutes (documentation rebuild only)</p></li>
+<li><p><strong>Time Saved</strong>: 17 minutes (85% faster)</p></li>
+</ul>
+</section>
+<section id="scenario-2-configuration-file-update">
+<h4>Scenario 2: Configuration File Update<a class="headerlink" href="#scenario-2-configuration-file-update" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Traditional</strong>: 25 minutes (full CI + deployment)</p></li>
+<li><p><strong>Smart</strong>: 4 minutes (docs rebuild + deployment)</p></li>
+<li><p><strong>Time Saved</strong>: 21 minutes (84% faster)</p></li>
+</ul>
+</section>
+<section id="scenario-3-notebook-bug-fix">
+<h4>Scenario 3: Notebook Bug Fix<a class="headerlink" href="#scenario-3-notebook-bug-fix" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Traditional</strong>: 25 minutes (full CI + deployment)</p></li>
+<li><p><strong>Smart</strong>: 25 minutes (full CI + deployment)</p></li>
+<li><p><strong>Time Saved</strong>: 0 minutes (appropriate full validation)</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="advanced-configuration">
+<h2>🔧 Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Link to this heading">#</a></h2>
+<section id="custom-file-patterns">
+<h3>Custom File Patterns<a class="headerlink" href="#custom-file-patterns" title="Link to this heading">#</a></h3>
+<p>To add custom file types to the documentation category:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># In detect-changes job, add to the case statement:</span>
+<span class="err">*</span><span class="l l-Scalar l-Scalar-Plain">.custom)</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">echo &quot;  → Custom documentation file changed&quot;</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">DOCS_CONFIG_CHANGED=true</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">;;</span>
+</pre></div>
+</div>
+</section>
+<section id="repository-specific-logic">
+<h3>Repository-Specific Logic<a class="headerlink" href="#repository-specific-logic" title="Link to this heading">#</a></h3>
+<p>Add repository-specific detection logic:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: Special handling for specific repositories</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Repository-specific logic</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">if [ &quot;${{ github.repository }}&quot; = &quot;spacetelescope/special_repo&quot; ]; then</span>
+<span class="w">      </span><span class="no"># Custom logic for special_repo</span>
+<span class="w">      </span><span class="no">echo &quot;special-handling=true&quot; &gt;&gt; $GITHUB_OUTPUT</span>
+<span class="w">    </span><span class="no">fi</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-specific-execution">
+<h3>Environment-Specific Execution<a class="headerlink" href="#environment-specific-execution" title="Link to this heading">#</a></h3>
+<p>Configure different execution modes based on file changes:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: More conservative approach for critical files</span>
+<span class="nt">execution-mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ needs.detect-changes.outputs.notebooks-changed == &#39;true&#39; &amp;&amp; &#39;full&#39; || &#39;validation-only&#39; }}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>🚨 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues">
+<h3>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h3>
+<section id="smart-detection-not-working">
+<h4>Smart Detection Not Working<a class="headerlink" href="#smart-detection-not-working" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: All PRs trigger full CI even for documentation changes
+<strong>Solution</strong>:</p>
+<ol class="arabic simple">
+<li><p>Check file pattern matching in detect-changes job</p></li>
+<li><p>Verify git diff is detecting changes correctly</p></li>
+<li><p>Review changed files list in workflow logs</p></li>
+</ol>
+</section>
+<section id="docs-only-builds-failing">
+<h4>Docs-Only Builds Failing<a class="headerlink" href="#docs-only-builds-failing" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: Documentation rebuilds fail for config-only changes
+<strong>Solution</strong>:</p>
+<ol class="arabic simple">
+<li><p>Ensure all required files are present for documentation build</p></li>
+<li><p>Check if notebooks are needed for documentation generation</p></li>
+<li><p>Verify JupyterBook configuration is complete</p></li>
+</ol>
+</section>
+<section id="false-positives-in-detection">
+<h4>False Positives in Detection<a class="headerlink" href="#false-positives-in-detection" title="Link to this heading">#</a></h4>
+<p><strong>Symptoms</strong>: Documentation changes trigger full CI
+<strong>Solution</strong>:</p>
+<ol class="arabic simple">
+<li><p>Review file categorization logic</p></li>
+<li><p>Add specific file extensions to documentation category</p></li>
+<li><p>Check for mixed change scenarios</p></li>
+</ol>
+</section>
+</section>
+<section id="debug-mode">
+<h3>Debug Mode<a class="headerlink" href="#debug-mode" title="Link to this heading">#</a></h3>
+<p>Enable detailed logging in smart workflows:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to detect-changes job for debugging</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Debug file detection</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">echo &quot;Debug: Changed files analysis&quot;</span>
+<span class="w">    </span><span class="no">git diff --name-status ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}</span>
+<span class="w">    </span><span class="no">echo &quot;Debug: Environment variables&quot;</span>
+<span class="w">    </span><span class="no">env | grep GITHUB_ | head -10</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>📝 Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<section id="gradual-rollout">
+<h3>1. Gradual Rollout<a class="headerlink" href="#gradual-rollout" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Test smart workflows in a development environment first</p></li>
+<li><p>Monitor performance improvements and accuracy</p></li>
+<li><p>Gradually roll out to all repositories</p></li>
+</ul>
+</section>
+<section id="clear-communication">
+<h3>2. Clear Communication<a class="headerlink" href="#clear-communication" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Document the smart workflow behavior for contributors</p></li>
+<li><p>Add workflow summaries to PR descriptions</p></li>
+<li><p>Train team members on expected behavior</p></li>
+</ul>
+</section>
+<section id="regular-monitoring">
+<h3>3. Regular Monitoring<a class="headerlink" href="#regular-monitoring" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Review workflow execution patterns monthly</p></li>
+<li><p>Analyze cost savings and performance improvements</p></li>
+<li><p>Adjust file detection logic based on usage patterns</p></li>
+</ul>
+</section>
+<section id="fallback-strategy">
+<h3>4. Fallback Strategy<a class="headerlink" href="#fallback-strategy" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Keep traditional workflows as backup</p></li>
+<li><p>Implement easy rollback procedures</p></li>
+<li><p>Monitor for edge cases and unexpected behaviors</p></li>
+</ul>
+</section>
+</section>
+<section id="related-documentation">
+<h2>🔗 Related Documentation<a class="headerlink" href="#related-documentation" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../README.html"><span class="std std-doc">Core Workflows Documentation</span></a></p></li>
+<li><p><a class="reference internal" href="migration-guide.html"><span class="std std-doc">Migration Guide</span></a></p></li>
+<li><p><a class="reference internal" href="repository-migration-checklist.html"><span class="std std-doc">Repository Migration Checklist</span></a></p></li>
+<li><p><a class="reference internal" href="#README.md"><span class="xref myst">Example Workflows Guide</span></a></p></li>
+</ul>
+</section>
+<section id="support">
+<h2>📞 Support<a class="headerlink" href="#support" title="Link to this heading">#</a></h2>
+<p>For issues with smart workflows:</p>
+<ol class="arabic simple">
+<li><p>Check workflow logs for file detection details</p></li>
+<li><p>Review this documentation for common solutions</p></li>
+<li><p>Create an issue in the <code class="docutils literal notranslate"><span class="pre">notebook-ci-actions</span></code> repository</p></li>
+<li><p>Contact the notebook infrastructure team</p></li>
+</ol>
+<hr class="docutils" />
+<p><strong>Implementation Date</strong>: December 2024<br />
+<strong>Status</strong>: ✅ Ready for Production<br />
+<strong>Compatibility</strong>: All STScI notebook repositories</p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">🧠 Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-benefits">🎯 Key Benefits</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">⚡ Performance Optimization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cost-reduction">💰 Cost Reduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quality-assurance">🔒 Quality Assurance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#available-smart-workflows">📁 Available Smart Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-pr-smart-yml-smart-pull-request-ci">1. <code class="docutils literal notranslate"><span class="pre">notebook-ci-pr-smart.yml</span></code> - Smart Pull Request CI</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-ci-main-smart-yml-smart-main-branch-ci">2. <code class="docutils literal notranslate"><span class="pre">notebook-ci-main-smart.yml</span></code> - Smart Main Branch CI</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-change-detection-logic">🔍 File Change Detection Logic</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#file-categories">File Categories</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-files-trigger-full-ci">📔 Notebook Files (Trigger Full CI)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#requirements-files-trigger-full-ci">🔧 Requirements Files (Trigger Full CI)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation-files-docs-only-rebuild">📚 Documentation Files (Docs-Only Rebuild)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-files-special-handling">⚙️ Workflow Files (Special Handling)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#decision-matrix">Decision Matrix</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-guide">🛠️ Implementation Guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-choose-your-smart-workflow">Step 1: Choose Your Smart Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-repository-specific-customization">Step 2: Repository-Specific Customization</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-jwst-pipeline-notebooks">For <code class="docutils literal notranslate"><span class="pre">jwst-pipeline-notebooks</span></code>:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-hst-notebooks">For <code class="docutils literal notranslate"><span class="pre">hst_notebooks</span></code>:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#for-hello-universe">For <code class="docutils literal notranslate"><span class="pre">hello_universe</span></code>:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-testing-smart-workflows">Step 3: Testing Smart Workflows</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#test-documentation-only-path">Test Documentation-Only Path:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#test-notebook-change-path">Test Notebook Change Path:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-monitor-and-optimize">Step 4: Monitor and Optimize</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-run-analysis">Workflow Run Analysis:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#fine-tuning">Fine-Tuning:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-comparison">📊 Performance Comparison</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#traditional-workflow">Traditional Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-workflow">Smart Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-scenarios">Example Scenarios</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-1-documentation-update-pr">Scenario 1: Documentation Update PR</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-2-configuration-file-update">Scenario 2: Configuration File Update</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-3-notebook-bug-fix">Scenario 3: Notebook Bug Fix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-configuration">🔧 Advanced Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-file-patterns">Custom File Patterns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-logic">Repository-Specific Logic</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-specific-execution">Environment-Specific Execution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🚨 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues">Common Issues</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#smart-detection-not-working">Smart Detection Not Working</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#docs-only-builds-failing">Docs-Only Builds Failing</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#false-positives-in-detection">False Positives in Detection</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debug-mode">Debug Mode</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">📝 Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gradual-rollout">1. Gradual Rollout</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clear-communication">2. Clear Communication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-monitoring">3. Regular Monitoring</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fallback-strategy">4. Fallback Strategy</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#related-documentation">🔗 Related Documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#support">📞 Support</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

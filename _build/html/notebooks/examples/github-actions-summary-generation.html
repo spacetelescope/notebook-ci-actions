@@ -1,0 +1,855 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GitHub Actions Workflow Summary Generation &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/examples/github-actions-summary-generation';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Performance Test Notebook" href="../testing/performance-test.html" />
+    <link rel="prev" title="Basic Validation Test Notebook" href="basic-validation-test.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/notebooks/examples/github-actions-summary-generation.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>GitHub Actions Workflow Summary Generation</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-analysis">Problem Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#write-unified-notebook-ci-cd-summary-header">1. Write Unified Notebook CI/CD Summary Header</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-configuration-section">2. Display Configuration Section</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-job-results-table">3. Display Job Results Table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-execution-details">4. Display Execution Details</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#determine-notebook-count-robust-error-handling">5. Determine Notebook Count (Robust Error Handling)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#determine-overall-workflow-status">6. Determine Overall Workflow Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-final-status-indicator">7. Display Final Status Indicator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-summary-output">Complete Summary Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-your-original-error">Troubleshooting Your Original Error</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-1-malformed-json">Issue 1: Malformed JSON</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-2-bash-e-flag">Issue 2: Bash -e Flag</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-3-no-error-handling">Issue 3: No Error Handling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#solutions-applied">Solutions Applied:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-script-structure">Fixed Script Structure:</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="github-actions-workflow-summary-generation">
+<h1>GitHub Actions Workflow Summary Generation<a class="headerlink" href="#github-actions-workflow-summary-generation" title="Link to this heading">#</a></h1>
+<p>This notebook demonstrates how to generate a unified CI/CD summary for notebook workflows using bash scripting and environment variables. It addresses common issues with JSON parsing and provides robust error handling for GitHub Actions step summaries.</p>
+<section id="problem-analysis">
+<h2>Problem Analysis<a class="headerlink" href="#problem-analysis" title="Link to this heading">#</a></h2>
+<p>The error you encountered (<code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">completed</span> <span class="pre">with</span> <span class="pre">exit</span> <span class="pre">code</span> <span class="pre">5</span></code>) is likely caused by:</p>
+<ol class="arabic simple">
+<li><p>Invalid JSON format in the <code class="docutils literal notranslate"><span class="pre">NOTEBOOKS</span></code> variable</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jq</span></code> failing to parse malformed JSON</p></li>
+<li><p>Bash’s <code class="docutils literal notranslate"><span class="pre">-e</span></code> flag causing script termination on any error</p></li>
+</ol>
+<p>Let’s walk through the proper way to handle this scenario.</p>
+</section>
+<section id="write-unified-notebook-ci-cd-summary-header">
+<h2>1. Write Unified Notebook CI/CD Summary Header<a class="headerlink" href="#write-unified-notebook-ci-cd-summary-header" title="Link to this heading">#</a></h2>
+<p>First, let’s create the header and timestamp for our workflow summary. This should be done safely to handle any potential issues.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Create a mock GITHUB_STEP_SUMMARY file for demonstration</span>
+<span class="n">GITHUB_STEP_SUMMARY</span><span class="o">=</span><span class="s2">&quot;workflow_summary.md&quot;</span>
+
+<span class="c1"># Clear any existing summary</span>
+<span class="o">&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="c1"># Write the header with proper error handling</span>
+<span class="p">{</span>
+  <span class="n">echo</span> <span class="s2">&quot;## 📊 Unified Notebook CI/CD Summary&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;*Generated: $(date -u +&#39;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S UTC&#39;)*&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="n">echo</span> <span class="s2">&quot;✅ Header written successfully&quot;</span>
+<span class="n">cat</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="display-configuration-section">
+<h2>2. Display Configuration Section<a class="headerlink" href="#display-configuration-section" title="Link to this heading">#</a></h2>
+<p>Now let’s add the configuration details with proper conditional logic for optional fields.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Set example configuration variables</span>
+<span class="n">EXECUTION_MODE</span><span class="o">=</span><span class="s2">&quot;pr&quot;</span>
+<span class="n">TRIGGER_EVENT</span><span class="o">=</span><span class="s2">&quot;all&quot;</span>
+<span class="n">PYTHON_VERSION</span><span class="o">=</span><span class="s2">&quot;3.11&quot;</span>
+<span class="n">CONDA_ENVIRONMENT</span><span class="o">=</span><span class="s2">&quot;&quot;</span>  <span class="c1"># Empty for demonstration</span>
+<span class="n">CUSTOM_REQUIREMENTS</span><span class="o">=</span><span class="s2">&quot;&quot;</span>  <span class="c1"># Empty for demonstration</span>
+<span class="n">SINGLE_NOTEBOOK</span><span class="o">=</span><span class="s2">&quot;&quot;</span>  <span class="c1"># Empty for demonstration</span>
+
+<span class="c1"># Add configuration section</span>
+<span class="p">{</span>
+  <span class="n">echo</span> <span class="s2">&quot;### 🔧 Configuration&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;- **Execution Mode**: $EXECUTION_MODE&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;- **Trigger Event**: $TRIGGER_EVENT&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;- **Python Version**: $PYTHON_VERSION&quot;</span>
+  
+  <span class="c1"># Only add optional fields if they have values</span>
+  <span class="k">if</span> <span class="p">[</span> <span class="o">-</span><span class="n">n</span> <span class="s2">&quot;$CONDA_ENVIRONMENT&quot;</span> <span class="p">];</span> <span class="n">then</span>
+    <span class="n">echo</span> <span class="s2">&quot;- **Custom Conda Environment**: $CONDA_ENVIRONMENT&quot;</span>
+  <span class="n">fi</span>
+  
+  <span class="k">if</span> <span class="p">[</span> <span class="o">-</span><span class="n">n</span> <span class="s2">&quot;$CUSTOM_REQUIREMENTS&quot;</span> <span class="p">];</span> <span class="n">then</span>
+    <span class="n">echo</span> <span class="s2">&quot;- **Custom Requirements**: $CUSTOM_REQUIREMENTS&quot;</span>
+  <span class="n">fi</span>
+  
+  <span class="k">if</span> <span class="p">[</span> <span class="o">-</span><span class="n">n</span> <span class="s2">&quot;$SINGLE_NOTEBOOK&quot;</span> <span class="p">];</span> <span class="n">then</span>
+    <span class="n">echo</span> <span class="s2">&quot;- **Single Notebook Target**: \`$SINGLE_NOTEBOOK\`&quot;</span>
+  <span class="n">fi</span>
+  
+  <span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="n">echo</span> <span class="s2">&quot;✅ Configuration section added&quot;</span>
+<span class="n">cat</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="display-job-results-table">
+<h2>3. Display Job Results Table<a class="headerlink" href="#display-job-results-table" title="Link to this heading">#</a></h2>
+<p>Create a markdown table showing the status of each workflow job.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Set job status variables</span>
+<span class="n">SETUP_RESULT</span><span class="o">=</span><span class="s2">&quot;success&quot;</span>
+<span class="n">PROCESS_RESULT</span><span class="o">=</span><span class="s2">&quot;success&quot;</span>
+<span class="n">BUILD_RESULT</span><span class="o">=</span><span class="s2">&quot;skipped&quot;</span>
+<span class="n">DEPRECATION_RESULT</span><span class="o">=</span><span class="s2">&quot;skipped&quot;</span>
+
+<span class="c1"># Add job results table</span>
+<span class="p">{</span>
+  <span class="n">echo</span> <span class="s2">&quot;### 📊 Job Results&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;| Job | Status | Duration |&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;|-----|--------|----------|&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;| Matrix Setup | $SETUP_RESULT | - |&quot;</span>
+  
+  <span class="c1"># Handle special case for merge mode</span>
+  <span class="k">if</span> <span class="p">[</span> <span class="s2">&quot;$EXECUTION_MODE&quot;</span> <span class="o">!=</span> <span class="s2">&quot;merge&quot;</span> <span class="p">];</span> <span class="n">then</span>
+    <span class="n">echo</span> <span class="s2">&quot;| Notebook Processing | $PROCESS_RESULT | - |&quot;</span>
+  <span class="k">else</span>
+    <span class="n">echo</span> <span class="s2">&quot;| Notebook Processing | Skipped (merge mode) | - |&quot;</span>
+  <span class="n">fi</span>
+  
+  <span class="n">echo</span> <span class="s2">&quot;| Documentation Build | $BUILD_RESULT | - |&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;| Deprecation Management | $DEPRECATION_RESULT | - |&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="n">echo</span> <span class="s2">&quot;✅ Job results table added&quot;</span>
+<span class="n">cat</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="display-execution-details">
+<h2>4. Display Execution Details<a class="headerlink" href="#display-execution-details" title="Link to this heading">#</a></h2>
+<p>Add execution details including processed notebooks and affected directories.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Set example notebook data - NOTE: This is the problematic data from your error</span>
+<span class="c1"># The issue was with malformed JSON - missing quotes around array</span>
+<span class="n">NOTEBOOKS</span><span class="o">=</span><span class="s1">&#39;[&quot;notebooks/hello-universe/Classifying_JWST-HST_galaxy_mergers_with_CNNs/Classifying_JWST-HST_galaxy_mergers_with_CNNs.ipynb&quot;]&#39;</span>
+<span class="n">AFFECTED_DIRS</span><span class="o">=</span><span class="s1">&#39;[&quot;notebooks/hello-universe/Classifying_JWST-HST_galaxy_mergers_with_CNNs&quot;]&#39;</span>
+
+<span class="c1"># Add execution details header</span>
+<span class="p">{</span>
+  <span class="n">echo</span> <span class="s2">&quot;### 📝 Execution Details&quot;</span>
+<span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="n">echo</span> <span class="s2">&quot;✅ Execution details header added&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;Notebooks variable: $NOTEBOOKS&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;Affected directories: $AFFECTED_DIRS&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="determine-notebook-count-robust-error-handling">
+<h2>5. Determine Notebook Count (Robust Error Handling)<a class="headerlink" href="#determine-notebook-count-robust-error-handling" title="Link to this heading">#</a></h2>
+<p>This is the critical section where your original script failed. Let’s implement robust JSON parsing with proper error handling.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Function to safely count notebooks with proper error handling</span>
+<span class="n">count_notebooks</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">local</span> <span class="n">notebooks_json</span><span class="o">=</span><span class="s2">&quot;$1&quot;</span>
+    <span class="n">local</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+    
+    <span class="c1"># Check for null, empty, or invalid cases first</span>
+    <span class="k">if</span> <span class="p">[</span> <span class="o">-</span><span class="n">z</span> <span class="s2">&quot;$notebooks_json&quot;</span> <span class="p">]</span> <span class="o">||</span> <span class="p">[</span> <span class="s2">&quot;$notebooks_json&quot;</span> <span class="o">=</span> <span class="s2">&quot;null&quot;</span> <span class="p">]</span> <span class="o">||</span> <span class="p">[</span> <span class="s2">&quot;$notebooks_json&quot;</span> <span class="o">=</span> <span class="s2">&quot;[]&quot;</span> <span class="p">];</span> <span class="n">then</span>
+        <span class="n">echo</span> <span class="s2">&quot;0&quot;</span>
+        <span class="k">return</span>
+    <span class="n">fi</span>
+    
+    <span class="c1"># Try to parse with jq, with fallback</span>
+    <span class="k">if</span> <span class="n">command</span> <span class="o">-</span><span class="n">v</span> <span class="n">jq</span> <span class="o">&gt;/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span> <span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span><span class="p">;</span> <span class="n">then</span>
+        <span class="c1"># Use jq with error handling</span>
+        <span class="n">count</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">echo</span> <span class="s2">&quot;$notebooks_json&quot;</span> <span class="o">|</span> <span class="n">jq</span> <span class="o">-</span><span class="n">r</span> <span class="s1">&#39;length&#39;</span> <span class="mi">2</span><span class="o">&gt;/</span><span class="n">dev</span><span class="o">/</span><span class="n">null</span><span class="p">)</span>
+        
+        <span class="c1"># Check if jq parsing was successful</span>
+        <span class="k">if</span> <span class="p">[</span> <span class="err">$?</span> <span class="o">-</span><span class="n">eq</span> <span class="mi">0</span> <span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[</span> <span class="s2">&quot;$count&quot;</span> <span class="o">!=</span> <span class="s2">&quot;null&quot;</span> <span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[</span> <span class="o">-</span><span class="n">n</span> <span class="s2">&quot;$count&quot;</span> <span class="p">];</span> <span class="n">then</span>
+            <span class="n">echo</span> <span class="s2">&quot;$count&quot;</span>
+        <span class="k">else</span>
+            <span class="n">echo</span> <span class="s2">&quot;0&quot;</span>
+        <span class="n">fi</span>
+    <span class="k">else</span>
+        <span class="c1"># Fallback method without jq - count comma-separated items</span>
+        <span class="c1"># Remove brackets and count items</span>
+        <span class="n">clean_json</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">echo</span> <span class="s2">&quot;$notebooks_json&quot;</span> <span class="o">|</span> <span class="n">sed</span> <span class="s1">&#39;s/^\[//;s/\]$//&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">[</span> <span class="o">-</span><span class="n">n</span> <span class="s2">&quot;$clean_json&quot;</span> <span class="p">];</span> <span class="n">then</span>
+            <span class="c1"># Count commas and add 1, or 1 if no commas</span>
+            <span class="n">count</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">echo</span> <span class="s2">&quot;$clean_json&quot;</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">o</span> <span class="s1">&#39;,&#39;</span> <span class="o">|</span> <span class="n">wc</span> <span class="o">-</span><span class="n">l</span><span class="p">)</span>
+            <span class="n">count</span><span class="o">=</span><span class="err">$</span><span class="p">((</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">echo</span> <span class="s2">&quot;$count&quot;</span>
+        <span class="k">else</span>
+            <span class="n">echo</span> <span class="s2">&quot;0&quot;</span>
+        <span class="n">fi</span>
+    <span class="n">fi</span>
+<span class="p">}</span>
+
+<span class="c1"># Test with various inputs</span>
+<span class="n">echo</span> <span class="s2">&quot;Testing notebook counting:&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;Valid JSON: $(count_notebooks &quot;</span><span class="err">$</span><span class="n">NOTEBOOKS</span><span class="s2">&quot;)&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;Empty array: $(count_notebooks &#39;[]&#39;)&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;Null: $(count_notebooks &#39;null&#39;)&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;Invalid JSON: $(count_notebooks &#39;[&quot;</span><span class="n">malformed</span><span class="s1">&#39;)&quot;</span>
+
+<span class="c1"># Set the actual notebook count</span>
+<span class="n">NOTEBOOK_COUNT</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">count_notebooks</span> <span class="s2">&quot;$NOTEBOOKS&quot;</span><span class="p">)</span>
+<span class="n">echo</span> <span class="s2">&quot;Final notebook count: $NOTEBOOK_COUNT&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="determine-overall-workflow-status">
+<h2>6. Determine Overall Workflow Status<a class="headerlink" href="#determine-overall-workflow-status" title="Link to this heading">#</a></h2>
+<p>Count successful and failed jobs to determine the overall workflow status.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Count successful and failed jobs</span>
+<span class="n">SUCCESS_COUNT</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">FAILURE_COUNT</span><span class="o">=</span><span class="mi">0</span>
+
+<span class="c1"># Check each job result</span>
+<span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="s2">&quot;$SETUP_RESULT&quot;</span> <span class="s2">&quot;$PROCESS_RESULT&quot;</span> <span class="s2">&quot;$BUILD_RESULT&quot;</span> <span class="s2">&quot;$DEPRECATION_RESULT&quot;</span><span class="p">;</span> <span class="n">do</span>
+    <span class="k">case</span> <span class="s2">&quot;$result&quot;</span> <span class="ow">in</span>
+        <span class="s2">&quot;success&quot;</span><span class="p">)</span> 
+            <span class="n">SUCCESS_COUNT</span><span class="o">=</span><span class="err">$</span><span class="p">((</span><span class="n">SUCCESS_COUNT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> 
+            <span class="p">;;</span>
+        <span class="s2">&quot;failure&quot;</span><span class="p">)</span> 
+            <span class="n">FAILURE_COUNT</span><span class="o">=</span><span class="err">$</span><span class="p">((</span><span class="n">FAILURE_COUNT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> 
+            <span class="p">;;</span>
+        <span class="s2">&quot;skipped&quot;</span><span class="p">)</span> 
+            <span class="c1"># Don&#39;t count skipped jobs as failures</span>
+            <span class="p">;;</span>
+        <span class="s2">&quot;cancelled&quot;</span><span class="p">)</span> 
+            <span class="n">FAILURE_COUNT</span><span class="o">=</span><span class="err">$</span><span class="p">((</span><span class="n">FAILURE_COUNT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> 
+            <span class="p">;;</span>
+    <span class="n">esac</span>
+<span class="n">done</span>
+
+<span class="n">echo</span> <span class="s2">&quot;Job Status Summary:&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;- Success count: $SUCCESS_COUNT&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;- Failure count: $FAILURE_COUNT&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;- Setup: $SETUP_RESULT&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;- Process: $PROCESS_RESULT&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;- Build: $BUILD_RESULT&quot;</span> 
+<span class="n">echo</span> <span class="s2">&quot;- Deprecation: $DEPRECATION_RESULT&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="display-final-status-indicator">
+<h2>7. Display Final Status Indicator<a class="headerlink" href="#display-final-status-indicator" title="Link to this heading">#</a></h2>
+<p>Based on the workflow status, append the appropriate final message to the summary.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Add execution details with notebook count</span>
+<span class="p">{</span>
+  <span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;**Processed Notebooks**: $NOTEBOOK_COUNT&quot;</span>
+  <span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+<span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="c1"># Special handling for process-notebooks in merge mode</span>
+<span class="k">if</span> <span class="p">[</span> <span class="s2">&quot;$EXECUTION_MODE&quot;</span> <span class="o">=</span> <span class="s2">&quot;merge&quot;</span> <span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">[</span> <span class="s2">&quot;$PROCESS_RESULT&quot;</span> <span class="o">=</span> <span class="s2">&quot;skipped&quot;</span> <span class="p">];</span> <span class="n">then</span>
+    <span class="p">{</span>
+        <span class="n">echo</span> <span class="s2">&quot;**Note**: Notebook processing was intentionally skipped in merge mode&quot;</span>
+        <span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+<span class="n">fi</span>
+
+<span class="c1"># Add final status based on results</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">[</span> <span class="s2">&quot;$FAILURE_COUNT&quot;</span> <span class="o">-</span><span class="n">eq</span> <span class="mi">0</span> <span class="p">];</span> <span class="n">then</span>
+        <span class="n">echo</span> <span class="s2">&quot;## 🎉 Workflow completed successfully!&quot;</span>
+        <span class="n">echo</span> <span class="s2">&quot;*All required jobs completed without errors*&quot;</span>
+    <span class="k">elif</span> <span class="p">[</span> <span class="s2">&quot;$SUCCESS_COUNT&quot;</span> <span class="o">-</span><span class="n">gt</span> <span class="mi">0</span> <span class="p">];</span> <span class="n">then</span>
+        <span class="n">echo</span> <span class="s2">&quot;## ⚠️ Workflow completed with partial success&quot;</span>
+        <span class="n">echo</span> <span class="s2">&quot;*Some jobs succeeded but $FAILURE_COUNT job(s) failed - see error details above*&quot;</span>
+    <span class="k">else</span>
+        <span class="n">echo</span> <span class="s2">&quot;## ❌ Workflow failed&quot;</span>
+        <span class="n">echo</span> <span class="s2">&quot;*Multiple critical failures occurred - see error details above*&quot;</span>
+    <span class="n">fi</span>
+<span class="p">}</span> <span class="o">&gt;&gt;</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+
+<span class="n">echo</span> <span class="s2">&quot;✅ Final status added to summary&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="complete-summary-output">
+<h2>Complete Summary Output<a class="headerlink" href="#complete-summary-output" title="Link to this heading">#</a></h2>
+<p>Let’s display the complete workflow summary that was generated:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="n">echo</span> <span class="s2">&quot;📄 Complete Workflow Summary:&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;================================&quot;</span>
+<span class="n">cat</span> <span class="s2">&quot;$GITHUB_STEP_SUMMARY&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;================================&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;✅ Summary generation completed successfully!&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;   - Total lines: $(wc -l &lt; &quot;</span><span class="err">$</span><span class="n">GITHUB_STEP_SUMMARY</span><span class="s2">&quot;)&quot;</span>
+<span class="n">echo</span> <span class="s2">&quot;   - File size: $(wc -c &lt; &quot;</span><span class="err">$</span><span class="n">GITHUB_STEP_SUMMARY</span><span class="s2">&quot;) bytes&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="troubleshooting-your-original-error">
+<h2>Troubleshooting Your Original Error<a class="headerlink" href="#troubleshooting-your-original-error" title="Link to this heading">#</a></h2>
+<p>The error you encountered (<code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">completed</span> <span class="pre">with</span> <span class="pre">exit</span> <span class="pre">code</span> <span class="pre">5</span></code>) was likely caused by:</p>
+<section id="issue-1-malformed-json">
+<h3>Issue 1: Malformed JSON<a class="headerlink" href="#issue-1-malformed-json" title="Link to this heading">#</a></h3>
+<p>Your original <code class="docutils literal notranslate"><span class="pre">NOTEBOOKS</span></code> variable had malformed JSON:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">NOTEBOOKS</span><span class="o">=</span><span class="s2">&quot;[&quot;</span>notebooks/hello-universe/...<span class="s2">&quot;]&quot;</span><span class="w">  </span><span class="c1"># Missing quotes around the string</span>
+</pre></div>
+</div>
+<p>Should be:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">NOTEBOOKS</span><span class="o">=</span><span class="s1">&#39;[&quot;notebooks/hello-universe/...&quot;]&#39;</span><span class="w">  </span><span class="c1"># Properly quoted JSON array</span>
+</pre></div>
+</div>
+</section>
+<section id="issue-2-bash-e-flag">
+<h3>Issue 2: Bash -e Flag<a class="headerlink" href="#issue-2-bash-e-flag" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">-e</span></code> flag causes bash to exit immediately on any command failure. When <code class="docutils literal notranslate"><span class="pre">jq</span></code> fails to parse invalid JSON, it returns a non-zero exit code, causing the script to terminate.</p>
+</section>
+<section id="issue-3-no-error-handling">
+<h3>Issue 3: No Error Handling<a class="headerlink" href="#issue-3-no-error-handling" title="Link to this heading">#</a></h3>
+<p>The original script didn’t handle cases where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">jq</span></code> is not available</p></li>
+<li><p>JSON parsing fails</p></li>
+<li><p>Variables are null or empty</p></li>
+</ul>
+</section>
+<section id="solutions-applied">
+<h3>Solutions Applied:<a class="headerlink" href="#solutions-applied" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Robust JSON validation</strong> before parsing</p></li>
+<li><p><strong>Fallback methods</strong> when <code class="docutils literal notranslate"><span class="pre">jq</span></code> fails</p></li>
+<li><p><strong>Proper error handling</strong> with null checks</p></li>
+<li><p><strong>Function-based approach</strong> for reusability</p></li>
+</ol>
+</section>
+<section id="fixed-script-structure">
+<h3>Fixed Script Structure:<a class="headerlink" href="#fixed-script-structure" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use proper JSON quoting</span>
+<span class="nv">NOTEBOOKS</span><span class="o">=</span><span class="s1">&#39;[&quot;notebook1.ipynb&quot;, &quot;notebook2.ipynb&quot;]&#39;</span>
+
+<span class="c1"># Add error handling</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$NOTEBOOKS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;null&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$NOTEBOOKS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$NOTEBOOKS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;[]&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">NOTEBOOK_COUNT</span><span class="o">=</span><span class="m">0</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">NOTEBOOK_COUNT</span><span class="o">=</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$NOTEBOOKS</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;length&#39;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;0&quot;</span><span class="k">)</span>
+<span class="k">fi</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./notebooks/examples"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="basic-validation-test.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Basic Validation Test Notebook</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../testing/performance-test.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Performance Test Notebook</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#problem-analysis">Problem Analysis</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#write-unified-notebook-ci-cd-summary-header">1. Write Unified Notebook CI/CD Summary Header</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-configuration-section">2. Display Configuration Section</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-job-results-table">3. Display Job Results Table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-execution-details">4. Display Execution Details</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#determine-notebook-count-robust-error-handling">5. Determine Notebook Count (Robust Error Handling)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#determine-overall-workflow-status">6. Determine Overall Workflow Status</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#display-final-status-indicator">7. Display Final Status Indicator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-summary-output">Complete Summary Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting-your-original-error">Troubleshooting Your Original Error</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-1-malformed-json">Issue 1: Malformed JSON</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-2-bash-e-flag">Issue 2: Bash -e Flag</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-3-no-error-handling">Issue 3: No Error Handling</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#solutions-applied">Solutions Applied:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed-script-structure">Fixed Script Structure:</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

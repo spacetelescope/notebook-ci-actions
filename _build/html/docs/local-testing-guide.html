@@ -1,0 +1,1283 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Local Testing Guide for GitHub Actions Workflows &#8212; Local Test Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b76e3c8a" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'docs/local-testing-guide';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Local Test Documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../README.html">
+                    GitHub Actions Workflows
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/basic-validation-test.html">Basic Validation Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/examples/github-actions-summary-generation.html">GitHub Actions Workflow Summary Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/performance-test.html">Performance Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/pr-storage-test.html">PR Storage Test Notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/testing/security-test.html">Security Test Notebook</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/docs/local-testing-guide.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Local Testing Guide for GitHub Actions Workflows</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">📋 Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">🎯 Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-tools">🛠️ Testing Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#act-github-actions-local-runner">1. Act - GitHub Actions Local Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#github-cli-with-workflow-dispatch">2. GitHub CLI with Workflow Dispatch</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-environment-simulation">3. Local Environment Simulation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">🚀 Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-act-usage">Basic Act Usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-validation">Quick Validation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#act-local-github-actions-runner">🔧 Act - Local GitHub Actions Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment Variables</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-act-usage">Advanced Act Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-specific-events">Testing Specific Events</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-event-payloads">Custom Event Payloads</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-with-docker">Running with Docker</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#manual-testing-approaches">📋 Manual Testing Approaches</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#script-based-testing">1. Script-Based Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-based-testing">2. Docker-Based Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#github-cli-workflow-dispatch">3. GitHub CLI Workflow Dispatch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-testing">🎯 Repository-Specific Testing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-centralized-workflows">Testing Centralized Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-configurations">Repository-Specific Configurations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ci-cd-validation-scripts">📋 CI/CD Validation Scripts</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-commit-workflow-validation">Pre-Commit Workflow Validation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-testing">Integration Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🐛 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues-and-solutions">Common Issues and Solutions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#act-docker-permission-issues">1. Act Docker Permission Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-dependencies">2. Missing Dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variable-issues">3. Environment Variable Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-reference-errors">4. Workflow Reference Errors</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-tips">Debugging Tips</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">🏆 Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-workflow">1. Local Testing Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-management">2. Environment Management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#security-considerations">3. Security Considerations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">4. Performance Optimization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">5. Continuous Integration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">🔗 Additional Resources</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tools-and-documentation">Tools and Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-strategies">Testing Strategies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#community-examples">Community Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-reference">📝 Quick Reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#essential-commands">Essential Commands</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-files">Configuration Files</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="local-testing-guide-for-github-actions-workflows">
+<h1>Local Testing Guide for GitHub Actions Workflows<a class="headerlink" href="#local-testing-guide-for-github-actions-workflows" title="Link to this heading">#</a></h1>
+<p>This guide provides comprehensive methods for testing GitHub Actions workflows locally before pushing changes to GitHub. Local testing helps catch issues early, reduces CI/CD costs, and speeds up development.</p>
+<section id="table-of-contents">
+<h2>📋 Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview"><span class="xref myst">Overview</span></a></p></li>
+<li><p><a class="reference internal" href="#testing-tools"><span class="xref myst">Testing Tools</span></a></p></li>
+<li><p><a class="reference internal" href="#quick-start"><span class="xref myst">Quick Start</span></a></p></li>
+<li><p><a class="reference internal" href="#act---local-github-actions-runner"><span class="xref myst">Act - Local GitHub Actions Runner</span></a></p></li>
+<li><p><a class="reference internal" href="#manual-testing-approaches"><span class="xref myst">Manual Testing Approaches</span></a></p></li>
+<li><p><a class="reference internal" href="#repository-specific-testing"><span class="xref myst">Repository-Specific Testing</span></a></p></li>
+<li><p><a class="reference internal" href="#cicd-validation-scripts"><span class="xref myst">CI/CD Validation Scripts</span></a></p></li>
+<li><p><a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a></p></li>
+<li><p><a class="reference internal" href="#best-practices"><span class="xref myst">Best Practices</span></a></p></li>
+</ul>
+</section>
+<section id="overview">
+<h2>🎯 Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>Testing GitHub Actions workflows locally is crucial for:</p>
+<ul class="simple">
+<li><p><strong>Cost Reduction</strong>: Avoid consuming GitHub Actions minutes during development</p></li>
+<li><p><strong>Faster Development</strong>: Test changes immediately without waiting for GitHub runners</p></li>
+<li><p><strong>Debugging</strong>: Access to local environment for detailed debugging</p></li>
+<li><p><strong>Validation</strong>: Ensure workflows work across different environments</p></li>
+<li><p><strong>Security</strong>: Test with secrets and sensitive data safely</p></li>
+</ul>
+</section>
+<section id="testing-tools">
+<h2>🛠️ Testing Tools<a class="headerlink" href="#testing-tools" title="Link to this heading">#</a></h2>
+<section id="act-github-actions-local-runner">
+<h3>1. Act - GitHub Actions Local Runner<a class="headerlink" href="#act-github-actions-local-runner" title="Link to this heading">#</a></h3>
+<p><strong>Act</strong> is the most popular tool for running GitHub Actions workflows locally.</p>
+<section id="installation">
+<h4>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># macOS (Homebrew)</span>
+brew<span class="w"> </span>install<span class="w"> </span>act
+
+<span class="c1"># Linux (curl)</span>
+curl<span class="w"> </span>https://raw.githubusercontent.com/nektos/act/master/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>bash
+
+<span class="c1"># Windows (Chocolatey)</span>
+choco<span class="w"> </span>install<span class="w"> </span>act-cli
+
+<span class="c1"># Docker (alternative)</span>
+docker<span class="w"> </span>pull<span class="w"> </span>ghcr.io/catthehacker/ubuntu:act-latest
+</pre></div>
+</div>
+</section>
+<section id="verification">
+<h4>Verification<a class="headerlink" href="#verification" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>act<span class="w"> </span>--version
+</pre></div>
+</div>
+</section>
+</section>
+<section id="github-cli-with-workflow-dispatch">
+<h3>2. GitHub CLI with Workflow Dispatch<a class="headerlink" href="#github-cli-with-workflow-dispatch" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install GitHub CLI</span>
+<span class="c1"># macOS</span>
+brew<span class="w"> </span>install<span class="w"> </span>gh
+
+<span class="c1"># Linux</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>gh
+
+<span class="c1"># Windows</span>
+winget<span class="w"> </span>install<span class="w"> </span>GitHub.cli
+
+<span class="c1"># Authenticate</span>
+gh<span class="w"> </span>auth<span class="w"> </span>login
+</pre></div>
+</div>
+</section>
+<section id="local-environment-simulation">
+<h3>3. Local Environment Simulation<a class="headerlink" href="#local-environment-simulation" title="Link to this heading">#</a></h3>
+<p>Create local scripts that simulate the GitHub Actions environment.</p>
+</section>
+</section>
+<section id="quick-start">
+<h2>🚀 Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">#</a></h2>
+<section id="basic-act-usage">
+<h3>Basic Act Usage<a class="headerlink" href="#basic-act-usage" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>Navigate to your repository</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>your-notebook-repository
+</pre></div>
+</div>
+</li>
+<li><p><strong>List available workflows</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>act<span class="w"> </span>--list
+</pre></div>
+</div>
+</li>
+<li><p><strong>Run a specific workflow</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run pull request workflow</span>
+act<span class="w"> </span>pull_request
+
+<span class="c1"># Run push workflow</span>
+act<span class="w"> </span>push
+
+<span class="c1"># Run specific job</span>
+act<span class="w"> </span>-j<span class="w"> </span>test-notebooks
+</pre></div>
+</div>
+</li>
+<li><p><strong>Run with secrets</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>act<span class="w"> </span>-s<span class="w"> </span><span class="nv">GITHUB_TOKEN</span><span class="o">=</span>your_token<span class="w"> </span>pull_request
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="quick-validation">
+<h3>Quick Validation<a class="headerlink" href="#quick-validation" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Validate workflow syntax</span>
+act<span class="w"> </span>--dryrun
+
+<span class="c1"># Check what would run</span>
+act<span class="w"> </span>--list<span class="w"> </span>--verbose
+</pre></div>
+</div>
+</section>
+</section>
+<section id="act-local-github-actions-runner">
+<h2>🔧 Act - Local GitHub Actions Runner<a class="headerlink" href="#act-local-github-actions-runner" title="Link to this heading">#</a></h2>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h3>
+<p>Create <code class="docutils literal notranslate"><span class="pre">.actrc</span></code> file in your repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .actrc</span>
+--container-architecture<span class="w"> </span>linux/amd64
+--platform<span class="w"> </span>ubuntu-latest<span class="o">=</span>ghcr.io/catthehacker/ubuntu:act-latest
+--artifact-server-path<span class="w"> </span>/tmp/artifacts
+--env<span class="w"> </span><span class="nv">GITHUB_ACTIONS</span><span class="o">=</span><span class="nb">true</span>
+--env<span class="w"> </span><span class="nv">CI</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading">#</a></h3>
+<p>Create <code class="docutils literal notranslate"><span class="pre">.env</span></code> file for secrets and variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .env</span>
+<span class="nv">GITHUB_TOKEN</span><span class="o">=</span>ghp_your_token_here
+<span class="nv">CASJOBS_USERID</span><span class="o">=</span>your_userid
+<span class="nv">CASJOBS_PW</span><span class="o">=</span>your_password
+<span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.11
+</pre></div>
+</div>
+</section>
+<section id="advanced-act-usage">
+<h3>Advanced Act Usage<a class="headerlink" href="#advanced-act-usage" title="Link to this heading">#</a></h3>
+<section id="testing-specific-events">
+<h4>Testing Specific Events<a class="headerlink" href="#testing-specific-events" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test pull request events</span>
+act<span class="w"> </span>pull_request<span class="w"> </span>--eventpath<span class="w"> </span>.github/events/pr.json
+
+<span class="c1"># Test push events</span>
+act<span class="w"> </span>push<span class="w"> </span>--eventpath<span class="w"> </span>.github/events/push.json
+
+<span class="c1"># Test manual dispatch</span>
+act<span class="w"> </span>workflow_dispatch<span class="w"> </span>--eventpath<span class="w"> </span>.github/events/dispatch.json
+</pre></div>
+</div>
+</section>
+<section id="custom-event-payloads">
+<h4>Custom Event Payloads<a class="headerlink" href="#custom-event-payloads" title="Link to this heading">#</a></h4>
+<p>Create event JSON files:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="err">#</span><span class="w"> </span><span class="err">.gi</span><span class="kc">t</span><span class="err">hub/eve</span><span class="kc">nts</span><span class="err">/pr.jso</span><span class="kc">n</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pull_request&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;number&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;base&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;head&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;ref&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;feature-branch&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;repository&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test-repo&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;full_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user/test-repo&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="running-with-docker">
+<h4>Running with Docker<a class="headerlink" href="#running-with-docker" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use specific runner image</span>
+act<span class="w"> </span>--platform<span class="w"> </span>ubuntu-latest<span class="o">=</span>ubuntu:20.04
+
+<span class="c1"># With custom Docker image</span>
+act<span class="w"> </span>--platform<span class="w"> </span>ubuntu-latest<span class="o">=</span>ghcr.io/catthehacker/ubuntu:act-latest
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="manual-testing-approaches">
+<h2>📋 Manual Testing Approaches<a class="headerlink" href="#manual-testing-approaches" title="Link to this heading">#</a></h2>
+<section id="script-based-testing">
+<h3>1. Script-Based Testing<a class="headerlink" href="#script-based-testing" title="Link to this heading">#</a></h3>
+<p>Create local testing scripts that simulate workflow steps:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/test-local-ci.sh</span>
+
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🚀 Starting local CI simulation...&quot;</span>
+
+<span class="c1"># Simulate environment setup</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="si">${</span><span class="nv">PYTHON_VERSION</span><span class="k">:-</span><span class="nv">3</span><span class="p">.11</span><span class="si">}</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CI</span><span class="o">=</span><span class="nb">true</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">GITHUB_ACTIONS</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># Step 1: Environment setup</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📦 Setting up Python environment...&quot;</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>uv
+
+<span class="c1"># Step 2: Install dependencies</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📚 Installing dependencies...&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;requirements.txt&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;pyproject.toml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="k">fi</span>
+
+<span class="c1"># Step 3: Install notebook tools</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔧 Installing notebook validation tools...&quot;</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>jupyter<span class="w"> </span>nbval<span class="w"> </span>nbconvert<span class="w"> </span>bandit
+
+<span class="c1"># Step 4: Validate notebooks</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Validating notebooks...&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;notebooks&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.ipynb&quot;</span><span class="w"> </span>-exec<span class="w"> </span>jupyter<span class="w"> </span>nbconvert<span class="w"> </span>--to<span class="w"> </span>notebook<span class="w"> </span>--execute<span class="w"> </span>--inplace<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+<span class="w">    </span>pytest<span class="w"> </span>--nbval<span class="w"> </span>notebooks/
+<span class="k">fi</span>
+
+<span class="c1"># Step 5: Security scan</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔒 Running security scan...&quot;</span>
+find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.ipynb&quot;</span><span class="w"> </span>-exec<span class="w"> </span>jupyter<span class="w"> </span>nbconvert<span class="w"> </span>--to<span class="w"> </span>script<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span>bandit<span class="w"> </span>-r<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Step 6: Build documentation</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📖 Building documentation...&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;_config.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;_toc.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>jupyter-book<span class="w"> </span>build<span class="w"> </span>.
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Local CI simulation completed!&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="docker-based-testing">
+<h3>2. Docker-Based Testing<a class="headerlink" href="#docker-based-testing" title="Link to this heading">#</a></h3>
+<p>Create a Dockerfile that simulates the GitHub Actions environment:</p>
+<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span><span class="c"># Dockerfile.local-ci</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">ubuntu:22.04</span>
+
+<span class="c"># Install system dependencies</span>
+<span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3-pip<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3-venv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>curl<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
+
+<span class="c"># Install uv</span>
+<span class="k">RUN</span><span class="w"> </span>pip3<span class="w"> </span>install<span class="w"> </span>uv
+
+<span class="c"># Set working directory</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/workspace</span>
+
+<span class="c"># Copy repository</span>
+<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
+
+<span class="c"># Install dependencies</span>
+<span class="k">RUN</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;requirements.txt&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt<span class="p">;</span><span class="w"> </span><span class="k">fi</span>
+<span class="k">RUN</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>jupyter<span class="w"> </span>nbval<span class="w"> </span>nbconvert<span class="w"> </span>bandit<span class="w"> </span>jupyter-book
+
+<span class="c"># Run tests</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;scripts/test-local-ci.sh&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Test with Docker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Build test image</span>
+docker<span class="w"> </span>build<span class="w"> </span>-f<span class="w"> </span>Dockerfile.local-ci<span class="w"> </span>-t<span class="w"> </span>local-ci-test<span class="w"> </span>.
+
+<span class="c1"># Run tests</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/workspace<span class="w"> </span>local-ci-test
+</pre></div>
+</div>
+</section>
+<section id="github-cli-workflow-dispatch">
+<h3>3. GitHub CLI Workflow Dispatch<a class="headerlink" href="#github-cli-workflow-dispatch" title="Link to this heading">#</a></h3>
+<p>Test workflows using manual dispatch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Trigger workflow manually</span>
+gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;Notebook CI - On Demand&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--field<span class="w"> </span>python-version<span class="o">=</span><span class="m">3</span>.11<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--field<span class="w"> </span>execution-mode<span class="o">=</span>validation-only<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--field<span class="w"> </span>run-security-scan<span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># Monitor workflow run</span>
+gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--limit<span class="w"> </span><span class="m">1</span>
+gh<span class="w"> </span>run<span class="w"> </span>view<span class="w"> </span>--log
+</pre></div>
+</div>
+</section>
+</section>
+<section id="repository-specific-testing">
+<h2>🎯 Repository-Specific Testing<a class="headerlink" href="#repository-specific-testing" title="Link to this heading">#</a></h2>
+<section id="testing-centralized-workflows">
+<h3>Testing Centralized Workflows<a class="headerlink" href="#testing-centralized-workflows" title="Link to this heading">#</a></h3>
+<p>For repositories using the centralized workflow system:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/test-centralized-workflows.sh</span>
+
+<span class="nv">REPO_NAME</span><span class="o">=</span><span class="si">${</span><span class="nv">1</span><span class="k">:-$(</span>basename<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">))</span><span class="si">}</span>
+<span class="nv">ORG_NAME</span><span class="o">=</span><span class="si">${</span><span class="nv">2</span><span class="k">:-</span><span class="nv">spacetelescope</span><span class="si">}</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing centralized workflows for </span><span class="nv">$REPO_NAME</span><span class="s2">...&quot;</span>
+
+<span class="c1"># Test workflow syntax</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔍 Validating workflow syntax...&quot;</span>
+<span class="k">for</span><span class="w"> </span>workflow<span class="w"> </span><span class="k">in</span><span class="w"> </span>.github/workflows/*.yml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking </span><span class="nv">$workflow</span><span class="s2">...&quot;</span>
+<span class="w">    </span>act<span class="w"> </span>--dryrun<span class="w"> </span>--workflow<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ Syntax error in </span><span class="nv">$workflow</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># Test with different events</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🧪 Testing different trigger events...&quot;</span>
+
+<span class="c1"># Test PR workflow</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;.github/workflows/notebook-ci-pr.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing PR workflow...&quot;</span>
+<span class="w">    </span>act<span class="w"> </span>pull_request<span class="w"> </span>--workflow<span class="w"> </span>.github/workflows/notebook-ci-pr.yml<span class="w"> </span>--dryrun
+<span class="k">fi</span>
+
+<span class="c1"># Test main branch workflow</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;.github/workflows/notebook-ci-main.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing main branch workflow...&quot;</span>
+<span class="w">    </span>act<span class="w"> </span>push<span class="w"> </span>--workflow<span class="w"> </span>.github/workflows/notebook-ci-main.yml<span class="w"> </span>--dryrun
+<span class="k">fi</span>
+
+<span class="c1"># Test on-demand workflow</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;.github/workflows/notebook-ci-on-demand.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing on-demand workflow...&quot;</span>
+<span class="w">    </span>act<span class="w"> </span>workflow_dispatch<span class="w"> </span>--workflow<span class="w"> </span>.github/workflows/notebook-ci-on-demand.yml<span class="w"> </span>--dryrun
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Centralized workflow testing completed!&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="repository-specific-configurations">
+<h3>Repository-Specific Configurations<a class="headerlink" href="#repository-specific-configurations" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/test-repo-config.sh</span>
+
+<span class="nv">REPO_NAME</span><span class="o">=</span><span class="k">$(</span>basename<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">))</span>
+
+<span class="k">case</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPO_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span><span class="s2">&quot;jdat_notebooks&quot;</span><span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔭 Testing JDAT notebooks configuration...&quot;</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">CRDS_SERVER_URL</span><span class="o">=</span><span class="s2">&quot;https://jwst-crds.stsci.edu&quot;</span>
+<span class="w">        </span><span class="nb">export</span><span class="w"> </span><span class="nv">CRDS_PATH</span><span class="o">=</span><span class="s2">&quot;/tmp/crds_cache&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span><span class="s2">&quot;mast_notebooks&quot;</span><span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🌌 Testing MAST notebooks configuration...&quot;</span>
+<span class="w">        </span><span class="c1"># Test MAST API connectivity</span>
+<span class="w">        </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import astroquery.mast; print(&#39;MAST connection OK&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ MAST connection failed&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span><span class="s2">&quot;hst_notebooks&quot;</span><span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔭 Testing HST notebooks configuration...&quot;</span>
+<span class="w">        </span><span class="c1"># Test hstcal environment</span>
+<span class="w">        </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import hstcal; print(&#39;hstcal OK&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ hstcal not available (expected in local environment)&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span><span class="s2">&quot;hello_universe&quot;</span><span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🌟 Testing Hello Universe configuration...&quot;</span>
+<span class="w">        </span><span class="c1"># Simplified testing</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span><span class="s2">&quot;jwst-pipeline-notebooks&quot;</span><span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🚀 Testing JWST pipeline configuration...&quot;</span>
+<span class="w">        </span><span class="c1"># Test jdaviz availability</span>
+<span class="w">        </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import jdaviz; print(&#39;jdaviz OK&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ jdaviz not available (expected in local environment)&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="w">    </span>*<span class="o">)</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📝 Testing generic notebook configuration...&quot;</span>
+<span class="w">        </span><span class="p">;;</span>
+<span class="k">esac</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ci-cd-validation-scripts">
+<h2>📋 CI/CD Validation Scripts<a class="headerlink" href="#ci-cd-validation-scripts" title="Link to this heading">#</a></h2>
+<section id="pre-commit-workflow-validation">
+<h3>Pre-Commit Workflow Validation<a class="headerlink" href="#pre-commit-workflow-validation" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/pre-commit-workflow-check.sh</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔍 Pre-commit workflow validation...&quot;</span>
+
+<span class="c1"># Check workflow syntax</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating YAML syntax...&quot;</span>
+<span class="k">for</span><span class="w"> </span>workflow<span class="w"> </span><span class="k">in</span><span class="w"> </span>.github/workflows/*.yml<span class="w"> </span>.github/workflows/*.yaml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; yaml.safe_load(open(&#39;</span><span class="nv">$workflow</span><span class="s2">&#39;))&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ YAML syntax error in </span><span class="nv">$workflow</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">        </span><span class="o">}</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check for required fields</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Checking required workflow fields...&quot;</span>
+<span class="k">for</span><span class="w"> </span>workflow<span class="w"> </span><span class="k">in</span><span class="w"> </span>.github/workflows/*.yml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;name:&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ Missing &#39;name&#39; field in </span><span class="nv">$workflow</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;on:&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ Missing &#39;on&#39; field in </span><span class="nv">$workflow</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check workflow references</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Validating workflow references...&quot;</span>
+<span class="k">for</span><span class="w"> </span>workflow<span class="w"> </span><span class="k">in</span><span class="w"> </span>.github/workflows/*.yml<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="c1"># Check for placeholder references</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;your-org\|dev-actions&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$workflow</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ Found placeholder references in </span><span class="nv">$workflow</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Please update organization and repository names&quot;</span>
+<span class="w">            </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">        </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Pre-commit workflow validation passed!&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="integration-testing">
+<h3>Integration Testing<a class="headerlink" href="#integration-testing" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/integration-test.sh</span>
+
+<span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🧪 Running integration tests...&quot;</span>
+
+<span class="c1"># Test 1: Notebook execution</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📓 Testing notebook execution...&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;notebooks&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="c1"># Find a simple notebook for testing</span>
+<span class="w">    </span><span class="nv">test_notebook</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.ipynb&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$test_notebook</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing with: </span><span class="nv">$test_notebook</span><span class="s2">&quot;</span>
+<span class="w">        </span>jupyter<span class="w"> </span>nbconvert<span class="w"> </span>--to<span class="w"> </span>notebook<span class="w"> </span>--execute<span class="w"> </span>--inplace<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$test_notebook</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Notebook execution successful&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ No notebooks found for testing&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">fi</span>
+
+<span class="c1"># Test 2: Documentation building</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;📖 Testing documentation build...&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;_config.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;_toc.yml&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>jupyter-book<span class="w"> </span>build<span class="w"> </span>.<span class="w"> </span>--path-output<span class="w"> </span>/tmp/test-build
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;/tmp/test-build/_build/html&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Documentation build successful&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ Documentation build failed&quot;</span>
+<span class="w">        </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ No JupyterBook configuration found&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># Test 3: Security scan</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🔒 Testing security scan...&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;notebooks&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="c1"># Convert notebooks to Python scripts</span>
+<span class="w">    </span>find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.ipynb&quot;</span><span class="w"> </span>-exec<span class="w"> </span>jupyter<span class="w"> </span>nbconvert<span class="w"> </span>--to<span class="w"> </span>script<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1"># Run security scan</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>-exec<span class="w"> </span>bandit<span class="w"> </span>-r<span class="w"> </span><span class="o">{}</span><span class="w"> </span><span class="se">\;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Security scan completed&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;⚠️ Security scan found issues (review manually)&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1"># Cleanup</span>
+<span class="w">    </span>find<span class="w"> </span>notebooks<span class="w"> </span>-name<span class="w"> </span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>-delete
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ Integration tests completed!&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>🐛 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<section id="common-issues-and-solutions">
+<h3>Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading">#</a></h3>
+<section id="act-docker-permission-issues">
+<h4>1. Act Docker Permission Issues<a class="headerlink" href="#act-docker-permission-issues" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fix Docker permissions on Linux</span>
+sudo<span class="w"> </span>usermod<span class="w"> </span>-aG<span class="w"> </span>docker<span class="w"> </span><span class="nv">$USER</span>
+newgrp<span class="w"> </span>docker
+
+<span class="c1"># Or run with sudo</span>
+sudo<span class="w"> </span>act<span class="w"> </span>pull_request
+</pre></div>
+</div>
+</section>
+<section id="missing-dependencies">
+<h4>2. Missing Dependencies<a class="headerlink" href="#missing-dependencies" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install missing Python packages</span>
+pip<span class="w"> </span>install<span class="w"> </span>jupyter<span class="w"> </span>nbval<span class="w"> </span>nbconvert<span class="w"> </span>bandit<span class="w"> </span>jupyter-book
+
+<span class="c1"># Or use uv for faster installation</span>
+pip<span class="w"> </span>install<span class="w"> </span>uv
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>jupyter<span class="w"> </span>nbval<span class="w"> </span>nbconvert<span class="w"> </span>bandit<span class="w"> </span>jupyter-book
+</pre></div>
+</div>
+</section>
+<section id="environment-variable-issues">
+<h4>3. Environment Variable Issues<a class="headerlink" href="#environment-variable-issues" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Debug environment variables</span>
+act<span class="w"> </span>--env-file<span class="w"> </span>.env<span class="w"> </span>--verbose
+
+<span class="c1"># Or set inline</span>
+act<span class="w"> </span>-e<span class="w"> </span><span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>-e<span class="w"> </span><span class="nv">CI</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>pull_request
+</pre></div>
+</div>
+</section>
+<section id="workflow-reference-errors">
+<h4>4. Workflow Reference Errors<a class="headerlink" href="#workflow-reference-errors" title="Link to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check workflow syntax</span>
+act<span class="w"> </span>--dryrun<span class="w"> </span>--workflow<span class="w"> </span>.github/workflows/your-workflow.yml
+
+<span class="c1"># Validate YAML</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; print(yaml.safe_load(open(&#39;.github/workflows/your-workflow.yml&#39;)))&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="debugging-tips">
+<h3>Debugging Tips<a class="headerlink" href="#debugging-tips" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Use verbose mode</strong>: <code class="docutils literal notranslate"><span class="pre">act</span> <span class="pre">--verbose</span></code></p></li>
+<li><p><strong>Check logs</strong>: <code class="docutils literal notranslate"><span class="pre">act</span> <span class="pre">--log-level</span> <span class="pre">debug</span></code></p></li>
+<li><p><strong>Dry run first</strong>: <code class="docutils literal notranslate"><span class="pre">act</span> <span class="pre">--dryrun</span></code></p></li>
+<li><p><strong>Test individual jobs</strong>: <code class="docutils literal notranslate"><span class="pre">act</span> <span class="pre">-j</span> <span class="pre">job-name</span></code></p></li>
+<li><p><strong>Use local artifacts</strong>: <code class="docutils literal notranslate"><span class="pre">act</span> <span class="pre">--artifact-server-path</span> <span class="pre">/tmp/artifacts</span></code></p></li>
+</ol>
+</section>
+</section>
+<section id="best-practices">
+<h2>🏆 Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">#</a></h2>
+<section id="local-testing-workflow">
+<h3>1. Local Testing Workflow<a class="headerlink" href="#local-testing-workflow" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended testing sequence</span>
+act<span class="w"> </span>--dryrun<span class="w">                    </span><span class="c1"># 1. Validate syntax</span>
+act<span class="w"> </span>--list<span class="w">                      </span><span class="c1"># 2. List available workflows</span>
+act<span class="w"> </span>-j<span class="w"> </span>specific-job<span class="w"> </span>--dryrun<span class="w">    </span><span class="c1"># 3. Test specific jobs</span>
+act<span class="w"> </span>pull_request<span class="w">               </span><span class="c1"># 4. Run full workflow</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-management">
+<h3>2. Environment Management<a class="headerlink" href="#environment-management" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">.actrc</span></code> for consistent configuration</p></li>
+<li><p>Store secrets in <code class="docutils literal notranslate"><span class="pre">.env</span></code> file (add to <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code>)</p></li>
+<li><p>Use specific Docker images for consistency</p></li>
+<li><p>Test with different Python versions</p></li>
+</ul>
+</section>
+<section id="security-considerations">
+<h3>3. Security Considerations<a class="headerlink" href="#security-considerations" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Never commit real secrets to version control</p></li>
+<li><p>Use dummy values for local testing</p></li>
+<li><p>Test security scanning with intentionally vulnerable code</p></li>
+<li><p>Validate that secrets are properly masked in logs</p></li>
+</ul>
+</section>
+<section id="performance-optimization">
+<h3>4. Performance Optimization<a class="headerlink" href="#performance-optimization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Use Docker layer caching</p></li>
+<li><p>Cache dependencies between runs</p></li>
+<li><p>Use specific tags for Docker images</p></li>
+<li><p>Run only changed workflows during development</p></li>
+</ul>
+</section>
+<section id="continuous-integration">
+<h3>5. Continuous Integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pre-commit hook</span>
+<span class="c1">#!/bin/bash</span>
+<span class="c1"># .git/hooks/pre-commit</span>
+
+<span class="c1"># Validate workflows before commit</span>
+./scripts/pre-commit-workflow-check.sh
+
+<span class="c1"># Run quick local tests</span>
+act<span class="w"> </span>--dryrun<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ Workflow validation failed&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="additional-resources">
+<h2>🔗 Additional Resources<a class="headerlink" href="#additional-resources" title="Link to this heading">#</a></h2>
+<section id="tools-and-documentation">
+<h3>Tools and Documentation<a class="headerlink" href="#tools-and-documentation" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Act</strong>: <a class="github reference external" href="https://github.com/nektos/act">nektos/act</a></p></li>
+<li><p><strong>GitHub CLI</strong>: <a class="reference external" href="https://cli.github.com/">https://cli.github.com/</a></p></li>
+<li><p><strong>GitHub Actions Documentation</strong>: <a class="reference external" href="https://docs.github.com/en/actions">https://docs.github.com/en/actions</a></p></li>
+<li><p><strong>JupyterBook</strong>: <a class="reference external" href="https://jupyterbook.org/">https://jupyterbook.org/</a></p></li>
+</ul>
+</section>
+<section id="testing-strategies">
+<h3>Testing Strategies<a class="headerlink" href="#testing-strategies" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Test-Driven Development</strong>: Write tests before implementing workflows</p></li>
+<li><p><strong>Incremental Testing</strong>: Test small changes frequently</p></li>
+<li><p><strong>Environment Parity</strong>: Keep local and CI environments similar</p></li>
+<li><p><strong>Documentation Testing</strong>: Ensure all examples work locally</p></li>
+</ul>
+</section>
+<section id="community-examples">
+<h3>Community Examples<a class="headerlink" href="#community-examples" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Act Examples</strong>: <a class="github reference external" href="https://github.com/nektos/act/tree/master/examples">nektos/act</a></p></li>
+<li><p><strong>GitHub Actions Toolkit</strong>: <a class="github reference external" href="https://github.com/actions/toolkit">actions/toolkit</a></p></li>
+<li><p><strong>Awesome Actions</strong>: <a class="github reference external" href="https://github.com/sdras/awesome-actions">sdras/awesome-actions</a></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="quick-reference">
+<h2>📝 Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading">#</a></h2>
+<section id="essential-commands">
+<h3>Essential Commands<a class="headerlink" href="#essential-commands" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install and setup</span>
+brew<span class="w"> </span>install<span class="w"> </span>act<span class="w">                 </span><span class="c1"># Install act</span>
+act<span class="w"> </span>--version<span class="w">                   </span><span class="c1"># Verify installation</span>
+
+<span class="c1"># Basic usage</span>
+act<span class="w"> </span>--list<span class="w">                      </span><span class="c1"># List workflows</span>
+act<span class="w"> </span>--dryrun<span class="w">                    </span><span class="c1"># Validate syntax</span>
+act<span class="w"> </span>pull_request<span class="w">               </span><span class="c1"># Run PR workflow</span>
+act<span class="w"> </span>-j<span class="w"> </span>job-name<span class="w">                </span><span class="c1"># Run specific job</span>
+
+<span class="c1"># Advanced usage</span>
+act<span class="w"> </span>-s<span class="w"> </span><span class="nv">GITHUB_TOKEN</span><span class="o">=</span>token<span class="w">      </span><span class="c1"># With secrets</span>
+act<span class="w"> </span>--platform<span class="w"> </span>ubuntu-latest<span class="o">=</span>image<span class="w">  </span><span class="c1"># Custom image</span>
+act<span class="w"> </span>--artifact-server-path<span class="w"> </span>/tmp<span class="w">     </span><span class="c1"># Local artifacts</span>
+act<span class="w"> </span>--verbose<span class="w">                   </span><span class="c1"># Debug mode</span>
+</pre></div>
+</div>
+</section>
+<section id="configuration-files">
+<h3>Configuration Files<a class="headerlink" href="#configuration-files" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .actrc - Global configuration</span>
+--container-architecture<span class="w"> </span>linux/amd64
+--platform<span class="w"> </span>ubuntu-latest<span class="o">=</span>ghcr.io/catthehacker/ubuntu:act-latest
+
+<span class="c1"># .env - Environment variables</span>
+<span class="nv">GITHUB_TOKEN</span><span class="o">=</span>your_token
+<span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.11
+
+<span class="c1"># .github/events/pr.json - Custom event payload</span>
+<span class="o">{</span>
+<span class="w">  </span><span class="s2">&quot;pull_request&quot;</span>:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;number&quot;</span>:<span class="w"> </span><span class="m">1</span><span class="o">}</span>,
+<span class="w">  </span><span class="s2">&quot;repository&quot;</span>:<span class="w"> </span><span class="o">{</span><span class="s2">&quot;name&quot;</span>:<span class="w"> </span><span class="s2">&quot;repo&quot;</span><span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>This guide provides comprehensive coverage of local testing approaches for GitHub Actions workflows. Start with the basic Act setup and gradually incorporate more advanced testing strategies as needed.</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./docs"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#table-of-contents">📋 Table of Contents</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">🎯 Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-tools">🛠️ Testing Tools</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#act-github-actions-local-runner">1. Act - GitHub Actions Local Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#verification">Verification</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#github-cli-with-workflow-dispatch">2. GitHub CLI with Workflow Dispatch</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-environment-simulation">3. Local Environment Simulation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-start">🚀 Quick Start</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-act-usage">Basic Act Usage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-validation">Quick Validation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#act-local-github-actions-runner">🔧 Act - Local GitHub Actions Runner</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment Variables</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-act-usage">Advanced Act Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-specific-events">Testing Specific Events</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-event-payloads">Custom Event Payloads</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-with-docker">Running with Docker</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#manual-testing-approaches">📋 Manual Testing Approaches</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#script-based-testing">1. Script-Based Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-based-testing">2. Docker-Based Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#github-cli-workflow-dispatch">3. GitHub CLI Workflow Dispatch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-testing">🎯 Repository-Specific Testing</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-centralized-workflows">Testing Centralized Workflows</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#repository-specific-configurations">Repository-Specific Configurations</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ci-cd-validation-scripts">📋 CI/CD Validation Scripts</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pre-commit-workflow-validation">Pre-Commit Workflow Validation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-testing">Integration Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">🐛 Troubleshooting</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#common-issues-and-solutions">Common Issues and Solutions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#act-docker-permission-issues">1. Act Docker Permission Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-dependencies">2. Missing Dependencies</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variable-issues">3. Environment Variable Issues</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow-reference-errors">4. Workflow Reference Errors</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-tips">Debugging Tips</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices">🏆 Best Practices</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#local-testing-workflow">1. Local Testing Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-management">2. Environment Management</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#security-considerations">3. Security Considerations</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#performance-optimization">4. Performance Optimization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">5. Continuous Integration</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-resources">🔗 Additional Resources</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tools-and-documentation">Tools and Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-strategies">Testing Strategies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#community-examples">Community Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-reference">📝 Quick Reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#essential-commands">Essential Commands</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-files">Configuration Files</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Local Test
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
