@@ -134,12 +134,6 @@ on:
         required: false
 
 env:
-  # Optional CRDS configuration exposed to all jobs. These are typically used by
-  # JWST-style pipelines; callers can omit them entirely if not needed.
-  # Only set when inputs are provided (not empty), allowing notebooks to use internal defaults.
-  CRDS_SERVER_URL: ${{ inputs.crds-server-url || null }}
-  CRDS_CONTEXT: ${{ inputs.crds-context || null }}
-  CRDS_PATH: ${{ inputs.crds-path || null }}
 
 jobs:
   # Change Detection and Matrix Setup
@@ -890,6 +884,22 @@ jobs:
           echo "🔧 Setting up custom conda environment: ${{ inputs.conda-environment }}"
           # Create environment with specified conda environment packages
           micromamba install -n ci-env ${{ inputs.conda-environment }} -y
+
+      - name: Set CRDS environment variables
+        run: |
+          # Only set CRDS env vars if provided by caller, allowing notebooks to use internal defaults
+          if [ -n "${{ inputs.crds-server-url }}" ]; then
+            echo "CRDS_SERVER_URL=${{ inputs.crds-server-url }}" >> $GITHUB_ENV
+            echo "🔧 Set CRDS_SERVER_URL from caller input"
+          fi
+          if [ -n "${{ inputs.crds-context }}" ]; then
+            echo "CRDS_CONTEXT=${{ inputs.crds-context }}" >> $GITHUB_ENV
+            echo "🔧 Set CRDS_CONTEXT from caller input"
+          fi
+          if [ -n "${{ inputs.crds-path }}" ]; then
+            echo "CRDS_PATH=${{ inputs.crds-path }}" >> $GITHUB_ENV
+            echo "🔧 Set CRDS_PATH from caller input"
+          fi
 
       - name: Install requirements
         run: |
