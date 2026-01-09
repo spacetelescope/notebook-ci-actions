@@ -136,9 +136,10 @@ on:
 env:
   # Optional CRDS configuration exposed to all jobs. These are typically used by
   # JWST-style pipelines; callers can omit them entirely if not needed.
-  CRDS_SERVER_URL: ${{ inputs.crds-server-url }}
-  CRDS_CONTEXT: ${{ inputs.crds-context }}
-  CRDS_PATH: ${{ inputs.crds-path }}
+  # Only set when inputs are provided (not empty), allowing notebooks to use internal defaults.
+  CRDS_SERVER_URL: ${{ inputs.crds-server-url || null }}
+  CRDS_CONTEXT: ${{ inputs.crds-context || null }}
+  CRDS_PATH: ${{ inputs.crds-path || null }}
 
 jobs:
   # Change Detection and Matrix Setup
