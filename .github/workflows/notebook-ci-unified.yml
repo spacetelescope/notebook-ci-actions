@@ -133,8 +133,6 @@ on:
       CASJOBS_PW:
         required: false
 
-env:
-
 jobs:
   # Change Detection and Matrix Setup
   setup-matrix:
