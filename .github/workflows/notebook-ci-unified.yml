@@ -1862,6 +1862,14 @@ jobs:
                 fi
               fi
               
+              # Also fix html_baseurl in conf.py if it exists (Sphinx config)
+              if [ -f "conf.py" ]; then
+                if grep -q "html_baseurl" conf.py; then
+                  sed -i "s|html_baseurl = .*|html_baseurl = '${GH_PAGES_URL}'|g" conf.py
+                  echo "✅ Set html_baseurl in conf.py to ${GH_PAGES_URL}"
+                fi
+              fi
+              
               # Fix GitHub URLs - replace whatever is there with correct URL
               sed -i "s|github: .*|github: ${REPO_URL}|g" myst.yml
               # Fix binder repo URLs - replace whatever is there with correct URL
