@@ -1872,15 +1872,17 @@ jobs:
               
               # Configure BASE_URL for GitHub Pages
               REPO_NAME="${{ github.event.repository.name }}"
-              echo "🌐 Setting BASE_URL for GitHub Pages: /${REPO_NAME}"
+              echo "🌐 Configuring for GitHub Pages deployment"
               
-              # Add baseurl at site level (not under options)
-              if ! grep -q "^  baseurl:" myst.yml; then
-                # Add baseurl right after "site:" line
-                sed -i "/^site:/a\  baseurl: /${REPO_NAME}" myst.yml
-              else
-                # Update existing baseurl
-                sed -i "s|^  baseurl:.*|  baseurl: /${REPO_NAME}|g" myst.yml
+              # Use MyST's gh-pages configuration approach
+              # This sets up the correct baseurl and other GitHub Pages settings
+              if grep -q "^site:" myst.yml; then
+                # Add GitHub Pages specific configuration
+                if ! grep -q "^  baseurl:" myst.yml; then
+                  sed -i "/^site:/a\  baseurl: /${REPO_NAME}" myst.yml
+                else
+                  sed -i "s|^  baseurl:.*|  baseurl: /${REPO_NAME}|g" myst.yml
+                fi
               fi
               
               echo "✅ myst.yml URLs fixed for ${REPO_URL}"
