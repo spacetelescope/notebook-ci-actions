@@ -1852,10 +1852,10 @@ jobs:
               
               echo "📍 Detected repository: ${REPO_URL}"
               
-              # Fix incomplete GitHub URLs with actual repo
-              sed -i "s|github: [^h][^/]*/[^/]*/|github: ${REPO_URL}|g" myst.yml
-              # Fix incomplete binder repo URLs with actual repo
-              sed -i "s|repo: [^h][^/]*/[^/]*/|repo: ${REPO_URL}|g" myst.yml
+              # Fix GitHub URLs - handle both complete and incomplete URLs
+              sed -i "s|github:.*github\.com/[^/]*/[^/]*|github: ${REPO_URL}|g" myst.yml
+              # Fix binder repo URLs - handle both complete and incomplete URLs  
+              sed -i "s|repo:.*github\.com/[^/]*/[^/]*|repo: ${REPO_URL}|g" myst.yml
               # Fix empty binder URL
               sed -i "s|url: ''|url: https://mybinder.org|g" myst.yml
               sed -i 's|url: ""|url: https://mybinder.org|g' myst.yml
