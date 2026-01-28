@@ -1966,9 +1966,9 @@ jobs:
           export BASE_URL="/${{ github.event.repository.name }}"
           echo "BASE_URL set to: $BASE_URL"
           
-          # v2.1+ uses myst CLI - BASE_URL env var ensures proper resource paths for GitHub Pages
-          echo "Command: myst build --html"
-          myst build --html 2>&1 | tee build.log
+          # v2.1+ build command - BASE_URL env var ensures proper resource paths for GitHub Pages
+          echo "Command: jupyter-book build --html"
+          jupyter-book build --html 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
