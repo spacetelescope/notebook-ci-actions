@@ -1838,8 +1838,8 @@ jobs:
           # Check if we have old-style config that needs migration
           if [ -f "_config.yml" ] && [ ! -f "myst.yml" ]; then
             echo "🔄 Migrating legacy Jupyter Book v1 config to MyST v2.1+"
-            # Run non-interactive init to migrate config - use 'yes' command for infinite affirmative
-            yes | timeout 30 jupyter-book init --project --site || true
+            # Run non-interactive init - redirect yes output to suppress spam, timeout prevents hanging
+            yes 2>/dev/null | timeout 30 jupyter-book init --project --site 2>&1 | grep -v "^y$" || true
             
             # Fix common myst.yml validation issues
             if [ -f "myst.yml" ]; then
