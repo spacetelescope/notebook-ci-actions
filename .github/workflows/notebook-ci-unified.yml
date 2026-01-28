@@ -1849,8 +1849,18 @@ jobs:
               REPO_OWNER="${{ github.repository_owner }}"
               REPO_NAME="${{ github.event.repository.name }}"
               REPO_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}"
+              GH_PAGES_URL="https://${REPO_OWNER}.github.io/${REPO_NAME}"
               
               echo "📍 Detected repository: ${REPO_URL}"
+              echo "🌐 GitHub Pages URL: ${GH_PAGES_URL}"
+              
+              # Fix html_baseurl in _config.yml before migration (if it exists)
+              if [ -f "_config.yml" ]; then
+                if grep -q "html_baseurl:" _config.yml; then
+                  sed -i "s|html_baseurl:.*|html_baseurl: ${GH_PAGES_URL}|g" _config.yml
+                  echo "✅ Set html_baseurl in _config.yml to ${GH_PAGES_URL}"
+                fi
+              fi
               
               # Fix GitHub URLs - replace whatever is there with correct URL
               sed -i "s|github: .*|github: ${REPO_URL}|g" myst.yml
