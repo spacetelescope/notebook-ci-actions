@@ -1961,7 +1961,12 @@ jobs:
           echo "python: $(python --version)"
           python -m pip show jupyter-book || true
           
-          # v2.1+ uses myst CLI under the hood - use myst build directly for better control
+          # Set BASE_URL environment variable for GitHub Pages deployment
+          # MyST requires this to be set BEFORE building to properly prefix all resource paths
+          export BASE_URL="/${{ github.event.repository.name }}"
+          echo "BASE_URL set to: $BASE_URL"
+          
+          # v2.1+ uses myst CLI - BASE_URL env var ensures proper resource paths for GitHub Pages
           echo "Command: myst build --html"
           myst build --html 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
