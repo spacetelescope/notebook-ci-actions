@@ -1860,45 +1860,7 @@ jobs:
               sed -i "s|url: ''|url: https://mybinder.org|g" myst.yml
               sed -i 's|url: ""|url: https://mybinder.org|g' myst.yml
               
-              # Remove TOC entries for files that don't exist
-              echo "🧹 Cleaning up TOC entries for missing files..."
-              python3 << 'PYTHON_EOF'
-import yaml
-import os
-
-with open('myst.yml', 'r') as f:
-    config = yaml.safe_load(f)
-
-if 'project' in config and 'toc' in config['project']:
-    def filter_toc(items):
-        filtered = []
-        for item in items:
-            if isinstance(item, dict):
-                if 'file' in item:
-                    # Check if file exists
-                    if os.path.exists(item['file']) or os.path.exists(item['file'] + '.md') or os.path.exists(item['file'] + '.ipynb'):
-                        filtered.append(item)
-                    else:
-                        print(f"  Removing missing file: {item['file']}")
-                elif 'title' in item and 'children' in item:
-                    # Recursively filter children
-                    filtered_children = filter_toc(item['children'])
-                    if filtered_children:  # Only keep section if it has children
-                        item['children'] = filtered_children
-                        filtered.append(item)
-                else:
-                    filtered.append(item)
-            else:
-                filtered.append(item)
-        return filtered
-    
-    config['project']['toc'] = filter_toc(config['project']['toc'])
-
-with open('myst.yml', 'w') as f:
-    yaml.dump(config, f, default_flow_style=False, sort_keys=False)
-PYTHON_EOF
-              
-              echo "✅ myst.yml URLs fixed and TOC cleaned for ${REPO_URL}"
+              echo "✅ myst.yml URLs fixed for ${REPO_URL}"
             fi
           elif [ ! -f "myst.yml" ]; then
             echo "⚠️  No myst.yml found, initializing basic configuration"
