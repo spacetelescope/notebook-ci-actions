@@ -1961,13 +1961,9 @@ jobs:
           echo "python: $(python --version)"
           python -m pip show jupyter-book || true
           
-          # Extract repository name for baseurl
-          REPO_NAME="${{ github.event.repository.name }}"
-          BASE_URL="/${REPO_NAME}"
-          
-          # Use v2.1+ command: --html generates static HTML with --base-url for GitHub Pages
-          echo "Command: jupyter-book build --html --base-url ${BASE_URL}"
-          jupyter-book build --html --base-url "${BASE_URL}" 2>&1 | tee build.log
+          # v2.1+ uses myst CLI under the hood - use myst build directly for better control
+          echo "Command: myst build --html"
+          myst build --html 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
