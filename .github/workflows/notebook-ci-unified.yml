@@ -778,7 +778,8 @@ jobs:
 
           set +e
           OUTPUT_LOG="$WORKDIR/build.log"
-          jupyter-book build --keep-going "$WORKDIR" 2>&1 | tee "$OUTPUT_LOG"
+          # JupyterBook v2.1+ uses --html flag for static site generation
+          jupyter-book build --html "$WORKDIR" 2>&1 | tee "$OUTPUT_LOG" || true
           jb_rc=${PIPESTATUS[0]}
           set -e
 
@@ -1815,8 +1816,26 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate docs-env
           echo "📚 Installing documentation dependencies"
-          # Pin to v1.x for now to avoid v2.x breaking changes and Node.js requirements
-          pip install "jupyter-book<2.0" sphinx
+          # Install JupyterBook v2.1+ (MyST-CLI based, requires Node.js configured above)
+          pip install jupyter-book sphinx
+          
+      - name: Initialize MyST configuration (for v2.1+)
+        run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate docs-env
+          echo "🔧 Checking JupyterBook configuration..."
+          
+          # Check if we have old-style config that needs migration
+          if [ -f "_config.yml" ] && [ ! -f "myst.yml" ]; then
+            echo "🔄 Migrating legacy Jupyter Book v1 config to MyST v2.1+"
+            # Run non-interactive init to migrate config
+            echo "yes" | jupyter-book init --project --site || true
+          elif [ ! -f "myst.yml" ]; then
+            echo "⚠️  No myst.yml found, initializing basic configuration"
+            jupyter-book init --project --site || true
+          else
+            echo "✅ myst.yml already exists"
+          fi
           
       - name: Build JupyterBook documentation
         run: |
@@ -1850,15 +1869,15 @@ jobs:
           rm -rf _build
           
           # Build the documentation
-          echo "🔨 Starting JupyterBook build..."
+          echo "🔨 Starting JupyterBook v2.1+ build (static HTML)..."
           echo "which jupyter-book: $(which jupyter-book || true)"
           echo "jupyter-book version: $(jupyter-book --version 2>&1 || true)"
           echo "python: $(python --version)"
           python -m pip show jupyter-book || true
           
-          # Use v1.x command syntax (we pinned to v1.x in installation)
-          echo "Command: jupyter-book build ."
-          jupyter-book build . 2>&1 | tee build.log
+          # Use v2.1+ command: --html generates static HTML in _build/html/
+          echo "Command: jupyter-book build --html ."
+          jupyter-book build --html . 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
