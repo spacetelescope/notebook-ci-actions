@@ -1825,11 +1825,34 @@ jobs:
           micromamba activate docs-env
           echo "🔧 Checking JupyterBook configuration..."
           
+          # Restore from backups if they exist (from previous migration attempts)
+          if [ -f "._config.yml.bak" ] && [ ! -f "_config.yml" ]; then
+            echo "📋 Restoring _config.yml from backup"
+            mv "._config.yml.bak" "_config.yml"
+          fi
+          if [ -f "._toc.yml.bak" ] && [ ! -f "_toc.yml" ]; then
+            echo "📋 Restoring _toc.yml from backup"
+            mv "._toc.yml.bak" "_toc.yml"
+          fi
+          
           # Check if we have old-style config that needs migration
           if [ -f "_config.yml" ] && [ ! -f "myst.yml" ]; then
             echo "🔄 Migrating legacy Jupyter Book v1 config to MyST v2.1+"
             # Run non-interactive init to migrate config
             echo "yes" | jupyter-book init --project --site || true
+            
+            # Fix common myst.yml validation issues
+            if [ -f "myst.yml" ]; then
+              echo "🔧 Fixing myst.yml URL validation issues..."
+              # Fix incomplete GitHub URLs
+              sed -i 's|github: \([^/]*\)/\([^/]*\)/|github: https://github.com/\1/\2|g' myst.yml
+              # Fix incomplete binder repo URLs
+              sed -i 's|repo: \([^/]*\)/\([^/]*\)/|repo: https://github.com/\1/\2|g' myst.yml
+              # Fix empty binder URL
+              sed -i "s|url: ''|url: https://mybinder.org|g" myst.yml
+              sed -i 's|url: ""|url: https://mybinder.org|g' myst.yml
+              echo "✅ myst.yml URLs fixed"
+            fi
           elif [ ! -f "myst.yml" ]; then
             echo "⚠️  No myst.yml found, initializing basic configuration"
             jupyter-book init --project --site || true
