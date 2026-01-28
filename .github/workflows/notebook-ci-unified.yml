@@ -1861,6 +1861,8 @@ jobs:
               sed -i 's|url: ""|url: https://mybinder.org|g' myst.yml
               
               echo "✅ myst.yml URLs fixed for ${REPO_URL}"
+              echo "📋 Final myst.yml content:"
+              cat myst.yml
             fi
           elif [ ! -f "myst.yml" ]; then
             echo "⚠️  No myst.yml found, initializing basic configuration"
