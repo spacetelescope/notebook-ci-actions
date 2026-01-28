@@ -1860,6 +1860,20 @@ jobs:
               sed -i "s|url: ''|url: https://mybinder.org|g" myst.yml
               sed -i 's|url: ""|url: https://mybinder.org|g' myst.yml
               
+              # Configure BASE_URL for GitHub Pages
+              REPO_NAME="${{ github.event.repository.name }}"
+              echo "🌐 Setting BASE_URL for GitHub Pages: /${REPO_NAME}"
+              
+              # Add or update site.options.baseurl in myst.yml
+              if grep -q "^site:" myst.yml; then
+                if grep -q "baseurl:" myst.yml; then
+                  sed -i "s|baseurl:.*|baseurl: /${REPO_NAME}|g" myst.yml
+                else
+                  # Add baseurl under site.options
+                  sed -i "/options:/a\    baseurl: /${REPO_NAME}" myst.yml
+                fi
+              fi
+              
               echo "✅ myst.yml URLs fixed for ${REPO_URL}"
               echo "📋 Final myst.yml content:"
               cat myst.yml
