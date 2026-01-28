@@ -1896,6 +1896,25 @@ jobs:
             echo "✅ myst.yml already exists"
           fi
           
+          # ALWAYS ensure baseurl is configured for GitHub Pages (whether migrated or pre-existing)
+          if [ -f "myst.yml" ]; then
+            REPO_NAME="${{ github.event.repository.name }}"
+            echo "🌐 Ensuring baseurl is set for GitHub Pages: /${REPO_NAME}"
+            
+            if grep -q "^site:" myst.yml; then
+              if ! grep -q "^  baseurl:" myst.yml; then
+                sed -i "/^site:/a\  baseurl: /${REPO_NAME}" myst.yml
+                echo "✅ Added baseurl to myst.yml"
+              else
+                sed -i "s|^  baseurl:.*|  baseurl: /${REPO_NAME}|g" myst.yml
+                echo "✅ Updated baseurl in myst.yml"
+              fi
+            fi
+            
+            echo "📋 Final myst.yml site configuration:"
+            grep -A 5 "^site:" myst.yml || echo "No site section found"
+          fi
+          
       - name: Build JupyterBook documentation
         run: |
           eval "$(micromamba shell hook --shell bash)"
