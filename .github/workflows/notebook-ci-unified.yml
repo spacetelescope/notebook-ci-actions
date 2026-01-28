@@ -1962,9 +1962,8 @@ jobs:
           python -m pip show jupyter-book || true
           
           # Use v2.1+ command: --html generates static HTML in _build/html/
-          # Use --gh-pages to ensure proper baseurl handling for GitHub Pages
-          echo "Command: jupyter-book build --html --gh-pages"
-          jupyter-book build --html --gh-pages 2>&1 | tee build.log
+          echo "Command: jupyter-book build --html"
+          jupyter-book build --html 2>&1 | tee build.log
           BUILD_EXIT_CODE=$?
           
           echo ""
