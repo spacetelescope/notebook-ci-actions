@@ -1844,14 +1844,23 @@ jobs:
             # Fix common myst.yml validation issues
             if [ -f "myst.yml" ]; then
               echo "🔧 Fixing myst.yml URL validation issues..."
-              # Fix incomplete GitHub URLs
-              sed -i 's|github: \([^/]*\)/\([^/]*\)/|github: https://github.com/\1/\2|g' myst.yml
-              # Fix incomplete binder repo URLs
-              sed -i 's|repo: \([^/]*\)/\([^/]*\)/|repo: https://github.com/\1/\2|g' myst.yml
+              
+              # Get actual repository from GitHub context
+              REPO_OWNER="${{ github.repository_owner }}"
+              REPO_NAME="${{ github.event.repository.name }}"
+              REPO_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}"
+              
+              echo "📍 Detected repository: ${REPO_URL}"
+              
+              # Fix incomplete GitHub URLs with actual repo
+              sed -i "s|github: [^h][^/]*/[^/]*/|github: ${REPO_URL}|g" myst.yml
+              # Fix incomplete binder repo URLs with actual repo
+              sed -i "s|repo: [^h][^/]*/[^/]*/|repo: ${REPO_URL}|g" myst.yml
               # Fix empty binder URL
               sed -i "s|url: ''|url: https://mybinder.org|g" myst.yml
               sed -i 's|url: ""|url: https://mybinder.org|g' myst.yml
-              echo "✅ myst.yml URLs fixed"
+              
+              echo "✅ myst.yml URLs fixed to use ${REPO_URL}"
             fi
           elif [ ! -f "myst.yml" ]; then
             echo "⚠️  No myst.yml found, initializing basic configuration"
