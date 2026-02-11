@@ -1,4 +1,4 @@
-
+## This workflow performs accessibility checks on allJupyter notebooks in a given repository
 name: "Jupyter Notebook Accessibility Check"
 
 on:

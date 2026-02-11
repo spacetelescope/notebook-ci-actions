@@ -1,3 +1,4 @@
+## This workflow performs accessibility checks on Jupyter notebooks created or updated in a pull request
 name: "Notebook Accessibility PR-only Check"
 
 on:
