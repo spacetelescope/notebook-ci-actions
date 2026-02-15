@@ -731,7 +731,7 @@ jobs:
           fetch-depth: 0
           
       - name: Set up Python environment with micromamba
-        uses: mamba-org/setup-micromamba@v1
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: notebooks
           create-args: >-
@@ -876,7 +876,7 @@ jobs:
           fi
 
       - name: Set up Python environment with micromamba
-        uses: mamba-org/setup-micromamba@v2.0.4
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: ci-env
           init-shell: bash
@@ -1789,7 +1789,7 @@ jobs:
           echo "✅ Deprecation warning check completed"
           
       - name: Set up Python environment with micromamba
-        uses: mamba-org/setup-micromamba@v2.0.4
+        uses: mamba-org/setup-micromamba@v2
         with:
           environment-name: docs-env
           init-shell: bash
