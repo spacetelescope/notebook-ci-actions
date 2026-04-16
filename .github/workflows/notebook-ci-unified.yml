@@ -1356,7 +1356,7 @@ jobs:
           micromamba activate ci-env
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
           # Clear outputs to ensure clean validation
-          jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
+          #jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
           pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
           
       - name: Record execution result
