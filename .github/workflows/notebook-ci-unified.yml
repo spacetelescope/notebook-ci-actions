@@ -1363,6 +1363,19 @@ jobs:
           [regex3]
           regex: 0x[0-9a-fA-F]+
           replace: 0xMEMADDR
+          
+          [regex4]
+          regex: (INFO: Found cached file .+? \[astroquery\.query\]|Downloading URL .+? \.\.\. \[Done\])
+          replace: FILE-TRANSFER-MESSAGE
+          
+          [regex5]
+          regex: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}
+          replace: TIMESTAMP
+          
+          [regex6]
+          regex: /[^ ]+
+          replace: PATH
+
           EOF
     
       - name: Validate notebook
