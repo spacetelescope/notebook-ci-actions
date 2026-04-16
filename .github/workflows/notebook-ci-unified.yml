@@ -945,16 +945,6 @@ jobs:
             echo "ℹ️ Pre-processing script not found at repo or notebook level; skipping."
           fi
 
-      - name: Validate notebook
-        if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
-        run: |
-          eval "$(micromamba shell hook --shell bash)"
-          micromamba activate ci-env
-          echo "🔍 Validating notebook: ${{ matrix.notebook }}"
-          # Clear outputs to ensure clean validation
-          jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
-          pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
-
       - name: Security scan
         if: inputs.enable-security == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'security')
         run: |
@@ -1358,7 +1348,17 @@ jobs:
           
           # Exit with the result of the push operation
           exit $exit_code
-
+          
+      - name: Validate notebook
+        if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
+        run: |
+          eval "$(micromamba shell hook --shell bash)"
+          micromamba activate ci-env
+          echo "🔍 Validating notebook: ${{ matrix.notebook }}"
+          # Clear outputs to ensure clean validation
+          jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
+          pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+          
       - name: Record execution result
         if: always()
         run: |
