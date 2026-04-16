@@ -873,9 +873,14 @@ jobs:
         with:
           environment-name: ci-env
           init-shell: bash
-          create-args: "python=${{ inputs.python-version }} pip jupyter nbval nbconvert bandit pytest"
+          create-args: "python=${{ inputs.python-version }} pip jupyter nbconvert bandit pytest"
           cache-environment: false
 
+      - name: Install nbval from GitHub
+        shell: bash -l {0}
+        run: |
+          pip install git+https://github.com/mgough-970/nbval.git
+    
       - name: Set up custom conda environment
         if: inputs.conda-environment != ''
         run: |
