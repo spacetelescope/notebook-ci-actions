@@ -1375,7 +1375,15 @@ jobs:
           [regex6]
           regex: /[^ ]+
           replace: PATH
-
+          
+          [regex7]
+          regex: \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(,\d+)? 
+          replace: TIMESTAMP 
+          
+          [regex8]
+          regex: /[^ ]+
+          replace: PATH
+          
           EOF
     
       - name: Validate notebook
