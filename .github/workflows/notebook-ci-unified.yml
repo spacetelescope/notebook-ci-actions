@@ -1348,7 +1348,23 @@ jobs:
           
           # Exit with the result of the push operation
           exit $exit_code
-          
+
+      - name: Create nbval sanitize config
+        run: |
+          cat << 'EOF' > nbval_sanitize.cfg
+          [regex1]
+          regex: Runtime (so far|for [^:]+): \d+ seconds
+          replace: Runtime \1: N seconds
+      
+          [regex2]
+          regex: table[0-9]+
+          replace: tableID
+      
+          [regex3]
+          regex: 0x[0-9a-fA-F]+
+          replace: 0xMEMADDR
+          EOF
+    
       - name: Validate notebook
         if: inputs.enable-validation == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'validate')
         run: |
@@ -1357,7 +1373,7 @@ jobs:
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
           # Clear outputs to ensure clean validation
           #jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
-          pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
+          pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}" --nbval-sanitize-with nbval_sanitize.cfg
           
       - name: Record execution result
         if: always()
