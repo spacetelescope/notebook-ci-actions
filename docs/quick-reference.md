@@ -32,7 +32,7 @@ cp examples/caller-workflows/notebook-on-demand.yml .github/workflows/
 
 ### Standard Python Repository
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -45,7 +45,7 @@ with:
 
 ### HST Notebooks (Conda)
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -59,7 +59,7 @@ with:
 
 ### Educational Repository
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -202,7 +202,7 @@ on:
 
 jobs:
   ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -221,7 +221,7 @@ on:
 
 jobs:
   deploy:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@{current version}
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'merge'
       python-version: '3.11'
@@ -261,11 +261,11 @@ your-repository/
 
 ## 🔗 Useful Links
 
-- **Main Documentation**: [README-unified.md](../README-unified.md)
-- **Migration Guide**: [docs/migration-guide-unified.md](../docs/migration-guide-unified.md)
-- **Troubleshooting**: [docs/troubleshooting-unified.md](../docs/troubleshooting-unified.md)
-- **Complete Examples**: [examples/complete-setup-example.md](../examples/complete-setup-example.md)
-- **Configuration Reference**: [docs/configuration-reference.md](../docs/configuration-reference.md)
+- **Main Documentation**: [README.md](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
+- **Migration Guide**: [Migration Guide](migration-guide.md)
+- **Troubleshooting**: [Troubleshooting](troubleshooting-unified.md)
+- **Complete Examples**: [Complete Setup Example](https://github.com/spacetelescope/notebook-ci-actions/blob/main/examples/complete-setup-example.md)
+- **Configuration Reference**: [Configuration Reference](configuration-reference.md)
 
 ## 🏷️ Version Information
 

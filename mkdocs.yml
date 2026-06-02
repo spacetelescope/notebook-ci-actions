@@ -1,0 +1,69 @@
+site_name: Notebook CI/CD Docs
+site_description: Documentation for the spacetelescope/notebook-ci-actions unified notebook CI/CD system.
+site_url: https://spacetelescope.github.io/notebook-ci-actions/
+repo_url: https://github.com/spacetelescope/notebook-ci-actions
+repo_name: spacetelescope/notebook-ci-actions
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - navigation.indexes
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - For Notebook Authors:
+      - Quick Reference: authors/quick-reference.md
+      - Full Guide: authors/guide.md
+      - Local Testing (Cheatsheet): local-testing-quick-reference.md
+      - Local Testing (Full Guide): local-testing-guide.md
+  - For Maintainers:
+      - Configuration Reference: configuration-reference.md
+      - Selective Execution: selective-execution.md
+      - Smart Workflows: smart-workflows.md
+      - Migration Guide: migration-guide.md
+      - Repository Migration Checklist: repository-migration-checklist.md
+      - Semantic Versioning: semantic-versioning.md
+      - Operator Guide: operator-user-guide.md
+      - Setup Quick Reference: quick-reference.md
+  - Infrastructure:
+      - Custom Runner Configuration: custom-runner-configuration.md
+  - Troubleshooting: troubleshooting-unified.md

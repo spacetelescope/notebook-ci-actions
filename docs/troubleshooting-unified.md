@@ -54,7 +54,7 @@ on:
 
 # 3. Verify the workflow reference
 # Ensure you're using the correct organization and branch
-uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
 ```
 
 ### Environment Issues
@@ -236,7 +236,7 @@ enable-security: false
 # Add to your workflow for verbose logging
 jobs:
   debug-run:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: 'validate'  # Start with validation only
@@ -247,7 +247,7 @@ jobs:
 
 ```bash
 # 1. Clone the actions repository
-git clone https://github.com/mgough-970/dev-actions.git
+git clone https://github.com/spacetelescope/notebook-ci-actions.git
 
 # 2. Use local testing scripts
 cd your-repository
@@ -270,7 +270,7 @@ on:
 
 jobs:
   debug:
-    uses: mgough-970/dev-actions/.github/workflows/notebook-ci-unified.yml@dev-actions-v2
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
     with:
       execution-mode: 'on-demand'
       trigger-event: ${{ inputs.debug_step }}
@@ -371,7 +371,7 @@ When reporting issues, include:
 
 ### Support Channels
 
-- **GitHub Issues**: [Create issue in notebook-ci-actions](https://github.com/mgough-970/dev-actions/issues)
+- **GitHub Issues**: [Create issue in notebook-ci-actions](https://github.com/spacetelescope/notebook-ci-actions/issues)
 - **Documentation**: Check `docs/` folder for detailed guides
 - **Migration Help**: Use `scripts/migrate-to-unified.sh` for automated setup
 

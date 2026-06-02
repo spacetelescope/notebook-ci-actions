@@ -310,10 +310,10 @@ Enable detailed logging in smart workflows:
 
 ## 🔗 Related Documentation
 
-- [Core Workflows Documentation](../README.md)
-- [Migration Guide](../docs/migration-guide.md)
-- [Repository Migration Checklist](../docs/repository-migration-checklist.md)
-- [Example Workflows Guide](README.md)
+- [Core Workflows Documentation](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
+- [Migration Guide](migration-guide.md)
+- [Repository Migration Checklist](repository-migration-checklist.md)
+- [Example Workflows Guide](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
 
 ## 📞 Support
 

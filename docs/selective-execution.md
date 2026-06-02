@@ -308,10 +308,10 @@ Assuming GitHub Actions pricing of $0.008/minute:
 
 ## 🔗 Related Documentation
 
-- [Unified Workflow Guide](../README.md)
+- [Unified Workflow Guide](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
 - [Migration Checklist](repository-migration-checklist.md)
 - [Configuration Reference](configuration-reference.md)
-- [Example Workflows](../examples/README.md)
+- [Example Workflows](https://github.com/spacetelescope/notebook-ci-actions/blob/main/examples/README.md)
 
 ---
 
