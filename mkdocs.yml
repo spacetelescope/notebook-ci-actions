@@ -54,6 +54,7 @@ plugins:
 nav:
   - Home: index.md
   - For Notebook Authors:
+      - Set Up a New Repo: authors/setup-repo.md
       - Quick Reference: authors/quick-reference.md
       - Full Guide: authors/guide.md
       - Local Testing (Cheatsheet): local-testing-quick-reference.md
