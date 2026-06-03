@@ -19,12 +19,12 @@ The centralized notebook CI/CD system provides automated testing, building, and 
 - **Smart Path Detection**: Only running CI when relevant files change
 
 ### Supported Repositories
-- `jdat_notebooks` - JWST Data Analysis Tools notebooks
-- `hst_notebooks` - Hubble Space Telescope notebooks  
-- `mast_notebooks` - Mikulski Archive for Space Telescopes notebooks
-- `hellouniverse` - Educational/introductory notebooks
-- `jwst-pipeline-notebooks` - JWST Pipeline processing notebooks
-- `roman_notebooks` - Nancy Grace Roman Space Telescope notebooks
+- [`jdat_notebooks`](https://github.com/spacetelescope/jdat_notebooks) - JWST Data Analysis Tools notebooks
+- [`hst_notebooks`](https://github.com/spacetelescope/hst_notebooks) - Hubble Space Telescope notebooks  
+- [`mast_notebooks`](https://github.com/spacetelescope/mast_notebooks) - Mikulski Archive for Space Telescopes notebooks
+- [`hellouniverse`](https://github.com/spacetelescope/hellouniverse) - Educational/introductory notebooks
+- [`jwst-pipeline-notebooks`](https://github.com/spacetelescope/jwst-pipeline-notebooks) - JWST Pipeline processing notebooks
+- [`roman_notebooks`](https://github.com/spacetelescope/roman_notebooks) - Nancy Grace Roman Space Telescope notebooks
 
 ## How the System Works
 
