@@ -2,7 +2,7 @@
 
 This guide provides a quick reference for testing GitHub Actions workflows locally using the new testing scripts.
 
-## 🚀 Quick Start
+## :material-rocket-launch: Quick Start
 
 ### Prerequisites
 
@@ -29,7 +29,7 @@ This guide provides a quick reference for testing GitHub Actions workflows local
    # Windows: choco install act-cli
    ```
 
-## 📋 Testing Workflow
+## :material-clipboard-text: Testing Workflow
 
 ### 1. Validate Workflows
 
@@ -73,7 +73,7 @@ RUN_SECURITY_SCAN=false BUILD_DOCUMENTATION=false ./scripts/test-local-ci.sh
 DRY_RUN=true ./scripts/test-with-act.sh workflow_dispatch
 ```
 
-## 🎯 Repository-Specific Testing
+## :material-target: Repository-Specific Testing
 
 ### JDAT Notebooks
 ```bash
@@ -111,7 +111,7 @@ RUN_SECURITY_SCAN=false ./scripts/test-local-ci.sh
 EXECUTION_MODE=validation-only ./scripts/test-local-ci.sh
 ```
 
-## 🔧 Common Use Cases
+## :material-wrench: Common Use Cases
 
 ### Development Workflow
 ```bash
@@ -183,7 +183,7 @@ fi
 echo "✅ Full pipeline simulation completed!"
 ```
 
-## 🐛 Troubleshooting
+## :material-bug: Troubleshooting
 
 ### Common Issues
 
@@ -230,7 +230,7 @@ echo "✅ Full pipeline simulation completed!"
 | `VERBOSE` | `false` | Enable verbose output |
 | `DRY_RUN` | `false` | Validate without execution (Act only) |
 
-## 📊 Performance Tips
+## :material-chart-box: Performance Tips
 
 ### Speed Up Testing
 
@@ -274,14 +274,14 @@ echo "✅ Full pipeline simulation completed!"
    --artifact-server-path /tmp/act-artifacts
    ```
 
-## 📚 Additional Resources
+## :material-bookshelf: Additional Resources
 
 - **[Complete Local Testing Guide](local-testing-guide.md)** - Detailed testing methods
 - **[Scripts Documentation](https://github.com/spacetelescope/notebook-ci-actions/blob/main/scripts/README.md)** - Script usage and examples
 - **[Act Documentation](https://github.com/nektos/act)** - GitHub Actions local runner
 - **[Migration Guide](migration-guide.md)** - Repository migration process
 
-## 💡 Tips and Best Practices
+## :material-lightbulb: Tips and Best Practices
 
 1. **Start with workflow validation** before testing execution
 2. **Use validation-only mode** for fast feedback during development  

@@ -2,7 +2,7 @@
 
 A concise reference for using the unified notebook CI/CD system.
 
-## 🚀 Setup Commands
+## :material-rocket-launch: Setup Commands
 
 ### Automated Setup (Recommended)
 ```bash
@@ -28,7 +28,7 @@ cp examples/caller-workflows/notebook-scheduled.yml .github/workflows/
 cp examples/caller-workflows/notebook-on-demand.yml .github/workflows/
 ```
 
-## ⚙️ Configuration Templates
+## :material-cog: Configuration Templates
 
 ### Standard Python Repository
 ```yaml
@@ -70,7 +70,7 @@ with:
   enable-html-build: true     # Build documentation
 ```
 
-## 🎛️ Input Parameters
+## :material-tune: Input Parameters
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -87,7 +87,7 @@ with:
 | `post-processing-script` | string | - | Custom post-processing script |
 | `deprecation-days` | number | `60` | Days until deprecation |
 
-## 🔧 Common Configurations
+## :material-wrench: Common Configurations
 
 ### PR Workflow (Fast Validation)
 ```yaml
@@ -122,7 +122,7 @@ enable-storage: false
 enable-html-build: false
 ```
 
-## 🏃‍♂️ Quick Commands
+## :material-run: Quick Commands
 
 ### Test Locally
 ```bash
@@ -151,7 +151,7 @@ nbstripout notebooks/**/*.ipynb
 git status --porcelain
 ```
 
-## 🆘 Quick Fixes
+## :material-help-circle: Quick Fixes
 
 ### Workflow Not Triggering
 ```yaml
@@ -190,7 +190,7 @@ custom-requirements: 'environment.yml'  # Custom file
 # - CASJOBS_PW (if needed)
 ```
 
-## 📋 Workflow Examples
+## :material-clipboard-text: Workflow Examples
 
 ### Minimal PR Workflow
 ```yaml
@@ -235,7 +235,7 @@ jobs:
       CASJOBS_PW: ${{ secrets.CASJOBS_PW }}
 ```
 
-## 📁 Repository Structure
+## :material-folder: Repository Structure
 
 ```text
 your-repository/
@@ -259,7 +259,7 @@ your-repository/
 └── requirements.txt               # Global requirements
 ```
 
-## 🔗 Useful Links
+## :material-link-variant: Useful Links
 
 - **Main Documentation**: [README.md](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
 - **Migration Guide**: [Migration Guide](migration-guide.md)
@@ -267,7 +267,7 @@ your-repository/
 - **Complete Examples**: [Complete Setup Example](https://github.com/spacetelescope/notebook-ci-actions/blob/main/examples/complete-setup-example.md)
 - **Configuration Reference**: [Configuration Reference](configuration-reference.md)
 
-## 🏷️ Version Information
+## :material-tag: Version Information
 
 - **System**: Unified Notebook CI/CD v1.0
 - **Last Updated**: July 2025

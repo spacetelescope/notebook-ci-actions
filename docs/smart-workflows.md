@@ -1,27 +1,27 @@
 # Smart Workflow System - Conditional CI Documentation
 
-## 🧠 Overview
+## :material-brain: Overview
 
 The Smart Workflow System intelligently detects file changes in pull requests and main branch pushes to determine the optimal CI/CD path. This system dramatically reduces execution time and compute costs for documentation-only changes while maintaining full validation for notebook and code changes.
 
-## 🎯 Key Benefits
+## :material-target: Key Benefits
 
-### ⚡ Performance Optimization
+### :material-lightning-bolt: Performance Optimization
 - **Documentation-only PRs**: ~2-5 minutes instead of 15-30 minutes
 - **Config-only changes**: Skip notebook execution entirely
 - **Faster feedback**: Immediate validation for non-notebook changes
 
-### 💰 Cost Reduction
+### :material-cash: Cost Reduction
 - **Reduced GitHub Actions minutes**: Up to 80% savings on documentation PRs
 - **Efficient resource usage**: Only run expensive operations when needed
 - **Smart caching**: Optimized workflow execution paths
 
-### 🔒 Quality Assurance
+### :material-lock: Quality Assurance
 - **Full validation when needed**: Complete CI for notebook/code changes
 - **Selective testing**: Targeted validation based on change type
 - **Security scanning**: Maintained where appropriate
 
-## 📁 Available Smart Workflows
+## :material-folder: Available Smart Workflows
 
 ### 1. `notebook-ci-pr-smart.yml` - Smart Pull Request CI
 
@@ -53,27 +53,27 @@ The Smart Workflow System intelligently detects file changes in pull requests an
 - **Documentation/Config Changed** → Documentation rebuild + deployment
 - **No Significant Changes** → Skip CI entirely
 
-## 🔍 File Change Detection Logic
+## :material-magnify: File Change Detection Logic
 
 ### File Categories
 
 The smart workflows categorize changed files into these groups:
 
-#### 📔 Notebook Files (Trigger Full CI)
+#### :material-notebook: Notebook Files (Trigger Full CI)
 ```
 notebooks/*.ipynb     # Jupyter notebooks
 notebooks/*.py        # Python scripts  
 notebooks/*.R         # R scripts
 ```
 
-#### 🔧 Requirements Files (Trigger Full CI)
+#### :material-wrench: Requirements Files (Trigger Full CI)
 ```
 requirements.txt      # Python dependencies
 pyproject.toml       # Python project config
 setup.py            # Python package setup
 ```
 
-#### 📚 Documentation Files (Docs-Only Rebuild)
+#### :material-bookshelf: Documentation Files (Docs-Only Rebuild)
 ```
 _config.yml          # JupyterBook config
 _toc.yml            # Table of contents
@@ -85,7 +85,7 @@ scripts/*           # Helper scripts
 *.js                # JavaScript
 ```
 
-#### ⚙️ Workflow Files (Special Handling)
+#### :material-cog: Workflow Files (Special Handling)
 ```
 .github/workflows/*  # GitHub Actions workflows
 *.yml               # Other YAML configs
@@ -103,7 +103,7 @@ scripts/*           # Helper scripts
 | Mixed changes | Full CI | Full CI + Execution | Safety: validate everything |
 | Workflow files only | Minimal/Skip | Skip | No content changes |
 
-## 🛠️ Implementation Guide
+## :material-tools: Implementation Guide
 
 ### Step 1: Choose Your Smart Workflow
 
@@ -175,7 +175,7 @@ git push origin test-notebook-change
 - Customize execution modes per repository
 - Update documentation rebuild triggers
 
-## 📊 Performance Comparison
+## :material-chart-box: Performance Comparison
 
 ### Traditional Workflow
 ```
@@ -210,7 +210,7 @@ Monthly Actions Minutes: ~200-400 minutes (60% savings)
 - **Smart**: 25 minutes (full CI + deployment)
 - **Time Saved**: 0 minutes (appropriate full validation)
 
-## 🔧 Advanced Configuration
+## :material-wrench: Advanced Configuration
 
 ### Custom File Patterns
 
@@ -247,7 +247,7 @@ Configure different execution modes based on file changes:
 execution-mode: ${{ needs.detect-changes.outputs.notebooks-changed == 'true' && 'full' || 'validation-only' }}
 ```
 
-## 🚨 Troubleshooting
+## :material-alert: Troubleshooting
 
 ### Common Issues
 
@@ -286,7 +286,7 @@ Enable detailed logging in smart workflows:
     env | grep GITHUB_ | head -10
 ```
 
-## 📝 Best Practices
+## :material-note-text: Best Practices
 
 ### 1. Gradual Rollout
 - Test smart workflows in a development environment first
@@ -308,14 +308,14 @@ Enable detailed logging in smart workflows:
 - Implement easy rollback procedures
 - Monitor for edge cases and unexpected behaviors
 
-## 🔗 Related Documentation
+## :material-link-variant: Related Documentation
 
 - [Core Workflows Documentation](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
 - [Migration Guide](migration-guide.md)
 - [Repository Migration Checklist](repository-migration-checklist.md)
 - [Example Workflows Guide](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
 
-## 📞 Support
+## :material-lifebuoy: Support
 
 For issues with smart workflows:
 1. Check workflow logs for file detection details
@@ -326,5 +326,5 @@ For issues with smart workflows:
 ---
 
 **Implementation Date**: July 2025  
-**Status**: ✅ Ready for Production  
+**Status**: :material-check-circle: Ready for Production  
 **Compatibility**: All STScI notebook repositories

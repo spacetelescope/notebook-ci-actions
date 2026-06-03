@@ -2,7 +2,7 @@
 
 This guide provides comprehensive methods for testing GitHub Actions workflows locally before pushing changes to GitHub. Local testing helps catch issues early, reduces CI/CD costs, and speeds up development.
 
-## 📋 Table of Contents
+## :material-clipboard-text: Table of Contents
 
 - [Overview](#overview)
 - [Testing Tools](#testing-tools)
@@ -14,7 +14,7 @@ This guide provides comprehensive methods for testing GitHub Actions workflows l
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
 
-## 🎯 Overview
+## :material-target: Overview
 
 Testing GitHub Actions workflows locally is crucial for:
 
@@ -24,7 +24,7 @@ Testing GitHub Actions workflows locally is crucial for:
 - **Validation**: Ensure workflows work across different environments
 - **Security**: Test with secrets and sensitive data safely
 
-## 🛠️ Testing Tools
+## :material-tools: Testing Tools
 
 ### 1. Act - GitHub Actions Local Runner
 
@@ -72,7 +72,7 @@ gh auth login
 
 Create local scripts that simulate the GitHub Actions environment.
 
-## 🚀 Quick Start
+## :material-rocket-launch: Quick Start
 
 ### Basic Act Usage
 
@@ -113,7 +113,7 @@ act --dryrun
 act --list --verbose
 ```
 
-## 🔧 Act - Local GitHub Actions Runner
+## :material-wrench: Act - Local GitHub Actions Runner
 
 ### Configuration
 
@@ -188,7 +188,7 @@ act --platform ubuntu-latest=ubuntu:20.04
 act --platform ubuntu-latest=ghcr.io/catthehacker/ubuntu:act-latest
 ```
 
-## 📋 Manual Testing Approaches
+## :material-clipboard-text: Manual Testing Approaches
 
 ### 1. Script-Based Testing
 
@@ -306,7 +306,7 @@ gh run list --limit 1
 gh run view --log
 ```
 
-## 🎯 Repository-Specific Testing
+## :material-target: Repository-Specific Testing
 
 ### Testing Centralized Workflows
 
@@ -391,7 +391,7 @@ case "$REPO_NAME" in
 esac
 ```
 
-## 📋 CI/CD Validation Scripts
+## :material-clipboard-text: CI/CD Validation Scripts
 
 ### Pre-Commit Workflow Validation
 
@@ -501,7 +501,7 @@ fi
 echo "✅ Integration tests completed!"
 ```
 
-## 🐛 Troubleshooting
+## :material-bug: Troubleshooting
 
 ### Common Issues and Solutions
 
@@ -555,7 +555,7 @@ python -c "import yaml; print(yaml.safe_load(open('.github/workflows/your-workfl
 4. **Test individual jobs**: `act -j job-name`
 5. **Use local artifacts**: `act --artifact-server-path /tmp/artifacts`
 
-## 🏆 Best Practices
+## :material-trophy: Best Practices
 
 ### 1. Local Testing Workflow
 
@@ -605,7 +605,7 @@ act --dryrun || {
 }
 ```
 
-## 🔗 Additional Resources
+## :material-link-variant: Additional Resources
 
 ### Tools and Documentation
 
@@ -629,7 +629,7 @@ act --dryrun || {
 
 ---
 
-## 📝 Quick Reference
+## :material-note-text: Quick Reference
 
 ### Essential Commands
 

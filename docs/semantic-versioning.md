@@ -2,7 +2,7 @@
 
 This document explains how to implement semantic versioning for reusable GitHub Actions workflows and how to automate the versioning process using GitHub Actions.
 
-## 📋 Table of Contents
+## :material-clipboard-text: Table of Contents
 
 - [Overview](#overview)
 - [Semantic Versioning Basics](#semantic-versioning-basics)
@@ -13,7 +13,7 @@ This document explains how to implement semantic versioning for reusable GitHub 
 - [Best Practices](#best-practices)
 - [Troubleshooting](#troubleshooting)
 
-## 🎯 Overview
+## :material-target: Overview
 
 Semantic versioning (SemVer) provides a systematic way to version your reusable GitHub Actions workflows, ensuring:
 
@@ -22,7 +22,7 @@ Semantic versioning (SemVer) provides a systematic way to version your reusable 
 - **Safe upgrades** with confidence in stability
 - **Automated release management** through GitHub Actions
 
-## 📐 Semantic Versioning Basics
+## :material-ruler: Semantic Versioning Basics
 
 ### Version Format: `MAJOR.MINOR.PATCH`
 
@@ -35,7 +35,7 @@ Semantic versioning (SemVer) provides a systematic way to version your reusable 
 - **Beta**: `1.0.0-beta.1` - Feature complete, testing phase
 - **Release Candidate**: `1.0.0-rc.1` - Production ready candidate
 
-## 🏷️ Versioning Strategy for Actions
+## :material-tag: Versioning Strategy for Actions
 
 ### When to Bump Each Version Component
 
@@ -101,7 +101,7 @@ git tag v1      # Points to latest v1.x.x
 git tag v2      # Points to latest v2.x.x
 ```
 
-## 🤖 Automated Versioning Workflow
+## :material-robot: Automated Versioning Workflow
 
 ### 1. Release Workflow with Semantic Versioning
 
@@ -241,7 +241,7 @@ jobs:
           @semantic-release/git@10.0.0
 ```
 
-## 🔄 Using Versioned Workflows
+## :material-sync: Using Versioned Workflows
 
 ### Pinning to Specific Versions
 
@@ -281,7 +281,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.y
 uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v2.0.0-beta.1
 ```
 
-## 🚀 Migration Guide
+## :material-rocket-launch: Migration Guide
 
 ### Upgrading from v1 to v2 (Breaking Changes)
 
@@ -351,7 +351,7 @@ uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.y
 uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 ```
 
-## ✅ Best Practices
+## :material-check-circle: Best Practices
 
 ### For Workflow Maintainers
 
@@ -410,7 +410,7 @@ Brief description of changes...
 - [ ] Backwards compatibility verified
 ```
 
-## 🔧 Troubleshooting
+## :material-wrench: Troubleshooting
 
 ### Common Issues
 
@@ -455,7 +455,7 @@ jobs:
         echo "Caller ref: ${{ github.ref }}"
 ```
 
-## 📚 Additional Resources
+## :material-bookshelf: Additional Resources
 
 - [Semantic Versioning Specification](https://semver.org/)
 - [GitHub Actions Versioning Guide](https://docs.github.com/en/actions/creating-actions/about-custom-actions#using-release-management-for-actions)

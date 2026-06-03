@@ -559,11 +559,11 @@ Before deploying configuration changes to production:
    - Expand configuration incrementally
 
 3. **Monitoring checklist**:
-   - ✅ Workflow completion rate
-   - ✅ Average execution times
-   - ✅ Runner queue wait times
-   - ✅ Cost per workflow run
-   - ✅ Error rates and types
+   - :material-check-circle: Workflow completion rate
+   - :material-check-circle: Average execution times
+   - :material-check-circle: Runner queue wait times
+   - :material-check-circle: Cost per workflow run
+   - :material-check-circle: Error rates and types
 
 ### Getting Help
 

@@ -2,7 +2,7 @@
 
 This guide provides comprehensive troubleshooting information for the unified notebook CI/CD system.
 
-## 🚨 Common Issues and Solutions
+## :material-alert: Common Issues and Solutions
 
 ### Workflow Issues
 
@@ -228,7 +228,7 @@ enable-security: false
 # Review bandit output and address high-severity issues
 ```
 
-## 🔧 Debugging Strategies
+## :material-wrench: Debugging Strategies
 
 ### Enable Debug Mode
 
@@ -276,7 +276,7 @@ jobs:
       trigger-event: ${{ inputs.debug_step }}
 ```
 
-## 📊 Performance Optimization
+## :material-chart-box: Performance Optimization
 
 ### Workflow Performance Issues
 
@@ -312,7 +312,7 @@ enable-security: false    # Less critical for tutorials
 enable-storage: true      # Keep for examples
 ```
 
-## 🆘 Emergency Procedures
+## :material-help-circle: Emergency Procedures
 
 ### Rollback to Previous Workflows
 
@@ -343,7 +343,7 @@ on: []  # Empty trigger list disables the workflow
 mv .github/workflows/notebook-pr.yml .github/workflows/notebook-pr.yml.disabled
 ```
 
-## 📞 Getting Help
+## :material-lifebuoy: Getting Help
 
 ### Information to Include
 

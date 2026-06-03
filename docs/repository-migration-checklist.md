@@ -8,7 +8,7 @@ This checklist provides step-by-step instructions for migrating the following re
 - `hellouniverse`
 - `jwst-pipeline-notebooks`
 
-## 📋 Table of Contents
+## :material-clipboard-text: Table of Contents
 
 - [Pre-Migration Setup](#pre-migration-setup)
 - [Repository-Specific Migration](#repository-specific-migration)
@@ -16,13 +16,13 @@ This checklist provides step-by-step instructions for migrating the following re
 - [Post-Migration Cleanup](#post-migration-cleanup)
 - [Troubleshooting](#troubleshooting)
 
-## 🚀 Pre-Migration Setup
+## :material-rocket-launch: Pre-Migration Setup
 
 ### Step 1: Inventory Current Workflows
 
 For each repository, document the existing workflows:
 
-#### ✅ Current Workflow Analysis
+#### :material-check-circle: Current Workflow Analysis
 - [ ] **`jdat_notebooks`**: Document existing `.github/workflows/*.yml` files
 - [ ] **`mast_notebooks`**: Document existing `.github/workflows/*.yml` files  
 - [ ] **`hst_notebooks`**: Document existing `.github/workflows/*.yml` files
@@ -41,7 +41,7 @@ done > workflow-inventory.txt
 
 ### Step 2: Prepare notebook-ci-actions Repository
 
-#### ✅ Repository Setup
+#### :material-check-circle: Repository Setup
 - [ ] Ensure `notebook-ci-actions` repository exists
 - [ ] Copy workflows from `dev-actions` to `notebook-ci-actions`:
   ```bash
@@ -102,11 +102,11 @@ git commit -m "Prepare migration branch for $REPO_NAME"
 echo "Migration branch created. Run migration checklist next."
 ```
 
-## 🔄 Repository-Specific Migration
+## :material-sync: Repository-Specific Migration
 
 ### jdat_notebooks Migration
 
-#### ✅ Current State Analysis
+#### :material-check-circle: Current State Analysis
 - [ ] **Repository URL**: `https://github.com/spacetelescope/jdat_notebooks`
 - [ ] **Primary workflows identified**: 
   - [ ] Notebook CI/validation
@@ -118,7 +118,7 @@ echo "Migration branch created. Run migration checklist next."
   - [ ] Large data downloads
   - [ ] Micromamba environment needs
 
-#### ✅ Migration Steps
+#### :material-check-circle: Migration Steps
 - [ ] **Step 1**: Create migration branch
   ```bash
   cd jdat_notebooks
@@ -183,7 +183,7 @@ echo "Migration branch created. Run migration checklist next."
   - [ ] `CASJOBS_USERID` (if needed)
   - [ ] `CASJOBS_PW` (if needed)
 
-#### ✅ jdat_notebooks Testing
+#### :material-check-circle: jdat_notebooks Testing
 - [ ] **Local testing**: Test workflows with workflow_dispatch
 - [ ] **PR testing**: Create test PR to verify workflow triggers
 - [ ] **Documentation**: Verify JupyterBook builds correctly
@@ -191,7 +191,7 @@ echo "Migration branch created. Run migration checklist next."
 
 ### mast_notebooks Migration
 
-#### ✅ Current State Analysis
+#### :material-check-circle: Current State Analysis
 - [ ] **Repository URL**: `https://github.com/spacetelescope/mast_notebooks`
 - [ ] **Primary workflows identified**: ________________
 - [ ] **Python version(s) used**: _____________
@@ -200,7 +200,7 @@ echo "Migration branch created. Run migration checklist next."
   - [ ] Archive data requirements
   - [ ] Authentication needs
 
-#### ✅ Migration Steps
+#### :material-check-circle: Migration Steps
 - [ ] **Step 1**: Create migration branch
 - [ ] **Step 2**: Replace workflows with centralized versions
 - [ ] **Step 3**: Update workflow references
@@ -216,14 +216,14 @@ echo "Migration branch created. Run migration checklist next."
   ```
 - [ ] **Step 5**: Configure secrets
 
-#### ✅ mast_notebooks Testing
+#### :material-check-circle: mast_notebooks Testing
 - [ ] **Local testing**: Test MAST API access
 - [ ] **Archive queries**: Verify data download functionality
 - [ ] **Authentication**: Test with repository secrets
 
 ### hst_notebooks Migration
 
-#### ✅ Current State Analysis
+#### :material-check-circle: Current State Analysis
 - [ ] **Repository URL**: `https://github.com/spacetelescope/hst_notebooks`
 - [ ] **Primary workflows identified**: ________________
 - [ ] **Python version(s) used**: _____________
@@ -232,7 +232,7 @@ echo "Migration branch created. Run migration checklist next."
   - [ ] Large HST data files
   - [ ] STScI software stack
 
-#### ✅ Migration Steps
+#### :material-check-circle: Migration Steps
 - [ ] **Step 1**: Create migration branch
 - [ ] **Step 2**: Replace workflows with centralized versions
 - [ ] **Step 3**: Update workflow references
@@ -249,14 +249,14 @@ echo "Migration branch created. Run migration checklist next."
   ```
 - [ ] **Step 5**: Configure secrets
 
-#### ✅ hst_notebooks Testing
+#### :material-check-circle: hst_notebooks Testing
 - [ ] **Environment**: Verify `hstcal` environment setup
 - [ ] **Data access**: Test HST data download and processing
 - [ ] **Software stack**: Verify STScI tools work correctly
 
 ### hellouniverse Migration
 
-#### ✅ Current State Analysis
+#### :material-check-circle: Current State Analysis
 - [ ] **Repository URL**: `https://github.com/spacetelescope/hellouniverse`
 - [ ] **Primary workflows identified**: ________________
 - [ ] **Python version(s) used**: _____________
@@ -265,7 +265,7 @@ echo "Migration branch created. Run migration checklist next."
   - [ ] Simplified examples
   - [ ] Beginner-friendly documentation
 
-#### ✅ Migration Steps
+#### :material-check-circle: Migration Steps
 - [ ] **Step 1**: Create migration branch
 - [ ] **Step 2**: Replace workflows with centralized versions
 - [ ] **Step 3**: Update workflow references
@@ -280,14 +280,14 @@ echo "Migration branch created. Run migration checklist next."
   ```
 - [ ] **Step 5**: Configure secrets (minimal needed)
 
-#### ✅ hellouniverse Testing
+#### :material-check-circle: hellouniverse Testing
 - [ ] **Beginner focus**: Ensure workflows don't overwhelm new users
 - [ ] **Simple examples**: Verify basic notebook execution
 - [ ] **Documentation**: Ensure educational docs build correctly
 
 ### jwst-pipeline-notebooks Migration
 
-#### ✅ Current State Analysis
+#### :material-check-circle: Current State Analysis
 - [ ] **Repository URL**: `https://github.com/spacetelescope/jwst-pipeline-notebooks`
 - [ ] **Primary workflows identified**: ________________
 - [ ] **Python version(s) used**: _____________
@@ -297,7 +297,7 @@ echo "Migration branch created. Run migration checklist next."
   - [ ] `jdaviz` visualization tools
   - [ ] CRDS references
 
-#### ✅ Migration Steps
+#### :material-check-circle: Migration Steps
 - [ ] **Step 1**: Create migration branch
 - [ ] **Step 2**: Replace workflows with centralized versions
 - [ ] **Step 3**: Update workflow references
@@ -320,17 +320,17 @@ echo "Migration branch created. Run migration checklist next."
   ```
 - [ ] **Step 6**: Configure secrets
 
-#### ✅ jwst-pipeline-notebooks Testing
+#### :material-check-circle: jwst-pipeline-notebooks Testing
 - [ ] **JWST pipeline**: Test pipeline software installation
 - [ ] **Large data**: Verify data download and processing
 - [ ] **Visualization**: Test jdaviz tools and image replacement
 - [ ] **CRDS**: Verify reference file access
 
-## 🧪 Testing & Validation
+## :material-flask: Testing & Validation
 
 ### Local Testing Strategy
 
-#### ✅ Pre-Deployment Testing
+#### :material-check-circle: Pre-Deployment Testing
 For each repository:
 
 - [ ] **Test workflow_dispatch triggers**
@@ -362,7 +362,7 @@ For each repository:
 
 ### Version Testing Process
 
-#### ✅ Progressive Version Testing
+#### :material-check-circle: Progressive Version Testing
 - [ ] **Test with exact version first**
   ```yaml
   # Use exact version for initial testing
@@ -381,7 +381,7 @@ For each repository:
 
 ### Performance Validation
 
-#### ✅ Performance Benchmarks
+#### :material-check-circle: Performance Benchmarks
 For each repository, record baseline performance:
 
 - [ ] **Execution time**: Record current workflow run times
@@ -411,11 +411,11 @@ cat > performance-baseline.md << EOF
 EOF
 ```
 
-## 🏁 Post-Migration Cleanup
+## :material-flag-checkered: Post-Migration Cleanup
 
 ### Repository Cleanup
 
-#### ✅ Cleanup Tasks
+#### :material-check-circle: Cleanup Tasks
 For each successfully migrated repository:
 
 - [ ] **Remove backup files**
@@ -439,7 +439,7 @@ For each successfully migrated repository:
 
 ### Documentation Updates
 
-#### ✅ Documentation Tasks
+#### :material-check-circle: Documentation Tasks
 - [ ] **Update each repository's README**
   ```markdown
   ## GitHub Actions Workflows
@@ -479,7 +479,7 @@ For each successfully migrated repository:
   - [Best practices discovered]
   ```
 
-## 🚨 Troubleshooting
+## :material-alert: Troubleshooting
 
 ### Common Issues and Solutions
 
@@ -545,7 +545,7 @@ with:
 
 ### Emergency Rollback
 
-#### ✅ Quick Rollback Process
+#### :material-check-circle: Quick Rollback Process
 If critical issues occur:
 
 - [ ] **Immediate rollback**
@@ -566,7 +566,7 @@ If critical issues occur:
 
 ### Support Resources
 
-#### ✅ Getting Help
+#### :material-check-circle: Getting Help
 - **STScI staff**: [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome)
 - **Primary support**: Create issues in `notebook-ci-actions` repository
 - **Documentation**: Check `docs/` folder in `notebook-ci-actions`
@@ -575,21 +575,21 @@ If critical issues occur:
 
 ---
 
-## 📊 Migration Progress Tracker
+## :material-chart-box: Migration Progress Tracker
 
 | Repository | Status | Migration Date | Notes |
 |------------|--------|----------------|-------|
-| jdat_notebooks | ⏳ Pending | | |
-| mast_notebooks | ⏳ Pending | | |
-| hst_notebooks | ⏳ Pending | | |
-| hellouniverse | ⏳ Pending | | |
-| jwst-pipeline-notebooks | ⏳ Pending | | |
+| jdat_notebooks | :material-progress-clock: Pending | | |
+| mast_notebooks | :material-progress-clock: Pending | | |
+| hst_notebooks | :material-progress-clock: Pending | | |
+| hellouniverse | :material-progress-clock: Pending | | |
+| jwst-pipeline-notebooks | :material-progress-clock: Pending | | |
 
-**Status Legend**: ⏳ Pending, 🔄 In Progress, ✅ Complete, ❌ Failed
+**Status Legend**: :material-progress-clock: Pending, :material-sync: In Progress, :material-check-circle: Complete, :material-close-circle: Failed
 
 ---
 
-## 📝 Notes Section
+## :material-note-text: Notes Section
 
 Use this space to record repository-specific notes, special requirements, or lessons learned during migration:
 

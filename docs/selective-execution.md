@@ -1,10 +1,10 @@
 # Selective Notebook Execution Guide
 
-## 🎯 Overview
+## :material-target: Overview
 
 The selective execution feature enables directory-specific CI/CD for notebook repositories with organized subdirectory structures. When a `requirements.txt` file changes in a specific notebook directory, only notebooks in that directory are processed, dramatically reducing execution time and compute costs.
 
-## 📁 Repository Structure Requirements
+## :material-folder: Repository Structure Requirements
 
 To use selective execution, organize your repository like this:
 
@@ -36,7 +36,7 @@ your-repo/
         └── notebook-ci-main-selective.yml
 ```
 
-## 🔍 How Selective Detection Works
+## :material-magnify: How Selective Detection Works
 
 ### File Change Analysis
 
@@ -65,7 +65,7 @@ The selective workflows analyze changed files and categorize them:
 | `requirements.txt` (root) | `full-repository` | All notebooks | 15-25 minutes |
 | `_config.yml` | `docs-only` | Documentation | 2-5 minutes |
 
-## 🚀 Benefits
+## :material-rocket-launch: Benefits
 
 ### Performance Improvements
 
@@ -110,7 +110,7 @@ echo "numpy==1.24.0" >> requirements.txt
 # - Same behavior as traditional workflow
 ```
 
-## 📋 Implementation Guide
+## :material-clipboard-text: Implementation Guide
 
 ### Step 1: Choose Selective Workflows
 
@@ -177,7 +177,7 @@ git push origin test-full-repo
 # Should run full repository validation
 ```
 
-## 🔧 Advanced Configuration
+## :material-wrench: Advanced Configuration
 
 ### Custom Directory Patterns
 
@@ -221,7 +221,7 @@ strategy:
   fail-fast: false  # Continue even if one directory fails
 ```
 
-## 🚨 Troubleshooting
+## :material-alert: Troubleshooting
 
 ### Common Issues
 
@@ -253,7 +253,7 @@ Enable detailed logging in workflows:
     echo "Changed notebooks: ${{ needs.detect-changes.outputs.changed-notebooks }}"
 ```
 
-## 📊 Performance Comparison
+## :material-chart-box: Performance Comparison
 
 ### Traditional vs Selective Execution
 
@@ -275,7 +275,7 @@ Assuming GitHub Actions pricing of $0.008/minute:
 
 *Based on 30 changes per month
 
-## 🛣️ Migration Path
+## :material-road: Migration Path
 
 ### Phase 1: Assessment
 1. Analyze current repository structure
@@ -297,7 +297,7 @@ Assuming GitHub Actions pricing of $0.008/minute:
 2. Optimize parallel execution settings
 3. Document best practices for team
 
-## 📝 Best Practices
+## :material-note-text: Best Practices
 
 1. **Logical Grouping**: Organize directories by functionality, not arbitrary splits
 2. **Dependency Isolation**: Each directory should have self-contained requirements
@@ -306,7 +306,7 @@ Assuming GitHub Actions pricing of $0.008/minute:
 5. **Documentation**: Keep README files in each directory explaining the purpose and dependencies
 6. **Monitoring**: Track performance improvements and adjust as needed
 
-## 🔗 Related Documentation
+## :material-link-variant: Related Documentation
 
 - [Unified Workflow Guide](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)
 - [Migration Checklist](repository-migration-checklist.md)
@@ -316,5 +316,5 @@ Assuming GitHub Actions pricing of $0.008/minute:
 ---
 
 **Implementation Date**: July 2025  
-**Status**: ✅ Ready for Production  
+**Status**: :material-check-circle: Ready for Production  
 **Compatibility**: Repositories with organized directory structures

@@ -82,9 +82,9 @@ The system automatically determines what to run based on file changes:
 
 #### Check CI Status
 Navigate to any supported repository and look for:
-- ✅ Green checkmarks = All workflows passing
-- ❌ Red X marks = Workflow failures
-- 🟡 Yellow dots = Workflows running
+- :material-check-circle: Green checkmarks = All workflows passing
+- :material-close-circle: Red X marks = Workflow failures
+- :material-circle: Yellow dots = Workflows running
 
 #### Repository Pages
 Each repository has automatically built documentation available at:
