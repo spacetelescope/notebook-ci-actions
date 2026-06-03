@@ -24,6 +24,7 @@ The centralized notebook CI/CD system provides automated testing, building, and 
 - `mast_notebooks` - Mikulski Archive for Space Telescopes notebooks
 - `hellouniverse` - Educational/introductory notebooks
 - `jwst-pipeline-notebooks` - JWST Pipeline processing notebooks
+- `roman_notebooks` - Nancy Grace Roman Space Telescope notebooks
 
 ## How the System Works
 

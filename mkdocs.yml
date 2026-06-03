@@ -54,13 +54,14 @@ plugins:
 nav:
   - Home: index.md
   - For Notebook Authors:
+      - Full Guide: authors/guide.md
       - Set Up a New Repo: authors/setup-repo.md
       - Quick Reference: authors/quick-reference.md
-      - Full Guide: authors/guide.md
       - On-Demand Runs: authors/on-demand-runs.md
       - Local Testing (Cheatsheet): local-testing-quick-reference.md
       - Local Testing (Full Guide): local-testing-guide.md
   - For Maintainers:
+      - Operator Guide: operator-user-guide.md
       - Configuration Reference: configuration-reference.md
       - Selective Execution: selective-execution.md
       - Smart Workflows: smart-workflows.md
@@ -68,7 +69,6 @@ nav:
       - Migration Guide: migration-guide.md
       - Repository Migration Checklist: repository-migration-checklist.md
       - Semantic Versioning: semantic-versioning.md
-      - Operator Guide: operator-user-guide.md
       - Setup Quick Reference: quick-reference.md
   - Infrastructure:
       - Custom Runner Configuration: custom-runner-configuration.md
