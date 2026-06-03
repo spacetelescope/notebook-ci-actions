@@ -32,7 +32,7 @@ cp examples/caller-workflows/notebook-on-demand.yml .github/workflows/
 
 ### Standard Python Repository
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -45,7 +45,7 @@ with:
 
 ### HST Notebooks (Conda)
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -59,7 +59,7 @@ with:
 
 ### Educational Repository
 ```yaml
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 with:
   execution-mode: 'pr'
   python-version: '3.11'
@@ -202,7 +202,7 @@ on:
 
 jobs:
   ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       execution-mode: 'pr'
       python-version: '3.11'
@@ -221,7 +221,7 @@ on:
 
 jobs:
   deploy:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       execution-mode: 'merge'
       python-version: '3.11'

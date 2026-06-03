@@ -57,4 +57,4 @@ Local testing → `QUICK_START.md` · All options → `docs/configuration-refere
 Problems → `docs/troubleshooting-unified.md`
 
 ---
-*Workflow files reference a pinned version (e.g. `@v3`). You don't edit these; a maintainer keeps them current.*
+*Workflow files reference a pinned version (e.g. `@v1`). You don't edit these; a maintainer keeps them current.*

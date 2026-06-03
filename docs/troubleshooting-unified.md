@@ -54,7 +54,7 @@ on:
 
 # 3. Verify the workflow reference
 # Ensure you're using the correct organization and branch
-uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 ```
 
 ### Environment Issues
@@ -236,7 +236,7 @@ enable-security: false
 # Add to your workflow for verbose logging
 jobs:
   debug-run:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       execution-mode: 'on-demand'
       trigger-event: 'validate'  # Start with validation only
@@ -270,7 +270,7 @@ on:
 
 jobs:
   debug:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       execution-mode: 'on-demand'
       trigger-event: ${{ inputs.debug_step }}

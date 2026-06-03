@@ -19,7 +19,7 @@ Add the following parameter to your caller workflow:
 ```yaml
 jobs:
   notebook-ci:
-    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+    uses: spacetelescope/notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
     with:
       # ... other parameters ...
       custom-runner-config: true
@@ -615,12 +615,12 @@ No changes required! The feature is completely optional:
 
 ```yaml
 # Before - works exactly the same
-uses: notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+uses: notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 with:
   execution-mode: 'pr'
 
 # After - same behavior, custom runners available if needed
-uses: notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v3
+uses: notebook-ci-actions/.github/workflows/notebook-ci-unified.yml@v1
 with:
   execution-mode: 'pr'
   custom-runner-config: true  # Optional addition
