@@ -57,12 +57,14 @@ nav:
       - Set Up a New Repo: authors/setup-repo.md
       - Quick Reference: authors/quick-reference.md
       - Full Guide: authors/guide.md
+      - On-Demand Runs: authors/on-demand-runs.md
       - Local Testing (Cheatsheet): local-testing-quick-reference.md
       - Local Testing (Full Guide): local-testing-guide.md
   - For Maintainers:
       - Configuration Reference: configuration-reference.md
       - Selective Execution: selective-execution.md
       - Smart Workflows: smart-workflows.md
+      - Scheduled Weekly Runs: scheduled-runs.md
       - Migration Guide: migration-guide.md
       - Repository Migration Checklist: repository-migration-checklist.md
       - Semantic Versioning: semantic-versioning.md
