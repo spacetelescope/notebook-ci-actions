@@ -387,7 +387,7 @@ If you need to rollback during migration:
 1. **Check the examples**: Review `examples/caller-workflows/` for complete examples
 2. **Review logs**: Check GitHub Actions logs for specific error messages
 3. **Open an issue**: Create issue in the notebook-ci-actions repository
-4. **Ask for help**: Contact the team for migration assistance
+4. **Ask for help (STScI staff)**: [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome)
 
 ### Best Practices
 

@@ -56,5 +56,7 @@ Scripts won't run? `chmod +x scripts/*.sh`.
 Local testing → `QUICK_START.md` · All options → `docs/configuration-reference.md` ·
 Problems → `docs/troubleshooting-unified.md`
 
+Stuck and need a person? STScI staff can [submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome).
+
 ---
 *Workflow files reference a pinned version (e.g. `@v1`). You don't edit these; a maintainer keeps them current.*

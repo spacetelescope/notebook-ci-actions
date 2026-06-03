@@ -567,6 +567,7 @@ If critical issues occur:
 ### Support Resources
 
 #### ✅ Getting Help
+- **STScI staff**: [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome)
 - **Primary support**: Create issues in `notebook-ci-actions` repository
 - **Documentation**: Check `docs/` folder in `notebook-ci-actions`
 - **Community**: Use repository discussions for questions

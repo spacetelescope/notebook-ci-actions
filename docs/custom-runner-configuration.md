@@ -569,6 +569,8 @@ Before deploying configuration changes to production:
 
 If you encounter issues not covered here:
 
+**STScI staff:** [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome).
+
 1. **Check workflow logs** for detailed error messages
 2. **Review GitHub Actions documentation** for runner-specific issues
 3. **Contact organization administrators** for runner availability and configuration

@@ -399,6 +399,7 @@ API rate limit exceeded
 ### 3. Getting Help
 
 #### Internal Resources
+- **STScI staff:** [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome)
 - Check this documentation
 - Review workflow logs
 - Consult repository README files

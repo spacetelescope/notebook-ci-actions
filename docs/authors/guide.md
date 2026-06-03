@@ -235,6 +235,8 @@ but they are the source of truth:
 - **[Troubleshooting](https://github.com/spacetelescope/notebook-ci-actions/blob/main/docs/troubleshooting-unified.md)** - common issues and solutions
 - **[Main README](https://github.com/spacetelescope/notebook-ci-actions/blob/main/README.md)** - the full system overview
 
+Still stuck? STScI staff can [submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome); external contributors should open an issue in the repository.
+
 ---
 
 *This guide distills the repository documentation for a notebook-author audience.

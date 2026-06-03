@@ -371,6 +371,7 @@ When reporting issues, include:
 
 ### Support Channels
 
+- **STScI staff:** [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome)
 - **GitHub Issues**: [Create issue in notebook-ci-actions](https://github.com/spacetelescope/notebook-ci-actions/issues)
 - **Documentation**: Check `docs/` folder for detailed guides
 - **Migration Help**: Use `scripts/migrate-to-unified.sh` for automated setup

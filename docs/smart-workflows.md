@@ -321,7 +321,7 @@ For issues with smart workflows:
 1. Check workflow logs for file detection details
 2. Review this documentation for common solutions
 3. Create an issue in the `notebook-ci-actions` repository
-4. Contact the notebook infrastructure team
+4. STScI staff: [Submit a ticket to SPB](https://innerspace.stsci.edu/pages/viewpage.action?pageId=637400835&spaceKey=DDP&title=DMD%2BDev%2BPortal%2BHome)
 
 ---
 
