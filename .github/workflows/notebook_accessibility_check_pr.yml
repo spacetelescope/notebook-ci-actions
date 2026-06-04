@@ -18,7 +18,7 @@ jobs:
       notebooks: ${{ steps.find.outputs.notebooks }}
     steps:
       - name: Checkout repository (full history)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run jupyterlab accessibility checker for notebook
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main

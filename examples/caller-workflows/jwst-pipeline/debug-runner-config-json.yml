@@ -9,7 +9,7 @@ jobs:
     outputs:
       runner-config: ${{ steps.debug.outputs.runner-config }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Debug Runner Config Generation
         id: debug

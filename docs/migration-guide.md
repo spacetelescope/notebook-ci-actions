@@ -194,7 +194,7 @@ with:
 ```yaml
 # Old system
 - name: Set up micromamba
-  uses: mamba-org/setup-micromamba@v2
+  uses: mamba-org/setup-micromamba@v3
   with:
     environment-name: ci-env
     create-args: python=3.11 hstcal
