@@ -55,7 +55,7 @@ jobs:
       runner-config: ${{ steps.setup.outputs.runner-config }}
       skip-execution: ${{ steps.setup.outputs.skip-execution }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           
