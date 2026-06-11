@@ -44,7 +44,7 @@ jobs:
     - name: Determine Version Bump from PR Labels
       if: github.event_name == 'pull_request'
       id: pr_version
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         result-encoding: string
         script: |
@@ -167,33 +167,44 @@ jobs:
         git tag -fa $major_version -m "Update $major_version to ${{ steps.version.outputs.new_tag }}"
         git push origin $major_version --force
 
+    - name: Write release notes
+      run: |
+        cat > release-notes.md <<'EOF'
+        ## Changes in ${{ steps.version.outputs.new_tag }}
+  
+        ${{ steps.changelog.outputs.changelog }}
+  
+        ### Workflow Usage
+  
+        Use this version in your workflows:
+        ```yaml
+        # Pin to major version (recommended)
+        uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.major_version }}
+  
+        # Pin to exact version (most stable)
+        uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.new_tag }}
+        ```
+  
+        **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.latest_version.outputs.latest_tag }}...${{ steps.version.outputs.new_tag }}
+        EOF
+  
     - name: Create GitHub Release
-      uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.version.outputs.new_tag }}
-        release_name: Release ${{ steps.version.outputs.new_tag }}
-        body: |
-          ## Changes in ${{ steps.version.outputs.new_tag }}
-          
-          ${{ steps.changelog.outputs.changelog }}
-          
-          ### Workflow Usage
-          
-          Use this version in your workflows:
-          ```yaml
-          # Pin to major version (recommended)
-          uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.major_version }}
-          
-          # Pin to exact version (most stable)
-          uses: ${{ github.repository }}/.github/workflows/notebook-ci-unified.yml@${{ steps.version.outputs.new_tag }}
-          ```
-          
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/${{ steps.latest_version.outputs.latest_tag }}...${{ steps.version.outputs.new_tag }}
-        draft: false
-        prerelease: ${{ github.event.inputs.pre_release == 'true' }}
-
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        args=(
+          "${{ steps.version.outputs.new_tag }}"
+          --title "Release ${{ steps.version.outputs.new_tag }}"
+          --notes-file release-notes.md
+          --verify-tag
+        )
+  
+        if [[ "${{ github.event.inputs.pre_release }}" == "true" ]]; then
+          args+=(--prerelease)
+        fi
+  
+        gh release create "${args[@]}"
+  
     - name: Update Example Workflows
       run: |
         # Update examples to reference new major version
@@ -219,7 +230,7 @@ jobs:
     
     steps:
     - name: Notify Success
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           // Create a comment on the PR if it was merged
