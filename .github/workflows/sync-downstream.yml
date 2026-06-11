@@ -1,0 +1,132 @@
+name: Sync downstream (template + infrastructure)
+
+# Keeps the downstream repos current with this repo at the v1 tag:
+#   * notebook-ci-template  - consumer files scientists' repos inherit
+#   * notebook-infrastructure - external/ reference snapshots on the public docs site
+# Runs on each v1 release, and can be run manually (workflow_dispatch) to bootstrap.
+# Authenticates as the notebook-ci-sync GitHub App (SYNC_APP_ID / SYNC_APP_PRIVATE_KEY);
+# the App must be installed on BOTH target repos with Contents + Pull requests: write.
+
+on:
+  push:
+    tags: ["v1*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # 1) Consumer files into the template (what new repos inherit).
+  sync-template:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate a token from the GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SYNC_APP_ID }}
+          private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+          owner: spacetelescope
+          repositories: notebook-ci-template
+
+      - name: Check out notebook-ci-actions @v1 (source)
+        uses: actions/checkout@v4
+        with:
+          ref: v1
+          path: source
+
+      - name: Check out notebook-ci-template (target)
+        uses: actions/checkout@v4
+        with:
+          repository: spacetelescope/notebook-ci-template
+          path: template
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Mirror consumer files from @v1
+        run: |
+          cd source
+          for p in scripts examples QUICK_START.md ci_config.txt; do
+            [ -e "$p" ] || continue
+            mkdir -p "../template/$(dirname "$p")"
+            rsync -a --delete "$p" "../template/$(dirname "$p")/"
+          done
+
+      - name: Open sync PR in the template
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: template
+          token: ${{ steps.app-token.outputs.token }}
+          branch: sync/from-notebook-ci-actions
+          title: "Sync consumer files from notebook-ci-actions@v1"
+          commit-message: "Sync consumer files from notebook-ci-actions@v1"
+          body: |
+            Automated sync of consumer-facing files from `notebook-ci-actions@v1`:
+            `scripts/`, `examples/`, `QUICK_START.md`, `ci_config.txt`.
+
+            Opened by the `notebook-ci-sync` GitHub App.
+          reviewers: |
+            bgannon2
+            mgough-970
+          delete-branch: true
+
+  # 2) Full reference snapshots into notebook-infrastructure/external/.
+  #    Safe to mirror whole repos here - vendored workflows under external/ do not run.
+  sync-infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate a token from the GitHub App
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.SYNC_APP_ID }}
+          private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+          owner: spacetelescope
+          repositories: |
+            notebook-ci-template
+            notebook-infrastructure
+
+      - name: Check out notebook-ci-actions @v1 (source A)
+        uses: actions/checkout@v4
+        with:
+          ref: v1
+          path: nca
+
+      - name: Check out notebook-ci-template (source B)
+        uses: actions/checkout@v4
+        with:
+          repository: spacetelescope/notebook-ci-template
+          path: nct
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Check out notebook-infrastructure (target)
+        uses: actions/checkout@v4
+        with:
+          repository: spacetelescope/notebook-infrastructure
+          path: infra
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Mirror both repos into external/
+        run: |
+          mkdir -p infra/external/notebook-ci-actions infra/external/notebook-ci-template
+          rsync -a --delete --exclude '.git' --exclude '_build' nca/ infra/external/notebook-ci-actions/
+          rsync -a --delete --exclude '.git' nct/ infra/external/notebook-ci-template/
+
+      - name: Open sync PR in notebook-infrastructure
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: infra
+          token: ${{ steps.app-token.outputs.token }}
+          branch: sync/from-notebook-ci-actions
+          title: "Sync external/ snapshots from notebook-ci-actions@v1 and notebook-ci-template"
+          commit-message: "Sync external/ snapshots (notebook-ci-actions@v1, notebook-ci-template)"
+          body: |
+            Refreshes the reference snapshots under `external/`:
+
+            - `external/notebook-ci-actions` from `notebook-ci-actions@v1`
+            - `external/notebook-ci-template` from `notebook-ci-template`
+
+            Opened by the `notebook-ci-sync` GitHub App.
+          reviewers: |
+            bgannon2
+            mgough-970
+          delete-branch: true
