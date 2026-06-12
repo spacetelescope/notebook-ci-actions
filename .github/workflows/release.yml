@@ -153,19 +153,21 @@ jobs:
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        
-        # Create annotated tag
-        git tag -a ${{ steps.version.outputs.new_tag }} -m "Release ${{ steps.version.outputs.new_tag }}"
-        git push origin ${{ steps.version.outputs.new_tag }}
-
-    - name: Update Major Version Tag
-      if: github.event.inputs.pre_release != 'true'
-      run: |
-        major_version=${{ steps.version.outputs.major_version }}
-        
-        # Force update major version tag
-        git tag -fa $major_version -m "Update $major_version to ${{ steps.version.outputs.new_tag }}"
-        git push origin $major_version --force
+    
+        target_commitish="${{ github.sha }}"
+    
+        # For merged PR runs, tag the merge commit from the PR payload.
+        # For workflow_dispatch, tag the workflow SHA.
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          target_commitish="${{ github.event.pull_request.merge_commit_sha }}"
+        fi
+    
+        echo "Creating tag ${{ steps.version.outputs.new_tag }} at $target_commitish"
+    
+        git tag -a "${{ steps.version.outputs.new_tag }}" "$target_commitish" \
+          -m "Release ${{ steps.version.outputs.new_tag }}"
+    
+        git push origin "${{ steps.version.outputs.new_tag }}"
 
     - name: Write release notes
       run: |
