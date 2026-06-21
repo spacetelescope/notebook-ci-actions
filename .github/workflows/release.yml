@@ -44,7 +44,7 @@ jobs:
     - name: Determine Version Bump from PR Labels
       if: github.event_name == 'pull_request'
       id: pr_version
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       with:
         result-encoding: string
         script: |
@@ -232,7 +232,7 @@ jobs:
     
     steps:
     - name: Notify Success
-      uses: actions/github-script@v8
+      uses: actions/github-script@v9
       with:
         script: |
           // Create a comment on the PR if it was merged
