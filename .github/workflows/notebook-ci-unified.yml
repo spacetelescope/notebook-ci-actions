@@ -2235,12 +2235,14 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
-  # PEP8 style checks on changed notebooks and Python scripts, reusing the
-  # checkers in .github/helpers/. Opt-in via enable-pep8 (default off).
+  # PEP8 style checks on changed notebooks and Python scripts: nbqa flake8 for
+  # notebooks, flake8 for .py scripts. On by default (enable-pep8); runs on
+  # PR/merge or on-demand via trigger-event 'pep8'. Rules come from the repo's
+  # flake8 config.
   style-check:
     name: PEP8 Style Check
-    if: inputs.enable-pep8 == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'pep8')
-    runs-on: ubuntu-latest
+    if: inputs.enable-pep8 == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'pep8')
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
         with:
@@ -2253,21 +2255,26 @@ jobs:
 
       - name: PEP8 style check (changed notebooks and scripts)
         run: |
-          set -uo pipefail
+          set -euo pipefail
+          # Install up front: a failure here is an infrastructure error, not a
+          # style violation, so it should fail the job distinctly.
+          python -m pip install --quiet flake8 nbqa
           BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
           HEAD="${{ github.sha }}"
           if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
           fi
-          mapfile -t FILES < <(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb' '*.py' || true)
-          if [ ${#FILES[@]} -eq 0 ]; then
+          if ! CHANGED="$(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb' '*.py')"; then
+            echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"
+            exit 2
+          fi
+          if [ -z "$CHANGED" ]; then
             echo "No changed notebooks or scripts to lint."
             exit 0
           fi
-          python -m pip install --quiet flake8 nbqa
           status=0
-          for f in "${FILES[@]}"; do
-            [ -f "$f" ] || continue
+          while IFS= read -r f; do
+            [ -n "$f" ] && [ -f "$f" ] || continue
             case "$f" in
               *.ipynb)
                 echo "::group::PEP8 (notebook) $f"
@@ -2278,7 +2285,7 @@ jobs:
                 flake8 "$f" || status=1
                 echo "::endgroup::" ;;
             esac
-          done
+          done <<< "$CHANGED"
           if [ $status -ne 0 ]; then
             echo "❌ PEP8 style violations found."
           else
@@ -2292,7 +2299,7 @@ jobs:
   link-check-pr:
     name: Link Check (PR)
     if: inputs.enable-link-check == true && inputs.execution-mode == 'pr'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
         with:
@@ -2344,12 +2351,14 @@ jobs:
   link-check:
     name: Link Check
     if: inputs.enable-link-check == true && (inputs.execution-mode == 'scheduled' || inputs.trigger-event == 'links')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check for a gh-pages branch
         id: ghp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}.git" gh-pages >/dev/null 2>&1; then
+          if gh api "repos/${{ github.repository }}/branches/gh-pages" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
