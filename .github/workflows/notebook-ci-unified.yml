@@ -134,7 +134,7 @@ on:
         type: boolean
         default: false
       enable-link-check:
-        description: 'Enable broken-link checking of the built HTML docs (lychee)'
+        description: 'Enable the weekly broken-link check of the published docs on scheduled runs (lychee)'
         required: false
         type: boolean
         default: false
@@ -1897,17 +1897,6 @@ jobs:
             echo "⚠️ Post-processing script not found: ${{ inputs.post-processing-script }}"
           fi
 
-      # Broken-link check of the built site. Opt-in via enable-link-check.
-      # Non-blocking on PRs/merges; strict (fails the build) on scheduled runs.
-      # Repos can add a .lycheeignore or lychee.toml to exclude known URLs.
-      - name: Check links in built docs
-        if: inputs.enable-link-check == true && hashFiles('_build/html/**') != ''
-        uses: lycheeverse/lychee-action@v2
-        with:
-          args: "--no-progress --exclude-mail '_build/html/**/*.html'"
-          fail: ${{ inputs.execution-mode == 'scheduled' }}
-          jobSummary: true
-
       - name: Deploy to GitHub Pages
         if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html' || inputs.trigger-event == 'all'
         uses: peaceiris/actions-gh-pages@v4
@@ -2297,9 +2286,31 @@ jobs:
           fi
           exit $status
 
+  # Weekly broken-link check of the published site. Opt-in via enable-link-check;
+  # runs on the scheduled (weekly) run, or on-demand via trigger-event 'links'.
+  # Checks the already-deployed gh-pages HTML (no rebuild). Repos can add a
+  # .lycheeignore / lychee.toml to exclude known URLs.
+  link-check:
+    name: Link Check
+    if: inputs.enable-link-check == true && (inputs.execution-mode == 'scheduled' || inputs.trigger-event == 'links')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the published site (gh-pages)
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Check links in the published site
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress --exclude-mail 'site/**/*.html'"
+          fail: true
+          jobSummary: true
+
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
