@@ -2305,6 +2305,10 @@ jobs:
             echo "::notice::No gh-pages branch found; skipping link check."
           fi
 
+      - name: Check out the repo (for .lycheeignore / lychee.toml)
+        if: steps.ghp.outputs.exists == 'true'
+        uses: actions/checkout@v5
+
       - name: Check out the published site (gh-pages)
         if: steps.ghp.outputs.exists == 'true'
         uses: actions/checkout@v5
