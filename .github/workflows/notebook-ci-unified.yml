@@ -129,15 +129,15 @@ on:
 
       # Style / quality checks
       enable-pep8:
-        description: 'Enable PEP8 style checks on changed notebooks and scripts'
+        description: 'PEP8 style checks on changed notebooks and scripts (on by default; set false to opt out)'
         required: false
         type: boolean
-        default: false
+        default: true
       enable-link-check:
-        description: 'Enable the weekly broken-link check of the published docs on scheduled runs (lychee)'
+        description: 'Broken-link checks on PRs (changed markdown/notebooks) and weekly on the published site (on by default; lychee)'
         required: false
         type: boolean
-        default: false
+        default: true
 
     secrets:
       CASJOBS_USERID:
@@ -2286,10 +2286,61 @@ jobs:
           fi
           exit $status
 
-  # Weekly broken-link check of the published site. Opt-in via enable-link-check;
-  # runs on the scheduled (weekly) run, or on-demand via trigger-event 'links'.
-  # Checks the already-deployed gh-pages HTML (no rebuild). Repos can add a
-  # .lycheeignore / lychee.toml to exclude known URLs.
+  # PR-time broken-link check: lychee over the markdown the PR changes (changed
+  # *.md plus changed notebooks converted to markdown). Blocks the PR on broken
+  # links. Reads the repo's .lycheeignore.
+  link-check-pr:
+    name: Link Check (PR)
+    if: inputs.enable-link-check == true && inputs.execution-mode == 'pr'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Collect changed markdown and notebook markdown
+        id: collect
+        run: |
+          set -uo pipefail
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          HEAD="${{ github.sha }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
+          fi
+          mkdir -p .link-check
+          git diff --name-only "$BASE" "$HEAD" -- '*.md' | while read -r f; do
+            [ -f "$f" ] && { mkdir -p ".link-check/$(dirname "$f")"; cp "$f" ".link-check/$f"; }
+          done
+          CHANGED_NB="$(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb' || true)"
+          if [ -n "$CHANGED_NB" ]; then
+            python -m pip install --quiet nbconvert
+            for nb in $CHANGED_NB; do
+              [ -f "$nb" ] && jupyter nbconvert --to markdown --output-dir ".link-check/$(dirname "$nb")" "$nb" || true
+            done
+          fi
+          if [ -n "$(find .link-check -name '*.md' 2>/dev/null)" ]; then
+            echo "any=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            echo "No changed markdown or notebooks to link-check."
+          fi
+
+      - name: Check links in changed content
+        if: steps.collect.outputs.any == 'true'
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress --exclude-mail '.link-check/**/*.md'"
+          fail: true
+          jobSummary: true
+
+  # Weekly broken-link check of the published site (runs on the scheduled run, or
+  # on-demand via trigger-event 'links'). Checks the already-deployed gh-pages
+  # HTML. Repos can add a .lycheeignore / lychee.toml to exclude known URLs.
   link-check:
     name: Link Check
     if: inputs.enable-link-check == true && (inputs.execution-mode == 'scheduled' || inputs.trigger-event == 'links')
@@ -2326,7 +2377,7 @@ jobs:
 
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check-pr, link-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
