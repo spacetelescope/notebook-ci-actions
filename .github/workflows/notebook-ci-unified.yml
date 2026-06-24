@@ -2264,7 +2264,7 @@ jobs:
             echo "No changed notebooks or scripts to lint."
             exit 0
           fi
-          python -m pip install --quiet flake8
+          python -m pip install --quiet flake8 numpy pytz
           status=0
           for f in "${FILES[@]}"; do
             [ -f "$f" ] || continue
@@ -2295,13 +2295,25 @@ jobs:
     if: inputs.enable-link-check == true && (inputs.execution-mode == 'scheduled' || inputs.trigger-event == 'links')
     runs-on: ubuntu-latest
     steps:
+      - name: Check for a gh-pages branch
+        id: ghp
+        run: |
+          if git ls-remote --exit-code --heads "https://github.com/${{ github.repository }}.git" gh-pages >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No gh-pages branch found; skipping link check."
+          fi
+
       - name: Check out the published site (gh-pages)
+        if: steps.ghp.outputs.exists == 'true'
         uses: actions/checkout@v5
         with:
           ref: gh-pages
           path: site
 
       - name: Check links in the published site
+        if: steps.ghp.outputs.exists == 'true'
         uses: lycheeverse/lychee-action@v2
         with:
           args: "--no-progress --exclude-mail 'site/**/*.html'"
