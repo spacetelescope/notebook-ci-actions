@@ -2313,24 +2313,32 @@ jobs:
       - name: Collect changed markdown and notebook markdown
         id: collect
         run: |
-          set -uo pipefail
+          set -euo pipefail
           BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
           HEAD="${{ github.sha }}"
           if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
           fi
           mkdir -p .link-check
-          git diff --name-only "$BASE" "$HEAD" -- '*.md' | while read -r f; do
-            [ -f "$f" ] && { mkdir -p ".link-check/$(dirname "$f")"; cp "$f" ".link-check/$f"; }
-          done
-          CHANGED_NB="$(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb' || true)"
+          if ! CHANGED_MD="$(git diff --name-only "$BASE" "$HEAD" -- '*.md')"; then
+            echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"; exit 2
+          fi
+          if ! CHANGED_NB="$(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb')"; then
+            echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"; exit 2
+          fi
+          while IFS= read -r f; do
+            [ -n "$f" ] && [ -f "$f" ] || continue
+            mkdir -p ".link-check/$(dirname "$f")"
+            cp "$f" ".link-check/$f"
+          done <<< "$CHANGED_MD"
           if [ -n "$CHANGED_NB" ]; then
             python -m pip install --quiet nbconvert
-            for nb in $CHANGED_NB; do
-              [ -f "$nb" ] && jupyter nbconvert --to markdown --output-dir ".link-check/$(dirname "$nb")" "$nb" || true
-            done
+            while IFS= read -r nb; do
+              [ -n "$nb" ] && [ -f "$nb" ] || continue
+              jupyter nbconvert --to markdown --output-dir ".link-check/$(dirname "$nb")" "$nb"
+            done <<< "$CHANGED_NB"
           fi
-          if [ -n "$(find .link-check -name '*.md' 2>/dev/null)" ]; then
+          if find .link-check -name '*.md' | grep -q .; then
             echo "any=true" >> "$GITHUB_OUTPUT"
           else
             echo "any=false" >> "$GITHUB_OUTPUT"
@@ -2341,7 +2349,7 @@ jobs:
         if: steps.collect.outputs.any == 'true'
         uses: lycheeverse/lychee-action@v2
         with:
-          args: "--no-progress --exclude-mail '.link-check/**/*.md'"
+          args: "--no-progress --exclude-mail .link-check/**/*.md"
           fail: true
           jobSummary: true
 
@@ -2380,7 +2388,7 @@ jobs:
         if: steps.ghp.outputs.exists == 'true'
         uses: lycheeverse/lychee-action@v2
         with:
-          args: "--no-progress --exclude-mail 'site/**/*.html'"
+          args: "--no-progress --exclude-mail site/**/*.html"
           fail: true
           jobSummary: true
 
