@@ -133,6 +133,11 @@ on:
         required: false
         type: boolean
         default: false
+      enable-link-check:
+        description: 'Enable broken-link checking of the built HTML docs (lychee)'
+        required: false
+        type: boolean
+        default: false
 
     secrets:
       CASJOBS_USERID:
@@ -1891,6 +1896,17 @@ jobs:
           else
             echo "⚠️ Post-processing script not found: ${{ inputs.post-processing-script }}"
           fi
+
+      # Broken-link check of the built site. Opt-in via enable-link-check.
+      # Non-blocking on PRs/merges; strict (fails the build) on scheduled runs.
+      # Repos can add a .lycheeignore or lychee.toml to exclude known URLs.
+      - name: Check links in built docs
+        if: inputs.enable-link-check == true && hashFiles('_build/html/**') != ''
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress --exclude-mail '_build/html/**/*.html'"
+          fail: ${{ inputs.execution-mode == 'scheduled' }}
+          jobSummary: true
 
       - name: Deploy to GitHub Pages
         if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html' || inputs.trigger-event == 'all'
