@@ -26,7 +26,8 @@ jobs:
       enable-execution: true
       enable-storage: true
       enable-html-build: true
-      
+      enable-link-check: true   # weekly broken-link check of the published site
+
       # Deprecation management for scheduled runs
       deprecation-days: 60
       
