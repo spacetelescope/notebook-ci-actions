@@ -9,7 +9,9 @@ name: Sync downstream (template + infrastructure)
 
 on:
   push:
-    tags: ["v1*"]
+    # Only the moving major tag (re-pointed on each release), not the immutable
+    # version tags - avoids running twice per release and over-matching v10*.
+    tags: ["v1"]
   workflow_dispatch:
 
 permissions:
@@ -30,13 +32,13 @@ jobs:
           repositories: notebook-ci-template
 
       - name: Check out notebook-ci-actions @v1 (source)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: v1
           path: source
 
       - name: Check out notebook-ci-template (target)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: spacetelescope/notebook-ci-template
           path: template
@@ -44,11 +46,22 @@ jobs:
 
       - name: Mirror consumer files from @v1
         run: |
-          cd source
-          for p in scripts examples QUICK_START.md ci_config.txt; do
-            [ -e "$p" ] || continue
-            mkdir -p "../template/$(dirname "$p")"
-            rsync -a --delete "$p" "../template/$(dirname "$p")/"
+          set -euo pipefail
+          # Directories: rsync --delete with trailing slashes so files removed
+          # upstream are removed from the template too. Single files: copy, or
+          # delete downstream if the source dropped them.
+          for d in scripts examples; do
+            if [ -d "source/$d" ]; then
+              mkdir -p "template/$d"
+              rsync -a --delete "source/$d/" "template/$d/"
+            fi
+          done
+          for f in QUICK_START.md ci_config.txt; do
+            if [ -f "source/$f" ]; then
+              cp "source/$f" "template/$f"
+            else
+              rm -f "template/$f"
+            fi
           done
 
       - name: Open sync PR in the template
@@ -86,20 +99,20 @@ jobs:
             notebook-infrastructure
 
       - name: Check out notebook-ci-actions @v1 (source A)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: v1
           path: nca
 
       - name: Check out notebook-ci-template (source B)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: spacetelescope/notebook-ci-template
           path: nct
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Check out notebook-infrastructure (target)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: spacetelescope/notebook-infrastructure
           path: infra
