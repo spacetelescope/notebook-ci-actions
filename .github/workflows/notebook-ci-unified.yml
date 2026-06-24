@@ -2264,7 +2264,7 @@ jobs:
           if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
             BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
           fi
-          if ! CHANGED="$(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb' '*.py')"; then
+          if ! CHANGED="$(git diff --name-only "$BASE...$HEAD" -- '*.ipynb' '*.py')"; then
             echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"
             exit 2
           fi
@@ -2320,10 +2320,10 @@ jobs:
             BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
           fi
           mkdir -p .link-check
-          if ! CHANGED_MD="$(git diff --name-only "$BASE" "$HEAD" -- '*.md')"; then
+          if ! CHANGED_MD="$(git diff --name-only "$BASE...$HEAD" -- '*.md')"; then
             echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"; exit 2
           fi
-          if ! CHANGED_NB="$(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb')"; then
+          if ! CHANGED_NB="$(git diff --name-only "$BASE...$HEAD" -- '*.ipynb')"; then
             echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"; exit 2
           fi
           while IFS= read -r f; do
