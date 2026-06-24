@@ -127,6 +127,13 @@ on:
         type: boolean
         default: false
 
+      # Style / quality checks
+      enable-pep8:
+        description: 'Enable PEP8 style checks on changed notebooks and scripts'
+        required: false
+        type: boolean
+        default: false
+
     secrets:
       CASJOBS_USERID:
         required: false
@@ -2223,9 +2230,60 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
+  # PEP8 style checks on changed notebooks and Python scripts, reusing the
+  # checkers in .github/helpers/. Opt-in via enable-pep8 (default off).
+  style-check:
+    name: PEP8 Style Check
+    if: inputs.enable-pep8 == true && (inputs.trigger-event == 'all' || inputs.trigger-event == 'pep8')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: PEP8 style check (changed notebooks and scripts)
+        run: |
+          set -uo pipefail
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          HEAD="${{ github.sha }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
+          fi
+          mapfile -t FILES < <(git diff --name-only "$BASE" "$HEAD" -- '*.ipynb' '*.py' || true)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No changed notebooks or scripts to lint."
+            exit 0
+          fi
+          python -m pip install --quiet flake8
+          status=0
+          for f in "${FILES[@]}"; do
+            [ -f "$f" ] || continue
+            case "$f" in
+              *.ipynb)
+                echo "::group::PEP8 (notebook) $f"
+                python .github/helpers/pep8_nb_style_checker.py "$f" || status=1
+                echo "::endgroup::" ;;
+              *.py)
+                echo "::group::PEP8 (script) $f"
+                python .github/helpers/pep8_script_style_checker.py "$f" || status=1
+                echo "::endgroup::" ;;
+            esac
+          done
+          if [ $status -ne 0 ]; then
+            echo "❌ PEP8 style violations found."
+          else
+            echo "✅ PEP8 checks passed."
+          fi
+          exit $status
+
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
