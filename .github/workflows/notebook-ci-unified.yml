@@ -2264,18 +2264,18 @@ jobs:
             echo "No changed notebooks or scripts to lint."
             exit 0
           fi
-          python -m pip install --quiet flake8 numpy pytz
+          python -m pip install --quiet flake8 nbqa
           status=0
           for f in "${FILES[@]}"; do
             [ -f "$f" ] || continue
             case "$f" in
               *.ipynb)
                 echo "::group::PEP8 (notebook) $f"
-                python .github/helpers/pep8_nb_style_checker.py "$f" || status=1
+                nbqa flake8 "$f" || status=1
                 echo "::endgroup::" ;;
               *.py)
                 echo "::group::PEP8 (script) $f"
-                python .github/helpers/pep8_script_style_checker.py "$f" || status=1
+                flake8 "$f" || status=1
                 echo "::endgroup::" ;;
             esac
           done
