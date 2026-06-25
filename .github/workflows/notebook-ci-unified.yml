@@ -2235,10 +2235,12 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
-  # PEP8 style checks on changed notebooks and Python scripts: nbqa flake8 for
-  # notebooks, flake8 for .py scripts. On by default (enable-pep8); runs on
-  # PR/merge or on-demand via trigger-event 'pep8'. Rules come from the repo's
-  # flake8 config.
+  # PEP8 style checks on changed notebooks and Python scripts, using the project's
+  # canonical helpers in notebook-ci-actions/.github/helpers/
+  # (pep8_nb_style_checker.py / pep8_script_style_checker.py). They wrap flake8
+  # with STScI's curated ignore list and notebook-cell-aware reporting - the same
+  # checkers the standalone notebook_pep8check.yml / script_pep8check.yml use. On
+  # by default (enable-pep8); runs on PR/merge or on-demand via trigger-event 'pep8'.
   style-check:
     name: PEP8 Style Check
     if: inputs.enable-pep8 == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'pep8')
@@ -2253,12 +2255,25 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
 
+      # The helper scripts live in this actions repo, not the caller's notebook
+      # repo, so check them out at the same version as this running workflow.
+      - name: Check out the PEP8 helper scripts
+        uses: actions/checkout@v5
+        with:
+          repository: spacetelescope/notebook-ci-actions
+          ref: ${{ github.job_workflow_sha }}
+          path: .pep8-helpers
+          sparse-checkout: .github/helpers
+
       - name: PEP8 style check (changed notebooks and scripts)
+        env:
+          HELPERS: .pep8-helpers/.github/helpers
         run: |
           set -euo pipefail
           # Install up front: a failure here is an infrastructure error, not a
-          # style violation, so it should fail the job distinctly.
-          python -m pip install --quiet flake8 nbqa
+          # style violation, so it should fail the job distinctly. numpy + pytz
+          # are required by pep8_nb_style_checker.py.
+          python -m pip install --quiet flake8 numpy pytz
           BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
           HEAD="${{ github.sha }}"
           if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
@@ -2278,11 +2293,11 @@ jobs:
             case "$f" in
               *.ipynb)
                 echo "::group::PEP8 (notebook) $f"
-                nbqa flake8 "$f" || status=1
+                python "$HELPERS/pep8_nb_style_checker.py" "$f" || status=1
                 echo "::endgroup::" ;;
               *.py)
                 echo "::group::PEP8 (script) $f"
-                flake8 "$f" || status=1
+                python "$HELPERS/pep8_script_style_checker.py" "$f" || status=1
                 echo "::endgroup::" ;;
             esac
           done <<< "$CHANGED"
