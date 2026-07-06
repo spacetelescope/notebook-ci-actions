@@ -26,7 +26,7 @@ on:
         required: true
         type: string
       trigger-event:
-        description: 'Specific trigger: validate, execute, security, html, deprecate'
+        description: 'Specific trigger: validate, execute, security, html, deprecate, a11y-nb-check'
         required: false
         type: string
         default: 'all'
@@ -126,6 +126,13 @@ on:
         required: false
         type: boolean
         default: false
+
+      # Style / quality checks
+      enable-a11y-nb-check:
+        description: 'Jupyter notebook accessibility checks on PRs (on by default; set false to opt out)'
+        required: false
+        type: boolean
+        default: true
 
     secrets:
       CASJOBS_USERID:
@@ -2222,6 +2229,11 @@ jobs:
           else:
               print("No expired deprecated notebooks found")
           EOF
+  # PR-time Jupyter notebook accessibility checker
+  a11y-check-pr:
+    name: Jupyter Notebook Accessibility Check (PR)
+    if: inputs.enable-a11y-nb-check == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'a11y-nb-check')
+# TODO: Finish implementing the accessibility check for notebooks. This is a placeholder for future development.
 
   # Summary and Status
   workflow-summary:
