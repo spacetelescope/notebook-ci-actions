@@ -2230,10 +2230,10 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
   # PR-time Jupyter notebook accessibility checker
-  a11y-check-pr:
+  a11y-nb-check-pr:
     name: Jupyter Notebook Accessibility Check (PR)
     if: inputs.enable-a11y-nb-check == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'a11y-nb-check')
-# TODO: Finish implementing the accessibility check for notebooks. This is a placeholder for future development.
+    # TODO: Finish implementing the accessibility check for notebooks. This is a placeholder for future development.
 
   # Summary and Status
   workflow-summary:
