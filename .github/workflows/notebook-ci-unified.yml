@@ -9,6 +9,7 @@ run-name: |
       inputs.trigger-event == 'validate' && '🔍 On-Demand Validation' ||
       inputs.trigger-event == 'execute' && '▶️ On-Demand Execution' ||
       inputs.trigger-event == 'security' && '🛡️ Security Scan' ||
+      inputs.trigger-event == 'a11y-nb-check' && '🔦 Notebook Accessibility Check' ||
       inputs.trigger-event == 'html' && '📖 Documentation Build' ||
       inputs.trigger-event == 'deprecate' && '🏷️ Notebook Deprecation' ||
       inputs.trigger-event == 'all' && '🎯 Full Pipeline' ||
@@ -2229,11 +2230,30 @@ jobs:
           else:
               print("No expired deprecated notebooks found")
           EOF
+
+  # On-demand Jupyter notebook accessibility checker
+  a11y-nb-check-on-demand:
+    name: "Jupyter Notebook Accessibility Check (On-Demand): ${{ setup-matrix.outputs.matrix-notebooks }}"
+    needs: setup-matrix
+    if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'on-demand' && inputs.trigger-event == 'a11y-nb-check'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run jupyterlab accessibility checker for notebook
+        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+        with:
+          files: ${{ setup-matrix.outputs.matrix-notebooks }}
+
   # PR-time Jupyter notebook accessibility checker
-  a11y-nb-check-pr:
-    name: Jupyter Notebook Accessibility Check (PR)
-    if: inputs.enable-a11y-nb-check == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'a11y-nb-check')
-    # TODO: Finish implementing the accessibility check for notebooks. This is a placeholder for future development.
+#  a11y-nb-check-pr:
+#    name: Jupyter Notebook Accessibility Check (PR)
+#    needs: setup-matrix
+#    if: inputs.enable-a11y-nb-check == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'a11y-nb-check')
+#    # TODO: Finish implementing the accessibility check for notebooks. This is a placeholder for future development.
+
+  #
 
   # Summary and Status
   workflow-summary:
