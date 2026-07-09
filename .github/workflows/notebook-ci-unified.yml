@@ -2244,7 +2244,7 @@ jobs:
       - name: Run jupyterlab accessibility checker for notebook
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
         with:
-          files: ${{ needs.setup-matrix.outputs.matrix-notebooks }}
+          files: ${{ needs.setup-matrix.outputs.matrix-notebooks }}[0]
 
   # PR-time Jupyter notebook accessibility checker
 #  a11y-nb-check-pr:
