@@ -2233,7 +2233,7 @@ jobs:
 
   # On-demand Jupyter notebook accessibility checker
   a11y-nb-check-on-demand:
-    name: "Jupyter Notebook Accessibility Check (On-Demand): ${{ setup-matrix.outputs.matrix-notebooks }}"
+    name: "Jupyter Notebook Accessibility Check (On-Demand): ${{ needs.setup-matrix.outputs.matrix-notebooks }}"
     needs: setup-matrix
     if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'on-demand' && inputs.trigger-event == 'a11y-nb-check'
     runs-on: ubuntu-24.04
@@ -2244,7 +2244,7 @@ jobs:
       - name: Run jupyterlab accessibility checker for notebook
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
         with:
-          files: ${{ setup-matrix.outputs.matrix-notebooks }}
+          files: ${{ needs.setup-matrix.outputs.matrix-notebooks }}
 
   # PR-time Jupyter notebook accessibility checker
 #  a11y-nb-check-pr:
