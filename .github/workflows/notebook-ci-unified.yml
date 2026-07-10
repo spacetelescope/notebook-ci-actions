@@ -2245,9 +2245,68 @@ jobs:
         with:
           files: ${{ inputs.single-notebook }}
 
+  # PR=triggered Jupyter notebook accessibility checker
+  # First collect the list of changed notebooks in the PR, then run the accessibility checker on those notebooks
+  a11y-nb-pr-prepare:
+    name: Discover notebooks changed in PR
+    runs-on: ubuntu-latest
+    outputs:
+      notebooks: ${{ steps.find.outputs.notebooks }}
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - id: find
+        name: Find changed notebooks in PR
+        run: |
+          echo "Detecting changed notebooks in PR..."
+
+          # Fetch the PR base ref so we can diff against it
+          git fetch --no-tags --prune --depth=1 origin "${{ github.event.pull_request.base.ref }}" || true
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+
+          # List .ipynb files changed in the PR
+          files=$(git diff --name-only "$BASE_REF"...HEAD | grep '\.ipynb$' || true)
+
+          if [ -z "${files}" ]; then
+            echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+            echo "No notebooks changed in this PR."
+            exit 0
+          fi
+
+          # Filter out generated/irrelevant paths
+          mapfile -t arr < <(printf '%s\n' "$files" | grep -vE '^_build/|/\\.ipynb_checkpoints' || true)
+
+          # Produce a JSON array (use Python to handle escaping)
+          json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
+
+          echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
+          echo "Found notebooks: ${json}"
+
+  a11y-nb-check-on-pr:
+    name: "Jupyter Notebook Accessibility Check (PR): ${{ matrix.notebook }}"
+    needs: a11y-nb-pr-prepare
+    if: ${{ needs.a11y-nb-pr-prepare.outputs.notebooks != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJson(needs.a11y-nb-pr-prepare.outputs.notebooks) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run jupyterlab accessibility checker for notebook
+        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+        with:
+          files: ${{ matrix.notebook }}
+
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check-on-demand]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check-on-demand, a11y-nb-check-on-pr]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -2298,6 +2357,9 @@ jobs:
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check-on-demand.result }} | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "pr" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check-on-pr.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
@@ -2473,14 +2535,20 @@ jobs:
           PROCESS_RESULT="${{ needs.process-notebooks.result }}"
           BUILD_RESULT="${{ needs.build-documentation.result }}"
           DEPRECATION_RESULT="${{ needs.manage-deprecation.result }}"
-          A11Y_RESULT="${{ needs.a11y-nb-check-on-demand.result }}"
-          
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            A11Y_NB_RESULT="${{ needs.a11y-nb-check-on-demand.result }}"
+          elif [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "pr" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            A11Y_NB_RESULT="${{ needs.a11y-nb-check-on-pr.result }}"
+          else
+            A11Y_NB_RESULT="skipped"
+          fi
+
           # Count successful and failed jobs
           SUCCESS_COUNT=0
           FAILURE_COUNT=0
           
           # Check each job result
-          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_RESULT"; do
+          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_NB_RESULT"; do
             case "$result" in
               "success") SUCCESS_COUNT=$((SUCCESS_COUNT + 1)) ;;
               "failure") FAILURE_COUNT=$((FAILURE_COUNT + 1)) ;;
