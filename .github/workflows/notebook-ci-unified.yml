@@ -2473,13 +2473,14 @@ jobs:
           PROCESS_RESULT="${{ needs.process-notebooks.result }}"
           BUILD_RESULT="${{ needs.build-documentation.result }}"
           DEPRECATION_RESULT="${{ needs.manage-deprecation.result }}"
+          A11Y_RESULT="${{ needs.a11y-nb-check-on-demand.result }}"
           
           # Count successful and failed jobs
           SUCCESS_COUNT=0
           FAILURE_COUNT=0
           
           # Check each job result
-          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT"; do
+          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_RESULT"; do
             case "$result" in
               "success") SUCCESS_COUNT=$((SUCCESS_COUNT + 1)) ;;
               "failure") FAILURE_COUNT=$((FAILURE_COUNT + 1)) ;;
