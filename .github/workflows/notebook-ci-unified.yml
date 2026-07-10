@@ -2234,7 +2234,6 @@ jobs:
   # On-demand Jupyter notebook accessibility checker
   a11y-nb-check-on-demand:
     name: "Jupyter Notebook Accessibility Check (On-Demand): ${{ inputs.single-notebook }}"
-    needs: setup-matrix
     if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'on-demand' && inputs.trigger-event == 'a11y-nb-check'
     runs-on: ubuntu-24.04
     steps:
