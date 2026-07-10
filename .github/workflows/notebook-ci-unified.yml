@@ -2288,7 +2288,7 @@ jobs:
 
   a11y-nb-check-on-pr:
     name: "Jupyter Notebook Accessibility Check (PR): ${{ matrix.notebook }}"
-    if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'pr' && inputs.trigger-event == 'a11y-nb-check' && ${{ needs.a11y-nb-pr-prepare.outputs.notebooks != '[]' }}
+    if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'pr' && inputs.trigger-event == 'a11y-nb-check' && ${{ needs.a11y-nb-pr-prepare.outputs.notebooks }} != '[]'
     needs: a11y-nb-pr-prepare
     runs-on: ubuntu-latest
     strategy:
