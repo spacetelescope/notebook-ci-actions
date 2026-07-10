@@ -2245,18 +2245,9 @@ jobs:
         with:
           files: ${{ inputs.single-notebook }}
 
-  # PR-time Jupyter notebook accessibility checker
-#  a11y-nb-check-pr:
-#    name: Jupyter Notebook Accessibility Check (PR)
-#    needs: setup-matrix
-#    if: inputs.enable-a11y-nb-check == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'a11y-nb-check')
-#    # TODO: Finish implementing the accessibility check for notebooks. This is a placeholder for future development.
-
-  #
-
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check-on-demand]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -2304,6 +2295,9 @@ jobs:
           echo "| Deprecation Management | ${{ needs.manage-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ inputs.trigger-event }}" = "deprecate" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check-on-demand.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
