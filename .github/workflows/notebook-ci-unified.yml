@@ -2249,7 +2249,7 @@ jobs:
   # First collect the list of changed notebooks in the PR, then run the accessibility checker on those notebooks
   a11y-nb-pr-prepare:
     name: Discover notebooks changed in PR
-    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && enable-a11y-nb-check == true
+    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && inputs.enable-a11y-nb-check == true
     runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.find.outputs.notebooks }}
@@ -2288,7 +2288,7 @@ jobs:
 
   a11y-nb-check-on-pr:
     name: "Jupyter Notebook Accessibility Check (PR): ${{ matrix.notebook }}"
-    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && needs.a11y-nb-pr-prepare.outputs.notebooks != '[]' && enable-a11y-nb-check == true
+    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && needs.a11y-nb-pr-prepare.outputs.notebooks != '[]' && inputs.enable-a11y-nb-check == true
     needs: a11y-nb-pr-prepare
     runs-on: ubuntu-latest
     strategy:
