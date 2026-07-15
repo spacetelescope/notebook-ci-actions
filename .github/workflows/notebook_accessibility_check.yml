@@ -2,7 +2,7 @@
 name: "Jupyter Notebook Accessibility Check"
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       single_notebook:
         description: 'Single notebook path (for single-notebook actions)'
