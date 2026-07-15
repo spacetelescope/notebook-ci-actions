@@ -28,7 +28,13 @@ jobs:
         run: |
           echo "single_notebook: ${{ inputs.single_notebook }}"
           # List tracked .ipynb files, exclude generated build and checkpoint dirs
-          files=$(git ls-files '*.ipynb' || true)
+          if [ -n "${{ inputs.single_notebook }}" ]; then
+            echo "Using single notebook: ${{ inputs.single_notebook }}"
+            files="${{ inputs.single_notebook }}"
+          else
+            echo "Finding all tracked notebooks in the repository..."
+            files=$(git ls-files '*.ipynb' || true)
+          fi
           if [ -z "${files}" ]; then
             echo "notebooks=[]" >> "$GITHUB_OUTPUT"
             echo "No notebooks found."
