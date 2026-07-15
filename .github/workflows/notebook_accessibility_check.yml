@@ -30,7 +30,8 @@ jobs:
           # List tracked .ipynb files, exclude generated build and checkpoint dirs
           if [ -n "${{ inputs.single_notebook }}" ]; then
             echo "Using single notebook: ${{ inputs.single_notebook }}"
-            files="${{ inputs.single_notebook }}"
+            files=$(git ls-files '*.ipynb' | grep "^${{ inputs.single_notebook }}$" || true)
+            # files="${{ inputs.single_notebook }}"
           else
             echo "Finding all tracked notebooks in the repository..."
             files=$(git ls-files '*.ipynb' || true)
