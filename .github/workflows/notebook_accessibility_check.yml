@@ -21,16 +21,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  prepare:
+  prepare_on_demand:
     name: Discover notebooks
+    if: ${{ github.event.inputs.execution-mode == 'on-demand' }}
     runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.find.outputs.notebooks }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
 
       - id: find
         name: Find tracked notebooks
@@ -53,14 +52,73 @@ jobs:
           json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
           echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
           echo "Found notebooks: ${json}"
+  
+  prepare_pr:
+    name: Discover notebooks changed in PR
+    if: ${{ github.event.inputs.execution-mode == 'pr' }}
+    runs-on: ubuntu-latest
+    outputs:
+      notebooks: ${{ steps.find.outputs.notebooks }}
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - id: find
+        name: Find changed notebooks in PR
+        run: |
+          echo "Detecting changed notebooks in PR..."
+
+          # Fetch the PR base ref so we can diff against it
+          git fetch --no-tags --prune --depth=1 origin "${{ github.event.pull_request.base.ref }}" || true
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+
+          # List .ipynb files changed in the PR
+          files=$(git diff --name-only "$BASE_REF"...HEAD | grep '\.ipynb$' || true)
+
+          if [ -z "${files}" ]; then
+            echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+            echo "No notebooks changed in this PR."
+            exit 0
+          fi
+
+          # Filter out generated/irrelevant paths
+          mapfile -t arr < <(printf '%s\n' "$files" | grep -vE '^_build/|/\\.ipynb_checkpoints' || true)
+
+          # Produce a JSON array (use Python to handle escaping)
+          json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
+
+          echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
+          echo "Found notebooks: ${json}"
+
+  combine_outputs:
+    name: Combine notebook lists
+    runs-on: ubuntu-latest
+    outputs:
+      notebooks: ${{ steps.combine.outputs.notebooks }}
+    steps:
+      - id: combine
+        name: Combine notebook lists
+        run: |
+          # Initialize an empty JSON array
+          echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+          if {{ github.event.inputs.execution-mode == 'on-demand' }}; then
+            notebooks="${{ needs.prepare_on_demand.outputs.notebooks }}"
+          elif {{ github.event.inputs.execution-mode == 'pr' }}; then
+            notebooks="${{ needs.prepare_pr.outputs.notebooks }}"
+          else
+            notebooks="[]"
+          fi
+
   a11y-scan:
     name: "Accessibility scan: ${{ matrix.notebook }}"
-    needs: prepare
+    needs: combine_outputs
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        notebook: ${{ fromJson(needs.prepare.outputs.notebooks) }}
+        notebook: ${{ fromJson(needs.combine_outputs.outputs.notebooks) }}
 
     steps:
       - name: Checkout repository
