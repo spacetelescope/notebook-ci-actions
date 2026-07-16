@@ -4,6 +4,13 @@ name: "Jupyter Notebook Accessibility Check"
 on:
   workflow_dispatch:
     inputs:
+      execution-mode:
+        description: 'Execution mode: pr, on-demand'
+        required: true
+        type: choice
+        options:
+          - 'pr'
+          - 'on-demand'
       single_notebook:
         description: 'Single notebook path (for single-notebook actions)'
         required: false
@@ -22,6 +29,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
 
       - id: find
         name: Find tracked notebooks
