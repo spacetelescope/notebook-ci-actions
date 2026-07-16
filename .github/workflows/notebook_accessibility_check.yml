@@ -97,15 +97,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.combine.outputs.notebooks }}
+    needs:
+        - prepare_on_demand
+        - prepare_pr
     steps:
       - id: combine
         name: Combine notebook lists
         run: |
           # Initialize an empty JSON array
           echo "notebooks=[]" >> "$GITHUB_OUTPUT"
-          if {{ github.event.inputs.execution-mode == 'on-demand' }}; then
+          if ${{ inputs.execution-mode == 'on-demand' }}; then
             notebooks="${{ needs.prepare_on_demand.outputs.notebooks }}"
-          elif {{ github.event.inputs.execution-mode == 'pr' }}; then
+          elif ${{ inputs.execution-mode == 'pr' }}; then
             notebooks="${{ needs.prepare_pr.outputs.notebooks }}"
           else
             notebooks="[]"
