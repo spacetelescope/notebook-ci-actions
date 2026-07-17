@@ -99,6 +99,7 @@ jobs:
   a11y-scan:
     name: "Accessibility scan: ${{ matrix.notebook }}"
     needs: locate_notebooks
+    if: ${{ needs.locate_notebooks.outputs.notebooks != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
