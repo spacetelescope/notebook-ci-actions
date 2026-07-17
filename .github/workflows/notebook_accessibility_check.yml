@@ -50,7 +50,7 @@ jobs:
       - id: find
         name: Find tracked notebooks
         run: |
-          if [ "${{ inputs.execution-mode }}" != "on-demand" ]; then
+          if [ "${{ inputs.execution-mode }}" == "on-demand" ]; then
             # List tracked .ipynb files, exclude generated build and checkpoint dirs
             if [ -n "${{ inputs.single_notebook }}" ]; then
               files="${{ inputs.single_notebook }}"
@@ -70,7 +70,7 @@ jobs:
             echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
             echo "Found notebooks: ${json}"
           fi
-          if [ "${{ inputs.execution-mode }}" != "pr" ]; then
+          if [ "${{ inputs.execution-mode }}" == "pr" ]; then
             echo "Detecting changed notebooks in PR..."
 
             # Fetch the PR base ref so we can diff against it
