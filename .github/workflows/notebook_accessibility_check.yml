@@ -5,12 +5,14 @@ on:
   workflow_dispatch:
     inputs:
       execution-mode:
-        description: 'Execution mode: pr, on-demand'
+        description: 'Execution mode: pr, on-demand, merge'
         required: true
         type: choice
         options:
-          - 'pr'
+          - 'merge'
           - 'on-demand'
+          - 'pr'
+          - 'scheduled'
       single_notebook:
         description: 'Single notebook path (for single-notebook actions)'
         required: false
@@ -23,6 +25,7 @@ concurrency:
 jobs:
   determine_fetch_depth:
     name: Determine fetch depth
+    # TODO: add 'needs' line with logic to only run if inputs.enable-a11y-nb-check is true
     runs-on: ubuntu-latest
     outputs:
       fetch-depth: ${{ steps.set-fetch-depth.outputs.fetch-depth }}
@@ -50,7 +53,7 @@ jobs:
       - id: find
         name: Find tracked notebooks
         run: |
-          if [ "${{ inputs.execution-mode }}" == "on-demand" ]; then
+          if [ "${{ inputs.execution-mode }}" == "on-demand" ] || [ "${{ inputs.execution-mode }}" == "scheduled" ]; then
             # List tracked .ipynb files, exclude generated build and checkpoint dirs
             if [ -n "${{ inputs.single_notebook }}" ]; then
               files="${{ inputs.single_notebook }}"
@@ -94,7 +97,12 @@ jobs:
   
             echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
             echo "Found notebooks: ${json}"
-          fi        
+          fi
+          if [ "${{ inputs.execution-mode }}" == "merge" ]; then
+            echo "Finding all updated notebooks by the merge..."
+            # TODO: Implement logic to find notebooks updated by the merge commit
+            echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+          fi
 
   a11y-scan:
     name: "Accessibility scan: ${{ matrix.notebook }}"
