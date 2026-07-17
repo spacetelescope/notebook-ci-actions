@@ -37,8 +37,8 @@ jobs:
           fi
 
   locate_notebooks:
-    name: Discover notebooks
-    if: ${{ inputs.execution-mode == 'on-demand' }}
+    name: Locate notebooks
+    needs: determine_fetch_depth
     runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.find.outputs.notebooks }}
