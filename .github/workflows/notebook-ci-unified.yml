@@ -2265,7 +2265,7 @@ jobs:
             echo "No single notebook specified, using all notebooks from setup-matrix"
             echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
           fi
-          echo "Notebooks to be a11y scanned: ${{ notebooks }}"
+          echo " Notebooks: $NOTEBOOKS"
     
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
