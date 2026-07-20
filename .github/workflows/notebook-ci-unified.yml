@@ -2248,7 +2248,7 @@ jobs:
 
   a11y-prepare:
     name: "Prepare for Jupyter Notebook Accessibility Check"
-    if: inputs.enable-a11y-nb-check == true && inputs.trigger-event == 'a11y-nb-check'
+    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
     needs: setup-matrix
     outputs:
       notebooks: ${{ steps.prepare.outputs.notebooks }}
