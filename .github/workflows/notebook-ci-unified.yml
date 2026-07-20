@@ -2247,15 +2247,15 @@ jobs:
 
 
   a11y-prepare:
-    name: "Prepare for Jupyter Notebook Accessibility Check"
+    name: Prepare for Jupyter Notebook Accessibility Check
     if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
     needs: setup-matrix
     outputs:
       notebooks: ${{ steps.prepare.outputs.notebooks }}
     runs-on: ubuntu-24.04
     steps:
-      - name: "Prepare for a11y-nb-check"
-        id: prepare
+      - id: prepare
+        name: Prepare for a11y-nb-check
         run: |
           echo "Preparing matrix for Jupyter Notebook Accessibility Check"
           if [ "${{ inputs.single-notebook }}" != "" ]; then
@@ -2268,7 +2268,6 @@ jobs:
     
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
-#    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && inputs.enable-a11y-nb-check == true
     if: ${{ fromJson(needs.a11y-prepare.outputs.notebooks) != '[]'}}
     needs: a11y-prepare
     runs-on: ubuntu-24.04
