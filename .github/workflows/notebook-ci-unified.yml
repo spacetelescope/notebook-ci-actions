@@ -2231,71 +2231,11 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
-  # On-demand Jupyter notebook accessibility checker
-  a11y-nb-check-on-demand:
-    name: "Jupyter Notebook Accessibility Check (On-Demand): ${{ inputs.single-notebook }}"
-    if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'on-demand' && inputs.trigger-event == 'a11y-nb-check'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Run jupyterlab accessibility checker for notebook
-        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
-        with:
-          files: ${{ inputs.single-notebook }}
-
-  # PR=triggered Jupyter notebook accessibility checker
-  # First collect the list of changed notebooks in the PR, then run the accessibility checker on those notebooks
-#  a11y-nb-pr-prepare:
-#    name: Discover notebooks changed in PR
-#    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && inputs.enable-a11y-nb-check == true
-#    runs-on: ubuntu-latest
-#    outputs:
-#      notebooks: ${{ steps.find.outputs.notebooks }}
-#    steps:
-#      - name: Checkout repository (full history)
-#        uses: actions/checkout@v5
-#        with:
-#          fetch-depth: 0
-#
-#      - id: find
-#        name: Find changed notebooks in PR
-#        run: |
-#          echo "Detecting changed notebooks in PR..."
-#
-#          # Fetch the PR base ref so we can diff against it
-#          git fetch --no-tags --prune --depth=1 origin "${{ github.event.pull_request.base.ref }}" || true
-#          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-#
-#          # List .ipynb files changed in the PR
-#          files=$(git diff --name-only "$BASE_REF"...HEAD | grep '\.ipynb$' || true)
-#
-#          if [ -z "${files}" ]; then
-#            echo "notebooks=[]" >> "$GITHUB_OUTPUT"
-#            echo "No notebooks changed in this PR."
-#            exit 0
-#          fi
-#
-#          # Filter out generated/irrelevant paths
-#          mapfile -t arr < <(printf '%s\n' "$files" | grep -vE '^_build/|/\\.ipynb_checkpoints' || true)
-#
-#          # Produce a JSON array (use Python to handle escaping)
-#          json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
-#
-#          echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
-#          echo "Found notebooks: ${json}"
-#
-#  a11y-nb-check-on-pr:
-#    name: "Jupyter Notebook Accessibility Check (PR): ${{ matrix.notebook }}"
-#    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && needs.a11y-nb-pr-prepare.outputs.notebooks != '[]' && inputs.enable-a11y-nb-check == true
-#    needs: a11y-nb-pr-prepare
-#    runs-on: ubuntu-latest
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        notebook: ${{ fromJson(needs.a11y-nb-pr-prepare.outputs.notebooks) }}
-#
+#  # On-demand Jupyter notebook accessibility checker
+#  a11y-nb-check-on-demand:
+#    name: "Jupyter Notebook Accessibility Check (On-Demand): ${{ inputs.single-notebook }}"
+#    if: inputs.enable-a11y-nb-check == true && inputs.execution-mode == 'on-demand' && inputs.trigger-event == 'a11y-nb-check'
+#    runs-on: ubuntu-24.04
 #    steps:
 #      - name: Checkout repository
 #        uses: actions/checkout@v5
@@ -2303,17 +2243,39 @@ jobs:
 #      - name: Run jupyterlab accessibility checker for notebook
 #        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
 #        with:
-#          files: ${{ matrix.notebook }}
+#          files: ${{ inputs.single-notebook }}
 
-  a11y-nb-check-on-pr:
-    name: "Jupyter Notebook Accessibility Check (PR): ${{ matrix.notebook }}"
-    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && inputs.enable-a11y-nb-check == true
+
+  a11y-prepare:
+    name: "Prepare for Jupyter Notebook Accessibility Check"
+    if: inputs.enable-a11y-nb-check == true && inputs.trigger-event == 'a11y-nb-check'
     needs: setup-matrix
+    outputs:
+      notebooks: ${{ steps.prepare.outputs.notebooks }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: "Prepare for a11y-nb-check"
+        id: prepare
+        run: |
+          echo "Preparing matrix for Jupyter Notebook Accessibility Check"
+          if [ "${{ inputs.single-notebook }}" != "" ]; then
+            echo "Single notebook specified: ${{ inputs.single-notebook }}"
+            echo "notebooks=[\"${{ inputs.single-notebook }}\"]" >> $GITHUB_OUTPUT
+          else
+            echo "No single notebook specified, using all notebooks from setup-matrix"
+            echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
+          fi
+    
+  a11y-nb-check:
+    name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
+#    if: inputs.execution-mode == 'pr' && inputs.trigger-event == 'all' && inputs.enable-a11y-nb-check == true
+    if: ${{ fromJson(needs.a11y-prepare.outputs.notebooks) != '[]'}}
+    needs: a11y-prepare
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+        notebook: ${{ fromJson(needs.a11y-prepare.outputs.notebooks) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -2325,7 +2287,7 @@ jobs:
 
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check-on-demand, a11y-nb-check-on-pr]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -2375,10 +2337,10 @@ jobs:
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check-on-demand.result }} | - |" >> $GITHUB_STEP_SUMMARY
+            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "pr" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check-on-pr.result }} | - |" >> $GITHUB_STEP_SUMMARY
+            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
