@@ -2264,8 +2264,8 @@ jobs:
           else
             echo "No single notebook specified, using all notebooks from setup-matrix"
             echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
+            notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}
           fi
-          echo "notebooks: $notebooks"
     
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
