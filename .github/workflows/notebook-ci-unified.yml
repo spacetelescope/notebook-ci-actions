@@ -2291,7 +2291,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
+        
       - name: "Run jupyterlab Accessibility Checker for Notebook ${{ matrix.notebook }}"
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
         with:
