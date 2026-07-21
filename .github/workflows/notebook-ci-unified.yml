@@ -2246,41 +2246,49 @@ jobs:
 #          files: ${{ inputs.single-notebook }}
 
 
-  a11y-prepare:
-    name: Prepare for Jupyter Notebook Accessibility Check
-    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
-    needs: setup-matrix
-    outputs:
-      notebooks: ${{ steps.prepare.outputs.notebooks }}
+#  a11y-prepare:
+#    name: Prepare for Jupyter Notebook Accessibility Check
+#    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
+#    needs: setup-matrix
+#    outputs:
+#      notebooks: ${{ steps.prepare.outputs.notebooks }}
+#    runs-on: ubuntu-24.04
+#    steps:
+#      - id: prepare
+#        name: Prepare for a11y-nb-check
+#        run: |
+#          echo "Preparing matrix for Jupyter Notebook Accessibility Check"
+#          if [ "${{ inputs.single-notebook }}" != "" ]; then
+#            echo "Single notebook specified: ${{ inputs.single-notebook }}"
+#            echo "notebooks=[\"${{ inputs.single-notebook }}\"]" >> $GITHUB_OUTPUT
+#          else
+#            echo "No single notebook specified, using all notebooks from setup-matrix"
+#            echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
+#          fi
+  
+  a11y-nb-check_single:
+    name: "Jupyter Notebook Accessibility Check: ${{ inputs.single-notebook }}"
+    if: ${{ inputs.single-notebook != '[]'}} && inputs.execution-mode == 'on-demand' && (inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check')
     runs-on: ubuntu-24.04
     steps:
-      - id: prepare
-        name: Prepare for a11y-nb-check
-        run: |
-          echo "Preparing matrix for Jupyter Notebook Accessibility Check"
-          if [ "${{ inputs.single-notebook }}" != "" ]; then
-            echo "Single notebook specified: ${{ inputs.single-notebook }}"
-            echo "notebooks=[\"${{ inputs.single-notebook }}\"]" >> $GITHUB_OUTPUT
-          else
-            echo "No single notebook specified, using all notebooks from setup-matrix"
-            echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
-          fi
-    
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run jupyterlab accessibility checker for notebook
+        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+        with:
+          files: ${{ inputs.single-notebook }}
+          
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
-    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
-    needs: a11y-prepare
+    if: ${{ inputs.single-notebook == '[]'}} && (inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check')
+    needs: setup-matrix
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        notebook: ${{ fromJson(needs.a11y-prepare.outputs.notebooks) }}
+        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
     steps:
-      - id: debug
-        name: Debug matrix notebook
-        run: |
-          echo "🔍 Matrix notebook: ${{ matrix.notebook }}"
-
       - name: Checkout repository
         uses: actions/checkout@v5
 
