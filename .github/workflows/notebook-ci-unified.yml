@@ -2480,10 +2480,8 @@ jobs:
           PROCESS_RESULT="${{ needs.process-notebooks.result }}"
           BUILD_RESULT="${{ needs.build-documentation.result }}"
           DEPRECATION_RESULT="${{ needs.manage-deprecation.result }}"
-          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            A11Y_NB_RESULT="${{ needs.a11y-nb-check-on-demand.result }}"
-          elif [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "pr" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            A11Y_NB_RESULT="${{ needs.a11y-nb-check-on-pr.result }}"
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            A11Y_NB_RESULT="${{ needs.a11y-nb-check.result }}"
           else
             A11Y_NB_RESULT="skipped"
           fi
