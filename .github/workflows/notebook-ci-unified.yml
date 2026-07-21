@@ -2266,22 +2266,22 @@ jobs:
 #            echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
 #          fi
   
-  a11y-nb-check_single:
-    name: "Jupyter Notebook Accessibility Check: ${{ inputs.single-notebook }}"
-    if: ${{ inputs.single-notebook != '[]'}} && inputs.execution-mode == 'on-demand' && (inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check')
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
-      - name: Run jupyterlab accessibility checker for notebook
-        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
-        with:
-          files: ${{ inputs.single-notebook }}
+#  a11y-nb-check_single:
+#    name: "Jupyter Notebook Accessibility Check: ${{ inputs.single-notebook }}"
+#    if: ${{ inputs.single-notebook != '[]'}} && inputs.execution-mode == 'on-demand' && (inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check')
+#    runs-on: ubuntu-24.04
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v5
+#
+#      - name: Run jupyterlab accessibility checker for notebook
+#        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+#        with:
+#          files: ${{ inputs.single-notebook }}
           
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
-    if: ${{ inputs.single-notebook == '[]'}} && (inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check')
+    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
     needs: setup-matrix
     runs-on: ubuntu-24.04
     strategy:
@@ -2291,8 +2291,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+      
+      - name: run jupyterlab accessibility checker for single notebook
+        if: inputs.single-notebook != '[]'
+        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+        with:
+          files: ${{ inputs.single-notebook }}
 
       - name: Run jupyterlab accessibility checker for notebook
+        if: inputs.single-notebook == '[]'
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
         with:
           files: ${{ matrix.notebook }}
