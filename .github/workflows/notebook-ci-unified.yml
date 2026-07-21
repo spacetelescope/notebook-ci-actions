@@ -2274,8 +2274,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        notebook: ${{ needs.a11y-prepare.outputs.notebooks }} #${{ fromJson(needs.a11y-prepare.outputs.notebooks) }}
+        notebook: ${{ fromJson(needs.a11y-prepare.outputs.notebooks) }}
     steps:
+      - id: debug
+        name: Debug matrix notebook
+        run: |
+          echo "🔍 Matrix notebook: ${{ matrix.notebook }}"
+
       - name: Checkout repository
         uses: actions/checkout@v5
 
