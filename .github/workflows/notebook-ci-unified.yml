@@ -127,6 +127,18 @@ on:
         type: boolean
         default: false
 
+      # Style / quality checks
+      enable-pep8:
+        description: 'PEP8 style checks on changed notebooks and scripts (on by default; set false to opt out)'
+        required: false
+        type: boolean
+        default: true
+      enable-link-check:
+        description: 'Broken-link checks on PRs (changed markdown/notebooks) and weekly on the published site (on by default; lychee)'
+        required: false
+        type: boolean
+        default: true
+
     secrets:
       CASJOBS_USERID:
         required: false
@@ -2223,9 +2235,181 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
+  # PEP8 style checks on changed notebooks and Python scripts, using the project's
+  # canonical helpers in notebook-ci-actions/.github/helpers/
+  # (pep8_nb_style_checker.py / pep8_script_style_checker.py). They wrap flake8
+  # with STScI's curated ignore list and notebook-cell-aware reporting - the same
+  # checkers the standalone notebook_pep8check.yml / script_pep8check.yml use. On
+  # by default (enable-pep8); runs on PR/merge or on-demand via trigger-event 'pep8'.
+  style-check:
+    name: PEP8 Style Check
+    if: inputs.enable-pep8 == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'pep8')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      # The helper scripts live in this actions repo, not the caller's notebook
+      # repo, so check them out at the same version as this running workflow.
+      - name: Check out the PEP8 helper scripts
+        uses: actions/checkout@v5
+        with:
+          repository: spacetelescope/notebook-ci-actions
+          ref: ${{ github.job_workflow_sha }}
+          path: .pep8-helpers
+          sparse-checkout: .github/helpers
+
+      - name: PEP8 style check (changed notebooks and scripts)
+        env:
+          HELPERS: .pep8-helpers/.github/helpers
+        run: |
+          set -euo pipefail
+          # Install up front: a failure here is an infrastructure error, not a
+          # style violation, so it should fail the job distinctly. numpy + pytz
+          # are required by pep8_nb_style_checker.py.
+          python -m pip install --quiet flake8 numpy pytz
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          HEAD="${{ github.sha }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
+          fi
+          if ! CHANGED="$(git diff --name-only "$BASE...$HEAD" -- '*.ipynb' '*.py')"; then
+            echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"
+            exit 2
+          fi
+          if [ -z "$CHANGED" ]; then
+            echo "No changed notebooks or scripts to lint."
+            exit 0
+          fi
+          status=0
+          while IFS= read -r f; do
+            [ -n "$f" ] && [ -f "$f" ] || continue
+            case "$f" in
+              *.ipynb)
+                echo "::group::PEP8 (notebook) $f"
+                python "$HELPERS/pep8_nb_style_checker.py" "$f" || status=1
+                echo "::endgroup::" ;;
+              *.py)
+                echo "::group::PEP8 (script) $f"
+                python "$HELPERS/pep8_script_style_checker.py" "$f" || status=1
+                echo "::endgroup::" ;;
+            esac
+          done <<< "$CHANGED"
+          if [ $status -ne 0 ]; then
+            echo "❌ PEP8 style violations found."
+          else
+            echo "✅ PEP8 checks passed."
+          fi
+          exit $status
+
+  # PR-time broken-link check: lychee over the markdown the PR changes (changed
+  # *.md plus changed notebooks converted to markdown). Blocks the PR on broken
+  # links. Reads the repo's .lycheeignore.
+  link-check-pr:
+    name: Link Check (PR)
+    if: inputs.enable-link-check == true && inputs.execution-mode == 'pr'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Collect changed markdown and notebook markdown
+        id: collect
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          HEAD="${{ github.sha }}"
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE="$(git rev-parse HEAD~1 2>/dev/null || echo "$HEAD")"
+          fi
+          mkdir -p .link-check
+          if ! CHANGED_MD="$(git diff --name-only "$BASE...$HEAD" -- '*.md')"; then
+            echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"; exit 2
+          fi
+          if ! CHANGED_NB="$(git diff --name-only "$BASE...$HEAD" -- '*.ipynb')"; then
+            echo "::error::git diff failed (BASE=$BASE HEAD=$HEAD)"; exit 2
+          fi
+          while IFS= read -r f; do
+            [ -n "$f" ] && [ -f "$f" ] || continue
+            mkdir -p ".link-check/$(dirname "$f")"
+            cp "$f" ".link-check/$f"
+          done <<< "$CHANGED_MD"
+          if [ -n "$CHANGED_NB" ]; then
+            python -m pip install --quiet nbconvert
+            while IFS= read -r nb; do
+              [ -n "$nb" ] && [ -f "$nb" ] || continue
+              jupyter nbconvert --to markdown --output-dir ".link-check/$(dirname "$nb")" "$nb"
+            done <<< "$CHANGED_NB"
+          fi
+          if find .link-check -name '*.md' | grep -q .; then
+            echo "any=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            echo "No changed markdown or notebooks to link-check."
+          fi
+
+      - name: Check links in changed content
+        if: steps.collect.outputs.any == 'true'
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress --exclude-mail .link-check/**/*.md"
+          fail: true
+          jobSummary: true
+
+  # Weekly broken-link check of the published site (runs on the scheduled run, or
+  # on-demand via trigger-event 'links'). Checks the already-deployed gh-pages
+  # HTML. Repos can add a .lycheeignore / lychee.toml to exclude known URLs.
+  link-check:
+    name: Link Check
+    if: inputs.enable-link-check == true && (inputs.execution-mode == 'scheduled' || inputs.trigger-event == 'links')
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check for a gh-pages branch
+        id: ghp
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh api "repos/${{ github.repository }}/branches/gh-pages" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No gh-pages branch found; skipping link check."
+          fi
+
+      - name: Check out the repo (for .lycheeignore / lychee.toml)
+        if: steps.ghp.outputs.exists == 'true'
+        uses: actions/checkout@v5
+
+      - name: Check out the published site (gh-pages)
+        if: steps.ghp.outputs.exists == 'true'
+        uses: actions/checkout@v5
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Check links in the published site
+        if: steps.ghp.outputs.exists == 'true'
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: "--no-progress --exclude-mail site/**/*.html"
+          fail: true
+          jobSummary: true
+
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check-pr, link-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
