@@ -2270,6 +2270,7 @@ jobs:
     
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
+    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
     needs: a11y-prepare
     runs-on: ubuntu-24.04
     strategy:
