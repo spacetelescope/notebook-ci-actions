@@ -2300,10 +2300,7 @@ jobs:
           if [ "${{ inputs.trigger-event }}" = "deprecate" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
-          fi
-          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] && [ "${{ inputs.execution-mode }}" = "pr" ] && [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
