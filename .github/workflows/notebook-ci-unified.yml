@@ -2270,7 +2270,6 @@ jobs:
     
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
-    if: ${{ fromJson(needs.a11y-prepare.outputs.notebooks) != '[]'}}
     needs: a11y-prepare
     runs-on: ubuntu-24.04
     strategy:
