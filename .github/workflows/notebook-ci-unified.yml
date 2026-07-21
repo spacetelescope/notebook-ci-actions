@@ -2293,7 +2293,7 @@ jobs:
         uses: actions/checkout@v5
       
       - name: run jupyterlab accessibility checker for single notebook
-        if: inputs.single-notebook != '[]'
+        if: inputs.single-notebook != '[]' && inputs.execution-mode == 'on-demand'
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
         with:
           files: ${{ inputs.single-notebook }}
