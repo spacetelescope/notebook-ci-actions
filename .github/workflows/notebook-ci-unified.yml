@@ -2263,8 +2263,7 @@ jobs:
             echo "notebooks=[\"${{ inputs.single-notebook }}\"]" >> $GITHUB_OUTPUT
           else
             echo "No single notebook specified, using all notebooks from setup-matrix"
-            # echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
-            notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}
+            echo "notebooks=${{ needs.setup-matrix.outputs.matrix-notebooks }}" >> $GITHUB_OUTPUT
           fi
           echo "notebooks: $notebooks"
     
