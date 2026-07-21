@@ -2280,7 +2280,7 @@ jobs:
 #          files: ${{ inputs.single-notebook }}
           
   a11y-nb-check:
-    name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
+    name: "Jupyter Notebook Accessibility Check!!!!: ${{ matrix.notebook }}"
     if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
     needs: setup-matrix
     runs-on: ubuntu-24.04
@@ -2292,14 +2292,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
       
-      - name: run jupyterlab accessibility checker for single notebook
-        if: inputs.single-notebook != '[]' && inputs.execution-mode == 'on-demand'
-        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
-        with:
-          files: ${{ inputs.single-notebook }}
+#      - name: run jupyterlab accessibility checker for single notebook
+#        if: inputs.single-notebook != '[]' && inputs.execution-mode == 'on-demand'
+#        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+#        with:
+#          files: ${{ inputs.single-notebook }}
 
-      - name: Run jupyterlab accessibility checker for notebook
-        if: inputs.single-notebook == '[]'
+      - name: Run jupyterlab accessibility checker for NOTEBOOK
+#        if: inputs.single-notebook == '[]'
         uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
         with:
           files: ${{ matrix.notebook }}
