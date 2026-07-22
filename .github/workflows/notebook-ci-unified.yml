@@ -2452,7 +2452,14 @@ jobs:
               echo "- **Note**: Documentation files from _toc.yml were updated from main branch while preserving executed notebooks" >> $GITHUB_STEP_SUMMARY
             fi
           fi
-          
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
+            if [ "$PROCESS_RESULT" = "success" ]; then
+              echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Status**: ❌ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Add error reporting section if there were failures
