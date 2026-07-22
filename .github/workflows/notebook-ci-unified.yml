@@ -2454,7 +2454,7 @@ jobs:
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
-            if [ "$PROCESS_RESULT" = "success" ]; then
+            if [ "${{ needs.a11y-nb-check.result }}" = "success" ]; then
               echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
             else
               echo "- **Status**: ❌ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
