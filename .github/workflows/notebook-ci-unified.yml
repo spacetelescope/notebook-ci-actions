@@ -945,6 +945,51 @@ jobs:
           eval "$(micromamba shell hook --shell bash)"
           micromamba activate ci-env
           echo "🔍 Validating notebook: ${{ matrix.notebook }}"
+          
+          # nbval waits for the shell reply before draining IOPub. Widget-heavy
+          # applications such as jdaviz can exceed Jupyter's default 1,000-message
+          # receive queue and cause the trailing status:idle message to be lost.
+          python <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+
+          import nbval.kernel
+
+          kernel_path = Path(nbval.kernel.__file__)
+          source = kernel_path.read_text(encoding="utf-8")
+
+          replacements = [
+              (
+                  "import logging\n",
+                  "import logging\nimport zmq\n",
+              ),
+              (
+                  "    kc = km.client()\n"
+                  "    kc.start_channels()\n",
+                  "    kc = km.client()\n"
+                  "    # Preserve large widget-message bursts until nbval drains IOPub.\n"
+                  "    kc.iopub_channel.socket.setsockopt(zmq.RCVHWM, 10000)\n"
+                  "    kc.start_channels()\n",
+              ),
+          ]
+
+          for old, new in replacements:
+              count = source.count(old)
+              if count != 1:
+                  raise RuntimeError(
+                      f"Cannot safely patch nbval {version('nbval')}: "
+                      f"expected one patch target in {kernel_path}, found {count}"
+                  )
+              source = source.replace(old, new, 1)
+
+          kernel_path.write_text(source, encoding="utf-8")
+          print(
+              f"Raised nbval {version('nbval')} IOPub RCVHWM "
+              f"from 1000 to 10000: {kernel_path}"
+          )
+          PY
+
+          
           # Clear outputs to ensure clean validation
           jupyter nbconvert --clear-output --inplace "${{ matrix.notebook }}"
           pytest --nbval --current-env --nbval-cell-timeout=4000 "${{ matrix.notebook }}"
