@@ -4,6 +4,15 @@ name: "Jupyter Notebook Accessibility Check"
 on:
   workflow_dispatch:
     inputs:
+      execution-mode:
+        description: 'Execution mode: pr, on-demand, merge'
+        required: true
+        type: choice
+        options:
+          - 'merge'
+          - 'on-demand'
+          - 'pr'
+          - 'scheduled'
       single_notebook:
         description: 'Single notebook path (for single-notebook actions)'
         required: false
@@ -14,40 +23,96 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  prepare:
-    name: Discover notebooks
+  determine_fetch_depth:
+    name: Determine fetch depth
+    # TODO: add 'needs' line with logic to only run if inputs.enable-a11y-nb-check is true
+    runs-on: ubuntu-latest
+    outputs:
+      fetch-depth: ${{ steps.set-fetch-depth.outputs.fetch-depth }}
+    steps:
+      - name: Set fetch depth based on execution mode
+        id: set-fetch-depth
+        run: |
+          if [ "${{ inputs.execution-mode }}" == "pr" ]; then
+            echo "fetch-depth=0" >> "$GITHUB_OUTPUT"
+          else
+            echo "fetch-depth=1" >> "$GITHUB_OUTPUT"
+          fi
+
+  locate_notebooks:
+    name: Locate notebooks
+    needs: determine_fetch_depth
     runs-on: ubuntu-latest
     outputs:
       notebooks: ${{ steps.find.outputs.notebooks }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-
+        with:
+          fetch-depth: ${{ needs.determine_fetch_depth.outputs.fetch-depth }}
       - id: find
         name: Find tracked notebooks
         run: |
-          echo "single_notebook: ${{ inputs.single_notebook }}" >> "$GITHUB_OUTPUT"
-          # List tracked .ipynb files, exclude generated build and checkpoint dirs
-          files=$(git ls-files '*.ipynb' || true)
-          if [ -z "${files}" ]; then
-            echo "notebooks=[]" >> "$GITHUB_OUTPUT"
-            echo "No notebooks found."
-            exit 0
+          if [ "${{ inputs.execution-mode }}" == "on-demand" ] || [ "${{ inputs.execution-mode }}" == "scheduled" ]; then
+            # List tracked .ipynb files, exclude generated build and checkpoint dirs
+            if [ -n "${{ inputs.single_notebook }}" ]; then
+              files="${{ inputs.single_notebook }}"
+            else
+              echo "Finding all tracked notebooks in the repository..."
+              files=$(git ls-files '*.ipynb' || true)
+            fi
+            if [ -z "${files}" ]; then
+              echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+              echo "No notebooks found."
+              exit 0
+            fi
+            # Filter out _build/ and .ipynb_checkpoints
+            mapfile -t arr < <(printf '%s\n' "$files" | grep -vE '^_build/|/\\.ipynb_checkpoints' || true)
+            # Produce a JSON array (use Python for robust escaping)
+            json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
+            echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
+            echo "Found notebooks: ${json}"
           fi
-          # Filter out _build/ and .ipynb_checkpoints
-          mapfile -t arr < <(printf '%s\n' "$files" | grep -vE '^_build/|/\\.ipynb_checkpoints' || true)
-          # Produce a JSON array (use Python for robust escaping)
-          json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
-          echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
-          echo "Found notebooks: ${json}"
+          if [ "${{ inputs.execution-mode }}" == "pr" ]; then
+            echo "Detecting changed notebooks in PR..."
+
+            # Fetch the PR base ref so we can diff against it
+            git fetch --no-tags --prune --depth=1 origin "${{ github.event.pull_request.base.ref }}" || true
+            BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+  
+            # List .ipynb files changed in the PR
+            files=$(git diff --name-only "$BASE_REF"...HEAD | grep '\.ipynb$' || true)
+  
+            if [ -z "${files}" ]; then
+              echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+              echo "No notebooks changed in this PR."
+              exit 0
+            fi
+  
+            # Filter out generated/irrelevant paths
+            mapfile -t arr < <(printf '%s\n' "$files" | grep -vE '^_build/|/\\.ipynb_checkpoints' || true)
+  
+            # Produce a JSON array (use Python to handle escaping)
+            json=$(printf '%s\n' "${arr[@]}" | python3 -c "import sys,json; lines=[l.rstrip('\\n') for l in sys.stdin if l.strip()]; print(json.dumps(lines))")
+  
+            echo "notebooks=${json}" >> "$GITHUB_OUTPUT"
+            echo "Found notebooks: ${json}"
+          fi
+          if [ "${{ inputs.execution-mode }}" == "merge" ]; then
+            echo "Finding all updated notebooks by the merge..."
+            # TODO: Implement logic to find notebooks updated by the merge commit
+            echo "notebooks=[]" >> "$GITHUB_OUTPUT"
+          fi
+
   a11y-scan:
     name: "Accessibility scan: ${{ matrix.notebook }}"
-    needs: prepare
+    needs: locate_notebooks
+    if: ${{ needs.locate_notebooks.outputs.notebooks != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        notebook: ${{ fromJson(needs.prepare.outputs.notebooks) }}
+        notebook: ${{ fromJson(needs.locate_notebooks.outputs.notebooks) }}
 
     steps:
       - name: Checkout repository

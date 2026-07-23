@@ -9,6 +9,7 @@ run-name: |
       inputs.trigger-event == 'validate' && '🔍 On-Demand Validation' ||
       inputs.trigger-event == 'execute' && '▶️ On-Demand Execution' ||
       inputs.trigger-event == 'security' && '🛡️ Security Scan' ||
+      inputs.trigger-event == 'a11y-nb-check' && '🔦 Notebook Accessibility Check' ||
       inputs.trigger-event == 'html' && '📖 Documentation Build' ||
       inputs.trigger-event == 'deprecate' && '🏷️ Notebook Deprecation' ||
       inputs.trigger-event == 'all' && '🎯 Full Pipeline' ||
@@ -26,7 +27,7 @@ on:
         required: true
         type: string
       trigger-event:
-        description: 'Specific trigger: validate, execute, security, html, deprecate'
+        description: 'Specific trigger: validate, execute, security, html, deprecate, a11y-nb-check'
         required: false
         type: string
         default: 'all'
@@ -126,6 +127,13 @@ on:
         required: false
         type: boolean
         default: false
+
+      # Style / quality checks
+      enable-a11y-nb-check:
+        description: 'Jupyter notebook accessibility checks on PRs (on by default; set false to opt out)'
+        required: false
+        type: boolean
+        default: true
 
     secrets:
       CASJOBS_USERID:
@@ -2268,9 +2276,27 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
+  a11y-nb-check:
+    name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
+    if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
+    needs: setup-matrix
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJson(needs.setup-matrix.outputs.matrix-notebooks) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        
+      - name: "Run jupyterlab Accessibility Checker for Notebook ${{ matrix.notebook }}"
+        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+        with:
+          files: ${{ matrix.notebook }}
+
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -2318,6 +2344,9 @@ jobs:
           echo "| Deprecation Management | ${{ needs.manage-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ inputs.trigger-event }}" = "deprecate" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
@@ -2468,7 +2497,15 @@ jobs:
               echo "- **Note**: Documentation files from _toc.yml were updated from main branch while preserving executed notebooks" >> $GITHUB_STEP_SUMMARY
             fi
           fi
-          
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ needs.a11y-nb-check.result }}" = "success" ]; then
+              echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Status**: ❌ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Add error reporting section if there were failures
@@ -2493,13 +2530,18 @@ jobs:
           PROCESS_RESULT="${{ needs.process-notebooks.result }}"
           BUILD_RESULT="${{ needs.build-documentation.result }}"
           DEPRECATION_RESULT="${{ needs.manage-deprecation.result }}"
-          
+          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
+            A11Y_NB_RESULT="${{ needs.a11y-nb-check.result }}"
+          else
+            A11Y_NB_RESULT="skipped"
+          fi
+
           # Count successful and failed jobs
           SUCCESS_COUNT=0
           FAILURE_COUNT=0
           
           # Check each job result
-          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT"; do
+          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_NB_RESULT"; do
             case "$result" in
               "success") SUCCESS_COUNT=$((SUCCESS_COUNT + 1)) ;;
               "failure") FAILURE_COUNT=$((FAILURE_COUNT + 1)) ;;
