@@ -1850,7 +1850,7 @@ jobs:
           cache-environment: false
 
       - name: Setup Node.js (required for jupyter-book v2.x)
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           
