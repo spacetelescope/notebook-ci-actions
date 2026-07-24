@@ -1938,8 +1938,76 @@ jobs:
             echo "⚠️ Post-processing script not found: ${{ inputs.post-processing-script }}"
           fi
 
+      - name: Upload built HTML as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-build
+          path: _build/html
+
+  # Accessibility scan and deployment
+  a11y-scan:
+    needs: build-documentation
+    runs-on: ubuntu-24.04
+    if: inputs.enable-html-build == true
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: html-build
+          path: _build/html
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+      - name: Install http-server and axe CLI
+        run: npm install -g http-server @axe-core/cli
+      - name: Start static server
+        run: nohup http-server _build/html -p 8080 >/dev/null 2>&1 &
+      - name: Run axe-core scans
+        run: |
+          set -euo pipefail
+          mkdir -p axe-reports
+          find _build/html -name '*.html' -print0 | while IFS= read -r -d '' f; do
+            rel="${f#_build/html/}"
+            url="http://127.0.0.1:8080/$rel"
+            echo "Scanning $url"
+            npx @axe-core/cli "$url" --save --format json --output "axe-reports/$(echo "$rel" | tr '/' '_').json" || true
+          done
+          violations=0
+          for r in axe-reports/*.json; do
+            if [ -f "$r" ]; then
+              count=$(jq '.violations | length' "$r" || echo 0)
+              if [ "$count" -gt 0 ]; then
+                echo "Violations in $r: $count"
+                violations=$((violations + count))
+              fi
+            fi
+          done
+          if [ "$violations" -gt 0 ]; then
+            echo "Accessibility violations found: $violations"
+            exit 1
+          fi
+      - name: Upload axe reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: axe-reports
+          path: axe-reports
+
+  deploy-pages:
+    needs: [build-documentation, a11y-scan]
+    runs-on: ubuntu-24.04
+    if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html' || inputs.trigger-event == 'all'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ (inputs.execution-mode == 'merge' || inputs.trigger-event == 'html') && 'gh-storage' || github.ref }}
+          fetch-depth: 0
+      - name: Download built HTML
+        uses: actions/download-artifact@v4
+        with:
+          name: html-build
+          path: _build/html
       - name: Deploy to GitHub Pages
-        if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html' || inputs.trigger-event == 'all'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
