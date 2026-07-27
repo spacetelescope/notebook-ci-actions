@@ -1946,7 +1946,7 @@ jobs:
           path: _build/html
 
   # Accessibility scan and deployment
-  a11y-scan:
+  html-a11y-scan:
     needs: build-documentation
     runs-on: ubuntu-24.04
     if: inputs.enable-html-build == true
@@ -1994,7 +1994,7 @@ jobs:
           path: axe-reports
 
   deploy-pages:
-    needs: [build-documentation, a11y-scan]
+    needs: [build-documentation, html-a11y-scan]
     runs-on: ubuntu-24.04
     if: inputs.execution-mode == 'merge' || inputs.trigger-event == 'html' || inputs.trigger-event == 'all'
     steps:
