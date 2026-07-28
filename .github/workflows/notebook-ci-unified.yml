@@ -2288,12 +2288,65 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-        
-      - name: "Run jupyterlab Accessibility Checker for Notebook ${{ matrix.notebook }}"
-        continue-on-error: true
-        uses: berkeley-dsep-infra/jupyterlab-a11y-checker@main
+
+      - name: "Collect accessibility findings for ${{ matrix.notebook }}"
+        id: report
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          mkdir -p a11y-reports
+          report_name=$(printf '%s' "$NOTEBOOK" | sha256sum | cut -c1-16)
+          report_path="a11y-reports/${report_name}.json"
+          raw_output="a11y-reports/${report_name}.log"
+          parsed_report="a11y-reports/${report_name}.checker.json"
+
+          # The checker exits with 1 when it finds accessibility issues. Capture
+          # that result so it can be reported without making the PR check fail.
+          set +e
+          npx --yes @jupyterlab-a11y-checker/cli --json "$NOTEBOOK" > "$raw_output" 2>&1
+          checker_exit_code=$?
+          set -e
+
+          # The CLI logs the file it is analyzing before emitting its JSON report.
+          # Extract the JSON object and wrap it in a stable workflow report format.
+          sed -n '/^{/,$p' "$raw_output" > "$parsed_report"
+          if jq -e '.summary.totalIssues | numbers' "$parsed_report" >/dev/null 2>&1; then
+            issue_count=$(jq -r '.summary.totalIssues' "$parsed_report")
+            if [ "$issue_count" -gt 0 ]; then
+              report_status="issues"
+            else
+              report_status="clean"
+            fi
+
+            jq \
+              --arg notebook "$NOTEBOOK" \
+              --arg status "$report_status" \
+              --argjson checker_exit_code "$checker_exit_code" \
+              --slurpfile checker_report "$parsed_report" \
+              '{notebook: $notebook, status: $status, checkerExitCode: $checker_exit_code, report: $checker_report[0]}' \
+              > "$report_path"
+          else
+            jq -n \
+              --arg notebook "$NOTEBOOK" \
+              --arg output "$(tail -c 4000 "$raw_output")" \
+              --argjson checker_exit_code "$checker_exit_code" \
+              '{notebook: $notebook, status: "checker-error", checkerExitCode: $checker_exit_code, error: $output}' \
+              > "$report_path"
+          fi
+
+          echo "artifact-name=a11y-report-${report_name}" >> "$GITHUB_OUTPUT"
+          echo "report-path=${report_path}" >> "$GITHUB_OUTPUT"
+          echo "Accessibility results captured for $NOTEBOOK; this advisory check will not fail CI."
+
+      - name: Upload accessibility report
+        uses: actions/upload-artifact@v4
         with:
-          files: ${{ matrix.notebook }}
+          name: ${{ steps.report.outputs.artifact-name }}
+          path: ${{ steps.report.outputs.report-path }}
+          if-no-files-found: error
 
   # Summary and Status
   workflow-summary:
@@ -2304,6 +2357,16 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Download accessibility reports
+        if: |
+          (inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check') &&
+          needs.setup-matrix.outputs.matrix-notebooks != '[]'
+        uses: actions/download-artifact@v5
+        with:
+          pattern: a11y-report-*
+          path: a11y-reports
+          merge-multiple: true
           
       - name: Generate workflow summary
         run: |
@@ -2347,7 +2410,7 @@ jobs:
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
+            echo "| Notebook Accessibility Check | Advisory (non-blocking) | - |" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
@@ -2500,11 +2563,49 @@ jobs:
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
-            if [ "${{ needs.a11y-nb-check.result }}" = "success" ]; then
-              echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
+            if find a11y-reports -name '*.json' -print -quit 2>/dev/null | grep -q .; then
+              ISSUE_REPORT_COUNT=$(jq -r 'select(.status == "issues" or .status == "checker-error") | .notebook' a11y-reports/*.json 2>/dev/null | wc -l)
             else
-              echo "- **Status**: ❌ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
+              ISSUE_REPORT_COUNT=0
+            fi
+
+            if [ "$ISSUE_REPORT_COUNT" -gt 0 ]; then
+              echo "> [!WARNING]" >> $GITHUB_STEP_SUMMARY
+              echo "> ## 🔦 Accessibility advisory" >> $GITHUB_STEP_SUMMARY
+              echo "> Accessibility findings do **not** affect the CI or PR check status." >> $GITHUB_STEP_SUMMARY
+              echo "> Review the notebooks below when practical." >> $GITHUB_STEP_SUMMARY
+              echo ">" >> $GITHUB_STEP_SUMMARY
+
+              for report_file in a11y-reports/*.json; do
+                [ -f "$report_file" ] || continue
+                REPORT_STATUS=$(jq -r '.status' "$report_file")
+                [ "$REPORT_STATUS" = "issues" ] || [ "$REPORT_STATUS" = "checker-error" ] || continue
+                NOTEBOOK=$(jq -r '.notebook' "$report_file")
+
+                if [ "$REPORT_STATUS" = "checker-error" ]; then
+                  echo "> ### ⚠️ \`$NOTEBOOK\` — checker could not produce a report" >> $GITHUB_STEP_SUMMARY
+                  echo "> \`\`\`text" >> $GITHUB_STEP_SUMMARY
+                  jq -r '.error' "$report_file" | head -c 4000 | sed 's/^/> /' >> $GITHUB_STEP_SUMMARY
+                  echo "> \`\`\`" >> $GITHUB_STEP_SUMMARY
+                  echo ">" >> $GITHUB_STEP_SUMMARY
+                  continue
+                fi
+
+                ISSUE_COUNT=$(jq -r '.report.summary.totalIssues' "$report_file")
+                echo "> ### ⚠️ \`$NOTEBOOK\` — $ISSUE_COUNT finding(s)" >> $GITHUB_STEP_SUMMARY
+                echo "> | Rule | Cell | Type | Details |" >> $GITHUB_STEP_SUMMARY
+                echo "> |------|------|------|---------|" >> $GITHUB_STEP_SUMMARY
+                while IFS=$'\t' read -r rule cell cell_type description snippet; do
+                  details="$description $snippet"
+                  details=$(printf '%s' "$details" | tr '\n' ' ' | sed 's/|/\\|/g')
+                  rule=$(printf '%s' "$rule" | sed 's/|/\\|/g')
+                  echo "> | $rule | $cell | $cell_type | $details |" >> $GITHUB_STEP_SUMMARY
+                done < <(jq -r '.report.issues[] | [.violationId, .cellIndex, .cellType, .description, .contentSnippet] | @tsv' "$report_file")
+                echo ">" >> $GITHUB_STEP_SUMMARY
+              done
+            else
+              echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: ✅ No accessibility findings reported." >> $GITHUB_STEP_SUMMARY
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -2531,18 +2632,13 @@ jobs:
           PROCESS_RESULT="${{ needs.process-notebooks.result }}"
           BUILD_RESULT="${{ needs.build-documentation.result }}"
           DEPRECATION_RESULT="${{ needs.manage-deprecation.result }}"
-          if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
-            A11Y_NB_RESULT="${{ needs.a11y-nb-check.result }}"
-          else
-            A11Y_NB_RESULT="skipped"
-          fi
 
-          # Count successful and failed jobs
+          # Count required-job results only. Accessibility findings are advisory.
           SUCCESS_COUNT=0
           FAILURE_COUNT=0
           
           # Check each job result
-          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_NB_RESULT"; do
+          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT"; do
             case "$result" in
               "success") SUCCESS_COUNT=$((SUCCESS_COUNT + 1)) ;;
               "failure") FAILURE_COUNT=$((FAILURE_COUNT + 1)) ;;
