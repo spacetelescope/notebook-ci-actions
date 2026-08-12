@@ -2458,9 +2458,6 @@ jobs:
           fail: true
           jobSummary: true
 
-  # Summary and Status
-  workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check-pr, link-check]
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
     if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
@@ -2535,7 +2532,7 @@ jobs:
 
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, a11y-nb-check]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check-pr, link-check, a11y-nb-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
