@@ -2415,7 +2415,7 @@ jobs:
         if: steps.collect.outputs.any == 'true'
         uses: lycheeverse/lychee-action@v2
         with:
-          args: "--no-progress --exclude-mail .link-check/**/*.md"
+          args: "--no-progress .link-check/**/*.md"
           fail: true
           jobSummary: true
 
@@ -2454,7 +2454,7 @@ jobs:
         if: steps.ghp.outputs.exists == 'true'
         uses: lycheeverse/lychee-action@v2
         with:
-          args: "--no-progress --exclude-mail site/**/*.html"
+          args: "--no-progress site/**/*.html"
           fail: true
           jobSummary: true
 
