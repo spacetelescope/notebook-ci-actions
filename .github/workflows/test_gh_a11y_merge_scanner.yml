@@ -90,7 +90,6 @@ jobs:
           echo "Generated cache key: $CACHE_KEY"
           echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
       - uses: github/accessibility-scanner@v3.4.1
-        secrets: inherit
         with:
           urls: ${{ needs.list-files.outputs.new_updated_html_files }}
           repository: ${{ github.repository }}
