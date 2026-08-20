@@ -54,7 +54,8 @@ jobs:
           # Trim the list down to the last 5 entries (for testing purposes)
           NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) # TODO: REMOVE PRIOR TO DEPLOYMENT
           echo "Filtered and processed HTML files: $NEW_LIST"
-          echo "Repository: ${{ github.GITHUB_REPOSITORY }}"
+          echo "github.GITHUB_REPOSITORY: ${{ github.GITHUB_REPOSITORY }}"
+          echo "github.repository: ${{ github.repository }}"
           
           # Export the result to a new environment variable
           export HTML_FILES="$NEW_LIST"
