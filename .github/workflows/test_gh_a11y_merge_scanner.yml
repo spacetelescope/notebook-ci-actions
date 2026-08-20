@@ -68,6 +68,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: list-files
     steps:
+      - name: sanity check
+        id: sanity-check
+        run: |
+          echo "List of new or updated HTML files to be scanned:"
+          echo "${{ needs.list-files.outputs.new_updated_html_files }}"
+          echo "Using A11Y_TOKEN: ${{ secrets.A11Y_TOKEN }}"
       - name: Generate cache key
         id: generate_cache_key
         run: |
