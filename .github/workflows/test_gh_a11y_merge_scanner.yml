@@ -74,6 +74,7 @@ jobs:
           echo "List of new or updated HTML files to be scanned:"
           echo "${{ needs.list-files.outputs.new_updated_html_files }}"
           echo "Using A11Y_TOKEN: ${{ secrets.A11Y_TOKEN }}"
+          echo "Repository: ${{ github.GITHUB_REPOSITORY }}"
       - name: Generate cache key
         id: generate_cache_key
         run: |
