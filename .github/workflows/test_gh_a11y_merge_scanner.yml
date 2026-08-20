@@ -11,7 +11,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ GITHUB_REPOSITORY }}
           ref: 'gh-pages'
           fetch-depth: 0 # Fetches all history (safest for tracking across multiple push commits)
       - name: Get changed files
@@ -51,6 +50,7 @@ jobs:
           
           # Trim the list down to the last 5 entries (for testing purposes)
           NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) # TODO: REMOVE PRIOR TO DEPLOYMENT
+          echo "Filtered and processed HTML files: $NEW_LIST"
           
           # Export the result to a new environment variable
           export HTML_FILES="$NEW_LIST"
