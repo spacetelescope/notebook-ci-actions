@@ -29,5 +29,6 @@ jobs:
       enable-execution: false
       enable-storage: false
       enable-html-build: false
-      
+      enable-pep8: true        # PEP8 style check on changed notebooks/scripts
+
     secrets: inherit
