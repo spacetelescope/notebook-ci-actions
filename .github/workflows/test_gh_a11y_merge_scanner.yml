@@ -52,7 +52,7 @@ jobs:
           done <<< "$TARGET_VAR"
           
           # Trim the list down to the last 5 entries (for testing purposes)
-          NEW_LIST=$(echo "$NEW_LIST" | tail -n 0) # TODO: REMOVE PRIOR TO DEPLOYMENT
+          NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) # TODO: REMOVE PRIOR TO DEPLOYMENT
           
           # Check if the list is empty and provide a warning if so
           if [ -z "$NEW_LIST" ]; then
