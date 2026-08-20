@@ -54,6 +54,7 @@ jobs:
           # Trim the list down to the last 5 entries (for testing purposes)
           NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) # TODO: REMOVE PRIOR TO DEPLOYMENT
           echo "Filtered and processed HTML files: $NEW_LIST"
+          echo "Repository: ${{ github.GITHUB_REPOSITORY }}"
           
           # Export the result to a new environment variable
           export HTML_FILES="$NEW_LIST"
@@ -62,7 +63,6 @@ jobs:
           echo "html_files<<EOF" >> $GITHUB_OUTPUT
           echo "$HTML_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-
 
   html_accessibility_scanner:
     runs-on: ubuntu-latest
