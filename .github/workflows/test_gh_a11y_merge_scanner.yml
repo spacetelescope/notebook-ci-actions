@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: list-files
     steps:
-      - name: sanity check
+      - name: sanity check #TODO: Remove this step prior to deployment
         id: sanity-check
         run: |
           echo "List of new or updated HTML files to be scanned:"
