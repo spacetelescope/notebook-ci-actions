@@ -1,7 +1,6 @@
 name: Test GitHub Accessibility Scanner on Changed HTML Files
 
 on:
-  workflow_call:
   workflow_dispatch:
 
 jobs:
