@@ -52,7 +52,7 @@ jobs:
           done <<< "$TARGET_VAR"
           
           # Trim the list down to the last 5 entries (for testing purposes)
-          NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) # TODO: REMOVE PRIOR TO DEPLOYMENT
+          NEW_LIST=$(echo "$NEW_LIST" | tail -n 0) # TODO: REMOVE PRIOR TO DEPLOYMENT
           echo "Filtered and processed HTML files: $NEW_LIST"
           
           # Export the result to a new environment variable
