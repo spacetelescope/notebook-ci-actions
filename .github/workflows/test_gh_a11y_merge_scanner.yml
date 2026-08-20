@@ -8,10 +8,10 @@ jobs:
     outputs:
       new_updated_html_files: ${{ steps.make-html-list.outputs.html_files }}
     steps:
-      - name: 'Checkout repository spacetelescope/$GITHUB_REPOSITORY'
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: 'spacetelescope/$GITHUB_REPOSITORY'
+          repository: ${{ GITHUB_REPOSITORY }}
           ref: 'gh-pages'
           fetch-depth: 0 # Fetches all history (safest for tracking across multiple push commits)
       - name: Get changed files
@@ -27,7 +27,7 @@ jobs:
           HTML_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.html$' || true)
           
           # Define your text string and source environment variable
-          ADD_TEXT="https://spacetelescope.github.io/$GITHUB_REPOSITORY/"
+          ADD_TEXT="https://spacetelescope.github.io/${{ GITHUB_REPOSITORY }}/"
           TARGET_VAR="$HTML_FILES"
 
           # Initialize an empty variable to hold the new list
@@ -74,6 +74,6 @@ jobs:
       - uses: github/accessibility-scanner@v3.4.1
         with:
           urls: ${{ needs.list-files.outputs.new_updated_html_files }}
-          repository: 'spacetelescope/$GITHUB_REPOSITORY'
+          repository: ${{ GITHUB_REPOSITORY }}
           token: ${{ secrets.A11Y_TOKEN }} # This token must have write access to the repo above (contents, issues, and PRs); more information below. Note: GitHub Actions' GITHUB_TOKEN cannot be used here.
           cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
