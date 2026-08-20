@@ -28,7 +28,8 @@ jobs:
           HTML_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.html$' || true)
           
           # Define your text string and source environment variable
-          ADD_TEXT="https://spacetelescope.github.io/${{ github.GITHUB_REPOSITORY#*/ }}/"
+          ADD_TEXT="https://spacetelescope.github.io/${{ github.GITHUB_REPOSITORY }}/"
+          echo "Base URL for HTML files: $ADD_TEXT"
           TARGET_VAR="$HTML_FILES"
 
           # Initialize an empty variable to hold the new list
