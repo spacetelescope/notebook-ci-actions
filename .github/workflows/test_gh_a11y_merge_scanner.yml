@@ -14,7 +14,7 @@ jobs:
         with:
           repository: ${{ github.GITHUB_REPOSITORY }}
           ref: 'gh-pages'
-          fetch-depth: 0 # Fetches all history (safest for tracking across multiple push commits)
+          fetch-depth: 0
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v47.0.6
@@ -52,7 +52,7 @@ jobs:
           done <<< "$TARGET_VAR"
           
           # Trim the list down to the last 5 entries (for testing purposes)
-          NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) # TODO: REMOVE PRIOR TO DEPLOYMENT
+          NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) #  <<<<< TODO: REMOVE PRIOR TO DEPLOYMENT <<<<<<
           
           # Check if the list is empty and provide a warning if so
           if [ -z "$NEW_LIST" ]; then
@@ -75,14 +75,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: list-files
     steps:
-      - name: sanity check #TODO: Remove this step prior to deployment
-        id: sanity-check
-        run: |
-          echo "List of new or updated HTML files to be scanned:"
-          echo "${{ needs.list-files.outputs.new_updated_html_files }}"
-          echo "Using A11Y_TOKEN: ${{ secrets.A11Y_TOKEN }}"
-          echo "Repository: ${{ github.GITHUB_REPOSITORY }}"
-          echo "github.repository: ${{ github.repository }}"
       - name: Generate cache key
         id: generate_cache_key
         run: |
@@ -93,6 +85,6 @@ jobs:
         with:
           urls: ${{ needs.list-files.outputs.new_updated_html_files }}
           repository: ${{ github.repository }}
-          token: ${{ secrets.A11Y_TOKEN }} # This token must have write access to the repo above (contents, issues, and PRs); more information below. Note: GitHub Actions' GITHUB_TOKEN cannot be used here.
+          token: ${{ secrets.A11Y_TOKEN }}
           cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
-          dry_run: true # Set to false to actually create issues; true for testing
+          dry_run: true # TODO: REMOVE PRIOR TO DEPLOYMENT
