@@ -2297,19 +2297,19 @@ jobs:
     if: inputs.enable-pep8 == true && (inputs.execution-mode == 'pr' || inputs.execution-mode == 'merge' || inputs.trigger-event == 'pep8')
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ inputs.python-version }}
 
       # The helper scripts live in this actions repo, not the caller's notebook
       # repo, so check them out at the same version as this running workflow.
       - name: Check out the PEP8 helper scripts
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: spacetelescope/notebook-ci-actions
           ref: ${{ github.job_workflow_sha }}
@@ -2367,12 +2367,12 @@ jobs:
     if: inputs.enable-link-check == true && inputs.execution-mode == 'pr'
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ inputs.python-version }}
 
@@ -2441,11 +2441,11 @@ jobs:
 
       - name: Check out the repo (for .lycheeignore / lychee.toml)
         if: steps.ghp.outputs.exists == 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Check out the published site (gh-pages)
         if: steps.ghp.outputs.exists == 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           ref: gh-pages
           path: site
