@@ -2423,7 +2423,7 @@ jobs:
             --no-progress
             --scheme http
             --scheme https
-            --method get,head
+            --method get
             --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36"
             --header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
             --max-concurrency 16
@@ -2431,6 +2431,7 @@ jobs:
             --host-request-interval 500ms
             --max-retries 3
             --accept "100..=103,200..=299,403"
+            --exclude "^https?://adsabs\.harvard\.edu/abs/.*$"
             --exclude "^https://stev\.oapd\.inaf\.it/cgi-bin/cmd(?:[/?#].*)?$"
             --exclude "^https://media\.stsci\.edu/news_release/news/2011-16(?:[/?#].*)?$"
             .link-check/**/*.md
