@@ -137,7 +137,7 @@ on:
 
     secrets:
       A11Y_TOKEN:
-        required: true
+        required: false
       CASJOBS_USERID:
         required: false
       CASJOBS_PW:
