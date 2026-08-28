@@ -2430,10 +2430,7 @@ jobs:
             --host-concurrency 2
             --host-request-interval 500ms
             --max-retries 3
-            --accept "100..=103,200..=299,403"
-            --exclude "^https?://adsabs\.harvard\.edu/abs/.*$"
-            --exclude "^https://stev\.oapd\.inaf\.it/cgi-bin/cmd(?:[/?#].*)?$"
-            --exclude "^https://media\.stsci\.edu/news_release/news/2011-16(?:[/?#].*)?$"
+            --accept "100..=103,200..=299,403,405"
             .link-check/**/*.md
           token: ${{ github.token }}
           fail: true
