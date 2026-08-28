@@ -2435,6 +2435,7 @@ jobs:
           if [ "${{ inputs.trigger-event }}" = "deprecate" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "| HTML Accessibility Check | ${{ needs.a11y-html-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "| Notebook Accessibility Check | ${{ needs.a11y-nb-check.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
@@ -2620,6 +2621,7 @@ jobs:
           PROCESS_RESULT="${{ needs.process-notebooks.result }}"
           BUILD_RESULT="${{ needs.build-documentation.result }}"
           DEPRECATION_RESULT="${{ needs.manage-deprecation.result }}"
+          A11Y_HTML_RESULT="${{ needs.a11y-html-check.result }}"
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             A11Y_NB_RESULT="${{ needs.a11y-nb-check.result }}"
           else
@@ -2631,7 +2633,7 @@ jobs:
           FAILURE_COUNT=0
           
           # Check each job result
-          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_NB_RESULT"; do
+          for result in "$SETUP_RESULT" "$PROCESS_RESULT" "$BUILD_RESULT" "$DEPRECATION_RESULT" "$A11Y_HTML_RESULT" "$A11Y_NB_RESULT"; do
             case "$result" in
               "success") SUCCESS_COUNT=$((SUCCESS_COUNT + 1)) ;;
               "failure") FAILURE_COUNT=$((FAILURE_COUNT + 1)) ;;
