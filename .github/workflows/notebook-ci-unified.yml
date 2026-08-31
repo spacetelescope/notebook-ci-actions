@@ -2362,6 +2362,10 @@ jobs:
   # PR-time broken-link check: lychee over the markdown the PR changes (changed
   # *.md plus changed notebooks converted to markdown). Blocks the PR on broken
   # links. Reads the repo's .lycheeignore.
+  # PR-time external broken-link check: lychee over markdown changed by the PR
+  # (changed *.md plus changed notebooks converted to markdown).
+  # Checks HTTP/HTTPS links only and blocks the PR on genuine broken external links.
+  # Known CI-hostile endpoints are excluded inline below.
   link-check-pr:
     name: Link Check (PR)
     if: inputs.enable-link-check == true && inputs.execution-mode == 'pr'
@@ -2415,7 +2419,20 @@ jobs:
         if: steps.collect.outputs.any == 'true'
         uses: lycheeverse/lychee-action@v2
         with:
-          args: "--no-progress .link-check/**/*.md"
+          args: >-
+            --no-progress
+            --scheme http
+            --scheme https
+            --method get
+            --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36"
+            --header "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            --max-concurrency 16
+            --host-concurrency 2
+            --host-request-interval 500ms
+            --max-retries 3
+            --accept "100..=103,200..=299,403,405"
+            .link-check/**/*.md
+          token: ${{ github.token }}
           fail: true
           jobSummary: true
 
