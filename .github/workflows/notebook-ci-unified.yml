@@ -135,6 +135,12 @@ on:
         type: boolean
         default: false
 
+      enable-a11y-html-check:
+        description: 'Perform HTML accessibility checks on new or changed HTML files'
+        required: false
+        type: boolean
+        default: false
+
     secrets:
       A11Y_TOKEN:
         required: false
@@ -2279,7 +2285,7 @@ jobs:
           EOF
 
   find-html-files:
-    if: needs.build-documentation.result == 'success'
+    if: needs.build-documentation.result == 'success' && inputs.enable-a11y-html-check == true
     needs: build-documentation
     runs-on: ubuntu-latest
     outputs:
