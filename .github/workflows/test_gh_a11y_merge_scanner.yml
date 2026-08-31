@@ -90,7 +90,7 @@ jobs:
           echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
       - uses: github/accessibility-scanner@v3.4.1
         with:
-          urls: ${{ steps.make-html-list.outputs.new_updated_html_files }}
+          urls: ${{ steps.make-html-list.outputs.html_files }}
           repository: ${{ github.repository }}
           token: ${{ secrets.A11Y_TOKEN }}
           cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
