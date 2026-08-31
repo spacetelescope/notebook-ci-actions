@@ -2284,8 +2284,13 @@ jobs:
               print("No expired deprecated notebooks found")
           EOF
 
+
   find-html-files:
-    if: needs.build-documentation.result == 'success' && inputs.enable-a11y-html-check == true
+    if: |
+      always() && 
+      inputs.enable-html-build == true &&
+      needs.build-documentation.result == 'success' && 
+      inputs.enable-a11y-html-check == true
     needs: build-documentation
     runs-on: ubuntu-latest
     outputs:
