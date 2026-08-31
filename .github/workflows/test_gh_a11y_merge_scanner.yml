@@ -8,7 +8,16 @@ on:
             description: 'GitHub token with write access to the repository for accessibility scanner'
 
 jobs:
+  build-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build documentation
+        id: build-docs
+        run: |
+          echo "Building documentation..."
   find-html-files:
+    if: needs.build-documentation.result == 'success'
+    needs: build-documentation
     runs-on: ubuntu-latest
     outputs:
       new_updated_html_files: ${{ steps.make-html-list.outputs.html_files }}
