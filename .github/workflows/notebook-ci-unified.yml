@@ -2356,12 +2356,14 @@ jobs:
           echo "$HTML_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
       - name: Generate cache key
+        if: ${{ steps.make-html-list.outputs.html_files != '' }}
         id: generate_cache_key
         run: |
           CACHE_KEY=$(printf 'cached_results-%s.json' "${{ github.ref_name }}" | tr -cs 'A-Za-z0-9/._-' '-')
           echo "Generated cache key: $CACHE_KEY"
           echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
       - uses: github/accessibility-scanner@v3.4.1
+        if: ${{ steps.make-html-list.outputs.html_files != '' }}
         with:
           urls: ${{ steps.make-html-list.outputs.html_files }}
           repository: ${{ github.repository }}
