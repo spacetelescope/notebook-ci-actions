@@ -2295,6 +2295,12 @@ jobs:
     outputs:
       new_updated_html_files: ${{ steps.make-html-list.outputs.html_files }}
     steps:
+      - name: Sanity Check for HTML Accessibility Scan
+        run: |
+          echo "ℹ️ Sanity check for HTML accessibility scan"
+          echo "${{inputs.enable-html-build }}"
+          echo "${{ needs.build-documentation.result }}"
+          echo "${{ inputs.enable-a11y-html-check }}"
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
