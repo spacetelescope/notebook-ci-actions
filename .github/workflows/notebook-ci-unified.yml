@@ -2298,7 +2298,7 @@ jobs:
       - name: Sanity Check for HTML Accessibility Scan
         run: |
           echo "ℹ️ Sanity check for HTML accessibility scan"
-          echo "${{inputs.enable-html-build }}"
+          echo "${{ inputs.enable-html-build }}"
           echo "${{ needs.build-documentation.result }}"
           echo "${{ inputs.enable-a11y-html-check }}"
       - name: Checkout repository
