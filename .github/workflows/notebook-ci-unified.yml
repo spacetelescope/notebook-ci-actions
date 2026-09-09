@@ -2218,6 +2218,8 @@ jobs:
           echo "🔍 Checking for expired deprecated notebooks"
           
           # Find deprecated notebooks
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           python3 << 'EOF'
           import json
           import os
