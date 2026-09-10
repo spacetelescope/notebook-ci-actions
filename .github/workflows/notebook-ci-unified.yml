@@ -2214,6 +2214,8 @@ jobs:
 
       - name: Check for expired deprecations
         if: inputs.execution-mode == 'scheduled'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           echo "🔍 Checking for expired deprecated notebooks"
           
@@ -2274,12 +2276,66 @@ jobs:
               # Commit to deprecated branch
               subprocess.run(['git', 'commit', '-m', f'Move {len(deprecated_notebooks)} expired notebooks to deprecated branch'])
               subprocess.run(['git', 'push', 'origin', 'deprecated'])
+              ###
+        
+              import os
+              import time
               
-              # Remove from main branch
-              subprocess.run(['git', 'checkout', 'main'])
+              # Create cleanup branch from current main
+              branch_name = f"automation/remove-expired-notebooks-{int(time.time())}"
+              
+              subprocess.run(
+                  ['git', 'fetch', 'origin', 'main'],
+                  check=True
+              )
+              
+              subprocess.run(
+                  ['git', 'checkout', '-B', branch_name, 'origin/main'],
+                  check=True
+              )
+              
               for notebook in deprecated_notebooks:
-                  subprocess.run(['git', 'rm', notebook])
+                  subprocess.run(
+                      ['git', 'rm', notebook],
+                      check=True
+                  )
               
+              subprocess.run(
+                  [
+                      'git', 'commit', '-m',
+                      f'Remove {len(deprecated_notebooks)} deprecated notebooks'
+                  ],
+                  check=True
+              )
+              
+              subprocess.run(
+                  ['git', 'push', '-u', 'origin', branch_name],
+                  check=True
+              )
+              
+              # Open PR
+              pr_body = (
+                  f"Automatically removes {len(deprecated_notebooks)} notebooks "
+                  "whose deprecation dates have expired.\n\n"
+                  "The notebooks have already been preserved on the `deprecated` branch."
+              )
+              
+              subprocess.run(
+                  [
+                      'gh', 'pr', 'create',
+                      '--base', 'main',
+                      '--head', branch_name,
+                      '--title',
+                      f'Remove {len(deprecated_notebooks)} expired deprecated notebooks',
+                      '--body', pr_body
+                  ],
+                  check=True,
+                  env={
+                      **os.environ,
+                      'GH_TOKEN': os.environ['GITHUB_TOKEN']
+                  }
+              )    
+              ###
               subprocess.run(['git', 'commit', '-m', f'Remove {len(deprecated_notebooks)} deprecated notebooks from main'])
               subprocess.run(['git', 'push', 'origin', 'main'])
               
