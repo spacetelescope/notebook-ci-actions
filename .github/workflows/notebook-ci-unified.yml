@@ -2605,11 +2605,10 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" && "${{ needs.a11y-html-check.result }}" = "success" ]; then
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.result }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
             echo "- If accessibility problems were found, [issues tagged with 'axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
-            
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
