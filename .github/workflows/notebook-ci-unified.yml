@@ -1870,7 +1870,7 @@ jobs:
           micromamba activate docs-env
           echo "📚 Installing documentation dependencies"
           # Pin to v1.x for now to avoid v2.x breaking changes and Node.js requirements
-          pip install "jupyter-book<2.0" sphinx
+          pip install "jupyter-book<2.0" sphinx "pydata-sphinx-theme==0.16.1"
           
       - name: Build JupyterBook documentation
         run: |
