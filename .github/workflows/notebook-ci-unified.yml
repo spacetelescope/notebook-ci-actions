@@ -1954,7 +1954,7 @@ jobs:
           publish_dir: ./_build/html
           cname: ${{ vars.PAGES_CNAME || '' }}
           commit_message: "Deploy documentation from executed notebooks [skip ci]"
-          allow_empty_commit: true
+          allow_empty_commit: true # Needs to be set to true in order for HTML a11y checker to work properly
 
   # Deprecation Management
   manage-deprecation:
