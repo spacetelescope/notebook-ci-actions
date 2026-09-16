@@ -2363,7 +2363,9 @@ jobs:
           CACHE_KEY=$(printf 'cached_results-%s.json' "${{ github.ref_name }}" | tr -cs 'A-Za-z0-9/._-' '-')
           echo "Generated cache key: $CACHE_KEY"
           echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
-      - uses: github/accessibility-scanner@v3.4.1
+      - name: Run HTML accessibility scanner
+        id: run_html_a11y_scanner
+        uses: github/accessibility-scanner@v3.4.1
         if: ${{ steps.make-html-list.outputs.html_files != '' }}
         with:
           urls: ${{ steps.make-html-list.outputs.html_files }}
@@ -2605,7 +2607,7 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+          echo ">>>> ${{ needs.a11y-html-check.result.steps.run_html_a11y_scanner.result }}"
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.result }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
