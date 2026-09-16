@@ -2607,7 +2607,7 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo ">>>> ${{ needs.a11y-html-check.result.steps.run_html_a11y_scanner.result }}" >> $GITHUB_STEP_SUMMARY #TODO: REMOVE
+          echo ">>>> ${{ needs.a11y-html-check.steps.run_html_a11y_scanner.result }}" >> $GITHUB_STEP_SUMMARY #TODO: REMOVE
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.result }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
