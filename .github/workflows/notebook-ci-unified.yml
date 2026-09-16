@@ -1954,6 +1954,7 @@ jobs:
           publish_dir: ./_build/html
           cname: ${{ vars.PAGES_CNAME || '' }}
           commit_message: "Deploy documentation from executed notebooks [skip ci]"
+          allow_empty_commit: true
 
   # Deprecation Management
   manage-deprecation:
