@@ -2342,9 +2342,6 @@ jobs:
               fi
           done <<< "$TARGET_VAR"
           
-          # Trim the list down to the last 5 entries (for testing purposes)
-          NEW_LIST=$(echo "$NEW_LIST" | tail -n 5) #  <<<<< TODO: REMOVE PRIOR TO DEPLOYMENT <<<<<<
-
           # Check if the list is empty and provide a warning if so
           if [ -z "$NEW_LIST" ]; then
             echo "WARNING: No new or updated HTML files found. The accessibility scanner will not run."
@@ -2630,11 +2627,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "scan_result: ${{ needs.a11y-html-check.outputs.scan_result }}"
 
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "skipped" ]; then
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "skipped" ]; then # TODO: switch back to success
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
             DIFF=${{ needs.count-issues.outputs.diff}}
-            DIFF=12 # TODO: REMOVE!
+            DIFF=14 # TODO: REMOVE THIS
             if [ "$DIFF" -eq 0 ]; then
               echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
             else
