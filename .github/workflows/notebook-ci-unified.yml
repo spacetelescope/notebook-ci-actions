@@ -2628,7 +2628,7 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "success" ]; then
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "skipped" ]; then #TODO: switch outcome back to success
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
             DIFF=${{ needs.count-issues.outputs.diff}}
