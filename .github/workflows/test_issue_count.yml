@@ -1,31 +1,34 @@
-name: test issue counter
+name: Count Tagged Issues
 
 on:
-  workflow_call:
-    secrets:
-        A11Y_TOKEN:
-            required: true
-            description: 'Test workflow to count number of issues'
+  workflow_dispatch: # Allows manual triggering for testing
 
 jobs:
-  count-issues:
+  count-issues-prescan:
+    runs-on: ubuntu-latest
+    outputs:
+      issue_count: ${{ steps.issue-count.outputs.count }}
+    env:
+      GH_TOKEN: ${{ secrets.A11Y_TOKEN }} # Required to authenticate the GitHub CLI
+      TARGET_LABEL: "axe-scanning-issue" # Change this to your specific tag
+
+    steps:
+      - name: Fetch and count open issues
+        id: issue-count
+        run: |
+          # Fetch open issues with the label and get the count using jq length
+          # COUNT=$(gh issue list --label "$TARGET_LABEL" --state open --json number | jq '. | length')
+          COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
+          
+          echo "Found $COUNT open issues with the label '$TARGET_LABEL'."
+          
+          # Save the count to output so other steps can use it
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+      - name:
+  placeholder:
     runs-on: ubuntu-latest
     steps:
-      - name: Get open issue count
+      - name: This is where the scan goes
         id: issue-count
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LABEL="axe-scanning-issue"
-
-          # Query GitHub CLI for open issues with the label and fetch the total count
-          COUNT=$(gh issue list --label "$LABEL" --state open --json number --jq '. | length')
-
-          echo "Number of open issues with tag '$LABEL': $COUNT"
-
-          # (Optional) Save the count as a step output for use in later steps
-          echo "count=$COUNT" >> $GITHUB_OUTPUT
-
-      - name: Use the count in a later step
-        run: |
-          echo "The previous step found ${{ steps.issue-count.outputs.count }} open issues."
+          echo "SCAN GOES HERE!"

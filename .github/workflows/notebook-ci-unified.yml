@@ -2294,7 +2294,11 @@ jobs:
     needs: build-documentation
     runs-on: ubuntu-latest
     outputs:
-      new_updated_html_files: ${{ steps.make-html-list.outputs.html_files }}
+      diff: ${{ steps.issue-count-postscan.outputs.diff }}
+      html_scan_result: ${{ steps.run_html_a11y_scanner.outcome }}
+    env:
+      GH_TOKEN: ${{ secrets.A11Y_TOKEN }}
+      TARGET_LABEL: "axe-scanning-issue"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -2363,6 +2367,14 @@ jobs:
           CACHE_KEY=$(printf 'cached_results-%s.json' "${{ github.ref_name }}" | tr -cs 'A-Za-z0-9/._-' '-')
           echo "Generated cache key: $CACHE_KEY"
           echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
+      - name: Count open issues (pre-scan)
+        id: issue-count-prescan
+        run: |
+          # Fetch open issues with the label and get the count using jq length
+          COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
+          echo "Found $COUNT open issues with the label '$TARGET_LABEL'."
+          # Save the count to output so other steps can use it
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
       - name: Run HTML accessibility scanner
         id: run_html_a11y_scanner
         uses: github/accessibility-scanner@v3.4.1
@@ -2373,6 +2385,15 @@ jobs:
           token: ${{ secrets.A11Y_TOKEN }}
           cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
           dry_run: true # TODO: REMOVE PRIOR TO DEPLOYMENT
+      - name: Count open issues (post-scan) and compute difference from pre-scan value
+        id: issue-count-postscan
+        run: |
+          # Fetch open issues with the label and get the count using jq length
+          COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
+          echo "Found $COUNT open issues with the label '$TARGET_LABEL'."
+          # Compute postscan - prescan difference
+          DIFF=$(( $COUNT-${{ steps.issue-count-prescan.outputs.count }} ))
+          echo "diff=$DIFF" >> $GITHUB_OUTPUT  
 
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
@@ -2603,15 +2624,24 @@ jobs:
             if [ "${{ needs.a11y-nb-check.result }}" = "success" ]; then
               echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
             else
-              echo "- **Status**: ❌ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: ⚠️ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo ">>>> ${{ needs.a11y-html-check.steps.run_html_a11y_scanner.outcome }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.result }}" = "success" ]; then
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
-            echo "- If accessibility problems were found, [issues tagged with 'axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
+          DIFF=${{ needs.count-issues.outputs.diff}}
+          if [ "$DIFF" -eq 0 ]; then
+            echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
+          else
+            if [ "$DIFF" -eq 1 ]; then
+              PLURAL=""
+            else
+              PLURAL="s"
+            fi
+            echo "- **Status**: ⚠️ FAILURE - Accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
