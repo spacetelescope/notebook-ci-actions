@@ -1,0 +1,31 @@
+name: test issue counter
+
+on:
+  workflow_call:
+    secrets:
+        A11Y_TOKEN:
+            required: true
+            description: 'Test workflow to count number of issues'
+
+jobs:
+  count-issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get open issue count
+        id: issue-count
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LABEL="axe-scanning-issue"
+
+          # Query GitHub CLI for open issues with the label and fetch the total count
+          COUNT=$(gh issue list --label "$LABEL" --state open --json number --jq '. | length')
+
+          echo "Number of open issues with tag '$LABEL': $COUNT"
+
+          # (Optional) Save the count as a step output for use in later steps
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Use the count in a later step
+        run: |
+          echo "The previous step found ${{ steps.issue-count.outputs.count }} open issues."
