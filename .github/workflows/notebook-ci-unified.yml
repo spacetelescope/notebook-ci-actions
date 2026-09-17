@@ -2620,30 +2620,30 @@ jobs:
           fi
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
-            if [ "${{ needs.a11y-nb-check.result }}" = "success" ]; then
-              echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
-            else
-              echo "- **Status**: ⚠️ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
-            fi
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "success" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
-          DIFF=${{ needs.count-issues.outputs.diff}}
-          DIFF=12
-          if [ "$DIFF" -eq 0 ]; then
-            echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
-          else
-            if [ "$DIFF" -eq 1 ]; then
-              PLURAL=""
-            else
-              PLURAL="s"
-            fi
-            echo "- **Status**: ⚠️ FAILURE - Accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
+#            echo "**🔦 Notebook Accessibility Check**" >> $GITHUB_STEP_SUMMARY
+#            if [ "${{ needs.a11y-nb-check.result }}" = "success" ]; then
+#              echo "- **Status**: ✅ SUCCESS - No accessibility issues found." >> $GITHUB_STEP_SUMMARY
+#            else
+#              echo "- **Status**: ⚠️ FAILURE - One or more accessibility issues found." >> $GITHUB_STEP_SUMMARY
+#            fi
+#          fi
+#          echo "" >> $GITHUB_STEP_SUMMARY
+#          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "success" ]; then
+#            echo "" >> $GITHUB_STEP_SUMMARY
+#            echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
+#          DIFF=${{ needs.count-issues.outputs.diff}}
+#          DIFF=12
+#          if [ "$DIFF" -eq 0 ]; then
+#            echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
+#          else
+#            if [ "$DIFF" -eq 1 ]; then
+#              PLURAL=""
+#            else
+#              PLURAL="s"
+#            fi
+#            echo "- **Status**: ⚠️ FAILURE - Accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
+#          fi
+#          echo "" >> $GITHUB_STEP_SUMMARY
           
           # Add error reporting section if there were failures
           if [ "${{ needs.setup-matrix.result }}" = "failure" ] || [ "${{ needs.process-notebooks.result }}" = "failure" ] || [ "${{ needs.build-documentation.result }}" = "failure" ]; then
