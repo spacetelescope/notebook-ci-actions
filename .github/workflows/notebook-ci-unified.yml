@@ -2295,7 +2295,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       diff: ${{ steps.issue-count-postscan.outputs.diff }}
-      html_scan_result: ${{ steps.run_html_a11y_scanner.outcome }}
+      scan_result: ${{ steps.run_html_a11y_scanner.outcome }}
     env:
       GH_TOKEN: ${{ secrets.A11Y_TOKEN }}
       TARGET_LABEL: "axe-scanning-issue"
@@ -2628,10 +2628,8 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          SCAN_OUTCOME=${{ needs.a11y-html-check.outputs.scan_outcome }}
-          echo ">>>>> SCAN_OUTCOME: $SCAN_OUTCOME"
-          SCAN_OUTCOME="success"
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "$SCAN_OUTCOME" = "success" ]; then
+
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
             DIFF=${{ needs.count-issues.outputs.diff}}
