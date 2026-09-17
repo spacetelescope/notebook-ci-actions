@@ -2633,6 +2633,7 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
           DIFF=${{ needs.count-issues.outputs.diff}}
+          DIFF=12
           if [ "$DIFF" -eq 0 ]; then
             echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
           else
@@ -2703,3 +2704,4 @@ jobs:
             echo "## ❌ Workflow failed" >> $GITHUB_STEP_SUMMARY
             echo "*Multiple critical failures occurred - see error details above*" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "" >> $GITHUB_STEP_SUMMARY
