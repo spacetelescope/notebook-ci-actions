@@ -2628,6 +2628,7 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "scan_outcome: ${{ needs.a11y-html-check.outputs.scan_outcome }}"
 
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_outcome }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
