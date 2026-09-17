@@ -2627,11 +2627,10 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "scan_result: ${{ needs.a11y-html-check.outputs.scan_result }}"
 
-          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "skipped" ]; then # TODO: switch back to success
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "success" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
             DIFF=${{ needs.count-issues.outputs.diff}}
-            DIFF=14 # TODO: REMOVE THIS
             if [ "$DIFF" -eq 0 ]; then
               echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
             else
