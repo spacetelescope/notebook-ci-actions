@@ -2628,7 +2628,7 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "SCAN_RESULT: ${{ needs.a11y-html-check.outputs.scan_result }}"
+#          echo "SCAN_RESULT: ${{ needs.a11y-html-check.outputs.scan_result }}"
 #          SCAN_RESULT=${{ needs.a11y-html-check.outputs.scan_result }} # TODO: UNCOMMENT PRIOR TO DEPLOYMENT
           SCAN_RESULT="success" # TODO: REMOVE PRIOR TO DEPLOYMENT
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ] && [ "$SCAN_RESULT" = "success" ]; then
