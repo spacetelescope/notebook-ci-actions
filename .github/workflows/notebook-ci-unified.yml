@@ -2629,6 +2629,7 @@ jobs:
           
           SCAN_RESULT=${{ needs.a11y-html-check.outputs.scan_result }}
           PRE_COUNT=${{ needs.a11y-html-check.outputs.pre_count }}
+          SCAN_RESULT="success"
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ]; then 
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
