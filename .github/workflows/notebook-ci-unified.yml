@@ -2658,6 +2658,7 @@ jobs:
             else
               echo "- **Status**: 🚨 SCAN FAILURE" >> $GITHUB_STEP_SUMMARY
             fi
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Add error reporting section if there were failures
