@@ -2401,7 +2401,7 @@ jobs:
           echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
           # Compute postscan - prescan difference
           DIFF=$(( $COUNT-${{ steps.issue-count-prescan.outputs.count }} ))
-         if [ $DIFF -eq 0 ]; then
+          if [ $DIFF -eq 0 ]; then
             trend="None"
           else
             trend="+$DIFF"
