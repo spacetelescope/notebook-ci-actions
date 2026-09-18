@@ -2626,22 +2626,24 @@ jobs:
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "scan_result: ${{ needs.a11y-html-check.outputs.scan_result }}"
-
+          
+          SCAN_RESULT=${{ needs.a11y-html-check.outputs.scan_result }}
+          PRE_COUNT=${{ needs.a11y-html-check.outputs.pre_count }}
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ]; then 
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
-            if [ ${{ needs.a11y-html-check.outputs.pre_count }} -ne 0 ]; then
-              if [ "${{ needs.a11y-html-check.outputs.pre_count }}" -eq 1 ]; then
+            URL="https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue"
+            if [ $PRE_COUNT -ne 0 ]; then
+              if [ "$PRE_COUNT" -eq 1 ]; then
                 PLURAL=""
                 PLURAL2="is"
               else
                 PLURAL="s"
                 PLURAL="are"
               fi
-              echo "- **Info**: ℹ️ There $PLURAL2 ${{ needs.a11y-html-check.outputs.pre_count }} existing open html accessibility-related issue$PLURAL. [Click here](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) for details." >> $GITHUB_STEP_SUMMARY
+              echo "- **Info**: ℹ️ There $PLURAL2 $PRE_COUNT existing open html accessibility-related issue$PLURAL. [Click here]($URL) for details." >> $GITHUB_STEP_SUMMARY
             fi
-            if [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "success" ]; then
+            if [ "$SCAN_RESULT" = "success" ]; then
               DIFF=${{ needs.a11y-html-check.outputs.diff}}
               if [ "$DIFF" -eq 0 ]; then
                 echo "- **Status**: ✅ SUCCESS - No accessibility problems found." >> $GITHUB_STEP_SUMMARY
@@ -2651,9 +2653,9 @@ jobs:
                 else
                   PLURAL="s"
                 fi
-                echo "- **Status**: ⚠️ FAILURE - Accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
+                echo "- **Status**: ⚠️ FAILURE - Accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue']($URL) have been automatically created." >> $GITHUB_STEP_SUMMARY
               fi
-            elif [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "skipped" ]; then
+            elif [ "$SCAN_RESULT" = "skipped" ]; then
               echo "- **Info**: ℹ️ SCAN SKIPPED - There were no new and/or updated HTML files to scan." >> $GITHUB_STEP_SUMMARY
             else
               echo "- **Status**: 🚨 SCAN FAILURE" >> $GITHUB_STEP_SUMMARY
