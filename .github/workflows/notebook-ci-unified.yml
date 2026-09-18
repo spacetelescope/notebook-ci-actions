@@ -2653,12 +2653,11 @@ jobs:
                 fi
                 echo "- **Status**: ⚠️ FAILURE - Accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue'](https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue) have been automatically created." >> $GITHUB_STEP_SUMMARY
               fi
+            elif [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "skipped"]; then
+              echo "- **Info**: ℹ️ SCAN SKIPPED - There were no new and/or updated HTML files to scan." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Status**: 🚨 SCAN FAILURE" >> $GITHUB_STEP_SUMMARY
             fi
-          elif [ "${{ needs.a11y-html-check.outputs.scan_result }}" = "skipped"]; then
-            echo "- **Info**: ℹ️ SCAN SKIPPED - There were no new and/or updated HTML files to scan." >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- **Status**: 🚨 SCAN FAILURE" >> $GITHUB_STEP_SUMMARY
-          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Add error reporting section if there were failures
