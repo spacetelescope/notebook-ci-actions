@@ -2370,7 +2370,11 @@ jobs:
         run: |
           # Fetch open issues with the label and get the count using jq length
           COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
-          echo "Found $COUNT open issues with the label '$TARGET_LABEL'."
+          if [ "$COUNT" -eq 1 ]; then
+            PLURAL=""
+          else:
+            PLURAL="s"
+          echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
           # Save the count to output so other steps can use it
           echo "count=$COUNT" >> $GITHUB_OUTPUT
       - name: Run HTML accessibility scanner
@@ -2388,7 +2392,11 @@ jobs:
         run: |
           # Fetch open issues with the label and get the count using jq length
           COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
-          echo "Found $COUNT open issues with the label '$TARGET_LABEL'."
+                    if [ "$COUNT" -eq 1 ]; then
+            PLURAL=""
+          else:
+            PLURAL="s"
+          echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
           # Compute postscan - prescan difference
           DIFF=$(( $COUNT-${{ steps.issue-count-prescan.outputs.count }} ))
           echo "diff=$DIFF" >> $GITHUB_OUTPUT  
@@ -2629,7 +2637,6 @@ jobs:
           
           SCAN_RESULT=${{ needs.a11y-html-check.outputs.scan_result }}
           PRE_COUNT=${{ needs.a11y-html-check.outputs.pre_count }}
-          SCAN_RESULT="failure" # TODO: REMOVE
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ]; then 
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
@@ -2659,7 +2666,7 @@ jobs:
             elif [ "$SCAN_RESULT" = "skipped" ]; then
               echo "- **Info**: ℹ️ SCAN SKIPPED - There were no new and/or updated HTML files to scan." >> $GITHUB_STEP_SUMMARY
             else
-              echo "- **Status**: 🚨 SCAN ERROR - The accessiblitiy scanner encountered a problem." >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: 🚨 SCAN ERROR - The accessibility scanner encountered a problem." >> $GITHUB_STEP_SUMMARY
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
