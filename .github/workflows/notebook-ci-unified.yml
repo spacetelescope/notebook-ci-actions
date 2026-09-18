@@ -2374,6 +2374,7 @@ jobs:
             PLURAL=""
           else:
             PLURAL="s"
+          fi
           echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
           # Save the count to output so other steps can use it
           echo "count=$COUNT" >> $GITHUB_OUTPUT
@@ -2396,6 +2397,7 @@ jobs:
             PLURAL=""
           else:
             PLURAL="s"
+          fi
           echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
           # Compute postscan - prescan difference
           DIFF=$(( $COUNT-${{ steps.issue-count-prescan.outputs.count }} ))
