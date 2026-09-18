@@ -2629,7 +2629,7 @@ jobs:
           
           SCAN_RESULT=${{ needs.a11y-html-check.outputs.scan_result }}
           PRE_COUNT=${{ needs.a11y-html-check.outputs.pre_count }}
-          SCAN_RESULT="success" # TODO: REMOVE
+          SCAN_RESULT="failure" # TODO: REMOVE
           if [ "${{ inputs.enable-a11y-html-check }}" = "true" ]; then 
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
@@ -2646,7 +2646,6 @@ jobs:
             fi
             if [ "$SCAN_RESULT" = "success" ]; then
               DIFF=${{ needs.a11y-html-check.outputs.diff}}
-              DIFF=83 # TODO: REMOVE
               if [ "$DIFF" -eq 0 ]; then
                 echo "- **Status**: ✅ SUCCESS - No new accessibility problems found." >> $GITHUB_STEP_SUMMARY
               else
@@ -2660,7 +2659,7 @@ jobs:
             elif [ "$SCAN_RESULT" = "skipped" ]; then
               echo "- **Info**: ℹ️ SCAN SKIPPED - There were no new and/or updated HTML files to scan." >> $GITHUB_STEP_SUMMARY
             else
-              echo "- **Status**: 🚨 SCAN FAILURE" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: 🚨 SCAN ERROR - The accessiblitiy scanner encountered a problem." >> $GITHUB_STEP_SUMMARY
             fi
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
