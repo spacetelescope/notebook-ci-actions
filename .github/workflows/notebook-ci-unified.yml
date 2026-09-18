@@ -2372,7 +2372,7 @@ jobs:
           COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
           if [ "$COUNT" -eq 1 ]; then
             PLURAL=""
-          else:
+          else
             PLURAL="s"
           fi
           echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
@@ -2393,9 +2393,9 @@ jobs:
         run: |
           # Fetch open issues with the label and get the count using jq length
           COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
-                    if [ "$COUNT" -eq 1 ]; then
+          if [ "$COUNT" -eq 1 ]; then
             PLURAL=""
-          else:
+          else
             PLURAL="s"
           fi
           echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
