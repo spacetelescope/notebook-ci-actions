@@ -2387,7 +2387,7 @@ jobs:
           repository: ${{ github.repository }}
           token: ${{ secrets.A11Y_TOKEN }}
           cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
-          dry_run: true # TODO: REMOVE PRIOR TO DEPLOYMENT
+          dry_run: false
       - name: Count open issues (post-scan) and compute difference from pre-scan value
         id: issue-count-postscan
         run: |
