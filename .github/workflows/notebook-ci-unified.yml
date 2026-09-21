@@ -2945,6 +2945,42 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           
+          SCAN_RESULT=${{ needs.a11y-html-check.outputs.scan_result }}
+          PRE_COUNT=${{ needs.a11y-html-check.outputs.pre_count }}
+          if [ "${{ inputs.enable-a11y-html-check }}" = "true" ]; then 
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**🔦 HTML Accessibility Check**" >> $GITHUB_STEP_SUMMARY
+            URL="https://github.com/spacetelescope/${{ github.event.repository.name }}/issues?q=is%3Aissue%20state%3Aopen%20label%3Aaxe-scanning-issue"
+            if [ $PRE_COUNT -ne 0 ]; then
+              if [ "$PRE_COUNT" -eq 1 ]; then
+                PLURAL=""
+                PLURAL2="is"
+              else
+                PLURAL="s"
+                PLURAL="are"
+              fi
+              echo "- **Info**: ℹ️ There $PLURAL2 $PRE_COUNT existing open html accessibility-related issue$PLURAL. [Click here]($URL) for details." >> $GITHUB_STEP_SUMMARY
+            fi
+            if [ "$SCAN_RESULT" = "success" ]; then
+              DIFF=${{ needs.a11y-html-check.outputs.diff}}
+              if [ "$DIFF" -eq 0 ]; then
+                echo "- **Status**: ✅ SUCCESS - No new accessibility problems found." >> $GITHUB_STEP_SUMMARY
+              else
+                if [ "$DIFF" -eq 1 ]; then
+                  PLURAL=""
+                else
+                  PLURAL="s"
+                fi
+                echo "- **Status**: ⚠️ FAILURE - New accessibility problem$PLURAL found. $DIFF new issue$PLURAL tagged with ['axe-scanning-issue']($URL) have been automatically created." >> $GITHUB_STEP_SUMMARY
+              fi
+            elif [ "$SCAN_RESULT" = "skipped" ]; then
+              echo "- **Info**: ℹ️ SCAN SKIPPED - There were no new and/or updated HTML files to scan." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- **Status**: 🚨 SCAN ERROR - The accessibility scanner encountered a problem." >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
           # Add error reporting section if there were failures
           if [ "${{ needs.setup-matrix.result }}" = "failure" ] || [ "${{ needs.process-notebooks.result }}" = "failure" ] || [ "${{ needs.build-documentation.result }}" = "failure" ]; then
             echo "" >> $GITHUB_STEP_SUMMARY
