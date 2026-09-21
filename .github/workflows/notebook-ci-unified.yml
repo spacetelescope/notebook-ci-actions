@@ -139,6 +139,11 @@ on:
         required: false
         type: boolean
         default: true
+      enable-a11y-html-check:
+        description: 'Perform HTML accessibility checks on new or changed HTML files'
+        required: false
+        type: boolean
+        default: false
       enable-a11y-nb-check:
         description: 'Jupyter notebook accessibility checks on PRs (on by default; set false to opt out)'
         required: false
@@ -146,6 +151,8 @@ on:
         default: false
 
     secrets:
+      A11Y_TOKEN:
+        required: false
       CASJOBS_USERID:
         required: false
       CASJOBS_PW:
@@ -1956,6 +1963,7 @@ jobs:
           publish_dir: ./_build/html
           cname: ${{ vars.PAGES_CNAME || '' }}
           commit_message: "Deploy documentation from executed notebooks [skip ci]"
+          allow_empty_commit: true # Needs to be set to true in order for HTML a11y checker to work properly
 
   # Deprecation Management
   manage-deprecation:
@@ -2475,6 +2483,130 @@ jobs:
           fail: true
           jobSummary: true
 
+  a11y-html-check:
+    if: |
+      always() && 
+      inputs.enable-html-build == true &&
+      needs.build-documentation.result == 'success' && 
+      inputs.enable-a11y-html-check == true
+    needs: build-documentation
+    runs-on: ubuntu-latest
+    outputs:
+      diff: ${{ steps.issue-count-postscan.outputs.diff }}
+      pre_count: ${{steps.issue-count-prescan.outputs.count }}
+      scan_result: ${{ steps.run_html_a11y_scanner.outcome }}
+    env:
+      GH_TOKEN: ${{ secrets.A11Y_TOKEN }}
+      TARGET_LABEL: "axe-scanning-issue"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.GITHUB_REPOSITORY }}
+          ref: 'gh-pages'
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47.0.6
+      - name: Find added or modified HTML files
+        id: make-html-list
+        run: |
+          # combine added and modified files into a single list
+          CHANGED_FILES="${{ steps.changed-files.outputs.added_files }} ${{ steps.changed-files.outputs.modified_files }}"
+          echo "All new or changed files: $CHANGED_FILES"
+          # filter for .html files
+          HTML_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep '\.html$' || true)
+          
+          # Define your text string and source environment variable
+          ADD_TEXT="https://spacetelescope.github.io/${{ github.event.repository.name }}/"
+          echo "Base URL for HTML files: $ADD_TEXT"
+          TARGET_VAR="$HTML_FILES"
+
+          # Initialize an empty variable to hold the new list
+          NEW_LIST=""
+
+          # Read the environment variable line by line
+          while IFS= read -r line; do
+              # Skip empty lines
+              [[ -z "$line" ]] && continue
+
+              # Process the line
+              processed_line="${ADD_TEXT}${line}"
+
+              # Append the processed line with a newline character
+              if [[ -z "$NEW_LIST" ]]; then
+                  NEW_LIST="$processed_line"
+              else
+                  NEW_LIST="${NEW_LIST}"$'\n'"$processed_line"
+              fi
+          done <<< "$TARGET_VAR"
+          
+          # Check if the list is empty and provide a warning if so
+          if [ -z "$NEW_LIST" ]; then
+            echo "WARNING: No new or updated HTML files found. The accessibility scanner will not run."
+          else
+            echo "The following HTML files will be scanned:"
+            echo "$NEW_LIST"
+          fi
+          
+          # Export the result to a new environment variable
+          export HTML_FILES="$NEW_LIST"
+          
+          # Output the new environment variable for use in subsequent steps
+          echo "html_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$HTML_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Generate cache key
+        if: ${{ steps.make-html-list.outputs.html_files != '' }}
+        id: generate_cache_key
+        run: |
+          CACHE_KEY=$(printf 'cached_results-%s.json' "${{ github.ref_name }}" | tr -cs 'A-Za-z0-9/._-' '-')
+          echo "Generated cache key: $CACHE_KEY"
+          echo "cache_key=$CACHE_KEY" >> $GITHUB_OUTPUT
+      - name: Count open issues (pre-scan)
+        id: issue-count-prescan
+        run: |
+          # Fetch open issues with the label and get the count using jq length
+          COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
+          if [ "$COUNT" -eq 1 ]; then
+            PLURAL=""
+          else
+            PLURAL="s"
+          fi
+          echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
+          # Save the count to output so other steps can use it
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+      - name: Run HTML accessibility scanner
+        id: run_html_a11y_scanner
+        uses: github/accessibility-scanner@v3.4.1
+        if: ${{ steps.make-html-list.outputs.html_files != '' }}
+        with:
+          urls: ${{ steps.make-html-list.outputs.html_files }}
+          repository: ${{ github.repository }}
+          token: ${{ secrets.A11Y_TOKEN }}
+          cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+          dry_run: true
+      - name: Count open issues (post-scan) and compute difference from pre-scan value
+        id: issue-count-postscan
+        run: |
+          # Fetch open issues with the label and get the count using jq length
+          COUNT=$(gh issue list --repo "${{ github.repository }}" --label "$TARGET_LABEL" --state open --json number | jq '. | length')
+          if [ "$COUNT" -eq 1 ]; then
+            PLURAL=""
+          else
+            PLURAL="s"
+          fi
+          echo "Found $COUNT open issue$PLURAL with the label '$TARGET_LABEL'."
+          # Compute postscan - prescan difference
+          DIFF=$(( $COUNT-${{ steps.issue-count-prescan.outputs.count }} ))
+          if [ $DIFF -eq 0 ]; then
+            trend="None"
+          else
+            trend="+$DIFF"
+          fi
+          echo "Change: $trend"
+          echo "diff=$DIFF" >> $GITHUB_OUTPUT  
+
   a11y-nb-check:
     name: "Jupyter Notebook Accessibility Check: ${{ matrix.notebook }}"
     if: inputs.enable-a11y-nb-check == true || inputs.trigger-event == 'a11y-nb-check'
@@ -2549,7 +2681,7 @@ jobs:
 
   # Summary and Status
   workflow-summary:
-    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check-pr, link-check, a11y-nb-check]
+    needs: [setup-matrix, process-notebooks, store-non-notebook-files, build-documentation, manage-deprecation, style-check, link-check-pr, link-check, a11y-html-check, a11y-nb-check]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -2608,6 +2740,7 @@ jobs:
           if [ "${{ inputs.trigger-event }}" = "deprecate" ] && [ "${{ inputs.execution-mode }}" = "on-demand" ]; then
             echo "| Documentation Rebuild | ${{ needs.rebuild-docs-after-deprecation.result }} | - |" >> $GITHUB_STEP_SUMMARY
           fi
+          echo "| HTML Accessibility Check | ${{ needs.a11y-html-check.outputs.scan_result }} | - |" >> $GITHUB_STEP_SUMMARY
           if [ "${{ inputs.enable-a11y-nb-check }}" = "true" ] || [ "${{ inputs.trigger-event }}" = "a11y-nb-check" ]; then
             echo "| Notebook Accessibility Check | Advisory (non-blocking) | - |" >> $GITHUB_STEP_SUMMARY
           fi
