@@ -2581,7 +2581,7 @@ jobs:
           echo "count=$COUNT" >> $GITHUB_OUTPUT
       - name: Run HTML accessibility scanner
         id: run_html_a11y_scanner
-        uses: github/accessibility-scanner@v3.4.1
+        uses: github/accessibility-scanner@v3.5.1
         if: ${{ steps.make-html-list.outputs.html_files != '' }}
         with:
           urls: ${{ steps.make-html-list.outputs.html_files }}
